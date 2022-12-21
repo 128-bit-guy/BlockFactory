@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Common", "BlockFactory.Common\BlockFactory.Common.csproj", "{B82763F0-7C14-41CE-9A55-B8E51DE5E78C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Client", "BlockFactory.Client\BlockFactory.Client.csproj", "{30CDECCA-ADDA-4994-A32D-54D140CE0652}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Server", "BlockFactory.Server\BlockFactory.Server.csproj", "{5DF6E896-36CB-4960-B39A-A997FE997279}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.CubeMath", "BlockFactory.CubeMath\BlockFactory.CubeMath.csproj", "{D3253651-AC6C-4834-A18B-A133D6D5B406}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Network", "BlockFactory.Network\BlockFactory.Network.csproj", "{A07D9529-BE70-4980-98FA-C62D254144E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Serialization", "BlockFactory.Serialization\BlockFactory.Serialization.csproj", "{48E8C194-2AAC-46ED-8150-7969093453FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Editor", "BlockFactory.Editor\BlockFactory.Editor.csproj", "{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B82763F0-7C14-41CE-9A55-B8E51DE5E78C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B82763F0-7C14-41CE-9A55-B8E51DE5E78C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B82763F0-7C14-41CE-9A55-B8E51DE5E78C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B82763F0-7C14-41CE-9A55-B8E51DE5E78C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30CDECCA-ADDA-4994-A32D-54D140CE0652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30CDECCA-ADDA-4994-A32D-54D140CE0652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30CDECCA-ADDA-4994-A32D-54D140CE0652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30CDECCA-ADDA-4994-A32D-54D140CE0652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DF6E896-36CB-4960-B39A-A997FE997279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DF6E896-36CB-4960-B39A-A997FE997279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DF6E896-36CB-4960-B39A-A997FE997279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DF6E896-36CB-4960-B39A-A997FE997279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A07D9529-BE70-4980-98FA-C62D254144E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A07D9529-BE70-4980-98FA-C62D254144E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A07D9529-BE70-4980-98FA-C62D254144E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A07D9529-BE70-4980-98FA-C62D254144E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

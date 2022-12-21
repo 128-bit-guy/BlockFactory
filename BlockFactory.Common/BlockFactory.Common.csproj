@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
+      <ProjectReference Include="..\BlockFactory.Network\BlockFactory.Network.csproj" />
+    </ItemGroup>
+
+</Project>
