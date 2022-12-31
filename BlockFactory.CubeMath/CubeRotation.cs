@@ -12,8 +12,8 @@ public class CubeRotation
     public readonly byte Ordinal;
     private CubeRotation[] _combinations = null!;
     private CubeFace[] _directionTransformations = null!;
-    private CubeVertex[] _vertexTransformations = null!;
     private CubeEdge[] _edgeTransformations = null!;
+    private CubeVertex[] _vertexTransformations = null!;
 
     static CubeRotation()
     {
@@ -134,10 +134,8 @@ public class CubeRotation
         {
             rotation._vertexTransformations = new CubeVertex[1 << 3];
             foreach (var vertex in CubeVertex.Vertices)
-            {
                 rotation._vertexTransformations[vertex.Ordinal] =
                     CubeVertex.FromVector(rotation.RotateAroundCenter(vertex.Pos))!;
-            }
         }
 
         #endregion
@@ -148,10 +146,8 @@ public class CubeRotation
         {
             rotation._edgeTransformations = new CubeEdge[CubeEdge.Edges.Length];
             foreach (var edge in CubeEdge.Edges)
-            {
                 rotation._edgeTransformations[edge.Ordinal] =
                     CubeEdge.FromVertices(rotation * edge.Vertices[0], rotation * edge.Vertices[1])!;
-            }
         }
 
         #endregion

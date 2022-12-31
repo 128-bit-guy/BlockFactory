@@ -80,7 +80,7 @@ public static class CubeFaceUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CubeFace FromVector(Vector3i v)
     {
-        int ma = -1;
+        var ma = -1;
         var f = CubeFace.Back;
         foreach (var face in GetValues())
         {

@@ -5,17 +5,15 @@ namespace BlockFactory.CubeMath;
 public class CubeEdge
 {
     public static readonly CubeEdge[] Edges;
+    private static readonly CubeEdge?[,] FromVerticesArr;
     public readonly byte Ordinal;
     public readonly CubeVertex[] Vertices;
-    private static readonly CubeEdge?[,] FromVerticesArr;
-    public CubeEdge Opposite { get; private set; }
-    public Vector3 Center { get; private set; }
 
     static CubeEdge()
     {
         #region Edges
-        
-        List<CubeEdge> edgesList = new List<CubeEdge>();
+
+        var edgesList = new List<CubeEdge>();
         foreach (var vertex in CubeVertex.Vertices)
         {
             var neighbours = CubeFaceUtils.GetValues()
@@ -39,28 +37,20 @@ public class CubeEdge
 
         FromVerticesArr = new CubeEdge?[CubeVertex.Vertices.Length, CubeVertex.Vertices.Length];
         foreach (var edge in Edges)
-        {
             FromVerticesArr[edge.Vertices[0].Ordinal, edge.Vertices[1].Ordinal] =
                 FromVerticesArr[edge.Vertices[1].Ordinal, edge.Vertices[0].Ordinal] = edge;
-        }
 
         #endregion
 
         #region Centers
 
-        foreach (var edge in Edges)
-        {
-            edge.Center = 1 / 2f * ((Vector3)edge.Vertices[0].Pos + edge.Vertices[1].Pos);
-        }
+        foreach (var edge in Edges) edge.Center = 1 / 2f * ((Vector3)edge.Vertices[0].Pos + edge.Vertices[1].Pos);
 
         #endregion
 
         #region Opposites
 
-        foreach (var edge in Edges)
-        {
-            edge.Opposite = FromVertices(edge.Vertices[0].Opposite, edge.Vertices[1].Opposite)!;
-        }
+        foreach (var edge in Edges) edge.Opposite = FromVertices(edge.Vertices[0].Opposite, edge.Vertices[1].Opposite)!;
 
         #endregion
     }
@@ -70,6 +60,9 @@ public class CubeEdge
         Ordinal = ordinal;
         Vertices = vertices;
     }
+
+    public CubeEdge Opposite { get; private set; }
+    public Vector3 Center { get; private set; }
 
     public static CubeEdge? FromVertices(CubeVertex a, CubeVertex b)
     {

@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Network", "Blo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Serialization", "BlockFactory.Serialization\BlockFactory.Serialization.csproj", "{48E8C194-2AAC-46ED-8150-7969093453FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Editor", "BlockFactory.Editor\BlockFactory.Editor.csproj", "{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +42,5 @@ Global
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FB142CD-5063-4E3B-A9D4-B4DC6B762022}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
