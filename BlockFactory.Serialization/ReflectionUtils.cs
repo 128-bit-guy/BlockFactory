@@ -19,4 +19,11 @@ public static class ReflectionUtils
         var expression = Expression.Lambda<T>(Expression.New(info, parameterExpressions), parameterExpressions);
         return expression.Compile();
     }
+
+    public static Type GetFieldOrPropertyType(MemberInfo fieldOrProperty)
+    {
+        return fieldOrProperty is PropertyInfo p
+            ? p.PropertyType
+            : ((FieldInfo)fieldOrProperty).FieldType;
+    }
 }

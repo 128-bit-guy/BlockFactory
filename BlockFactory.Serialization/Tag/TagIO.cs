@@ -1,6 +1,6 @@
 ﻿using ZstdSharp;
 
-namespace BlockFactory.Serialization;
+namespace BlockFactory.Serialization.Tag;
 
 public static class TagIO
 {

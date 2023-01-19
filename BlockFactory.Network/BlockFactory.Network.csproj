@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BlockFactory.Serialization\BlockFactory.Serialization.csproj"/>
+        <ProjectReference Include="..\BlockFactory.Serialization\BlockFactory.Serialization.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ZstdSharp.Port" Version="0.6.6"/>
+        <PackageReference Include="ZstdSharp.Port" Version="0.6.6" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Serialization;
+﻿namespace BlockFactory.Serialization.Tag;
 
 public interface IValueBasedTag<T> : ITag
 {
