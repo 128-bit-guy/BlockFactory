@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Network", "Blo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Serialization", "BlockFactory.Serialization\BlockFactory.Serialization.csproj", "{48E8C194-2AAC-46ED-8150-7969093453FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Side", "BlockFactory.Side\BlockFactory.Side.csproj", "{108DC31F-38CA-4CF0-9B5C-8E682A809688}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.SideStripper", "BlockFactory.SideStripper\BlockFactory.SideStripper.csproj", "{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,13 @@ Global
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{108DC31F-38CA-4CF0-9B5C-8E682A809688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{108DC31F-38CA-4CF0-9B5C-8E682A809688}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{108DC31F-38CA-4CF0-9B5C-8E682A809688}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{108DC31F-38CA-4CF0-9B5C-8E682A809688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
