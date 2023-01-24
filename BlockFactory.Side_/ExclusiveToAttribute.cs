@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Side;
+﻿namespace BlockFactory.Side_;
 
 [AttributeUsage(AttributeTargets.All)]
 public class ExclusiveToAttribute : Attribute

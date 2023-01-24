@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Side;
+﻿namespace BlockFactory.Side_;
 
 public enum Side
 {

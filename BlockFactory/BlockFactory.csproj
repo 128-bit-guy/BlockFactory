@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj"/>
+        <ProjectReference Include="..\BlockFactory.Network\BlockFactory.Network.csproj"/>
+        <ProjectReference Include="..\BlockFactory.Side_\BlockFactory.Side_.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OpenTK.Graphics" Version="4.7.5"/>
+        <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.7.5"/>
+    </ItemGroup>
+
+</Project>

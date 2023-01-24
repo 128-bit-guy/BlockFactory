@@ -1,20 +1,22 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using BlockFactory.Side_;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public class BlockFactoryClient
 {
     public GameWindow Window { get; private set; }
 
     public void Init()
     {
-        GameWindowSettings settings = new GameWindowSettings();
+        var settings = new GameWindowSettings();
         settings.RenderFrequency = 0;
         settings.UpdateFrequency = 0;
-        NativeWindowSettings nativeSettings = new NativeWindowSettings();
+        var nativeSettings = new NativeWindowSettings();
         nativeSettings.Profile = ContextProfile.Core;
         nativeSettings.Flags |= ContextFlags.Default;
         nativeSettings.Title = "Block Factory";
