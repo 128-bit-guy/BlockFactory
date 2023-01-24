@@ -14,11 +14,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Serialization"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Side_", "BlockFactory.Side_\BlockFactory.Side_.csproj", "{108DC31F-38CA-4CF0-9B5C-8E682A809688}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.SideStripper", "BlockFactory.SideStripper\BlockFactory.SideStripper.csproj", "{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.SideStripper_", "BlockFactory.SideStripper_\BlockFactory.SideStripper_.csproj", "{05A1445E-F9F4-4934-BF77-C06A03D1D1B7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.StrippedClient", "BlockFactory.StrippedClient\BlockFactory.StrippedClient.csproj", "{32072123-B81F-401C-B736-8BD968009163}"
 	ProjectSection(ProjectDependencies) = postProject
 		{30CDECCA-ADDA-4994-A32D-54D140CE0652} = {30CDECCA-ADDA-4994-A32D-54D140CE0652}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Loader", "BlockFactory.Loader\BlockFactory.Loader.csproj", "{AFC73747-2EB5-41D4-8388-379178C9D668}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.StrippedServer", "BlockFactory.StrippedServer\BlockFactory.StrippedServer.csproj", "{9979199D-880B-4109-AD2D-87C493DB3882}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5DF6E896-36CB-4960-B39A-A997FE997279} = {5DF6E896-36CB-4960-B39A-A997FE997279}
 	EndProjectSection
 EndProject
 Global
@@ -63,5 +70,13 @@ Global
 		{32072123-B81F-401C-B736-8BD968009163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32072123-B81F-401C-B736-8BD968009163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32072123-B81F-401C-B736-8BD968009163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFC73747-2EB5-41D4-8388-379178C9D668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFC73747-2EB5-41D4-8388-379178C9D668}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFC73747-2EB5-41D4-8388-379178C9D668}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFC73747-2EB5-41D4-8388-379178C9D668}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9979199D-880B-4109-AD2D-87C493DB3882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9979199D-880B-4109-AD2D-87C493DB3882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9979199D-880B-4109-AD2D-87C493DB3882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9979199D-880B-4109-AD2D-87C493DB3882}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -6,8 +6,8 @@ public class BlockFactoryServer
 {
     public bool IsRunning { get; protected set; }
     private DateTime NextTickTime;
-    [ExclusiveTo(Side.Server)]
-    private string ServerName { get; set; }
+    [ExclusiveTo(Side.Client)]
+    public string AdminName { get; set; }
 
     public virtual void Init()
     {

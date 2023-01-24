@@ -1,4 +1,5 @@
-﻿using BlockFactory.Side_;
+﻿using BlockFactory.Serialization.Automatic;
+using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
