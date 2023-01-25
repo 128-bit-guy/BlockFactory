@@ -1,4 +1,6 @@
-﻿namespace BlockFactory.Network;
+﻿using BlockFactory.Side_;
+
+namespace BlockFactory.Network;
 
 public class NetworkConnection : IMessageConnection
 {
