@@ -7,8 +7,8 @@ namespace BlockFactory.Serialization.Automatic;
 
 internal class SerializerBuilder
 {
-    private readonly SerializationManager _manager;
     private readonly Dictionary<SerializationExpressionType, IExpressionTypeGenerator> _generators;
+    private readonly SerializationManager _manager;
 
     internal SerializerBuilder(SerializationManager manager)
     {
@@ -33,10 +33,7 @@ internal class SerializerBuilder
         ));
         foreach (var field in t.GetFields())
         {
-            if ((field.Attributes & FieldAttributes.Static) == FieldAttributes.Static)
-            {
-                continue;
-            }
+            if ((field.Attributes & FieldAttributes.Static) == FieldAttributes.Static) continue;
 
             if (!_manager.GetSpecialExpressions(
                     t,
@@ -46,17 +43,14 @@ internal class SerializerBuilder
                     variableExpressions,
                     resUnjoined
                 ))
-            {
                 resUnjoined.AddRange(generator.GetFieldOrProperty(
                     t,
                     field,
                     parameterExpressions,
                     variableExpressions));
-            }
         }
 
         foreach (var property in t.GetProperties())
-        {
             if (!_manager.GetSpecialExpressions(
                     t,
                     property,
@@ -65,19 +59,16 @@ internal class SerializerBuilder
                     variableExpressions,
                     resUnjoined
                 ))
-            {
                 resUnjoined.AddRange(generator.GetFieldOrProperty(
                     t,
                     property,
                     parameterExpressions,
                     variableExpressions));
-            }
-        }
 
         resUnjoined.AddRange(generator.GetEnding(t, parameterExpressions, variableExpressions));
-        BlockExpression resJoined =
+        var resJoined =
             Expression.Block(generator.GetReturnType(), variableExpressions, resUnjoined.ToArray());
-        Expression<T> lambdaExpression =
+        var lambdaExpression =
             Expression.Lambda<T>(resJoined, $"{t.Name} serializer of type {type}", parameterExpressions);
         return lambdaExpression.Compile();
     }

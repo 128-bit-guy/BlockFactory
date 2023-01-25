@@ -2,9 +2,9 @@
 
 public class RangeAttribute : Attribute
 {
+    public bool FloatingPoint;
     public long Min, Max;
     public double MinFP, MaxFP;
-    public bool FloatingPoint;
 
     public RangeAttribute(long min, long max)
     {

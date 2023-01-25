@@ -2,5 +2,6 @@
 
 public enum Side
 {
-    Client, Server
+    Client,
+    Server
 }

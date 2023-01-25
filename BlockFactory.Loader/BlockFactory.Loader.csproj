@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.SideStripper_\BlockFactory.SideStripper_.csproj" />
+        <ProjectReference Include="..\BlockFactory.SideStripper_\BlockFactory.SideStripper_.csproj"/>
     </ItemGroup>
 
 </Project>

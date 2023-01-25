@@ -2,7 +2,6 @@
 
 public class SidedMemoryConnection : IMessageConnection
 {
-    public Side Side { get; }
     public readonly MemoryConnection MemoryConnection;
 
     internal SidedMemoryConnection(Side side, MemoryConnection memoryConnection)
@@ -10,4 +9,6 @@ public class SidedMemoryConnection : IMessageConnection
         Side = side;
         MemoryConnection = memoryConnection;
     }
+
+    public Side Side { get; }
 }

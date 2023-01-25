@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.Loader\BlockFactory.Loader.csproj" />
+        <ProjectReference Include="..\BlockFactory.Loader\BlockFactory.Loader.csproj"/>
     </ItemGroup>
 
 </Project>

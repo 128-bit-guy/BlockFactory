@@ -7,11 +7,11 @@ namespace BlockFactory.Serialization.Automatic;
 
 public class SerializationManager
 {
-    private readonly Dictionary<Type, AutoSerializer> _serializers;
-    private readonly ConcurrentQueue<(Type, AutoSerializer)> _serializerAddQueue;
     private readonly SerializerBuilder _builder;
-    private readonly Dictionary<Type, ISpecialSerializer> _specialSerializers;
+    private readonly ConcurrentQueue<(Type, AutoSerializer)> _serializerAddQueue;
+    private readonly Dictionary<Type, AutoSerializer> _serializers;
     private readonly Dictionary<Type, ISpecialSerializer> _specialAttributeSerializers;
+    private readonly Dictionary<Type, ISpecialSerializer> _specialSerializers;
 
     public SerializationManager()
     {
@@ -25,18 +25,11 @@ public class SerializationManager
 
     public AutoSerializer GetSerializer(Type t)
     {
-        if (_serializers.TryGetValue(t, out AutoSerializer serializer))
-        {
-            return serializer;
-        }
+        if (_serializers.TryGetValue(t, out var serializer)) return serializer;
 
         foreach (var (t1, serializer2) in _serializerAddQueue)
-        {
             if (t1 == t)
-            {
                 return serializer2;
-            }
-        }
 
         var serializer1 = CreateSerializer(t);
         _serializerAddQueue.Enqueue((t, serializer1));
@@ -70,10 +63,7 @@ public class SerializationManager
 
     public void AddEnqueuedSerializers()
     {
-        foreach (var (t, serializer) in _serializerAddQueue)
-        {
-            _serializers[t] = serializer;
-        }
+        foreach (var (t, serializer) in _serializerAddQueue) _serializers[t] = serializer;
 
         _serializerAddQueue.Clear();
     }
@@ -86,9 +76,7 @@ public class SerializationManager
             if (!_specialAttributeSerializers.TryGetValue(attribute.GetType(), out var specialSerializer)) continue;
             if (specialSerializer.GenerateSpecialExpressions(t, fieldOrProperty, attribute, type, parameters,
                     variables, res))
-            {
                 return true;
-            }
         }
 
         var fieldOrPropertyType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);

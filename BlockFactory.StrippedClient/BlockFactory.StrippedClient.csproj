@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.Loader\BlockFactory.Loader.csproj" />
-      <ProjectReference Include="..\BlockFactory.SideStripper_\BlockFactory.SideStripper_.csproj" />
+        <ProjectReference Include="..\BlockFactory.Loader\BlockFactory.Loader.csproj"/>
+        <ProjectReference Include="..\BlockFactory.SideStripper_\BlockFactory.SideStripper_.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -1,23 +1,23 @@
-﻿using BlockFactory.Side_;
+﻿using BlockFactory.Client;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Server;
 
 public class BlockFactoryServer
 {
-    public bool IsRunning { get; protected set; }
     private DateTime NextTickTime;
+    public bool IsRunning { get; protected set; }
     [ExclusiveTo(Side.Client)]
-    public string AdminName { get; set; }
+    public string AdminName = "LOLOSHKA!";
 
     public virtual void Init()
     {
         IsRunning = true;
-        NextTickTime = DateTime.UtcNow;
     }
 
     public virtual void Update()
     {
-        // Console.WriteLine("Tick!");
+        
     }
 
     public virtual void Shutdown()
@@ -26,25 +26,17 @@ public class BlockFactoryServer
 
     public void ProcessCommand(object sender, string command)
     {
-        if (command.StartsWith("/"))
-        {
-            command = command[1..];
-        }
+        if (command.StartsWith("/")) command = command[1..];
 
         if (command == "stop")
-        {
             IsRunning = false;
-        } else if (command.StartsWith("say "))
-        {
-            Console.WriteLine(command[4..]);
-        }
+        else if (command.StartsWith("say ")) Console.WriteLine(command[4..]);
     }
 
     public void Run()
     {
         Init();
         while (IsRunning)
-        {
             if (DateTime.UtcNow >= NextTickTime)
             {
                 Update();
@@ -54,7 +46,6 @@ public class BlockFactoryServer
             {
                 Thread.Sleep(1);
             }
-        }
 
         Shutdown();
     }

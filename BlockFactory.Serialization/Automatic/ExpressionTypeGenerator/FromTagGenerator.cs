@@ -46,9 +46,9 @@ internal class FromTagGenerator : IExpressionTypeGenerator
         var fieldType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);
         if (fieldType.IsAssignableTo(typeof(ITagSerializable)))
         {
-            MethodInfo deserialize = typeof(ITagSerializable).GetMethod(nameof(ITagSerializable.DeserializeFromTag))!;
-            MethodInfo get = typeof(DictionaryTag).GetMethod(nameof(DictionaryTag.Get))!;
-            MethodInfo getBuild = get.MakeGenericMethod(typeof(DictionaryTag));
+            var deserialize = typeof(ITagSerializable).GetMethod(nameof(ITagSerializable.DeserializeFromTag))!;
+            var get = typeof(DictionaryTag).GetMethod(nameof(DictionaryTag.Get))!;
+            var getBuild = get.MakeGenericMethod(typeof(DictionaryTag));
             Expression fieldName = Expression.Constant(fieldOrProperty.Name);
             Expression tag = Expression.Call(
                 parameters[1],
@@ -62,10 +62,8 @@ internal class FromTagGenerator : IExpressionTypeGenerator
             );
             return new[] { deserializeExpr };
         }
-        else
-        {
-            throw new ArgumentException($"Serialized field should implement {nameof(ITagSerializable)}");
-        }
+
+        throw new ArgumentException($"Serialized field should implement {nameof(ITagSerializable)}");
         // throw new NotImplementedException();
     }
 

@@ -6,17 +6,12 @@ public static class TagIO
 {
     public static T Read<T>(BinaryReader reader) where T : ITag, new()
     {
-        TagType type = (TagType)reader.ReadByte();
-        ITag tag = TagTypes.CreateTag(type);
+        var type = (TagType)reader.ReadByte();
+        var tag = TagTypes.CreateTag(type);
         tag.Read(reader);
         if (tag is T t)
-        {
             return t;
-        }
-        else
-        {
-            return new T();
-        }
+        return new T();
     }
 
     public static void Write(ITag t, BinaryWriter writer)

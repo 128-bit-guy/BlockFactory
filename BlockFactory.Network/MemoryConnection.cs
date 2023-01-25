@@ -7,10 +7,7 @@ public class MemoryConnection
     public MemoryConnection()
     {
         _sidedConnections = new SidedMemoryConnection[2];
-        for (var i = 0; i < 2; ++i)
-        {
-            _sidedConnections[i] = new SidedMemoryConnection((Side)i, this);
-        }
+        for (var i = 0; i < 2; ++i) _sidedConnections[i] = new SidedMemoryConnection((Side)i, this);
     }
 
     public SidedMemoryConnection this[Side s] => _sidedConnections[(int)s];

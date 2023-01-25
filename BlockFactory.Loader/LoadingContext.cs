@@ -14,34 +14,23 @@ public class LoadingContext : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        foreach (Assembly assembly in GetLoadContext(typeof(LoadingContext).Assembly)!.Assemblies)
-        {
+        foreach (var assembly in GetLoadContext(typeof(LoadingContext).Assembly)!.Assemblies)
             if (assembly.GetName().Name == assemblyName.Name)
-            {
                 return assembly;
-            }
-        }
-        string dll = Path.Combine(_loadingDirectory, assemblyName.Name + ".dll");
-        string pdb = Path.Combine(_loadingDirectory, assemblyName.Name + ".pdb");
-        if (!File.Exists(dll))
-        {
-            return null;
-        }
+        var dll = Path.Combine(_loadingDirectory, assemblyName.Name + ".dll");
+        var pdb = Path.Combine(_loadingDirectory, assemblyName.Name + ".pdb");
+        if (!File.Exists(dll)) return null;
 
-        using FileStream stream = new FileStream(dll, FileMode.Open);
-        using FileStream? pdbStream = File.Exists(pdb) ? new FileStream(pdb, FileMode.Open) : null;
+        using var stream = new FileStream(dll, FileMode.Open);
+        using var pdbStream = File.Exists(pdb) ? new FileStream(pdb, FileMode.Open) : null;
         return LoadFromStream(stream, pdbStream);
     }
 
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
     {
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
-        {
             if (file.EndsWith(unmanagedDllName))
-            {
                 return LoadUnmanagedDllFromPath(file);
-            }
-        }
         // Console.WriteLine(unmanagedDllName);
         return base.LoadUnmanagedDll(unmanagedDllName);
     }

@@ -7,6 +7,31 @@ public interface IAutoSerializable : ITagSerializable, IBinarySerializable
 {
     public AutoSerializer AutoSerializer { get; }
 
+    void IBinarySerializable.SerializeToBinaryWriter(BinaryWriter writer)
+    {
+        AutoSerializer.SerializeToBinaryWriter(this, writer);
+        SerializeToBinaryWriterAdditional(writer);
+    }
+
+    void IBinarySerializable.DeserializeFromBinaryReader(BinaryReader reader)
+    {
+        AutoSerializer.DeserializeFromBinaryReader(this, reader);
+        DeserializeFromBinaryReaderAdditional(reader);
+    }
+
+    DictionaryTag ITagSerializable.SerializeToTag()
+    {
+        var tag = AutoSerializer.SerializeToTag(this);
+        SerializeToTagAdditional(tag);
+        return tag;
+    }
+
+    void ITagSerializable.DeserializeFromTag(DictionaryTag tag)
+    {
+        AutoSerializer.DeserializeFromTag(this, tag);
+        DeserializeFromTagAdditional(tag);
+    }
+
     void SerializeToTagAdditional(DictionaryTag tag)
     {
     }
@@ -21,30 +46,5 @@ public interface IAutoSerializable : ITagSerializable, IBinarySerializable
 
     void DeserializeFromBinaryReaderAdditional(BinaryReader reader)
     {
-    }
-
-    DictionaryTag ITagSerializable.SerializeToTag()
-    {
-        DictionaryTag tag = AutoSerializer.SerializeToTag(this);
-        SerializeToTagAdditional(tag);
-        return tag;
-    }
-
-    void ITagSerializable.DeserializeFromTag(DictionaryTag tag)
-    {
-        AutoSerializer.DeserializeFromTag(this, tag);
-        DeserializeFromTagAdditional(tag);
-    }
-
-    void IBinarySerializable.SerializeToBinaryWriter(BinaryWriter writer)
-    {
-        AutoSerializer.SerializeToBinaryWriter(this, writer);
-        SerializeToBinaryWriterAdditional(writer);
-    }
-
-    void IBinarySerializable.DeserializeFromBinaryReader(BinaryReader reader)
-    {
-        AutoSerializer.DeserializeFromBinaryReader(this, reader);
-        DeserializeFromBinaryReaderAdditional(reader);
     }
 }

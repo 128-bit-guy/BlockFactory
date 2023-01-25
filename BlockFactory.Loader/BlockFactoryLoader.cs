@@ -9,8 +9,8 @@ namespace BlockFactory.Loader;
 public class BlockFactoryLoader
 {
     private readonly Side _side;
-    private LoadingContext _context = null!;
     private Assembly _assembly = null!;
+    private LoadingContext _context = null!;
 
     public BlockFactoryLoader(Side side)
     {
@@ -51,14 +51,12 @@ public class BlockFactoryLoader
         foreach (var method in _assembly.DefinedTypes
                      .SelectMany(t => t.DeclaredMethods)
                      .Where(m => m.IsStatic))
-        {
             if (method.GetCustomAttributes().Where(t => t is SidedEntryPointAttribute)
                 .Any(t => ((SidedEntryPointAttribute)t).Side == _side))
             {
                 method.Invoke(null, new object?[] { args });
                 return;
             }
-        }
 
         throw new ArgumentException($"Could not find any sided entry point for side {_side} in block factory assembly");
     }

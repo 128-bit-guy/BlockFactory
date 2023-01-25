@@ -44,20 +44,18 @@ internal class ToTagGenerator : IExpressionTypeGenerator
         var fieldType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);
         if (fieldType.IsAssignableTo(typeof(ITagSerializable)))
         {
-            MethodInfo serialize = typeof(ITagSerializable).GetMethod(nameof(ITagSerializable.SerializeToTag))!;
+            var serialize = typeof(ITagSerializable).GetMethod(nameof(ITagSerializable.SerializeToTag))!;
             Expression tag = Expression.Call(
                 Expression.MakeMemberAccess(variables[0], fieldOrProperty),
                 serialize
             );
-            MethodInfo set = typeof(DictionaryTag).GetMethod(nameof(DictionaryTag.Set))!;
+            var set = typeof(DictionaryTag).GetMethod(nameof(DictionaryTag.Set))!;
             Expression fieldName = Expression.Constant(fieldOrProperty.Name);
             Expression setTag = Expression.Call(variables[1], set, fieldName, tag);
             return new[] { setTag };
         }
-        else
-        {
-            throw new ArgumentException($"Serialized field should implement {nameof(ITagSerializable)}");
-        }
+
+        throw new ArgumentException($"Serialized field should implement {nameof(ITagSerializable)}");
     }
 
     public IEnumerable<Expression> GetEnding(Type t, ParameterExpression[] parameters, ParameterExpression[] variables)

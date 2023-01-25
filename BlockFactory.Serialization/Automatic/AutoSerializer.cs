@@ -4,10 +4,10 @@ namespace BlockFactory.Serialization.Automatic;
 
 public class AutoSerializer
 {
-    private readonly Func<object, DictionaryTag> _toTagSerializer;
+    private readonly Action<object, BinaryReader> _fromBinaryReaderDeserializer;
     private readonly Action<object, DictionaryTag> _fromTagDeserializer;
     private readonly Action<object, BinaryWriter> _toBinaryWriterSerializer;
-    private readonly Action<object, BinaryReader> _fromBinaryReaderDeserializer;
+    private readonly Func<object, DictionaryTag> _toTagSerializer;
 
     internal AutoSerializer(Func<object, DictionaryTag> toTagSerializer,
         Action<object, DictionaryTag> fromTagDeserializer, Action<object, BinaryWriter> toBinaryWriterSerializer,

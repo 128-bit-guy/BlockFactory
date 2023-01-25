@@ -2,8 +2,6 @@
 
 public class AutoSerializable : IAutoSerializable
 {
-    [NotSerialized] public AutoSerializer AutoSerializer { get; private set; }
-
     public AutoSerializable()
     {
         AutoSerializer = null!;
@@ -13,6 +11,8 @@ public class AutoSerializable : IAutoSerializable
     {
         InitSerializer(manager);
     }
+
+    [NotSerialized] public AutoSerializer AutoSerializer { get; private set; }
 
     public void InitSerializer(SerializationManager manager)
     {
