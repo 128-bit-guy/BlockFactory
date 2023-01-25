@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using BlockFactory.Server.Dedicated;
+using BlockFactory.Loader;
+using BlockFactory.Server;
+using BlockFactory.Side_;
 
 Console.WriteLine("Hello, World!");
-new BlockFactoryDedicatedServer().Run();
+new BlockFactoryLoader(Side.Server).LoadUnstriped(typeof(BlockFactoryServer).Assembly, args);

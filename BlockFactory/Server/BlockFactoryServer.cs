@@ -1,14 +1,13 @@
-﻿using BlockFactory.Client;
-using BlockFactory.Side_;
+﻿using BlockFactory.Side_;
 
 namespace BlockFactory.Server;
 
 public class BlockFactoryServer
 {
+    [ExclusiveTo(Side.Client)] public string AdminName = "LOLOSHKA!";
+
     private DateTime NextTickTime;
     public bool IsRunning { get; protected set; }
-    [ExclusiveTo(Side.Client)]
-    public string AdminName = "LOLOSHKA!";
 
     public virtual void Init()
     {
@@ -17,7 +16,6 @@ public class BlockFactoryServer
 
     public virtual void Update()
     {
-        
     }
 
     public virtual void Shutdown()

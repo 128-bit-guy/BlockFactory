@@ -72,4 +72,10 @@ public class BlockFactoryLoader
         CreateAssembly(stream, pdbStream);
         RunBlockFactory(args);
     }
+
+    public void LoadUnstriped(Assembly assembly, string[] args)
+    {
+        _assembly = assembly;
+        RunBlockFactory(args);
+    }
 }
