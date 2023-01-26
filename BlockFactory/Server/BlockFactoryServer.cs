@@ -1,11 +1,7 @@
-﻿using BlockFactory.Side_;
-
-namespace BlockFactory.Server;
+﻿namespace BlockFactory.Server;
 
 public class BlockFactoryServer
 {
-    [ExclusiveTo(Side.Client)] public string AdminName = "LOLOSHKA!";
-
     private DateTime NextTickTime;
     public bool IsRunning { get; protected set; }
 

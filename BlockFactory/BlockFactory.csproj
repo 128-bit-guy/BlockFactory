@@ -4,17 +4,46 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj"/>
-        <ProjectReference Include="..\BlockFactory.Network\BlockFactory.Network.csproj"/>
-        <ProjectReference Include="..\BlockFactory.Side_\BlockFactory.Side_.csproj"/>
+        <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
+        <ProjectReference Include="..\BlockFactory.Network\BlockFactory.Network.csproj" />
+        <ProjectReference Include="..\BlockFactory.Side_\BlockFactory.Side_.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenTK.Graphics" Version="4.7.5"/>
-        <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.7.5"/>
+        <PackageReference Include="OpenTK.Graphics" Version="4.7.5" />
+        <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.7.5" />
+        <PackageReference Include="StbImageSharp" Version="2.27.13" />
+        <PackageReference Include="StbTrueTypeSharp" Version="1.26.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Assets" />
+        <Folder Include="Render\Mesh\Vertex" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Assets\Shaders\block_fragment.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\block_fragment.glsl" />
+        <None Remove="Assets\Shaders\block_vertex.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\block_vertex.glsl" />
+        <None Remove="Assets\Shaders\color_fragment.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\color_fragment.glsl" />
+        <None Remove="Assets\Shaders\color_vertex.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\color_vertex.glsl" />
+        <None Remove="Assets\Shaders\gui_fragment.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\gui_fragment.glsl" />
+        <None Remove="Assets\Shaders\gui_vertex.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\gui_vertex.glsl" />
+        <None Remove="Assets\Shaders\text_fragment.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\text_fragment.glsl" />
+        <None Remove="Assets\Shaders\text_vertex.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\text_vertex.glsl" />
+        <None Remove="Assets\Fonts\LiberationSerif-Regular.ttf" />
+        <EmbeddedResource Include="Assets\Fonts\LiberationSerif-Regular.ttf" />
     </ItemGroup>
 
 </Project>

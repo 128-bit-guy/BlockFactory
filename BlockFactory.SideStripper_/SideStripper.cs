@@ -97,52 +97,102 @@ public class SideStripper
         processor.InsertBefore(insn, Instruction.Create(OpCodes.Throw));
     }
 
+    private void FixMethod(MethodDefinition method)
+    {
+        foreach (var parameter in method.Parameters)
+        {
+            if (_excludedTypes.Contains(parameter.ParameterType.FullName))
+            {
+                throw new InvalidOperationException(
+                    $"Method {method.FullName} has parameter {parameter.Name} of excluded type {parameter.ParameterType.FullName}");
+            }
+        }
+
+        if (_excludedTypes.Contains(method.ReturnType.FullName))
+        {
+            throw new InvalidOperationException(
+                $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
+        }
+
+        if (method.IsAbstract)
+        {
+            return;
+        }
+
+        var replacedInstructions = new List<Instruction>();
+        foreach (var insn in method.Body.Instructions)
+            // Console.WriteLine($"{insn.OpCode.Name}: {insn.Operand?.GetType()}");
+            if (insn.Operand is TypeReference t)
+            {
+                if (_excludedTypes.Contains(t.FullName)) replacedInstructions.Add(insn);
+            }
+            else if (insn.Operand is MemberReference member)
+            {
+                if (_excludedTypes.Contains(member.DeclaringType.FullName))
+                    replacedInstructions.Add(insn);
+                else if (member is FieldReference f && _excludedFields.Contains(f.FullName))
+                    replacedInstructions.Add(insn);
+                else if (member is MethodReference m && _excludedMethods.Contains(m.FullName))
+                    replacedInstructions.Add(insn);
+            }
+
+        // if (insn.Operand is TypeReference r)
+        // {
+        //     Console.WriteLine($"Type: {r.FullName}");
+        // }
+        var processor = method.Body.GetILProcessor();
+        foreach (var insn in replacedInstructions)
+        {
+            var popcnt = insn.GetPopCount(method);
+            for (var i = 0; i < popcnt; ++i) processor.InsertBefore(insn, Instruction.Create(OpCodes.Pop));
+
+            var t = insn.GetPushedType();
+            if (t != null)
+            {
+                if (t.IsValueType) throw new NotImplementedException("Value types are not implemented yet");
+                processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldnull));
+            }
+
+            BuildException(insn, processor);
+            processor.Remove(insn);
+        }
+    }
+
     private void FixDependentCode()
     {
-        foreach (var method in Definitions
+        foreach (var type in Definitions
                      .SelectMany(def => def.Modules)
                      .SelectMany(m => m.Types)
                      .Where(t => !_excludedTypes.Contains(t.FullName))
-                     .SelectMany(t => t.Methods)
-                     .Where(m => !_excludedMethods.Contains(m.FullName)))
+                )
         {
-            Console.WriteLine(method.FullName);
-            var replacedInstructions = new List<Instruction>();
-            foreach (var insn in method.Body.Instructions)
-                // Console.WriteLine($"{insn.OpCode.Name}: {insn.Operand?.GetType()}");
-                if (insn.Operand is TypeReference t)
-                {
-                    if (_excludedTypes.Contains(t.FullName)) replacedInstructions.Add(insn);
-                }
-                else if (insn.Operand is MemberReference member)
-                {
-                    if (_excludedTypes.Contains(member.DeclaringType.FullName))
-                        replacedInstructions.Add(insn);
-                    else if (member is FieldReference f && _excludedFields.Contains(f.FullName))
-                        replacedInstructions.Add(insn);
-                    else if (member is MethodReference m && _excludedMethods.Contains(m.FullName))
-                        replacedInstructions.Add(insn);
-                }
-
-            // if (insn.Operand is TypeReference r)
-            // {
-            //     Console.WriteLine($"Type: {r.FullName}");
-            // }
-            var processor = method.Body.GetILProcessor();
-            foreach (var insn in replacedInstructions)
+            if (type.BaseType != null && _excludedTypes.Contains(type.BaseType.FullName))
             {
-                var popcnt = insn.GetPopCount(method);
-                for (var i = 0; i < popcnt; ++i) processor.InsertBefore(insn, Instruction.Create(OpCodes.Pop));
+                throw new InvalidOperationException(
+                    $"Base type {type.BaseType.FullName} of type {type.FullName} is excluded");
+            }
 
-                var t = insn.GetPushedType();
-                if (t != null)
+            foreach (var itf in type.Interfaces.Select(itf => itf.InterfaceType))
+            {
+                if (_excludedTypes.Contains(itf.FullName))
                 {
-                    if (t.IsValueType) throw new NotImplementedException("Value types are not implemented yet");
-                    processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldnull));
+                    throw new InvalidOperationException(
+                        $"Type {type.FullName} has implementation of excluded interface {itf.FullName}");
                 }
+            }
 
-                BuildException(insn, processor);
-                processor.Remove(insn);
+            foreach (var field in type.Fields.Where(f => !_excludedFields.Contains(f.FullName)))
+            {
+                if (_excludedTypes.Contains(field.FieldType.FullName))
+                {
+                    throw new InvalidOperationException(
+                        $"Field {field.FullName} is of excluded type {field.FieldType.FullName}");
+                }
+            }
+            foreach (var methodDefinition in type.Methods
+                         .Where(m => !_excludedMethods.Contains(m.FullName)))
+            {
+                FixMethod(methodDefinition);
             }
         }
     }
