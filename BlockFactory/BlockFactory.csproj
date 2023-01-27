@@ -44,6 +44,8 @@
         <EmbeddedResource Include="Assets\Shaders\text_vertex.glsl" />
         <None Remove="Assets\Fonts\LiberationSerif-Regular.ttf" />
         <EmbeddedResource Include="Assets\Fonts\LiberationSerif-Regular.ttf" />
+        <None Remove="Assets\Textures\dirt.png" />
+        <EmbeddedResource Include="Assets\Textures\dirt.png" />
     </ItemGroup>
 
 </Project>

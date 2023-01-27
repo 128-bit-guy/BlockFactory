@@ -12,6 +12,7 @@ public class ClientContent : IDisposable
     public readonly Shaders Shaders;
     public readonly TextRenderer TextRenderer;
     public readonly VertexFormats VertexFormats;
+    public readonly Textures Textures;
 
     public ClientContent(BlockFactoryClient client)
     {
@@ -23,11 +24,13 @@ public class ClientContent : IDisposable
         TextRenderer = new TextRenderer(stream, 64);
         VertexFormats = new VertexFormats();
         VertexFormats.Init();
+        Textures = new Textures(client);
     }
 
     public void Dispose()
     {
         Shaders.Dispose();
         TextRenderer.Dispose();
+        Textures.Dispose();
     }
 }

@@ -6,7 +6,7 @@ using StbImageSharp;
 namespace BlockFactory.Render;
 
 [ExclusiveTo(Side.Client)]
-public class Texture2D
+public class Texture2D : IDisposable
 {
     private ImageResult Image;
     private int Tex;
@@ -58,5 +58,13 @@ public class Texture2D
     {
         GL.BindTexture(TextureTarget.Texture2D, Tex);
         //GL.BindTextureUnit(0, Tex);
+    }
+
+    public void Dispose()
+    {
+        if (Tex != -1)
+        {
+            GL.DeleteTexture(Tex);
+        }
     }
 }

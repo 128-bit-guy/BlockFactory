@@ -6,7 +6,7 @@ using StbImageSharp;
 namespace BlockFactory.Render;
 
 [ExclusiveTo(Side.Client)]
-public class TextureArrayManager
+public class TextureArrayManager : IDisposable
 {
     private readonly Dictionary<string, int> _imageIndices;
     private readonly List<ImageResult> _images;
@@ -70,5 +70,11 @@ public class TextureArrayManager
     public void Bind()
     {
         GL.BindTexture(TextureTarget.Texture2DArray, _arr);
+    }
+
+    public void Dispose()
+    {
+        
+        GL.DeleteTexture(_arr);
     }
 }

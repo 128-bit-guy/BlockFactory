@@ -38,7 +38,7 @@ public class GuiRenderer : IDisposable
         Client.VpMatrices.Projection = Matrix4.CreateOrthographicOffCenter(0, width, height, 0, -100, 100);
     }
 
-    public void DrawTexturedRect(Box2 box, float zIndex, float textureScale, Texture2D texture)
+    public void DrawTexturedRect(Box2 box, float zIndex, Vector2 textureScale, Texture2D texture)
     {
         GuiMeshBuilder.MatrixStack.Push();
         GuiMeshBuilder.BeginIndexSpace();
@@ -47,10 +47,10 @@ public class GuiRenderer : IDisposable
         float maX = box.Max.X;
         float miY = box.Min.Y;
         float maY = box.Max.Y;
-        float miTX = box.Min.X / textureScale;
-        float maTX = box.Max.X / textureScale;
-        float miTY = box.Min.Y / textureScale;
-        float maTY = box.Max.Y / textureScale;
+        float miTX = box.Min.X / textureScale.X;
+        float maTX = box.Max.X / textureScale.X;
+        float miTY = box.Min.Y / textureScale.Y;
+        float maTY = box.Max.Y / textureScale.Y;
         GuiMeshBuilder.AddVertex((miX, miY, zIndex, 1, 1, 1, miTX, miTY));
         GuiMeshBuilder.AddVertex((maX, miY, zIndex, 1, 1, 1, maTX, miTY));
         GuiMeshBuilder.AddVertex((maX, maY, zIndex, 1, 1, 1, maTX, maTY));
@@ -103,6 +103,21 @@ public class GuiRenderer : IDisposable
         _textRenderer.BindTexture();
         GuiMesh.Bind();
         GL.DrawElements(PrimitiveType.Triangles, GuiMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+    }
+
+    public void UpdateAndRender()
+    {
+        UseGuiMatrices();
+        var matrices = Client.Matrices;
+        matrices.Push();
+        Vector2 size = Client.Window.ClientSize;
+        var mid = size / 2;
+        matrices.Push();
+        // DrawTexturedRect(new Box2(Vector2.Zero, size), 0, (128, 128), Client.ClientContent.Textures.Dirt);
+        matrices.Pop();
+        matrices.Translate((mid.X, mid.Y, 50));
+        DrawText("BlockFactory", 0);
+        matrices.Pop();
     }
 
     public void Dispose()

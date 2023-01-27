@@ -2,6 +2,7 @@
 using BlockFactory.Render;
 using BlockFactory.Render.Gui;
 using BlockFactory.Render.Mesh;
+using BlockFactory.Render.World_;
 using BlockFactory.Resource;
 using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
@@ -22,6 +23,7 @@ public class BlockFactoryClient
     public GuiRenderer GuiRenderer { get; private set; } = null!;
     public readonly VPMatrices VpMatrices = new();
     public readonly MatrixStack Matrices = new();
+    public WorldRenderer WorldRenderer { get; private set; } = null!;
 
     public void Init()
     {
@@ -44,23 +46,25 @@ public class BlockFactoryClient
         ResourceLoader = new AssemblyResourceLoader(typeof(BlockFactoryClient).Assembly);
         ClientContent = new ClientContent(this);
         GuiRenderer = new GuiRenderer(this);
+        WorldRenderer = new WorldRenderer(this);
+        GL.Enable(EnableCap.DepthTest);
+        GL.DepthFunc(DepthFunction.Lequal);
+        GL.Enable(EnableCap.CullFace);
+        GL.CullFace(CullFaceMode.Back);
     }
 
     public void UpdateAndRender(FrameEventArgs args)
     {
-        GL.Clear(ClearBufferMask.ColorBufferBit);
-        GuiRenderer.UseGuiMatrices();
-        Matrices.Push();
-        Vector2 size = Window.ClientSize;
-        var mid = size / 2;
-        Matrices.Translate((mid.X, mid.Y, 50));
-        GuiRenderer.DrawText("BlockFactory", 0);
-        Matrices.Pop();
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        WorldRenderer.UpdateAndRender();
+        GL.Clear(ClearBufferMask.DepthBufferBit);
+        GuiRenderer.UpdateAndRender();
         Window.SwapBuffers();
     }
 
     public void Shutdown()
     {
+        WorldRenderer.Dispose();
         GuiRenderer.Dispose();
         GuiRenderer = null!;
         ClientContent.Dispose();
