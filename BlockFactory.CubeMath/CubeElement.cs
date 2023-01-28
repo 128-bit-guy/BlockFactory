@@ -37,7 +37,7 @@ public class CubeElement
                     element.Edge = CubeEdge.Edges.OrderBy(e => (e.Center - (Vector3)element.Pos / 2).Length).First();
                     break;
                 case CubeElementType.Face:
-                    element.Face = CubeFaceUtils.FromVector(element.GetOffset());
+                    element.Face = DirectionUtils.FromVector(element.GetOffset());
                     break;
             }
         }
@@ -48,7 +48,7 @@ public class CubeElement
 
         FromVertexArr = new CubeElement[CubeVertex.Vertices.Length];
         FromEdgeArr = new CubeElement[CubeEdge.Edges.Length];
-        FromFaceArr = new CubeElement[CubeFaceUtils.GetValues().Length];
+        FromFaceArr = new CubeElement[DirectionUtils.GetValues().Length];
 
         foreach (var element in Elements)
             switch (element.Type)
@@ -78,7 +78,7 @@ public class CubeElement
 
     public CubeVertex? Vertex { get; private set; }
     public CubeEdge? Edge { get; private set; }
-    public CubeFace? Face { get; private set; }
+    public Direction? Face { get; private set; }
     public CubeElementType Type { get; private set; }
 
     public static CubeElement? FromVector(Vector3i vec)

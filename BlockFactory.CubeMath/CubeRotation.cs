@@ -11,7 +11,7 @@ public class CubeRotation
     private readonly int _signChangeMask;
     public readonly byte Ordinal;
     private CubeRotation[] _combinations = null!;
-    private CubeFace[] _directionTransformations = null!;
+    private Direction[] _directionTransformations = null!;
     private CubeEdge[] _edgeTransformations = null!;
     private CubeVertex[] _vertexTransformations = null!;
 
@@ -71,8 +71,8 @@ public class CubeRotation
 
         foreach (var rotation in Rotations)
         {
-            rotation._directionTransformations = new CubeFace[CubeFaceUtils.GetValues().Length];
-            foreach (var direction in CubeFaceUtils.GetValues())
+            rotation._directionTransformations = new Direction[DirectionUtils.GetValues().Length];
+            foreach (var direction in DirectionUtils.GetValues())
                 rotation._directionTransformations[(int)direction] = rotation.TransformDirection(direction);
         }
 
@@ -89,20 +89,20 @@ public class CubeRotation
 
         #region FromTo
 
-        FromTo = new CubeRotation[CubeFaceUtils.GetValues().Length, CubeFaceUtils.GetValues().Length][];
-        foreach (var a in CubeFaceUtils.GetValues())
-        foreach (var b in CubeFaceUtils.GetValues())
+        FromTo = new CubeRotation[DirectionUtils.GetValues().Length, DirectionUtils.GetValues().Length][];
+        foreach (var a in DirectionUtils.GetValues())
+        foreach (var b in DirectionUtils.GetValues())
             FromTo[(int)a, (int)b] = Rotations.Where(rotation => rotation * a == b).ToArray();
 
         #endregion
 
         #region FromToKeeping
 
-        FromToKeeping = new CubeRotation[CubeFaceUtils.GetValues().Length, CubeFaceUtils.GetValues().Length,
-            CubeFaceUtils.GetValues().Length];
-        foreach (var a in CubeFaceUtils.GetValues())
-        foreach (var b in CubeFaceUtils.GetValues())
-        foreach (var c in CubeFaceUtils.GetValues())
+        FromToKeeping = new CubeRotation[DirectionUtils.GetValues().Length, DirectionUtils.GetValues().Length,
+            DirectionUtils.GetValues().Length];
+        foreach (var a in DirectionUtils.GetValues())
+        foreach (var b in DirectionUtils.GetValues())
+        foreach (var c in DirectionUtils.GetValues())
         foreach (var rotation in GetFromTo(a, b))
             if (rotation * c == c)
             {
@@ -165,12 +165,12 @@ public class CubeRotation
     public Matrix4 Matrix4 { get; private set; }
     public Matrix4 AroundCenterRotation { get; private set; }
 
-    public static CubeRotation[] GetFromTo(CubeFace a, CubeFace b)
+    public static CubeRotation[] GetFromTo(Direction a, Direction b)
     {
         return FromTo[(int)a, (int)b];
     }
 
-    public static CubeRotation GetFromToKeeping(CubeFace a, CubeFace b, CubeFace keeping)
+    public static CubeRotation GetFromToKeeping(Direction a, Direction b, Direction keeping)
     {
         return FromToKeeping[(int)a, (int)b, (int)keeping];
     }
@@ -214,17 +214,22 @@ public class CubeRotation
         return absRotated + new Vector3(0.5f, 0.5f, 0.5f);
     }
 
-    private CubeFace TransformDirection(CubeFace face)
+    public Box3 RotateAroundCenter(Box3 box3)
+    {
+        return new Box3(RotateAroundCenter(box3.Min), RotateAroundCenter(box3.Max));
+    }
+
+    private Direction TransformDirection(Direction face)
     {
         var axis = face.GetAxis();
         var sign = face.GetSign();
         var newAxis = _axisPermutation[axis];
         var changeSign = (_signChangeMask & (1 << newAxis)) != 0;
         var newSign = changeSign ? -sign : sign;
-        return CubeFaceUtils.FromAxisAndSign(newAxis, newSign);
+        return DirectionUtils.FromAxisAndSign(newAxis, newSign);
     }
 
-    public static CubeFace operator *(CubeRotation a, CubeFace b)
+    public static Direction operator *(CubeRotation a, Direction b)
     {
         return a._directionTransformations[(int)b];
     }

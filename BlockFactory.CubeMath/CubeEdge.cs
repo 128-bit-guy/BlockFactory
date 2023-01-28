@@ -16,7 +16,7 @@ public class CubeEdge
         var edgesList = new List<CubeEdge>();
         foreach (var vertex in CubeVertex.Vertices)
         {
-            var neighbours = CubeFaceUtils.GetValues()
+            var neighbours = DirectionUtils.GetValues()
                 .Select(f => f.GetOffset())
                 .Select(v => vertex.Pos + v)
                 .Select(CubeVertex.FromVector)

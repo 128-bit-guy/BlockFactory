@@ -1,14 +1,13 @@
-﻿using BlockFactory.Server.Dedicated;
-using BlockFactory.Side_;
+﻿using BlockFactory.Side_;
 
 namespace BlockFactory.Server;
 
 [ExclusiveTo(Side.Server)]
-public static class EntryPoint
+public class EntryPoint
 {
     [SidedEntryPoint(Side.Server)]
     public static void ServerMain(string[] args)
     {
-        new BlockFactoryDedicatedServer().Run();
+        BlockFactoryServer.Instance.Run();
     }
 }

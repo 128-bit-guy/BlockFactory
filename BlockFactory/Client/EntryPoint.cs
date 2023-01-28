@@ -8,6 +8,6 @@ public class EntryPoint
     [SidedEntryPoint(Side.Client)]
     public static void ClientMain(string[] args)
     {
-        new BlockFactoryClient().Run();
+        BlockFactoryClient.Instance.Run();
     }
 }

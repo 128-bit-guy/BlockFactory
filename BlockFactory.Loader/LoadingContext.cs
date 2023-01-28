@@ -29,7 +29,8 @@ public class LoadingContext : AssemblyLoadContext
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
     {
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
-            if (file.EndsWith(unmanagedDllName))
+            if (file.EndsWith(unmanagedDllName) || file.EndsWith(unmanagedDllName + ".dll") ||
+                file.EndsWith(unmanagedDllName + ".dylib") || file.EndsWith(unmanagedDllName + ".so"))
                 return LoadUnmanagedDllFromPath(file);
         // Console.WriteLine(unmanagedDllName);
         return base.LoadUnmanagedDll(unmanagedDllName);

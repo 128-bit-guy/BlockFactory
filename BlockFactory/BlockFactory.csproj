@@ -14,38 +14,64 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
         <PackageReference Include="OpenTK.Graphics" Version="4.7.5" />
         <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.7.5" />
+        <PackageReference Include="SharpNoise" Version="0.12.1.1" />
         <PackageReference Include="StbImageSharp" Version="2.27.13" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.11" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Assets" />
-        <Folder Include="Render\Mesh\Vertex" />
+        <None Remove="Assets\Shaders\block_fragment.glsl" />
+        <None Remove="Assets\Shaders\block_vertex.glsl" />
+        <None Remove="Assets\Shaders\color_fragment.glsl" />
+        <None Remove="Assets\Shaders\color_vertex.glsl" />
+        <None Remove="Assets\Shaders\gui_fragment.glsl" />
+        <None Remove="Assets\Shaders\gui_vertex.glsl" />
+        <None Remove="Assets\Shaders\text_fragment.glsl" />
+        <None Remove="Assets\Shaders\text_vertex.glsl" />
+        <None Remove="Assets\Fonts\LiberationSerif-Regular.ttf" />
+        <None Remove="Assets\Textures\dirt.png" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Assets\Shaders\block_fragment.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\block_fragment.glsl" />
-        <None Remove="Assets\Shaders\block_vertex.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\block_vertex.glsl" />
-        <None Remove="Assets\Shaders\color_fragment.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\color_fragment.glsl" />
-        <None Remove="Assets\Shaders\color_vertex.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\color_vertex.glsl" />
-        <None Remove="Assets\Shaders\gui_fragment.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\gui_fragment.glsl" />
-        <None Remove="Assets\Shaders\gui_vertex.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\gui_vertex.glsl" />
-        <None Remove="Assets\Shaders\text_fragment.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\text_fragment.glsl" />
-        <None Remove="Assets\Shaders\text_vertex.glsl" />
-        <EmbeddedResource Include="Assets\Shaders\text_vertex.glsl" />
-        <None Remove="Assets\Fonts\LiberationSerif-Regular.ttf" />
-        <EmbeddedResource Include="Assets\Fonts\LiberationSerif-Regular.ttf" />
-        <None Remove="Assets\Textures\dirt.png" />
-        <EmbeddedResource Include="Assets\Textures\dirt.png" />
+      <None Remove="Client\Assets\Fonts\LiberationSerif-Regular.ttf" />
+      <EmbeddedResource Include="Client\Assets\Fonts\LiberationSerif-Regular.ttf" />
+      <None Remove="Client\Assets\Shaders\block_fragment.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\block_fragment.glsl" />
+      <None Remove="Client\Assets\Shaders\block_vertex.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\block_vertex.glsl" />
+      <None Remove="Client\Assets\Shaders\color_fragment.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\color_fragment.glsl" />
+      <None Remove="Client\Assets\Shaders\color_vertex.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\color_vertex.glsl" />
+      <None Remove="Client\Assets\Shaders\gui_fragment.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\gui_fragment.glsl" />
+      <None Remove="Client\Assets\Shaders\gui_vertex.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\gui_vertex.glsl" />
+      <None Remove="Client\Assets\Shaders\text_fragment.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\text_fragment.glsl" />
+      <None Remove="Client\Assets\Shaders\text_vertex.glsl" />
+      <EmbeddedResource Include="Client\Assets\Shaders\text_vertex.glsl" />
+      <None Remove="Client\Assets\Textures\dirt.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\dirt.png" />
+      <None Remove="Client\Assets\Textures\grass_side.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\grass_side.png" />
+      <None Remove="Client\Assets\Textures\grass_top.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\grass_top.png" />
+      <None Remove="Client\Assets\Textures\leaves.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\leaves.png" />
+      <None Remove="Client\Assets\Textures\leaves_temp.pdn" />
+      <EmbeddedResource Include="Client\Assets\Textures\leaves_temp.pdn" />
+      <None Remove="Client\Assets\Textures\leaves_temp_2.pdn" />
+      <EmbeddedResource Include="Client\Assets\Textures\leaves_temp_2.pdn" />
+      <None Remove="Client\Assets\Textures\log_side.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\log_side.png" />
+      <None Remove="Client\Assets\Textures\log_top.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\log_top.png" />
+      <None Remove="Client\Assets\Textures\stone.png" />
+      <EmbeddedResource Include="Client\Assets\Textures\stone.png" />
     </ItemGroup>
 
 </Project>

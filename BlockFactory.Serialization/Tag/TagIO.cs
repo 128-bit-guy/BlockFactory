@@ -20,25 +20,25 @@ public static class TagIO
         t.Write(writer);
     }
 
-    public static T ReadCompressed<T>(ReadOnlySpan<byte> b) where T : ITag, new()
-    {
-        using var decompressor = new Decompressor();
-        var s = decompressor.Unwrap(b);
-        var decompressed = s.ToArray();
-        using var stream = new MemoryStream(decompressed);
-        using var reader = new BinaryReader(stream);
-        return Read<T>(reader);
-    }
-
-    public static byte[] WriteCompressed(ITag tag)
-    {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream);
-        Write(tag, writer);
-        var b = stream.ToArray();
-        using var compressor = new Compressor();
-        var s = compressor.Wrap(b);
-        var decompressed = s.ToArray();
-        return decompressed;
-    }
+    // public static T ReadCompressed<T>(ReadOnlySpan<byte> b) where T : ITag, new()
+    // {
+    //     using var decompressor = new Decompressor();
+    //     var s = decompressor.Unwrap(b);
+    //     var decompressed = s.ToArray();
+    //     using var stream = new MemoryStream(decompressed);
+    //     using var reader = new BinaryReader(stream);
+    //     return Read<T>(reader);
+    // }
+    //
+    // public static byte[] WriteCompressed(ITag tag)
+    // {
+    //     using var stream = new MemoryStream();
+    //     using var writer = new BinaryWriter(stream);
+    //     Write(tag, writer);
+    //     var b = stream.ToArray();
+    //     using var compressor = new Compressor();
+    //     var s = compressor.Wrap(b);
+    //     var decompressed = s.ToArray();
+    //     return decompressed;
+    // }
 }

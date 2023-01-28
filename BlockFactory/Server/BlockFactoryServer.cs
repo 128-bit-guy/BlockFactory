@@ -1,46 +1,159 @@
-﻿namespace BlockFactory.Server;
+using OpenTK.Mathematics;
+using BlockFactory;
+using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
+using BlockFactory.Init;
+using BlockFactory.Network;
+using BlockFactory.Server.Entity_;
+using BlockFactory.Server.Game;
+using BlockFactory.Server.Init;
+using BlockFactory.Server.Network;
+using BlockFactory.Util;
+using BlockFactory.Util.Math_;
+using BlockFactory.World_.Chunk_;
+
+namespace BlockFactory.Server;
 
 public class BlockFactoryServer
 {
-    private DateTime NextTickTime;
-    public bool IsRunning { get; protected set; }
+    public static readonly BlockFactoryServer Instance = new();
+    public HashSet<NetworkConnection> Connections = new();
+    public ConnectionAcceptor ConnectionAcceptor = null!;
+    public GameInstance GameInstance = null!;
+    public bool ShouldRun;
 
-    public virtual void Init()
-    {
-        IsRunning = true;
-    }
-
-    public virtual void Update()
+    private BlockFactoryServer()
     {
     }
 
-    public virtual void Shutdown()
+    private void InitConnectionAcceptor()
     {
+        var x = Console.ReadLine()!;
+        if (x.Length == 0)
+        {
+            x = "" + Constants.DefaultPort;
+        }
+
+        var port = int.Parse(x);
+        ConnectionAcceptor = new ConnectionAcceptor(port);
+        ConnectionAcceptor.OnAccepted += addConnection =>
+        {
+            addConnection.GameInstance = GameInstance;
+            GameInstance.EnqueueWork(() =>
+            {
+                ServerPlayerEntity player = new(addConnection);
+                addConnection.SideObject = player;
+                foreach (var connection in Connections)
+                {
+                    connection.SendPacket(new OtherPlayerMessagePacket("Server",
+                        $"Player {connection.Socket.RemoteEndPoint} joined server"));
+                }
+
+                Connections.Add(addConnection);
+                GameInstance.World.AddPlayer(player);
+                addConnection.OnStop += () =>
+                {
+                    GameInstance.EnqueueWork(() =>
+                    {
+                        Connections.Remove(addConnection);
+                        GameInstance.World.RemovePlayer(player);
+                        foreach (var connection in Connections)
+                        {
+                            connection.SendPacket(new OtherPlayerMessagePacket("Server",
+                                $"Player {connection.Socket.RemoteEndPoint} left server"));
+                        }
+                    });
+                };
+                addConnection.Start();
+                addConnection.SendPacket(new RegistrySyncPacket(SyncedRegistries.GetSyncData()));
+                addConnection.SendPacket(new PlayerJoinWorldPacket(player.Id));
+                SpawnPlayer(player, new Vector3i(0, 0, 0));
+            });
+        };
+        ConnectionAcceptor.Start();
     }
 
-    public void ProcessCommand(object sender, string command)
+    private void Init()
     {
-        if (command.StartsWith("/")) command = command[1..];
-
-        if (command == "stop")
-            IsRunning = false;
-        else if (command.StartsWith("say ")) Console.WriteLine(command[4..]);
+        CommonInit.Init();
+        PacketHandlers.Init();
+        GameInstance = new GameInstance(GameKind.MultiplayerBackend, Thread.CurrentThread,
+            unchecked((int)DateTime.UtcNow.Ticks), Path.GetFullPath("world"))
+        {
+            NetworkHandler = new MultiplayerBackendNetworkHandler(this),
+            SideHandler = new ServerSideHandler(this)
+        };
+        InitConnectionAcceptor();
+        GameInstance.Init();
+        ShouldRun = true;
     }
 
-    public void Run()
+
+    private void Update()
+    {
+        GameInstance.Update();
+    }
+
+    internal void Run()
     {
         Init();
-        while (IsRunning)
-            if (DateTime.UtcNow >= NextTickTime)
+        while (ShouldRun)
+        {
+            Update();
+        }
+
+        ConnectionAcceptor.Stop();
+        ConnectionAcceptor.Dispose();
+        GameInstance.Dispose();
+    }
+
+    private void SpawnPlayer(PlayerEntity entity, Vector3i chunkPos)
+    {
+        foreach (var oChunkPos in PlayerChunkLoading.ChunkOffsets.Select(offset => chunkPos + offset))
+        {
+            var chunk = GameInstance.World.GetOrLoadChunk(oChunkPos);
+            var neighbourhood = chunk.Neighbourhood;
+            foreach (var blockPos in chunk.GetInclusiveBox().InclusiveEnumerable())
             {
-                Update();
-                NextTickTime += TimeSpan.FromSeconds(1 / 20f);
+                if (neighbourhood.GetBlockState(blockPos).Block == Blocks.Air &&
+                    neighbourhood.GetBlockState(blockPos + Vector3i.UnitY).Block == Blocks.Air &&
+                    neighbourhood.GetBlockState(blockPos - Vector3i.UnitY).Block != Blocks.Air)
+
+                {
+                    entity.Pos = new EntityPos(blockPos);
+                    entity.Pos += new Vector3(0.5f, 1.6f, 0.5f);
+                    return;
+                }
+            }
+        }
+    }
+
+    internal void HandleCommand(PlayerEntity player, string cmd)
+    {
+        string[] split = cmd.Split(' ');
+        if (split[0] == "/speed")
+        {
+            if (split.Length == 1)
+            {
+                player.Speed = 0.125f;
             }
             else
             {
-                Thread.Sleep(1);
+                if (float.TryParse(split[1], out var speed))
+                {
+                    player.Speed = speed;
+                }
             }
-
-        Shutdown();
+        }
+        else if (split[0] == "/respawn")
+        {
+            SpawnPlayer(player, new Vector3i(0, 0, 0));
+        } else if (split[0] == "/toisland")
+        {
+            Vector3i chunkPos = player.Pos.ChunkPos;
+            Vector3i islandPos = chunkPos;
+            islandPos.Y = 100 / 16;
+            SpawnPlayer(player, islandPos);
+        }
     }
 }
