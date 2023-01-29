@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using OpenTK.Mathematics;
 using BlockFactory;
+using BlockFactory.Block_;
+using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Init;
@@ -11,6 +14,7 @@ using BlockFactory.Server.Network;
 using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Math_;
+using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Server;
@@ -150,12 +154,47 @@ public class BlockFactoryServer
         else if (split[0] == "/respawn")
         {
             SpawnPlayer(player, new Vector3i(0, 0, 0));
-        } else if (split[0] == "/toisland")
+        }
+        else if (split[0] == "/toisland")
         {
             Vector3i chunkPos = player.Pos.ChunkPos;
             Vector3i islandPos = chunkPos;
             islandPos.Y = 100 / 16;
             SpawnPlayer(player, islandPos);
+        }
+        else if (split[0] == "/dighole")
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            World world = player.World!;
+            foreach (var offset in new Box3i(
+                         new Vector3i(-10, -1000, -10),
+                         new Vector3i(10)
+                     ).InclusiveEnumerable())
+            {
+                var blockPos = player.Pos.GetBlockPos() + offset;
+                var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
+                world.GetOrLoadChunk(chunkPos, false);
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Scheduling chunks: {stopwatch.Elapsed.TotalMilliseconds}");
+            stopwatch.Restart();
+            world.Generator.ProcessScheduled();
+            stopwatch.Stop();
+            Console.WriteLine($"Generating chunks: {stopwatch.Elapsed.TotalMilliseconds}");
+            world.Generator.ChunksUpgraded = 0;
+            stopwatch.Restart();
+            foreach (var offset in new Box3i(
+                         new Vector3i(-10, -1000, -10),
+                         new Vector3i(10)
+                         ).InclusiveEnumerable())
+            {
+                var blockPos = player.Pos.GetBlockPos() + offset;
+                world.SetBlockState(blockPos, new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Placing blocks: {stopwatch.Elapsed.TotalMilliseconds}");
+            Console.WriteLine($"Chunks upgraded when placing blocks: {world.Generator.ChunksUpgraded}");
         }
     }
 }
