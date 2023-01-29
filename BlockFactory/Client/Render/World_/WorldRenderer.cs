@@ -108,6 +108,16 @@ namespace BlockFactory.Client.Render.World_
             }
         }
 
+        private int GetSortKey(ChunkRenderer cr)
+        {
+            return (cr.Pos - Player.Pos.ChunkPos).SquareLength();
+        }
+
+        private int Compare(ChunkRenderer a, ChunkRenderer b)
+        {
+            return GetSortKey(a) - GetSortKey(b);
+        }
+
         public void UpdateAndRender()
         {
             Shaders.Block.Use();
@@ -118,7 +128,10 @@ namespace BlockFactory.Client.Render.World_
             //_mesh.Bind();
             FrustumIntersectionHelper intersectionHelper = new FrustumIntersectionHelper(BlockFactoryClient.Instance.VpMatrices);
             int leftParallelRebuilds = 8;
-            foreach (ChunkRenderer chunkRenderer in ChunkRenderers.Values)
+            List<ChunkRenderer> renderersSorted = new List<ChunkRenderer>();
+            renderersSorted.AddRange(ChunkRenderers.Values);
+            renderersSorted.Sort(Compare);
+            foreach (ChunkRenderer chunkRenderer in renderersSorted)
             {
                 bool hasRebuildTask = chunkRenderer.RebuildTask != null;
                 if (hasRebuildTask && !chunkRenderer.RebuildTask!.IsCompleted) {
