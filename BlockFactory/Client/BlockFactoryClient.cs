@@ -125,7 +125,7 @@ public class BlockFactoryClient
         GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
         GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 6);
         GLFW.WindowHint(WindowHintBool.OpenGLForwardCompat, true);
-        Window = GLFW.CreateWindow(200, 200, "Voxel Builder", null, null);
+        Window = GLFW.CreateWindow(200, 200, "Block Factory", null, null);
         GLFW.ShowWindow(Window);
         GLFW.MakeContextCurrent(Window);
         GL.LoadBindings(new GLFWBindingsContext());

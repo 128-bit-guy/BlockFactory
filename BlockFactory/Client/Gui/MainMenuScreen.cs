@@ -54,7 +54,7 @@ namespace BlockFactory.Client.Gui
             Client.Matrices.Push();
             Client.Matrices.Translate((width / 2f, height / 2 - 360, 1));
             Client.Matrices.Scale(2);
-            DrawText("Voxel Builder", 0);
+            DrawText("Block Factory", 0);
             Client.Matrices.Pop();
         }
     }
