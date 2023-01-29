@@ -8,9 +8,9 @@ public static class Shaders
     public static ColorShaderProgram Color { get; private set; } = null!;
     internal static void Init()
     {
-        Block = new ShaderProgram("BlockFactory.Client.Assets.Shaders.block");
-        Text = new ShaderProgram("BlockFactory.Client.Assets.Shaders.text");
-        Gui = new ShaderProgram("BlockFactory.Client.Assets.Shaders.gui");
-        Color = new ColorShaderProgram("BlockFactory.Client.Assets.Shaders.color");
+        Block = new ShaderProgram("BlockFactory.Assets.Shaders.block");
+        Text = new ShaderProgram("BlockFactory.Assets.Shaders.text");
+        Gui = new ShaderProgram("BlockFactory.Assets.Shaders.gui");
+        Color = new ColorShaderProgram("BlockFactory.Assets.Shaders.color");
     }
 }

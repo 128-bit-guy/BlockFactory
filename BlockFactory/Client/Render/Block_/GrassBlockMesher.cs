@@ -12,9 +12,9 @@ public class GrassBlockMesher : IBlockMesher
     private int _top, _side, _bottom;
     public void AddTextures(TextureArrayManager textureArrayManager)
     {
-        _top = textureArrayManager.AddOrGetImage("BlockFactory.Client.Assets.Textures.grass_top.png");
-        _bottom = textureArrayManager.AddOrGetImage("BlockFactory.Client.Assets.Textures.dirt.png");
-        _side = textureArrayManager.AddOrGetImage("BlockFactory.Client.Assets.Textures.grass_side.png");
+        _top = textureArrayManager.AddOrGetImage("BlockFactory.Assets.Textures.grass_top.png");
+        _bottom = textureArrayManager.AddOrGetImage("BlockFactory.Assets.Textures.dirt.png");
+        _side = textureArrayManager.AddOrGetImage("BlockFactory.Assets.Textures.grass_side.png");
     }
 
     public int? GetFaceTexture(IBlockReader reader, Vector3i blockPos, BlockState state, Direction direction)

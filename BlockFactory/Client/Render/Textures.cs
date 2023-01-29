@@ -19,9 +19,9 @@ namespace BlockFactory.Client.Render
                 mesher.AddTextures(BlockArray);
             }
             BlockArray.Upload();
-            DirtTexture = new Texture2D("BlockFactory.Client.Assets.Textures.dirt.png");
-            StoneTexture = new Texture2D("BlockFactory.Client.Assets.Textures.stone.png");
-            using Stream stream = ResourceLoader.GetResourceStream("BlockFactory.Client.Assets.Fonts.LiberationSerif-Regular.ttf")!;
+            DirtTexture = new Texture2D("BlockFactory.Assets.Textures.dirt.png");
+            StoneTexture = new Texture2D("BlockFactory.Assets.Textures.stone.png");
+            using Stream stream = ResourceLoader.GetResourceStream("BlockFactory.Assets.Fonts.LiberationSerif-Regular.ttf")!;
             TextRenderer = new TextRenderer(stream, 64);
         }
     }

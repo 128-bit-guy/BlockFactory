@@ -14,12 +14,12 @@ public class BlockMeshing
     {
         Meshers = new AttachmentRegistry<Block, IBlockMesher>(Blocks.Registry);
         Meshers.Register(Blocks.Air, new AirBlockMesher());
-        SetTextureAll(Blocks.Dirt, "BlockFactory.Client.Assets.Textures.dirt.png");
-        SetTextureAll(Blocks.Stone, "BlockFactory.Client.Assets.Textures.stone.png");
+        SetTextureAll(Blocks.Dirt, "BlockFactory.Assets.Textures.dirt.png");
+        SetTextureAll(Blocks.Stone, "BlockFactory.Assets.Textures.stone.png");
         Meshers.Register(Blocks.Grass, new GrassBlockMesher());
-        SetTexturesDirectional(Blocks.Log, "BlockFactory.Client.Assets.Textures.", "log_top.png",
+        SetTexturesDirectional(Blocks.Log, "BlockFactory.Assets.Textures.", "log_top.png",
             "log_side.png", "log_top.png");
-        SetTextureAllNS(Blocks.Leaves, "BlockFactory.Client.Assets.Textures.leaves.png");
+        SetTextureAllNS(Blocks.Leaves, "BlockFactory.Assets.Textures.leaves.png");
     }
 
     public static void SetTextures(Block block, string prefix, params string[] textures)
