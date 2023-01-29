@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Sockets;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Server.Network;
 
+[ExclusiveTo(Side.Server)]
 public class ConnectionAcceptor : IDisposable
 {
     public readonly Socket Socket;

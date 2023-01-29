@@ -2,9 +2,11 @@ using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Network;
 using BlockFactory.Server.Entity_;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Server.Init;
 
+[ExclusiveTo(Side.Server)]
 public static class PacketHandlers
 {
     private static void HandleMessage(MessagePacket packet, NetworkConnection connection)

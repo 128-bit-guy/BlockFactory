@@ -3,9 +3,11 @@ using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Network;
 using BlockFactory.Server.Entity_;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Server.Game
 {
+    [ExclusiveTo(Side.Server)]
     public class MultiplayerBackendNetworkHandler : INetworkHandler
     {
         private readonly BlockFactoryServer _server;

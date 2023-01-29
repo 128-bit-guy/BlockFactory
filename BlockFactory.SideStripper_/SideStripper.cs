@@ -30,6 +30,16 @@ public class SideStripper
             .Any(attr => (Side)attr.ConstructorArguments[0].Value != _side);
     }
 
+    private void AddExcludedTypes(TypeDefinition type)
+    {
+        Console.WriteLine($"Excluding type {type.FullName}");
+        _excludedTypes.Add(type.FullName);
+        foreach (var nestedType in type.NestedTypes)
+        {
+            AddExcludedTypes(nestedType);
+        }
+    }
+
     private void FindExcludedThings()
     {
         foreach (
@@ -40,8 +50,7 @@ public class SideStripper
         {
             if (IsExcluded(type.CustomAttributes))
             {
-                Console.WriteLine($"Excluding type {type.FullName}");
-                _excludedTypes.Add(type.FullName);
+                AddExcludedTypes(type);
                 continue;
             }
 

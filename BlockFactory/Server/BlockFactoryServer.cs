@@ -8,12 +8,14 @@ using BlockFactory.Server.Entity_;
 using BlockFactory.Server.Game;
 using BlockFactory.Server.Init;
 using BlockFactory.Server.Network;
+using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Server;
 
+[ExclusiveTo(Side.Server)]
 public class BlockFactoryServer
 {
     public static readonly BlockFactoryServer Instance = new();
