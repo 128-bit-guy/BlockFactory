@@ -16,7 +16,23 @@ namespace BlockFactory.World_.Chunk_
         public const int SizeLog2 = 4;
         public const int Size = 1 << SizeLog2;
         public const int Mask = Size - 1;
-        public ChunkData? Data;
+        private ChunkData? _data;
+        public ChunkData? Data
+        {
+            get { return _data; }
+            set
+            {
+                _data = value;
+                if (_data == null)
+                {
+                    VisitedGenerationLevel = ChunkGenerationLevel.Exists;
+                }
+                else
+                {
+                    VisitedGenerationLevel = _data._generationLevel;
+                }
+            }
+        }
         public readonly Vector3i Pos;
         public readonly World World;
         public int ReadyForUseNeighbours;
@@ -24,6 +40,7 @@ namespace BlockFactory.World_.Chunk_
         public ChunkNeighbourhood Neighbourhood;
         public Dictionary<long, PlayerEntity> ViewingPlayers = new();
         private int _dependencyCount;
+        public ChunkGenerationLevel VisitedGenerationLevel;
 
         public ref int DependencyCount => ref _dependencyCount;
 

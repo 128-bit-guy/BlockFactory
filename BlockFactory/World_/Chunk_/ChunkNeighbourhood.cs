@@ -10,13 +10,13 @@ namespace BlockFactory.World_.Chunk_
     public class ChunkNeighbourhood : IBlockStorage
     {
         public Vector3i CenterPos;
-        public Chunk[,,] Chunks;
+        public Chunk?[,,] Chunks;
         public Chunk CenterChunk;
         public ChunkNeighbourhood(Chunk centerChunk)
         {
             CenterChunk = centerChunk;
             CenterPos = centerChunk.Pos;
-            Chunks = new Chunk[3, 3, 3];
+            Chunks = new Chunk?[3, 3, 3];
             Chunks[1, 1, 1] = centerChunk;
         }
 
@@ -46,7 +46,7 @@ namespace BlockFactory.World_.Chunk_
             Vector3i arrayChunkPos = GetArrayChunkPos(pos);
             if (IsArrayChunkPosInside(arrayChunkPos))
             {
-                Chunk ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+                var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
                 if (ch == null)
                 {
                     return CenterChunk.World.GetBlockState(pos);
@@ -67,7 +67,7 @@ namespace BlockFactory.World_.Chunk_
             Vector3i arrayChunkPos = GetArrayChunkPos(pos);
             if (IsArrayChunkPosInside(arrayChunkPos))
             {
-                Chunk ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+                var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
                 if (ch == null)
                 {
                     CenterChunk.World.SetBlockState(pos, state);

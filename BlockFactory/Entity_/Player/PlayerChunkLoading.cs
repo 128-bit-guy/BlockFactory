@@ -1,6 +1,7 @@
 ﻿using BlockFactory.CubeMath;
 using OpenTK.Mathematics;
 using BlockFactory.Util.Math_;
+using Algorithms = BlockFactory.Util.Algorithms;
 
 namespace BlockFactory.Entity_.Player
 {
@@ -72,6 +73,9 @@ namespace BlockFactory.Entity_.Player
                     }
                 }
             }
+
+            Random random = new Random(228);
+            Algorithms.Shuffle(ChunkOffsets, random);
             ChunkOffsets.Sort(Compare);
             int offsetsPos = 0;
             for (int i = 0; i <= MaxChunkLoadDistance; ++i) {

@@ -16,7 +16,7 @@ namespace BlockFactory.World_.Gen
         public Perlin Perlin;
         public readonly int Seed;
         public int ChunksUpgraded;
-        private List<Chunk>[,,,] _scheduledUpgrades;
+        private List<Chunk>[] _scheduledUpgrades;
         private ChunkGenerationLevel[] _generationLevels;
         [ExclusiveTo(Side.Server)]
         private long _totalChunksUpgraded = 0;
@@ -24,6 +24,8 @@ namespace BlockFactory.World_.Gen
         private long _chunksUpgradedOnOtherThread = 0;
         [ExclusiveTo(Side.Server)]
         public double OtherThreadRatio => (double)_chunksUpgradedOnOtherThread / _totalChunksUpgraded;
+        private readonly List<Chunk>[] _chunkDistribution = new List<Chunk>[3 * 3 * 3];
+        private readonly List<Chunk>[,,] _componentChunks = new List<Chunk>[3, 3, 3];
         public WorldGenerator(int seed) {
             Seed = seed;
             Perlin = new Perlin
@@ -36,13 +38,23 @@ namespace BlockFactory.World_.Gen
             };
             ChunksUpgraded = 0;
             _generationLevels = Enum.GetValues<ChunkGenerationLevel>();
-            _scheduledUpgrades = new List<Chunk>[_generationLevels.Length, 3, 3, 3];
+            _scheduledUpgrades = new List<Chunk>[_generationLevels.Length];
             for (int i = 0; i < _generationLevels.Length; ++i)
             {
                 foreach (var rem in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
                 {
-                    _scheduledUpgrades[i, rem.X, rem.Y, rem.Z] = new List<Chunk>();
+                    _scheduledUpgrades[i] = new List<Chunk>();
                 }
+            }
+
+            for (var i = 0; i < _chunkDistribution.Length; ++i)
+            {
+                _chunkDistribution[i] = new List<Chunk>();
+            }
+
+            foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+            {
+                _componentChunks[pos.X, pos.Y, pos.Z] = new List<Chunk>();
             }
         }
         public void UpgradeChunkToLevel(ChunkGenerationLevel level, Chunk chunk)
@@ -61,31 +73,86 @@ namespace BlockFactory.World_.Gen
             }
             //chunk.SetBlockState(chunk.Pos.BitShiftLeft(Chunk.SizeLog2), new BlockState(Blocks.Stone, CubeRotation.Rotations[2]));
             chunk.World.PopGenerationLevel();
-            Vector3i p = chunk.Pos;
-            for (int i = 0; i < 3; ++i)
+            _scheduledUpgrades[(int)level].Add(chunk);
+        }
+
+        private void AddComponentChunks(Chunk chunk, ChunkGenerationLevel level, List<Chunk>[,,] componentChunks)
+        {
+            if (chunk.VisitedGenerationLevel < level && chunk.Data!._generationLevel >= level)
             {
-                p[i] %= 3;
-                if (p[i] < 0)
+                chunk.VisitedGenerationLevel = level;
+                var rem = chunk.Pos;
+                for (int i = 0; i < 3; ++i)
                 {
-                    p[i] += 3;
+                    rem[i] %= 3;
+                    if (rem[i] < 0)
+                    {
+                        rem[i] += 3;
+                    }
+                }
+                componentChunks[rem.X, rem.Y, rem.Z].Add(chunk);
+                foreach (var offset in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+                {
+                    if (offset != new Vector3i(1))
+                    {
+                        var neighbour = chunk.Neighbourhood.Chunks[offset.X, offset.Y, offset.Z];
+                        if (neighbour != null)
+                        {
+                            AddComponentChunks(neighbour, level, componentChunks);
+                        }
+                    }
                 }
             }
-            _scheduledUpgrades[(int)level, p.X, p.Y, p.Z].Add(chunk);
         }
 
         public void ProcessScheduled()
         {
             foreach (var generationLevel in _generationLevels)
             {
-                foreach (var rem in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+                var mapos = 0;
+                foreach (var chunk in _scheduledUpgrades[(int)generationLevel])
                 {
-                    var chunks = _scheduledUpgrades[(int)generationLevel, rem.X, rem.Y, rem.Z];
-                    if (chunks.Count == 0) continue;
-                    chunks[0].World.PushGenerationLevel(generationLevel - 1);
-                    Parallel.ForEach(chunks, c => ActuallyUpgradeChunkToLevel(generationLevel, c));
-                    chunks[0].World.PopGenerationLevel();
-                    chunks.Clear();
+                    AddComponentChunks(chunk, generationLevel, _componentChunks);
+                    var cpos = 0;
+                    foreach (var rem in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+                    {
+                        var remChunks = _componentChunks[rem.X, rem.Y, rem.Z];
+                        if (remChunks.Count != 0)
+                        {
+                            _chunkDistribution[cpos++].AddRange(remChunks);
+                        }
+                        remChunks.Clear();
+                    }
+                    mapos = Math.Max(mapos, cpos);
                 }
+
+                if (mapos != 0)
+                {
+                    _chunkDistribution[0][0].World.PushGenerationLevel(generationLevel - 1);
+                }
+                for (int i = 0; i < mapos; ++i)
+                {
+                    Parallel.ForEach(_chunkDistribution[i], c => ActuallyUpgradeChunkToLevel(generationLevel, c));
+                }
+                if (mapos != 0)
+                {
+                    _chunkDistribution[0][0].World.PopGenerationLevel();
+                }
+
+                for (int i = 0; i < mapos; ++i)
+                {
+                    _chunkDistribution[i].Clear();
+                }
+                _scheduledUpgrades[(int)generationLevel].Clear();
+                // foreach (var rem in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+                // {
+                //     var chunks = _scheduledUpgrades[(int)generationLevel, rem.X, rem.Y, rem.Z];
+                //     if (chunks.Count == 0) continue;
+                //     chunks[0].World.PushGenerationLevel(generationLevel - 1);
+                //     Parallel.ForEach(chunks, c => ActuallyUpgradeChunkToLevel(generationLevel, c));
+                //     chunks[0].World.PopGenerationLevel();
+                //     chunks.Clear();
+                // }
             }
         }
 
