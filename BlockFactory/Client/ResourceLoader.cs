@@ -1,5 +1,8 @@
+using BlockFactory.Side_;
+
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public static class ResourceLoader
 {
     public static Stream? GetResourceStream(string s)

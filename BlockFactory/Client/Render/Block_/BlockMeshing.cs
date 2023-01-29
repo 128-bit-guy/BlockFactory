@@ -2,10 +2,12 @@
 using BlockFactory.CubeMath;
 using BlockFactory.Init;
 using BlockFactory.Registry_;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Render.Block_;
 
+[ExclusiveTo(Side.Client)]
 public class BlockMeshing
 {
     public static AttachmentRegistry<Block, IBlockMesher> Meshers { get; private set; } = null!;

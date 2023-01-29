@@ -6,9 +6,11 @@ using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.Gui;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui.InGame;
 
+[ExclusiveTo(Side.Client)]
 public class InGameMenuScreen : Screen
 {
     public readonly InGameMenu Menu;

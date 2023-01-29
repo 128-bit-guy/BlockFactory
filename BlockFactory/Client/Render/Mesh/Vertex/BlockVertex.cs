@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Render.Mesh.Vertex
 {
+    [ExclusiveTo(Side.Client)]
     public struct BlockVertex
     {
         [VertexAttribute(0)]

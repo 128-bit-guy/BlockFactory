@@ -1,8 +1,10 @@
+using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.Mesh;
 
+[ExclusiveTo(Side.Client)]
 public static class GLTypes
 {
     public static (int count, VertexAttribPointerType type) GetVertexAttribType(Type t)

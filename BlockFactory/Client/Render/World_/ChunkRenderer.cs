@@ -6,11 +6,13 @@ using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
 using BlockFactory.Init;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Client.Render.World_
 {
+    [ExclusiveTo(Side.Client)]
     public class ChunkRenderer : IDisposable
     {
         public readonly Vector3i Pos;

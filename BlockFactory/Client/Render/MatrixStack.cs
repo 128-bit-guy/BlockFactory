@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class MatrixStack
 {
     private readonly Stack<Matrix4> _matrices;

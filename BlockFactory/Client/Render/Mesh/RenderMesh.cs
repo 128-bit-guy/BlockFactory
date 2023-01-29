@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
 
 namespace BlockFactory.Client.Render.Mesh;
 
+[ExclusiveTo(Side.Client)]
 public class RenderMesh<T>
         where T : struct
     {

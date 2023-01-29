@@ -1,7 +1,9 @@
-﻿using OpenTK.Mathematics;
+﻿using BlockFactory.Side_;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class MainMenuScreen : Screen
     {
         public ButtonWidget SingleplayerButton = null!;

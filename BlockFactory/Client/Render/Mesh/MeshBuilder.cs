@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.Mesh;
 
+[ExclusiveTo(Side.Client)]
 public class MeshBuilder<T>
         where T : struct
     {

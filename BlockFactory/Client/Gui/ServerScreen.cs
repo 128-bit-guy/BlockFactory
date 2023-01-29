@@ -1,8 +1,10 @@
 ﻿using OpenTK.Mathematics;
 using System.Net.Sockets;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class ServerScreen : Screen
     {
         public ButtonWidget BackButton = null!;

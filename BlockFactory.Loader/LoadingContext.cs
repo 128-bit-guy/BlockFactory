@@ -14,16 +14,26 @@ public class LoadingContext : AssemblyLoadContext
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        foreach (var assembly in GetLoadContext(typeof(LoadingContext).Assembly)!.Assemblies)
-            if (assembly.GetName().Name == assemblyName.Name)
-                return assembly;
+        try
+        {
+            Assembly asm1 = Assembly.Load(assemblyName);
+            Console.WriteLine($"Already loaded {assemblyName}");
+            return asm1;
+        } catch(FileNotFoundException e) {}
+
         var dll = Path.Combine(_loadingDirectory, assemblyName.Name + ".dll");
         var pdb = Path.Combine(_loadingDirectory, assemblyName.Name + ".pdb");
-        if (!File.Exists(dll)) return null;
+        if (!File.Exists(dll))
+        {
+            Console.WriteLine($"Not Found: {assemblyName}");
+            return null;
+        }
 
-        using var stream = new FileStream(dll, FileMode.Open);
-        using var pdbStream = File.Exists(pdb) ? new FileStream(pdb, FileMode.Open) : null;
-        return LoadFromStream(stream, pdbStream);
+        using var stream = new FileStream(dll, FileMode.Open, FileAccess.Read);
+        using var pdbStream = File.Exists(pdb) ? new FileStream(pdb, FileMode.Open, FileAccess.Read) : null;
+        Assembly asm =  LoadFromStream(stream, pdbStream);
+        Console.WriteLine($"Loaded {asm}");
+        return asm;
     }
 
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)

@@ -1,9 +1,11 @@
 using OpenTK.Graphics.OpenGL4;
 using StbImageSharp;
 using System.IO;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class Texture2D
 {
     private ImageResult Image;

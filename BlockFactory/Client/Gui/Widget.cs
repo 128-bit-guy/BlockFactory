@@ -1,8 +1,10 @@
-﻿using OpenTK.Mathematics;
+﻿using BlockFactory.Side_;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class Widget : IDisposable
     {
         protected readonly Screen Screen;

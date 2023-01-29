@@ -1,8 +1,10 @@
 ﻿using OpenTK.Mathematics;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui;
 
+[ExclusiveTo(Side.Client)]
 public class ChatScreen : Screen
 {
     public TextInputWidget Input;

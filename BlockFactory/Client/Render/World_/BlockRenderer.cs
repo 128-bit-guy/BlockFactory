@@ -4,11 +4,13 @@ using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
 
 namespace BlockFactory.Client.Render.World_;
 
+[ExclusiveTo(Side.Client)]
 public class BlockRenderer
 {
     public readonly WorldRenderer Renderer;

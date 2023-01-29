@@ -1,8 +1,10 @@
 ﻿using OpenTK.Mathematics;
 using BlockFactory.Gui.Widget;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui.InGame.Widget_;
 
+[ExclusiveTo(Side.Client)]
 public class LabelClientWidget : InGameMenuClientWidget<LabelWidget>
 {
     public LabelClientWidget(LabelWidget menuWidget, InGameMenuScreen screen) : base(menuWidget, screen)

@@ -2,9 +2,11 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using BlockFactory.Gui.Widget;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui.InGame.Widget_;
 
+[ExclusiveTo(Side.Client)]
 public class SlotClientWidget : InGameMenuClientWidget<SlotWidget>
 {
     public SlotClientWidget(SlotWidget menuWidget, InGameMenuScreen screen) : base(menuWidget, screen)

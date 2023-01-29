@@ -1,9 +1,11 @@
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Render.Mesh;
 
+[ExclusiveTo(Side.Client)]
 public static class VertexFormats
 {
 

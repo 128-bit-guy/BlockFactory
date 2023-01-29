@@ -2,9 +2,11 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Render.Mesh;
 
+[ExclusiveTo(Side.Client)]
 public class VertexFormat<T>
         where T : struct
     {

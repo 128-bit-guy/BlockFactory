@@ -2,10 +2,12 @@
 using BlockFactory.Gui.Widget;
 using BlockFactory.Init;
 using BlockFactory.Registry_;
+using BlockFactory.Side_;
 using BlockFactory.Util;
 
 namespace BlockFactory.Client.Gui.InGame.Widget_;
 
+[ExclusiveTo(Side.Client)]
 public static class InGameMenuClientWidgets
 {
     public delegate Widget ClientWidgetCreator<in T>(T inGameMenuWidget, InGameMenuScreen screen)

@@ -4,9 +4,11 @@ using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Entity_
 {
+    [ExclusiveTo(Side.Client)]
     public class ClientPlayerEntity : PlayerEntity
     {
         private void SendMotionUpdate()

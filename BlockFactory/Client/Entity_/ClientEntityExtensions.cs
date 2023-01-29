@@ -2,10 +2,12 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using BlockFactory;
 using BlockFactory.Entity_;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Entity_;
 
+[ExclusiveTo(Side.Client)]
 public static class ClientEntityExtensions
 {
     public static EntityPos GetInterpolatedPos(this Entity entity)

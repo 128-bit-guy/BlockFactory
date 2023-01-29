@@ -2,9 +2,11 @@
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Game
 {
+    [ExclusiveTo(Side.Client)]
     public class MultiplayerFrontendNetworkHandler : INetworkHandler
     {
         private readonly BlockFactoryClient _client;

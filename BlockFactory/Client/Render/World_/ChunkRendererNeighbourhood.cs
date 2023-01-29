@@ -2,12 +2,14 @@
 using System.Runtime.CompilerServices;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Client.Render.World_
 {
+    [ExclusiveTo(Side.Client)]
     public class ChunkRendererNeighbourhood : IBlockReader
     {
         public Vector3i CenterPos;

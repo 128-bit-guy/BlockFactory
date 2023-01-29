@@ -1,8 +1,10 @@
 ﻿using BlockFactory.Client.Render;
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class ForcedDisconnectionScreen : Screen
     {
         public ButtonWidget BackButton = null!;

@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public readonly struct FrustumIntersectionHelper
 {
     private readonly float nxX, nxY, nxZ, nxW;

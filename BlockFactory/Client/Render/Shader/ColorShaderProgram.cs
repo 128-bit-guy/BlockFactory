@@ -1,8 +1,10 @@
+using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.Shader;
 
+[ExclusiveTo(Side.Client)]
 public class ColorShaderProgram : ShaderProgram
 {
     public int ColorUniform;

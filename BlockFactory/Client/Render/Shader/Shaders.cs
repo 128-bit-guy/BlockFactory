@@ -1,5 +1,8 @@
+using BlockFactory.Side_;
+
 namespace BlockFactory.Client.Render.Shader;
 
+[ExclusiveTo(Side.Client)]
 public static class Shaders
 {
     public static ShaderProgram Block { get; private set; } = null!;

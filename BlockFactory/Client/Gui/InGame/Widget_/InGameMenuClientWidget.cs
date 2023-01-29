@@ -1,9 +1,11 @@
 ﻿using OpenTK.Mathematics;
 using BlockFactory.Gui.Widget;
+using BlockFactory.Side_;
 using BlockFactory.Util;
 
 namespace BlockFactory.Client.Gui.InGame.Widget_;
 
+[ExclusiveTo(Side.Client)]
 public class InGameMenuClientWidget<T> : Widget
 where T : InGameMenuWidget
 {

@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Graphics.OpenGL4;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public static class GLPreconditions
 {
     public static void CheckShaderCompileError(int shader)

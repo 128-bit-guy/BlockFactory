@@ -4,9 +4,11 @@ using System;
 using System.IO;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class TextRenderer
     {
         private readonly StbTrueType.stbtt_bakedchar[] _chars;

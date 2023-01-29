@@ -7,11 +7,13 @@ using BlockFactory.Client.Render.World_;
 using BlockFactory.Client.World_;
 using BlockFactory.CubeMath;
 using BlockFactory.Item_;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using OpenTK.Graphics.OpenGL4;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class ItemRenderer : IDisposable
 {
     public readonly BlockFactoryClient Client;

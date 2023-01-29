@@ -5,9 +5,11 @@ using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Shader;
 using BlockFactory.Init;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Init;
 
+[ExclusiveTo(Side.Client)]
 public class ClientInit
 {
     public static void Init()

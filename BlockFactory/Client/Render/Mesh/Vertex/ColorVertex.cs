@@ -1,7 +1,9 @@
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.Mesh.Vertex;
 
+[ExclusiveTo(Side.Client)]
 public struct ColorVertex
 {
     [VertexAttribute(0)]

@@ -4,12 +4,14 @@ using BlockFactory.Client.Render.Shader;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Client.Render.World_
 {
+    [ExclusiveTo(Side.Client)]
     public class WorldRenderer : IDisposable
     {
         public readonly World World;

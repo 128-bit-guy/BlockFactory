@@ -1,9 +1,11 @@
 ﻿using BlockFactory.Client.Render;
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class ButtonWidget : Widget
     {
         public readonly string Text;

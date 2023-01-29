@@ -18,6 +18,7 @@ using BlockFactory.Game;
 using BlockFactory.Gui;
 using BlockFactory.Init;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using ClearBufferMask = OpenTK.Graphics.OpenGL4.ClearBufferMask;
 using CullFaceMode = OpenTK.Graphics.OpenGL4.CullFaceMode;
@@ -27,6 +28,7 @@ using GL = OpenTK.Graphics.OpenGL4.GL;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public class BlockFactoryClient
 {
     public unsafe Window* Window { get; private set; }
@@ -330,6 +332,7 @@ public class BlockFactoryClient
             HudRenderer!.Render3DHud();
             if (GameInstance.Kind.IsNetworked() && ServerConnection!.Errored)
             {
+                Console.WriteLine(ServerConnection.LastError);
                 while (HasScreen())
                 {
                     PopScreen();

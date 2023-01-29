@@ -5,9 +5,11 @@ using BlockFactory.Client.Render.Shader;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using BlockFactory.Item_;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Gui
 {
+    [ExclusiveTo(Side.Client)]
     public class Screen : IDisposable
     {
         public readonly BlockFactoryClient Client;

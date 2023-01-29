@@ -6,11 +6,13 @@ using BlockFactory.Game;
 using BlockFactory.Gui;
 using BlockFactory.Init;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Client.Init;
 
+[ExclusiveTo(Side.Client)]
 public class PacketHandlers
 {
     private static void OnOtherPlayerMessage(OtherPlayerMessagePacket packet, NetworkConnection connection)

@@ -8,10 +8,12 @@ using BlockFactory.Client.World_;
 using BlockFactory.Block_;
 using BlockFactory.Client.Render.World_;
 using BlockFactory.Item_;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class HudRenderer : IDisposable
 {
     public readonly BlockFactoryClient Client;

@@ -1,9 +1,11 @@
 using OpenTK.Graphics.OpenGL4;
 using StbImageSharp;
 using BlockFactory.Registry_;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class TextureArrayManager
 {
     private List<ImageResult> Images;

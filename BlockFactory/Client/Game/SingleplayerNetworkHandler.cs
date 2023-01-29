@@ -7,9 +7,11 @@ using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Client.Game
 {
+    [ExclusiveTo(Side.Client)]
     public class SingleplayerNetworkHandler : INetworkHandler
     {
         public IEnumerable<NetworkConnection> GetAllConnections()
