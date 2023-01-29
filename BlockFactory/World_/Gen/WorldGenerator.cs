@@ -1,6 +1,8 @@
 ﻿using BlockFactory.Block_;
 using BlockFactory.CubeMath;
+using BlockFactory.Game;
 using BlockFactory.Init;
+using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
@@ -16,6 +18,12 @@ namespace BlockFactory.World_.Gen
         public int ChunksUpgraded;
         private List<Chunk>[,,,] _scheduledUpgrades;
         private ChunkGenerationLevel[] _generationLevels;
+        [ExclusiveTo(Side.Server)]
+        private long _totalChunksUpgraded = 0;
+        [ExclusiveTo(Side.Server)]
+        private long _chunksUpgradedOnOtherThread = 0;
+        [ExclusiveTo(Side.Server)]
+        public double OtherThreadRatio => (double)_chunksUpgradedOnOtherThread / _totalChunksUpgraded;
         public WorldGenerator(int seed) {
             Seed = seed;
             Perlin = new Perlin
@@ -81,8 +89,23 @@ namespace BlockFactory.World_.Gen
             }
         }
 
+        [ExclusiveTo(Side.Server)]
+        private void IncrementStats(Chunk chunk)
+        {
+            Interlocked.Increment(ref _totalChunksUpgraded);
+            if (Thread.CurrentThread != chunk.World.GameInstance.MainThread)
+            {
+                Interlocked.Increment(ref _chunksUpgradedOnOtherThread);
+            }
+        }
+
         private void ActuallyUpgradeChunkToLevel(ChunkGenerationLevel level, Chunk chunk)
         {
+            if (chunk.World.GameInstance.Kind == GameKind.MultiplayerBackend)
+            {
+                IncrementStats(chunk);
+            }
+
             switch (level) {
                 case ChunkGenerationLevel.SurfaceGenerated:
                     GenerateSurface(chunk);

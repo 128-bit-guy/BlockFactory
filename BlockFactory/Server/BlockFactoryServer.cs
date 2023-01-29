@@ -195,6 +195,9 @@ public class BlockFactoryServer
             stopwatch.Stop();
             Console.WriteLine($"Placing blocks: {stopwatch.Elapsed.TotalMilliseconds}");
             Console.WriteLine($"Chunks upgraded when placing blocks: {world.Generator.ChunksUpgraded}");
+        } else if (split[0] == "/printstats")
+        {
+            Console.WriteLine($"Chunk upgrade on other thread ratio {player.World!.Generator.OtherThreadRatio}");
         }
     }
 }
