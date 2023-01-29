@@ -9,7 +9,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
-        <ProjectReference Include="..\BlockFactory.Network\BlockFactory.Network.csproj" />
         <ProjectReference Include="..\BlockFactory.Side_\BlockFactory.Side_.csproj" />
     </ItemGroup>
 
@@ -20,6 +19,7 @@
         <PackageReference Include="SharpNoise" Version="0.12.1.1" />
         <PackageReference Include="StbImageSharp" Version="2.27.13" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.11" />
+        <PackageReference Include="ZstdSharp" Version="0.7.2" />
     </ItemGroup>
 
     <ItemGroup>

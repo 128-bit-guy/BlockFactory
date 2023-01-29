@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Server", "Bloc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.CubeMath", "BlockFactory.CubeMath\BlockFactory.CubeMath.csproj", "{D3253651-AC6C-4834-A18B-A133D6D5B406}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Network", "BlockFactory.Network\BlockFactory.Network.csproj", "{A07D9529-BE70-4980-98FA-C62D254144E5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Serialization", "BlockFactory.Serialization\BlockFactory.Serialization.csproj", "{48E8C194-2AAC-46ED-8150-7969093453FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockFactory.Side_", "BlockFactory.Side_\BlockFactory.Side_.csproj", "{108DC31F-38CA-4CF0-9B5C-8E682A809688}"
@@ -50,10 +48,6 @@ Global
 		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3253651-AC6C-4834-A18B-A133D6D5B406}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A07D9529-BE70-4980-98FA-C62D254144E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A07D9529-BE70-4980-98FA-C62D254144E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A07D9529-BE70-4980-98FA-C62D254144E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A07D9529-BE70-4980-98FA-C62D254144E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48E8C194-2AAC-46ED-8150-7969093453FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
