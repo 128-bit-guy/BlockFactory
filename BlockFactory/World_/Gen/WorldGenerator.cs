@@ -78,28 +78,30 @@ namespace BlockFactory.World_.Gen
 
         private void AddComponentChunks(Chunk chunk, ChunkGenerationLevel level, List<Chunk>[,,] componentChunks)
         {
-            if (chunk.VisitedGenerationLevel < level && chunk.Data!._generationLevel >= level)
+            if (chunk.VisitedGenerationLevel >= level || chunk.Data!._generationLevel < level) return;
+            chunk.VisitedGenerationLevel = level;
+            var rem = chunk.Pos;
+            for (var i = 0; i < 3; ++i)
             {
-                chunk.VisitedGenerationLevel = level;
-                var rem = chunk.Pos;
-                for (int i = 0; i < 3; ++i)
+                rem[i] %= 3;
+                if (rem[i] < 0)
                 {
-                    rem[i] %= 3;
-                    if (rem[i] < 0)
-                    {
-                        rem[i] += 3;
-                    }
+                    rem[i] += 3;
                 }
-                componentChunks[rem.X, rem.Y, rem.Z].Add(chunk);
-                foreach (var offset in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+            }
+            componentChunks[rem.X, rem.Y, rem.Z].Add(chunk);
+            foreach (var offset in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
+            {
+                if (offset == new Vector3i(1)) continue;
+                var neighbour = chunk.Neighbourhood.Chunks[offset.X, offset.Y, offset.Z];
+                if (neighbour == null) continue;
+                // AddComponentChunks(neighbour, level, componentChunks);
+                foreach (var offset2 in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
                 {
-                    if (offset != new Vector3i(1))
+                    var neighbour2 = neighbour.Neighbourhood.Chunks[offset2.X, offset2.Y, offset2.Z];
+                    if (neighbour2 != null)
                     {
-                        var neighbour = chunk.Neighbourhood.Chunks[offset.X, offset.Y, offset.Z];
-                        if (neighbour != null)
-                        {
-                            AddComponentChunks(neighbour, level, componentChunks);
-                        }
+                        AddComponentChunks(neighbour2, level, componentChunks);
                     }
                 }
             }
