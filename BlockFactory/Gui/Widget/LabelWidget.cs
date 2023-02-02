@@ -4,8 +4,9 @@ namespace BlockFactory.Gui.Widget;
 
 public class LabelWidget : InGameMenuWidget
 {
-    public readonly string Text;
     public readonly int Centering;
+    public readonly string Text;
+
     public LabelWidget(InGameMenuWidgetType type, Box2i inclusiveBox, string text, int centering) :
         base(type, inclusiveBox)
     {

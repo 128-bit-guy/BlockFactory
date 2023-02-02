@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using OpenTK.Mathematics;
-using BlockFactory;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
@@ -14,8 +12,8 @@ using BlockFactory.Server.Network;
 using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Math_;
-using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Server;
 
@@ -23,8 +21,8 @@ namespace BlockFactory.Server;
 public class BlockFactoryServer
 {
     public static readonly BlockFactoryServer Instance = new();
-    public HashSet<NetworkConnection> Connections = new();
     public ConnectionAcceptor ConnectionAcceptor = null!;
+    public HashSet<NetworkConnection> Connections = new();
     public GameInstance GameInstance = null!;
     public bool ShouldRun;
 
@@ -35,10 +33,7 @@ public class BlockFactoryServer
     private void InitConnectionAcceptor()
     {
         var x = Console.ReadLine()!;
-        if (x.Length == 0)
-        {
-            x = "" + Constants.DefaultPort;
-        }
+        if (x.Length == 0) x = "" + Constants.DefaultPort;
 
         var port = int.Parse(x);
         ConnectionAcceptor = new ConnectionAcceptor(port);
@@ -50,10 +45,8 @@ public class BlockFactoryServer
                 ServerPlayerEntity player = new(addConnection);
                 addConnection.SideObject = player;
                 foreach (var connection in Connections)
-                {
                     connection.SendPacket(new OtherPlayerMessagePacket("Server",
                         $"Player {connection.Socket.RemoteEndPoint} joined server"));
-                }
 
                 Connections.Add(addConnection);
                 GameInstance.World.AddPlayer(player);
@@ -64,10 +57,8 @@ public class BlockFactoryServer
                         Connections.Remove(addConnection);
                         GameInstance.World.RemovePlayer(player);
                         foreach (var connection in Connections)
-                        {
                             connection.SendPacket(new OtherPlayerMessagePacket("Server",
                                 $"Player {connection.Socket.RemoteEndPoint} left server"));
-                        }
                     });
                 };
                 addConnection.Start();
@@ -103,10 +94,7 @@ public class BlockFactoryServer
     internal void Run()
     {
         Init();
-        while (ShouldRun)
-        {
-            Update();
-        }
+        while (ShouldRun) Update();
 
         ConnectionAcceptor.Stop();
         ConnectionAcceptor.Dispose();
@@ -120,7 +108,6 @@ public class BlockFactoryServer
             var chunk = GameInstance.World.GetOrLoadChunk(oChunkPos);
             var neighbourhood = chunk.Neighbourhood;
             foreach (var blockPos in chunk.GetInclusiveBox().InclusiveEnumerable())
-            {
                 if (neighbourhood.GetBlockState(blockPos).Block == Blocks.Air &&
                     neighbourhood.GetBlockState(blockPos + Vector3i.UnitY).Block == Blocks.Air &&
                     neighbourhood.GetBlockState(blockPos - Vector3i.UnitY).Block != Blocks.Air)
@@ -130,13 +117,12 @@ public class BlockFactoryServer
                     entity.Pos += new Vector3(0.5f, 1.6f, 0.5f);
                     return;
                 }
-            }
         }
     }
 
     internal void HandleCommand(PlayerEntity player, string cmd)
     {
-        string[] split = cmd.Split(' ');
+        var split = cmd.Split(' ');
         if (split[0] == "/speed")
         {
             if (split.Length == 1)
@@ -145,10 +131,7 @@ public class BlockFactoryServer
             }
             else
             {
-                if (float.TryParse(split[1], out var speed))
-                {
-                    player.Speed = speed;
-                }
+                if (float.TryParse(split[1], out var speed)) player.Speed = speed;
             }
         }
         else if (split[0] == "/respawn")
@@ -157,16 +140,16 @@ public class BlockFactoryServer
         }
         else if (split[0] == "/toisland")
         {
-            Vector3i chunkPos = player.Pos.ChunkPos;
-            Vector3i islandPos = chunkPos;
+            var chunkPos = player.Pos.ChunkPos;
+            var islandPos = chunkPos;
             islandPos.Y = 100 / 16;
             SpawnPlayer(player, islandPos);
         }
         else if (split[0] == "/dighole")
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
-            World world = player.World!;
+            var world = player.World!;
             foreach (var offset in new Box3i(
                          new Vector3i(-10, -1000, -10),
                          new Vector3i(10)
@@ -176,6 +159,7 @@ public class BlockFactoryServer
                 var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
                 world.GetOrLoadChunk(chunkPos, false);
             }
+
             stopwatch.Stop();
             Console.WriteLine($"Scheduling chunks: {stopwatch.Elapsed.TotalMilliseconds}");
             stopwatch.Restart();
@@ -187,15 +171,17 @@ public class BlockFactoryServer
             foreach (var offset in new Box3i(
                          new Vector3i(-10, -1000, -10),
                          new Vector3i(10)
-                         ).InclusiveEnumerable())
+                     ).InclusiveEnumerable())
             {
                 var blockPos = player.Pos.GetBlockPos() + offset;
                 world.SetBlockState(blockPos, new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
             }
+
             stopwatch.Stop();
             Console.WriteLine($"Placing blocks: {stopwatch.Elapsed.TotalMilliseconds}");
             Console.WriteLine($"Chunks upgraded when placing blocks: {world.Generator.ChunksUpgraded}");
-        } else if (split[0] == "/printstats")
+        }
+        else if (split[0] == "/printstats")
         {
             Console.WriteLine($"Chunk upgrade on other thread ratio {player.World!.Generator.OtherThreadRatio}");
         }

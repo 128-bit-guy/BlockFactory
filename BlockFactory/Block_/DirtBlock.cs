@@ -1,6 +1,5 @@
-﻿namespace BlockFactory.Block_
+﻿namespace BlockFactory.Block_;
+
+public class DirtBlock : Block
 {
-    public class DirtBlock : Block
-    {
-    }
 }

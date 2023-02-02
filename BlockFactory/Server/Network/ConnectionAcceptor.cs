@@ -8,10 +8,9 @@ namespace BlockFactory.Server.Network;
 [ExclusiveTo(Side.Server)]
 public class ConnectionAcceptor : IDisposable
 {
-    public readonly Socket Socket;
     private readonly CancellationTokenSource _tokenSource;
+    public readonly Socket Socket;
     private Task? _task;
-    public event Action<NetworkConnection> OnAccepted;
 
     public ConnectionAcceptor(int port)
     {
@@ -24,6 +23,14 @@ public class ConnectionAcceptor : IDisposable
         OnAccepted = _ => { };
     }
 
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public event Action<NetworkConnection> OnAccepted;
+
     ~ConnectionAcceptor()
     {
         Dispose(false);
@@ -32,7 +39,7 @@ public class ConnectionAcceptor : IDisposable
     private void BeginAccept()
     {
         var task = Socket.AcceptAsync(_tokenSource.Token);
-        _task = Task.Factory.ContinueWhenAll(new[] {task.AsTask()}, AcceptSocket);
+        _task = Task.Factory.ContinueWhenAll(new[] { task.AsTask() }, AcceptSocket);
     }
 
     private void AcceptSocket(Task<Socket>[] res)
@@ -57,11 +64,5 @@ public class ConnectionAcceptor : IDisposable
     {
         Socket.Dispose();
         _tokenSource.Dispose();
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }

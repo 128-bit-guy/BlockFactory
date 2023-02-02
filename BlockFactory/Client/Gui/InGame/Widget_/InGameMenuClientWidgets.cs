@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using BlockFactory.Gui.Widget;
+﻿using BlockFactory.Gui.Widget;
 using BlockFactory.Init;
 using BlockFactory.Registry_;
 using BlockFactory.Side_;
@@ -27,14 +26,14 @@ public static class InGameMenuClientWidgets
 
     public static void RegisterDefault<T>(InGameMenuWidgetType type) where T : Widget
     {
-        ConstructorInfo constructor = typeof(T).GetConstructors()[0];
-        Type t = constructor.GetParameters()[0].ParameterType;
-        Type dT = typeof(ClientWidgetCreator<>).MakeGenericType(t);
-        MethodInfo createDelegate = typeof(ReflectionUtils).GetMethod(nameof(ReflectionUtils.CreateDelegate))!;
-        MethodInfo genericCreateDelegate = createDelegate.MakeGenericMethod(dT);
-        object d = genericCreateDelegate.Invoke(null, new object?[] { constructor})!;
-        MethodInfo registerGeneric = typeof(InGameMenuClientWidgets).GetMethod(nameof(RegisterGeneric))!;
-        MethodInfo registerGenericGeneric = registerGeneric.MakeGenericMethod(t);
+        var constructor = typeof(T).GetConstructors()[0];
+        var t = constructor.GetParameters()[0].ParameterType;
+        var dT = typeof(ClientWidgetCreator<>).MakeGenericType(t);
+        var createDelegate = typeof(ReflectionUtils).GetMethod(nameof(ReflectionUtils.CreateDelegate))!;
+        var genericCreateDelegate = createDelegate.MakeGenericMethod(dT);
+        var d = genericCreateDelegate.Invoke(null, new object?[] { constructor })!;
+        var registerGeneric = typeof(InGameMenuClientWidgets).GetMethod(nameof(RegisterGeneric))!;
+        var registerGenericGeneric = registerGeneric.MakeGenericMethod(t);
         registerGenericGeneric.Invoke(null, new[] { type, d });
     }
 
@@ -45,6 +44,7 @@ public static class InGameMenuClientWidgets
         {
             return creator((T)w, s);
         }
+
         ClientWidgetCreators.Register(type, (ClientWidgetCreatorNG)ClientWidgetCreatorNg);
     }
 }

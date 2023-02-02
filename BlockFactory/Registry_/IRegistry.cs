@@ -1,8 +1,7 @@
-﻿namespace BlockFactory.Registry_
+﻿namespace BlockFactory.Registry_;
+
+internal interface IRegistry
 {
-    internal interface IRegistry
-    {
-        public void Synchronize(RegistryName[] order);
-        public RegistryName[] GetNameOrder();
-    }
+    public void Synchronize(RegistryName[] order);
+    public RegistryName[] GetNameOrder();
 }

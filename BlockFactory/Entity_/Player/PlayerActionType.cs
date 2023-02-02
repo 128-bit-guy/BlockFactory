@@ -2,5 +2,7 @@
 
 public enum PlayerActionType
 {
-    SetHotbarPos, AddHotbarPos, ChangeMenu
+    SetHotbarPos,
+    AddHotbarPos,
+    ChangeMenu
 }

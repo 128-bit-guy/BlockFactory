@@ -8,10 +8,11 @@ namespace BlockFactory.Client.Render.Shader;
 public class ColorShaderProgram : ShaderProgram
 {
     public int ColorUniform;
+
     public ColorShaderProgram(string vertexPath, string fragmentPath) : base(vertexPath, fragmentPath)
     {
-
     }
+
     public ColorShaderProgram(string pathBegin) : base(pathBegin)
     {
     }

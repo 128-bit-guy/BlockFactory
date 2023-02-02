@@ -1,15 +1,13 @@
 ﻿using BlockFactory.Entity_.Player;
 using BlockFactory.Network;
-using BlockFactory.Entity_;
 
-namespace BlockFactory.Game
+namespace BlockFactory.Game;
+
+public interface INetworkHandler
 {
-    public interface INetworkHandler
-    {
-        IEnumerable<NetworkConnection> GetAllConnections();
+    IEnumerable<NetworkConnection> GetAllConnections();
 
-        NetworkConnection GetServerConnection();
+    NetworkConnection GetServerConnection();
 
-        NetworkConnection GetPlayerConnection(PlayerEntity player);
-    }
+    NetworkConnection GetPlayerConnection(PlayerEntity player);
 }

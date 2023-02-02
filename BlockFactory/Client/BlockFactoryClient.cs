@@ -1,11 +1,6 @@
-using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
-using BlockFactory.Client.Render.Mesh;
-using BlockFactory.Client.Render.Shader;
-using BlockFactory;
 using BlockFactory.Client.Entity_;
 using BlockFactory.Client.Game;
 using BlockFactory.Client.Gui;
@@ -20,59 +15,60 @@ using BlockFactory.Init;
 using BlockFactory.Network;
 using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
-using ClearBufferMask = OpenTK.Graphics.OpenGL4.ClearBufferMask;
-using CullFaceMode = OpenTK.Graphics.OpenGL4.CullFaceMode;
-using DepthFunction = OpenTK.Graphics.OpenGL4.DepthFunction;
-using EnableCap = OpenTK.Graphics.OpenGL4.EnableCap;
-using GL = OpenTK.Graphics.OpenGL4.GL;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client;
 
 [ExclusiveTo(Side.Client)]
 public class BlockFactoryClient
 {
-    public unsafe Window* Window { get; private set; }
+    public delegate void CharInputHandler(string chars);
+
+    public delegate void KeyInputHandler(Keys key, int scancode, InputAction action, KeyModifiers mods);
+
+    public delegate void MouseButtonHandler(MouseButton button, InputAction action, KeyModifiers modifiers);
+
     public static readonly BlockFactoryClient Instance = new();
-    public ClientPlayerEntity? Player = null;
-    public VPMatrices VpMatrices = null!;
-    private DateTime _lastTime;
-    public TimeSpan DeltaTime { get; private set; }
-    public NetworkConnection? ServerConnection;
-    public GameInstance? GameInstance;
-    private Vector2d _cursorPos;
-    public Vector2d CursorPos { get { return _cursorPos; } }
-    public Vector2d CursorPosDelta { get; private set; }
-    public WorldRenderer? WorldRenderer;
-    public HudRenderer? HudRenderer;
-    public ItemRenderer? ItemRenderer;
     private readonly Stack<Screen> _screenStack = new();
     public readonly MatrixStack Matrices;
-    public bool CursorVisible;
-    public delegate void MouseButtonHandler(MouseButton button, InputAction action, KeyModifiers modifiers);
-    public event MouseButtonHandler OnMouseButton;
-    public delegate void CharInputHandler(string chars);
-    public event CharInputHandler OnCharInput;
-    public delegate void KeyInputHandler(Keys key, int scancode, InputAction action, KeyModifiers mods);
-    public event KeyInputHandler OnKeyInput;
-    private GLFWCallbacks.FramebufferSizeCallback _fbscb = null!;
-    private GLFWCallbacks.MouseButtonCallback _mbcb = null!;
     private GLFWCallbacks.CharCallback _ccb = null!;
+    private Vector2d _cursorPos;
+    private GLFWCallbacks.FramebufferSizeCallback _fbscb = null!;
     private GLFWCallbacks.KeyCallback _kcb = null!;
+    private DateTime _lastTime;
+    private GLFWCallbacks.MouseButtonCallback _mbcb = null!;
     private GLFWCallbacks.ScrollCallback _scb = null!;
     private bool _shouldRun;
+    public bool CursorVisible;
+    public GameInstance? GameInstance;
+    public HudRenderer? HudRenderer;
+    public ItemRenderer? ItemRenderer;
+    public ClientPlayerEntity? Player;
+    public NetworkConnection? ServerConnection;
+    public VPMatrices VpMatrices = null!;
+    public WorldRenderer? WorldRenderer;
 
     private BlockFactoryClient()
     {
         Matrices = new MatrixStack();
         OnMouseButton = (_, _, _) => { };
-        OnCharInput = (_) => { };
+        OnCharInput = _ => { };
         OnKeyInput = OnKeyInput0;
     }
+
+    public unsafe Window* Window { get; private set; }
+    public TimeSpan DeltaTime { get; private set; }
+    public Vector2d CursorPos => _cursorPos;
+    public Vector2d CursorPosDelta { get; private set; }
+    public event MouseButtonHandler OnMouseButton;
+    public event CharInputHandler OnCharInput;
+    public event KeyInputHandler OnKeyInput;
 
     private void OnKeyInput0(Keys key, int scancode, InputAction action, KeyModifiers modifiers)
     {
         if (action == InputAction.Press)
-        {
             if (GameInstance != null)
             {
                 if (key == Keys.Escape)
@@ -80,41 +76,29 @@ public class BlockFactoryClient
                     if (HasScreen())
                     {
                         if (_screenStack.Peek() is InGameMenuScreen || _screenStack.Peek() is ChatScreen)
-                        {
                             Player!.HandlePlayerAction(PlayerActionType.ChangeMenu, 0);
-                        }
                         else
-                        {
                             PopScreen();
-                        }
                     }
                     else
                     {
                         PushScreen(new PauseMenuScreen(this));
                     }
-                } else if (key == Keys.E)
+                }
+                else if (key == Keys.E)
                 {
                     if (!HasScreen() || _screenStack.Peek() is InGameMenuScreen)
-                    {
                         Player!.HandlePlayerAction(PlayerActionType.ChangeMenu, 1);
-                    }
-                } else if (key == Keys.T)
+                }
+                else if (key == Keys.T)
                 {
-                    if (!HasScreen())
-                    {
-                        PushScreen(new ChatScreen(this));
-                    }
+                    if (!HasScreen()) PushScreen(new ChatScreen(this));
                 }
             }
-        }
 
         if (key is >= Keys.D1 and <= Keys.D9)
-        {
             if (Player != null)
-            {
                 Player.HandlePlayerAction(PlayerActionType.SetHotbarPos, key - Keys.D1);
-            }
-        }
     }
 
     private unsafe void InitWindow()
@@ -130,7 +114,8 @@ public class BlockFactoryClient
         GLFW.MakeContextCurrent(Window);
         GL.LoadBindings(new GLFWBindingsContext());
         GLFW.SetFramebufferSizeCallback(Window, _fbscb = (_, width, height) => GL.Viewport(0, 0, width, height));
-        GLFW.SetMouseButtonCallback(Window, _mbcb = (w, button, action, modifiers) => OnMouseButton(button, action, modifiers));
+        GLFW.SetMouseButtonCallback(Window,
+            _mbcb = (w, button, action, modifiers) => OnMouseButton(button, action, modifiers));
         GLFW.SetCharCallback(Window, _ccb = (w, ch) => OnCharInput(char.ConvertFromUtf32(unchecked((int)ch))));
         GLFW.SetKeyCallback(Window, _kcb = (w, key, scancode, action, mods) => OnKeyInput(key, scancode, action, mods));
         GLFW.SetScrollCallback(Window, _scb = (w, dx, dy) => OnScroll(dx, dy));
@@ -142,13 +127,9 @@ public class BlockFactoryClient
         if (Player != null)
         {
             if (dY > 0)
-            {
                 Player.HandlePlayerAction(PlayerActionType.AddHotbarPos, 1);
-            }
             else
-            {
                 Player.HandlePlayerAction(PlayerActionType.AddHotbarPos, -1);
-            }
         }
     }
 
@@ -164,16 +145,9 @@ public class BlockFactoryClient
         {
             NetworkHandler = new MultiplayerFrontendNetworkHandler(this),
             SideHandler = new ClientSideHandler(this)
-
         };
-        if (serverAddressAndPort.Length == 0)
-        {
-            serverAddressAndPort = Dns.GetHostName();
-        }
-        if (!serverAddressAndPort.Contains(':'))
-        {
-            serverAddressAndPort += ":" + Constants.DefaultPort;
-        }
+        if (serverAddressAndPort.Length == 0) serverAddressAndPort = Dns.GetHostName();
+        if (!serverAddressAndPort.Contains(':')) serverAddressAndPort += ":" + Constants.DefaultPort;
         var a = serverAddressAndPort.Split(':');
         var address = a[0];
         var port = int.Parse(a[1]);
@@ -195,7 +169,8 @@ public class BlockFactoryClient
         Player.OnMenuChange += OnInGameMenuOpen;
     }
 
-    public void InitSingleplayerGameInstance() {
+    public void InitSingleplayerGameInstance()
+    {
         Player = new ClientPlayerEntity
         {
             Pos = new EntityPos((0, 0, 10))
@@ -214,7 +189,7 @@ public class BlockFactoryClient
         Player.OnMenuChange += OnInGameMenuOpen;
     }
 
-    private unsafe void Init()
+    private void Init()
     {
         CursorVisible = true;
         InitWindow();
@@ -279,7 +254,7 @@ public class BlockFactoryClient
 
     private void UpdateTime()
     {
-        DateTime now = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
         DeltaTime = now - _lastTime;
         _lastTime = now;
     }
@@ -308,22 +283,15 @@ public class BlockFactoryClient
     {
         Matrices.Push();
         if (GameInstance != null && _screenStack.Count == 0)
-        {
             HideCursor();
-        }
         else
-        {
             ShowCursor();
-        }
         UpdateTime();
         UpdateCursor();
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         if (GameInstance != null)
         {
-            if (!HasScreen())
-            {
-                Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
-            }
+            if (!HasScreen()) Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
             GameInstance!.Update();
             UseWorldMatrices();
             WorldRenderer!.UpdateAndRender();
@@ -333,30 +301,22 @@ public class BlockFactoryClient
             if (GameInstance.Kind.IsNetworked() && ServerConnection!.Errored)
             {
                 Console.WriteLine(ServerConnection.LastError);
-                while (HasScreen())
-                {
-                    PopScreen();
-                }
+                while (HasScreen()) PopScreen();
                 PushScreen(new MainMenuScreen(this));
                 PushScreen(new ForcedDisconnectionScreen(this, ServerConnection.LastError!));
                 CleanupGameInstance();
             }
         }
+
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         UseGuiMatrices();
-        if (HasScreen())
-        {
-            _screenStack.Peek().UpdateAndRender();
-        }
+        if (HasScreen()) _screenStack.Peek().UpdateAndRender();
         Matrices.Pop();
     }
 
     public void PushScreen(Screen screen)
     {
-        if (_screenStack.Count > 0)
-        {
-            _screenStack.Peek().OnHide();
-        }
+        if (_screenStack.Count > 0) _screenStack.Peek().OnHide();
         _screenStack.Push(screen);
         screen.OnShow();
     }
@@ -364,18 +324,15 @@ public class BlockFactoryClient
     public Vector3 GetDirectionFromPosFor3DHud(Vector2 pos)
     {
         pos.Y = -pos.Y;
-        return (Vector3.Unproject(new Vector3(pos), -1, -1, 2, 2, -1, 1,
-            (CreatePerspective()).Inverted())).Normalized();
+        return Vector3.Unproject(new Vector3(pos), -1, -1, 2, 2, -1, 1,
+            CreatePerspective().Inverted()).Normalized();
     }
 
     public void PopScreen()
     {
         _screenStack.Peek().OnHide();
         _screenStack.Pop().Dispose();
-        if (_screenStack.Count > 0)
-        {
-            _screenStack.Peek().OnShow();
-        }
+        if (_screenStack.Count > 0) _screenStack.Peek().OnShow();
     }
 
     public bool HasScreen()
@@ -385,7 +342,7 @@ public class BlockFactoryClient
 
     private unsafe void UpdateCursor()
     {
-        Vector2d lastCursorPos = CursorPos;
+        var lastCursorPos = CursorPos;
         GLFW.GetCursorPos(Window, out _cursorPos.X, out _cursorPos.Y);
         CursorPosDelta = CursorPos - lastCursorPos;
     }
@@ -399,10 +356,7 @@ public class BlockFactoryClient
             ServerConnection = null;
         }
 
-        if (Player != null)
-        {
-            Player.OnMenuChange -= OnInGameMenuOpen;
-        }
+        if (Player != null) Player.OnMenuChange -= OnInGameMenuOpen;
         Player = null;
         if (GameInstance != null)
         {
@@ -421,6 +375,7 @@ public class BlockFactoryClient
             ItemRenderer!.Dispose();
             ItemRenderer = null;
         }
+
         if (WorldRenderer != null)
         {
             WorldRenderer!.Dispose();
@@ -430,15 +385,9 @@ public class BlockFactoryClient
 
     private void OnInGameMenuOpen(InGameMenu? previous, InGameMenu? menu)
     {
-        while (HasScreen())
-        {
-            PopScreen();
-        }
+        while (HasScreen()) PopScreen();
 
-        if (menu != null)
-        {
-            PushScreen(InGameMenuScreens.ScreenCreators[menu.Type](menu, this));
-        }
+        if (menu != null) PushScreen(InGameMenuScreens.ScreenCreators[menu.Type](menu, this));
     }
 
     public void Stop()
@@ -455,10 +404,8 @@ public class BlockFactoryClient
             UpdateAndRender();
             GLFW.SwapBuffers(Window);
         }
-        if (GameInstance != null)
-        {
-            CleanupGameInstance();
-        }
+
+        if (GameInstance != null) CleanupGameInstance();
         GLFW.Terminate();
     }
 }

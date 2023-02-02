@@ -9,6 +9,7 @@ public static class Shaders
     public static ShaderProgram Text { get; private set; } = null!;
     public static ShaderProgram Gui { get; private set; } = null!;
     public static ColorShaderProgram Color { get; private set; } = null!;
+
     internal static void Init()
     {
         Block = new ShaderProgram("BlockFactory.Assets.Shaders.block");

@@ -8,29 +8,27 @@ public static class GLPreconditions
 {
     public static void CheckShaderCompileError(int shader)
     {
-        GL.GetShader(shader, ShaderParameter.CompileStatus, out int compilationSuccessful);
+        GL.GetShader(shader, ShaderParameter.CompileStatus, out var compilationSuccessful);
         if (compilationSuccessful == 0)
         {
-            string infoLog = GL.GetShaderInfoLog(shader);
+            var infoLog = GL.GetShaderInfoLog(shader);
             throw new GLException(string.Format("Unable to compile shader: {0}", infoLog));
         }
     }
+
     public static void CheckProgramLinkError(int program)
     {
-        GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int linkSuccessful);
+        GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var linkSuccessful);
         if (linkSuccessful == 0)
         {
-            string infoLog = GL.GetProgramInfoLog(program);
+            var infoLog = GL.GetProgramInfoLog(program);
             throw new GLException(string.Format("Unable to link program: {0}", infoLog));
         }
     }
 
     public static void CheckGLError()
     {
-        ErrorCode error = GL.GetError();
-        if (error != ErrorCode.NoError)
-        {
-            throw new GLException(string.Format("GL error: {0}", error));
-        }
+        var error = GL.GetError();
+        if (error != ErrorCode.NoError) throw new GLException(string.Format("GL error: {0}", error));
     }
 }

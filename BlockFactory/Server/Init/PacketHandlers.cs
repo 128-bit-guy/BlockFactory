@@ -1,4 +1,3 @@
-using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Network;
 using BlockFactory.Server.Entity_;
@@ -15,17 +14,11 @@ public static class PacketHandlers
         connection.GameInstance!.EnqueueWork(() =>
         {
             if (packet.Msg.StartsWith('/'))
-            {
                 BlockFactoryServer.Instance.HandleCommand((PlayerEntity)connection.SideObject!, packet.Msg);
-            }
             else
-            {
                 foreach (var networkConnection in BlockFactoryServer.Instance.Connections)
-                {
                     networkConnection.SendPacket(
                         new OtherPlayerMessagePacket(connection.Socket.RemoteEndPoint!.ToString()!, packet.Msg));
-                }
-            }
         });
     }
 
@@ -42,17 +35,18 @@ public static class PacketHandlers
     private static void HandlePlayerAction(PlayerActionPacket packet, NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
-                {
-                    ((PlayerEntity)connection.SideObject!).HandlePlayerAction(packet.ActionType, packet.Number);
-                }
-            );
+            {
+                ((PlayerEntity)connection.SideObject!).HandlePlayerAction(packet.ActionType, packet.Number);
+            }
+        );
     }
 
     private static void HandleWidgetAction(WidgetActionPacket packet, NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            ((PlayerEntity)connection.SideObject!).Menu!.Widgets[packet.WidgetIndex].ProcessAction(packet.ActionNumber);
+            ((PlayerEntity)connection.SideObject!).Menu!.Widgets[packet.WidgetIndex]
+                .ProcessAction(packet.ActionNumber);
         });
     }
 

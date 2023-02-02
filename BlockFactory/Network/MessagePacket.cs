@@ -11,7 +11,7 @@ public class MessagePacket : IPacket
 
     public MessagePacket(string msg)
     {
-        this.Msg = msg;
+        Msg = msg;
     }
 
     public void Write(BinaryWriter writer)

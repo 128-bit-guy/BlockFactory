@@ -8,6 +8,7 @@ public class BlockChangePacket : IPacket
 {
     public readonly Vector3i Pos;
     public readonly BlockState State;
+
     public BlockChangePacket(BinaryReader reader)
     {
         Pos = NetworkUtils.ReadVector3i(reader);
@@ -19,6 +20,7 @@ public class BlockChangePacket : IPacket
         Pos = pos;
         State = state;
     }
+
     public void Write(BinaryWriter writer)
     {
         Pos.Write(writer);

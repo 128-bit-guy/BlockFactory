@@ -2,8 +2,8 @@
 
 public class SlotGroup
 {
-    public List<SlotWidget> Slots;
     public SlotGroup? Next;
+    public List<SlotWidget> Slots;
 
     public SlotGroup()
     {

@@ -2,26 +2,28 @@
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
-namespace BlockFactory.Network
+namespace BlockFactory.Network;
+
+public class ChunkDataPacket : IPacket
 {
-    public class ChunkDataPacket : IPacket
+    public readonly ChunkData Data;
+    public readonly Vector3i Pos;
+
+    public ChunkDataPacket(Vector3i pos, ChunkData data)
     {
-        public readonly Vector3i Pos;
-        public readonly ChunkData Data;
-        public ChunkDataPacket(Vector3i pos, ChunkData data)
-        {
-            Pos = pos;
-            Data = data;
-        }
-        public ChunkDataPacket(BinaryReader reader)
-        {
-            Pos = NetworkUtils.ReadVector3i(reader);
-            Data = new ChunkData(reader);
-        }
-        public void Write(BinaryWriter writer)
-        {
-            Pos.Write(writer);
-            Data.Write(writer);
-        }
+        Pos = pos;
+        Data = data;
+    }
+
+    public ChunkDataPacket(BinaryReader reader)
+    {
+        Pos = NetworkUtils.ReadVector3i(reader);
+        Data = new ChunkData(reader);
+    }
+
+    public void Write(BinaryWriter writer)
+    {
+        Pos.Write(writer);
+        Data.Write(writer);
     }
 }

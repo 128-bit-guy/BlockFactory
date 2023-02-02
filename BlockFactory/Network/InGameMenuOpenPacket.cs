@@ -1,18 +1,17 @@
 ﻿using BlockFactory.Gui;
 using BlockFactory.Init;
-using BlockFactory.Util;
 
 namespace BlockFactory.Network;
 
 public class InGameMenuOpenPacket : IPacket
 {
-    public readonly int Id;
     public readonly byte[] Data;
+    public readonly int Id;
 
     public InGameMenuOpenPacket(BinaryReader reader)
     {
         Id = reader.Read7BitEncodedInt();
-        int length = reader.Read7BitEncodedInt();
+        var length = reader.Read7BitEncodedInt();
         Data = reader.ReadBytes(length);
     }
 
@@ -26,13 +25,14 @@ public class InGameMenuOpenPacket : IPacket
         else
         {
             Id = menu.Type.Id;
-            using MemoryStream stream = new MemoryStream();
-            using BinaryWriter writer = new BinaryWriter(stream);
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
             menu.Write(writer);
             writer.Flush();
             Data = stream.ToArray();
         }
     }
+
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Id);
@@ -46,11 +46,9 @@ public class InGameMenuOpenPacket : IPacket
         {
             return null;
         }
-        else
-        {
-            using MemoryStream stream = new MemoryStream(Data);
-            using BinaryReader reader = new BinaryReader(stream);
-            return InGameMenuTypes.Registry[Id].Loader(reader);
-        }
+
+        using var stream = new MemoryStream(Data);
+        using var reader = new BinaryReader(stream);
+        return InGameMenuTypes.Registry[Id].Loader(reader);
     }
 }

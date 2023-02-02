@@ -4,8 +4,9 @@ namespace BlockFactory.Network;
 
 public class PlayerUpdatePacket : IPacket
 {
-    public readonly PlayerUpdateType UpdateType;
     public readonly int Number;
+    public readonly PlayerUpdateType UpdateType;
+
     public PlayerUpdatePacket(BinaryReader reader)
     {
         UpdateType = (PlayerUpdateType)reader.ReadByte();

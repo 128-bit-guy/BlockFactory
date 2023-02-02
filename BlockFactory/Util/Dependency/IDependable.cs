@@ -1,17 +1,16 @@
-﻿namespace BlockFactory.Util.Dependency
+﻿namespace BlockFactory.Util.Dependency;
+
+public interface IDependable
 {
-    public interface IDependable
+    ref int DependencyCount { get; }
+
+    void OnDependencyAdded()
     {
-        ref int DependencyCount { get; }
+        ++DependencyCount;
+    }
 
-        void OnDependencyAdded()
-        {
-            ++DependencyCount;
-        }
-
-        void OnDependencyRemoved()
-        {
-            --DependencyCount;
-        }
+    void OnDependencyRemoved()
+    {
+        --DependencyCount;
     }
 }

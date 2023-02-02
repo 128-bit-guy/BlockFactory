@@ -18,20 +18,14 @@ public class PlayerInventoryMenu : InGameMenu
             "Inventory", -1));
         AddWidget(new LabelWidget(InGameMenuWidgetTypes.Label, new Box2i(0, 4, 8, 4),
             "Hotbar", -1));
-        SlotGroup inventory = new SlotGroup();
-        SlotGroup hotbar = new SlotGroup();
-        for (int i = 0; i < 9; ++i)
-        {
+        var inventory = new SlotGroup();
+        var hotbar = new SlotGroup();
+        for (var i = 0; i < 9; ++i)
             AddWidget(new SlotWidget(InGameMenuWidgetTypes.Slot, (i, 5), player.Hotbar, i, hotbar));
-        }
-        for (int j = 0; j < 3; ++j)
-        {
-            for (int i = 0; i < 9; ++i)
-            {
-                AddWidget(new SlotWidget(InGameMenuWidgetTypes.Slot, (i, 1 + j),
-                    player.Inventory, j * 9 + i, inventory));
-            }
-        }
+        for (var j = 0; j < 3; ++j)
+        for (var i = 0; i < 9; ++i)
+            AddWidget(new SlotWidget(InGameMenuWidgetTypes.Slot, (i, 1 + j),
+                player.Inventory, j * 9 + i, inventory));
         inventory.Next = hotbar;
         hotbar.Next = inventory;
     }

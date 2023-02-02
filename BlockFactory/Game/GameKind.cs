@@ -1,9 +1,8 @@
-﻿namespace BlockFactory.Game
+﻿namespace BlockFactory.Game;
+
+public enum GameKind
 {
-    public enum GameKind
-    {
-        MultiplayerBackend = 1,
-        MultiplayerFrontend = 2,
-        Singleplayer = 3
-    }
+    MultiplayerBackend = 1,
+    MultiplayerFrontend = 2,
+    Singleplayer = 3
 }

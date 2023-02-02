@@ -1,85 +1,78 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-using BlockFactory.Client.Render.Block_;
-using BlockFactory.Block_;
-using BlockFactory.Client.Render.Mesh;
+﻿using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
 using BlockFactory.Init;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
-namespace BlockFactory.Client.Render.World_
+namespace BlockFactory.Client.Render.World_;
+
+[ExclusiveTo(Side.Client)]
+public class ChunkRenderer : IDisposable
 {
-    [ExclusiveTo(Side.Client)]
-    public class ChunkRenderer : IDisposable
+    public readonly Chunk Chunk;
+    public readonly ChunkRendererNeighbourhood Neighbourhood;
+    public readonly Vector3i Pos;
+    public readonly WorldRenderer WorldRenderer;
+    private readonly RenderMesh<BlockVertex> _mesh;
+    public Task<MeshBuilder<BlockVertex>>? RebuildTask;
+    public bool RequiresRebuild;
+
+    public ChunkRenderer(Vector3i pos, Chunk chunk, WorldRenderer worldRenderer)
     {
-        public readonly Vector3i Pos;
-        public readonly ChunkRendererNeighbourhood Neighbourhood;
-        public readonly Chunk Chunk;
-        private RenderMesh<BlockVertex> _mesh;
-        public bool RequiresRebuild;
-        public Task<MeshBuilder<BlockVertex>>? RebuildTask;
-        public readonly WorldRenderer WorldRenderer;
+        Pos = pos;
+        Chunk = chunk;
+        WorldRenderer = worldRenderer;
+        Neighbourhood = new ChunkRendererNeighbourhood(pos);
+        _mesh = new RenderMesh<BlockVertex>(VertexFormats.Block);
+        RequiresRebuild = true;
+    }
 
-        public ChunkRenderer(Vector3i pos, Chunk chunk, WorldRenderer worldRenderer)
-        {
-            Pos = pos;
-            Chunk = chunk;
-            WorldRenderer = worldRenderer;
-            Neighbourhood = new ChunkRendererNeighbourhood(pos);
-            _mesh = new RenderMesh<BlockVertex>(VertexFormats.Block);
-            RequiresRebuild = true;
-        }
+    public void Dispose()
+    {
+        _mesh.DeleteGl();
+        GC.SuppressFinalize(this);
+    }
 
-        public bool HasAnythingToRender()
-        {
-            return _mesh.IndexCount > 0;
-        }
+    public bool HasAnythingToRender()
+    {
+        return _mesh.IndexCount > 0;
+    }
 
-        public MeshBuilder<BlockVertex> Rebuild()
+    public MeshBuilder<BlockVertex> Rebuild()
+    {
+        MeshBuilder<BlockVertex> mb = new(VertexFormats.Block);
+        mb.MatrixStack.Push();
+        for (var i = 0; i < Chunk.Size; ++i)
+        for (var j = 0; j < Chunk.Size; ++j)
+        for (var k = 0; k < Chunk.Size; ++k)
         {
-            MeshBuilder<BlockVertex> mb = new(VertexFormats.Block);
-            mb.MatrixStack.Push();
-            for (int i = 0; i < Chunk.Size; ++i)
+            Vector3i relativePos = new(i, j, k);
+            var absolutePos = Pos.BitShiftLeft(Chunk.SizeLog2) + relativePos;
+            var state = Neighbourhood.GetBlockState(absolutePos);
+            if (state.Block != Blocks.Air)
             {
-                for (int j = 0; j < Chunk.Size; ++j)
-                {
-                    for (int k = 0; k < Chunk.Size; ++k)
-                    {
-                        Vector3i relativePos = new(i, j, k);
-                        Vector3i absolutePos = Pos.BitShiftLeft(Chunk.SizeLog2) + relativePos;
-                        BlockState state = Neighbourhood.GetBlockState(absolutePos);
-                        if (state.Block != Blocks.Air)
-                        {
-                            mb.MatrixStack.Push();
-                            mb.MatrixStack.Translate(relativePos);
-                            WorldRenderer.BlockRenderer.RenderBlock(state, Neighbourhood, absolutePos, mb);
-                            mb.MatrixStack.Pop();
-                        }
-                    }
-                }
+                mb.MatrixStack.Push();
+                mb.MatrixStack.Translate(relativePos);
+                WorldRenderer.BlockRenderer.RenderBlock(state, Neighbourhood, absolutePos, mb);
+                mb.MatrixStack.Pop();
             }
-            mb.MatrixStack.Pop();
-            return mb;
         }
 
-        public void Upload(MeshBuilder<BlockVertex> mb)
-        {
-            mb.Upload(_mesh);
-        }
+        mb.MatrixStack.Pop();
+        return mb;
+    }
 
-        public void Render()
-        {
-            _mesh.Bind();
-            GL.DrawElements(PrimitiveType.Triangles, _mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-        }
+    public void Upload(MeshBuilder<BlockVertex> mb)
+    {
+        mb.Upload(_mesh);
+    }
 
-        public void Dispose()
-        {
-            _mesh.DeleteGl();
-            GC.SuppressFinalize(this);
-        }
+    public void Render()
+    {
+        _mesh.Bind();
+        GL.DrawElements(PrimitiveType.Triangles, _mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
     }
 }

@@ -1,5 +1,4 @@
-﻿using OpenTK.Mathematics;
-using BlockFactory.Block_;
+﻿using BlockFactory.Block_;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.Client.Render.Shader;
@@ -8,19 +7,19 @@ using BlockFactory.Client.World_;
 using BlockFactory.CubeMath;
 using BlockFactory.Item_;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render;
 
 [ExclusiveTo(Side.Client)]
 public class ItemRenderer : IDisposable
 {
-    public readonly BlockFactoryClient Client;
-    public readonly WorldRenderer Renderer;
-    public readonly EmptyBlockReader EmptyBlockReader;
     private readonly RenderMesh<BlockVertex> BlockMesh;
     private readonly MeshBuilder<BlockVertex> BlockMeshBuilder;
+    public readonly BlockFactoryClient Client;
+    public readonly EmptyBlockReader EmptyBlockReader;
+    public readonly WorldRenderer Renderer;
 
     public ItemRenderer(BlockFactoryClient client, WorldRenderer renderer)
     {
@@ -31,14 +30,17 @@ public class ItemRenderer : IDisposable
         BlockMeshBuilder = new MeshBuilder<BlockVertex>(VertexFormats.Block);
     }
 
+    public void Dispose()
+    {
+        BlockMesh.DeleteGl();
+    }
+
     public void RenderItemStack(ItemStack stack)
     {
         BlockMeshBuilder.MatrixStack.Push();
         if (stack.Item is BlockItem b)
-        {
             Renderer.BlockRenderer.RenderBlock(new BlockState(b.Block, CubeRotation.Rotations[0]),
                 EmptyBlockReader, new Vector3i(0, 0, 0), BlockMeshBuilder);
-        }
         BlockMeshBuilder.MatrixStack.Pop();
         BlockMeshBuilder.Upload(BlockMesh);
         BlockMeshBuilder.Reset();
@@ -48,10 +50,5 @@ public class ItemRenderer : IDisposable
         BlockMesh.Bind();
         GL.DrawElements(PrimitiveType.Triangles, BlockMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         GL.BindVertexArray(0);
-    }
-
-    public void Dispose()
-    {
-        BlockMesh.DeleteGl();
     }
 }

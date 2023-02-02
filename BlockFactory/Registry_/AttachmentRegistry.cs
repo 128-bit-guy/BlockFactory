@@ -4,8 +4,9 @@ public class AttachmentRegistry<T1, T2>
     where T1 : IRegistryEntry
 {
     private readonly Registry<T1> _registry;
-    private List<T2> _attachments;
     public readonly List<T2> RegisteredAttachments;
+    private List<T2> _attachments;
+
     public AttachmentRegistry(Registry<T1> registry)
     {
         _registry = registry;
@@ -14,13 +15,17 @@ public class AttachmentRegistry<T1, T2>
         RegisteredAttachments = new List<T2>();
     }
 
+    public virtual T2 this[int id] => _attachments[id];
+
+    public T2 this[T1 obj] => this[obj.Id];
+
+    public T2 this[RegistryName name] => this[_registry[name]];
+
     private void OnSync(int[] permutation)
     {
         var newAttachments = new List<T2>(new T2[permutation.Length]);
         for (var i = 0; i < newAttachments.Count; ++i)
-        {
             newAttachments[permutation[i]] = _attachments.Count > i ? _attachments[i] : default!;
-        }
 
         _attachments = newAttachments;
     }
@@ -29,10 +34,7 @@ public class AttachmentRegistry<T1, T2>
         where T3 : T2
     {
         var id = obj.Id;
-        while (_attachments.Count <= id)
-        {
-            _attachments.Add(default!);
-        }
+        while (_attachments.Count <= id) _attachments.Add(default!);
         _attachments[id] = attachment;
         RegisteredAttachments.Add(attachment);
         return attachment;
@@ -42,10 +44,4 @@ public class AttachmentRegistry<T1, T2>
     {
         return id < _attachments.Count && _attachments[id] != null;
     }
-
-    public virtual T2 this[int id] => _attachments[id];
-
-    public T2 this[T1 obj] => this[obj.Id];
-
-    public T2 this[RegistryName name] => this[_registry[name]];
 }

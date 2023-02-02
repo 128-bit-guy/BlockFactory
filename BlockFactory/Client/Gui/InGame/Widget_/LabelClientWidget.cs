@@ -1,6 +1,6 @@
-﻿using OpenTK.Mathematics;
-using BlockFactory.Gui.Widget;
+﻿using BlockFactory.Gui.Widget;
 using BlockFactory.Side_;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Gui.InGame.Widget_;
 
@@ -28,6 +28,7 @@ public class LabelClientWidget : InGameMenuClientWidget<LabelWidget>
                 pos.X = Box.Max.X;
                 break;
         }
+
         Screen.Client.Matrices.Push();
         Screen.Client.Matrices.Translate(new Vector3(pos.X, pos.Y, 1f));
         Screen.DrawText(MenuWidget.Text, MenuWidget.Centering);

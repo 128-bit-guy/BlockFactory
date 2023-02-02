@@ -4,9 +4,9 @@ namespace BlockFactory.Item_;
 
 public class ItemStack : IEquatable<ItemStack>
 {
-    public static readonly ItemStack Empty = new ItemStack(Items.BlockItems[Blocks.Air], 0);
-    public readonly Item Item;
+    public static readonly ItemStack Empty = new(Items.BlockItems[Blocks.Air], 0);
     public readonly int Count;
+    public readonly Item Item;
 
     public ItemStack(Item item, int count)
     {
@@ -27,26 +27,9 @@ public class ItemStack : IEquatable<ItemStack>
         Item = Items.Registry[reader.Read7BitEncodedInt()];
         Count = reader.Read7BitEncodedInt();
     }
-    
+
     public ItemStack(Item item) : this(item, 1)
     {
-    }
-
-    public static ItemStack operator +(ItemStack stack, int count)
-    {
-        if (stack.Count + count == 0 || stack.Item == Items.BlockItems[Blocks.Air])
-        {
-            return Empty;
-        }
-        else
-        {
-            return new ItemStack(stack.Item, stack.Count + count);
-        }
-    }
-
-    public static ItemStack operator -(ItemStack stack, int count)
-    {
-        return stack + (-count);
     }
 
     public bool Equals(ItemStack? other)
@@ -56,11 +39,23 @@ public class ItemStack : IEquatable<ItemStack>
         return Item == other.Item && Count == other.Count;
     }
 
+    public static ItemStack operator +(ItemStack stack, int count)
+    {
+        if (stack.Count + count == 0 || stack.Item == Items.BlockItems[Blocks.Air])
+            return Empty;
+        return new ItemStack(stack.Item, stack.Count + count);
+    }
+
+    public static ItemStack operator -(ItemStack stack, int count)
+    {
+        return stack + -count;
+    }
+
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((ItemStack)obj);
     }
 
@@ -93,13 +88,8 @@ public class ItemStack : IEquatable<ItemStack>
     public bool CanMergeWith(ItemStack other)
     {
         if (IsEmpty() || other.IsEmpty())
-        {
             return true;
-        }
-        else
-        {
-            return Item == other.Item;
-        }
+        return Item == other.Item;
     }
 
     public ItemStack WithCount(int nCnt)

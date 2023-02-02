@@ -21,9 +21,9 @@ public struct EntityPos /*: ISerializable*/
         Fix();
     }
 
-    public EntityPos(Vector3i blockPos) : this(blockPos.BitAnd(Chunk.Mask).ToVector3(), blockPos.BitShiftRight(Chunk.SizeLog2))
+    public EntityPos(Vector3i blockPos) : this(blockPos.BitAnd(Chunk.Mask).ToVector3(),
+        blockPos.BitShiftRight(Chunk.SizeLog2))
     {
-
     }
 
     public EntityPos(BinaryReader reader)
@@ -32,22 +32,20 @@ public struct EntityPos /*: ISerializable*/
         ChunkPos = NetworkUtils.ReadVector3i(reader);
     }
 
-    public void Write(BinaryWriter writer) {
+    public void Write(BinaryWriter writer)
+    {
         PosInChunk.Write(writer);
         ChunkPos.Write(writer);
     }
 
     public void Fix()
     {
-        for (int i = 0; i < 3; ++i)
+        for (var i = 0; i < 3; ++i)
         {
-            float posInChunk = PosInChunk[i];
-            int deltaChunkPos = (int)MathF.Floor(posInChunk / Chunk.Size);
+            var posInChunk = PosInChunk[i];
+            var deltaChunkPos = (int)MathF.Floor(posInChunk / Chunk.Size);
             posInChunk %= Chunk.Size;
-            if (posInChunk < 0)
-            {
-                posInChunk += Chunk.Size;
-            }
+            if (posInChunk < 0) posInChunk += Chunk.Size;
             PosInChunk[i] = posInChunk;
             ChunkPos[i] += deltaChunkPos;
         }
@@ -60,7 +58,7 @@ public struct EntityPos /*: ISerializable*/
 
     public static EntityPos operator -(EntityPos a, Vector3 b)
     {
-        return a + (-b);
+        return a + -b;
     }
 
     public Vector3i GetBlockPos()

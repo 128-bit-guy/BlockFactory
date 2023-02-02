@@ -4,9 +4,7 @@ using BlockFactory.Entity_.Player;
 using BlockFactory.Init;
 using BlockFactory.Inventory_;
 using BlockFactory.Util;
-using BlockFactory.Util.Math_;
 using OpenTK.Mathematics;
-using BlockFactory.Entity_;
 
 namespace BlockFactory.Item_;
 
@@ -19,7 +17,8 @@ public class BlockItem : Item
         Block = block;
     }
 
-    public override bool OnUse(IStackContainer container, PlayerEntity entity, (Vector3i pos, float time, Direction dir)? rayCastRes)
+    public override bool OnUse(IStackContainer container, PlayerEntity entity,
+        (Vector3i pos, float time, Direction dir)? rayCastRes)
     {
         if (Block != Blocks.Air && rayCastRes.HasValue)
         {
@@ -30,9 +29,7 @@ public class BlockItem : Item
             container.ChangeStack(container.GetStack() - 1);
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 }

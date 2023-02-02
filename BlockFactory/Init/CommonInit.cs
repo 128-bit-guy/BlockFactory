@@ -1,19 +1,17 @@
 ﻿using BlockFactory.Entity_.Player;
-using BlockFactory.Entity_;
 
-namespace BlockFactory.Init
+namespace BlockFactory.Init;
+
+public static class CommonInit
 {
-    public static class CommonInit
+    public static void Init()
     {
-        public static void Init()
-        {
-            Packets.Init();
-            SyncedRegistries.Init();
-            Blocks.Init();
-            Items.Init();
-            InGameMenuWidgetTypes.Init();
-            InGameMenuTypes.Init();
-            PlayerChunkLoading.Init();
-        }
+        Packets.Init();
+        SyncedRegistries.Init();
+        Blocks.Init();
+        Items.Init();
+        InGameMenuWidgetTypes.Init();
+        InGameMenuTypes.Init();
+        PlayerChunkLoading.Init();
     }
 }

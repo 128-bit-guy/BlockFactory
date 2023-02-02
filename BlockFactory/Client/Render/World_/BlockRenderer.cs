@@ -1,12 +1,11 @@
-﻿using OpenTK.Mathematics;
-using BlockFactory.Block_;
+﻿using BlockFactory.Block_;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh;
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.World_;
 
@@ -22,38 +21,34 @@ public class BlockRenderer
 
     public void RenderBlock(BlockState state, IBlockReader reader, Vector3i pos, MeshBuilder<BlockVertex> mb)
     {
-        CubeRotation blockRotation = state.Rotation;
-        IBlockMesher mesher = BlockMeshing.Meshers[state.Block];
+        var blockRotation = state.Rotation;
+        var mesher = BlockMeshing.Meshers[state.Block];
         foreach (var direction in DirectionUtils.GetValues())
         {
-            int? layer = mesher.GetFaceTexture(reader, pos, state, direction);
+            var layer = mesher.GetFaceTexture(reader, pos, state, direction);
             if (layer.HasValue)
             {
                 mb.Layer = layer.Value;
-                Direction absoluteDirection = blockRotation * direction;
-                Vector3i neighbourPos = pos + absoluteDirection.GetOffset();
-                BlockState neighbourState = reader.GetBlockState(neighbourPos);
-                IBlockMesher otherMesher =
+                var absoluteDirection = blockRotation * direction;
+                var neighbourPos = pos + absoluteDirection.GetOffset();
+                var neighbourState = reader.GetBlockState(neighbourPos);
+                var otherMesher =
                     BlockMeshing.Meshers[neighbourState.Block];
-                Direction oppositeDirection = absoluteDirection.GetOpposite();
-                Direction oRelativeDirection = neighbourState.Rotation.Inverse * oppositeDirection;
-                bool otherSolid = otherMesher.IsSideSolid(reader, neighbourPos,
+                var oppositeDirection = absoluteDirection.GetOpposite();
+                var oRelativeDirection = neighbourState.Rotation.Inverse * oppositeDirection;
+                var otherSolid = otherMesher.IsSideSolid(reader, neighbourPos,
                     neighbourState,
                     oRelativeDirection);
                 if (!otherSolid)
                 {
                     CubeRotation rotation;
                     if (direction.GetAxis() == 1)
-                    {
                         rotation = CubeRotation.GetFromTo(Direction.North, direction)[0];
-                    }
                     else
-                    {
                         rotation = CubeRotation.GetFromToKeeping(Direction.North, direction,
                             Direction.Up);
-                    }
 
-                    float light = 1.0f - DirectionUtils.GetAxis(absoluteDirection) * 0.1f;
+                    var light = 1.0f - absoluteDirection.GetAxis() * 0.1f;
                     mb.MatrixStack.Push();
                     mb.MatrixStack.Multiply((blockRotation * rotation).AroundCenterRotation);
                     mb.BeginIndexSpace();

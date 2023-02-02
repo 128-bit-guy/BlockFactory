@@ -12,7 +12,7 @@ public class PlayerActionPacket : IPacket
         ActionType = actionType;
         Number = number;
     }
-    
+
     public PlayerActionPacket(BinaryReader reader)
     {
         ActionType = (PlayerActionType)reader.ReadByte();

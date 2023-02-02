@@ -1,6 +1,6 @@
-﻿using OpenTK.Mathematics;
-using BlockFactory.Network;
+﻿using BlockFactory.Network;
 using BlockFactory.Side_;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Gui;
 
@@ -8,6 +8,7 @@ namespace BlockFactory.Client.Gui;
 public class ChatScreen : Screen
 {
     public TextInputWidget Input;
+
     public ChatScreen(BlockFactoryClient client) : base(client)
     {
     }

@@ -1,10 +1,9 @@
 ﻿using BlockFactory.Entity_;
 using BlockFactory.Util.Math_;
 
-namespace BlockFactory.Game
+namespace BlockFactory.Game;
+
+public interface ISideHandler
 {
-    public interface ISideHandler
-    {
-        void SetEntityPos(Entity entity, EntityPos pos);
-    }
+    void SetEntityPos(Entity entity, EntityPos pos);
 }

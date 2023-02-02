@@ -1,9 +1,8 @@
-﻿using OpenTK.Mathematics;
-using BlockFactory.Block_;
+﻿using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
+using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Render.Block_;
 
@@ -11,8 +10,8 @@ namespace BlockFactory.Client.Render.Block_;
 public class PreSetTextureBlockMesher : IBlockMesher
 {
     private readonly string[] _textures;
+    private readonly bool _areSidesSolid;
     private int[] _textureIndices;
-    private bool _areSidesSolid;
 
     public PreSetTextureBlockMesher(string[] textures, bool areSidesSolid)
     {

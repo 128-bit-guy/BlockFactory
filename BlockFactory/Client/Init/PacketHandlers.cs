@@ -1,13 +1,9 @@
 using BlockFactory.Client.Entity_;
 using BlockFactory.CubeMath;
-using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
-using BlockFactory.Game;
-using BlockFactory.Gui;
 using BlockFactory.Init;
 using BlockFactory.Network;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using BlockFactory.World_.Chunk_;
 
 namespace BlockFactory.Client.Init;
@@ -24,26 +20,19 @@ public class PacketHandlers
     {
         PlayerEntity entity = BlockFactoryClient.Instance.Player!;
         if (entity != null)
-        {
             if (entity.Id == packet.Id)
-            {
                 connection.GameInstance!.EnqueueWork(() =>
                 {
                     entity.SetNewPos(packet.Pos);
                     // entity.Pos = packet.Pos;
                 });
-            }
-        }
     }
 
     private static void OnPlayerJoinWorld(PlayerJoinWorldPacket packet, NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            if (BlockFactoryClient.Instance.Player != null)
-            {
-                BlockFactoryClient.Instance.Player.Id = packet.Id;
-            }
+            if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = packet.Id;
         });
     }
 
@@ -51,7 +40,7 @@ public class PacketHandlers
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            Chunk ch = new Chunk(packet.Data, packet.Pos, BlockFactoryClient.Instance.Player!.World!);
+            var ch = new Chunk(packet.Data, packet.Pos, BlockFactoryClient.Instance.Player!.World!);
             BlockFactoryClient.Instance.Player!.World!.AddChunk(ch);
             BlockFactoryClient.Instance.Player!.AddVisibleChunk(ch);
         });
@@ -68,10 +57,7 @@ public class PacketHandlers
 
     private static void OnRegistrySync(RegistrySyncPacket packet, NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            SyncedRegistries.Sync(packet.Data);
-        });
+        connection.GameInstance!.EnqueueWork(() => { SyncedRegistries.Sync(packet.Data); });
     }
 
     private static void OnBlockChange(BlockChangePacket packet, NetworkConnection connection)
@@ -104,17 +90,12 @@ public class PacketHandlers
         connection.GameInstance!.EnqueueWork(() =>
         {
             using Stream stream = new MemoryStream(packet.Data);
-            using BinaryReader reader = new BinaryReader(stream);
-            InGameMenu menu = BlockFactoryClient.Instance.Player!.Menu!;
+            using var reader = new BinaryReader(stream);
+            var menu = BlockFactoryClient.Instance.Player!.Menu!;
             if (packet.WidgetIndex == menu.Widgets.Count)
-            {
                 menu.ReadUpdateData(reader);
-            }
             else
-            {
-                
                 menu.Widgets[packet.WidgetIndex].ReadUpdateData(reader);
-            }
         });
     }
 

@@ -1,15 +1,7 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using BlockFactory.Client.Render.World_;
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using BlockFactory.Client.Render.Mesh;
-using BlockFactory.Client.Render.Mesh.Vertex;
-using BlockFactory.Client.Render.Shader;
-using BlockFactory.Client.World_;
-using BlockFactory.Block_;
-using BlockFactory.Client.Render.World_;
-using BlockFactory.Item_;
-using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Render;
 
@@ -23,12 +15,16 @@ public class HudRenderer : IDisposable
         Client = client;
     }
 
+    public void Dispose()
+    {
+    }
+
     public void Render3DHud()
     {
         Client.Matrices.Push();
-        double time = GLFW.GetTime();
-        float sin = (float)Math.Sin(time);
-        float cos = (float)Math.Cos(time);
+        var time = GLFW.GetTime();
+        var sin = (float)Math.Sin(time);
+        var cos = (float)Math.Cos(time);
         Client.Matrices.Translate(10 * Client.GetDirectionFromPosFor3DHud(
             new Vector2(0.8f + sin * 0.05f, 0.8f + cos * 0.05f)));
         // BlockMeshBuilder.MatrixStack.RotateX(MathF.PI / 6);
@@ -36,12 +32,8 @@ public class HudRenderer : IDisposable
         Client.Matrices.RotateY(-MathF.PI / 12);
         Client.Matrices.Scale(4);
         Client.Matrices.Translate(new Vector3(-0.5f));
-        ItemStack stack = Client.Player!.GetStackInHand();
+        var stack = Client.Player!.GetStackInHand();
         Client.ItemRenderer.RenderItemStack(stack);
         Client.Matrices.Pop();
-    }
-
-    public void Dispose()
-    {
     }
 }

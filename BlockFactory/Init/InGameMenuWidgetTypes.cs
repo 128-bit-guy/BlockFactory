@@ -1,14 +1,13 @@
 ﻿using BlockFactory.Gui.Widget;
 using BlockFactory.Registry_;
-using BlockFactory.Gui;
 
 namespace BlockFactory.Init;
 
 public class InGameMenuWidgetTypes
 {
-    public static Registry<InGameMenuWidgetType> Registry { get; private set; } = null!;
     public static InGameMenuWidgetType Slot;
     public static InGameMenuWidgetType Label;
+    public static Registry<InGameMenuWidgetType> Registry { get; private set; } = null!;
 
     public static void Init()
     {

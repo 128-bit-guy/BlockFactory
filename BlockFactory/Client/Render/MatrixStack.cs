@@ -15,7 +15,7 @@ public class MatrixStack
 
     public void Push()
     {
-        _matrices.Push(_matrices.TryPeek(out Matrix4 prev) ? prev : Matrix4.Identity);
+        _matrices.Push(_matrices.TryPeek(out var prev) ? prev : Matrix4.Identity);
     }
 
     public void Pop()
@@ -25,7 +25,7 @@ public class MatrixStack
 
     public void Multiply(Matrix4 mat)
     {
-        Matrix4 m = _matrices.Pop();
+        var m = _matrices.Pop();
         m = mat * m;
         _matrices.Push(m);
     }

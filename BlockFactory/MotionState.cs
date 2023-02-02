@@ -6,7 +6,7 @@ public struct MotionState : IEquatable<MotionState>
 
     public MotionState(BinaryReader reader)
     {
-        byte x = reader.ReadByte();
+        var x = reader.ReadByte();
         MovingForward = (x & 1) != 0;
         MovingBackwards = (x & 2) != 0;
         MovingLeft = (x & 4) != 0;
@@ -16,42 +16,18 @@ public struct MotionState : IEquatable<MotionState>
         Attacking = (x & 64) != 0;
         Using = (x & 128) != 0;
     }
-    
+
     public readonly void Write(BinaryWriter writer)
     {
         byte res = 0;
-        if (MovingForward)
-        {
-            res |= 1;
-        }
-        if (MovingBackwards)
-        {
-            res |= 2;
-        }
-        if (MovingLeft)
-        {
-            res |= 4;
-        }
-        if (MovingRight)
-        {
-            res |= 8;
-        }
-        if (MovingUp)
-        {
-            res |= 16;
-        }
-        if (MovingDown)
-        {
-            res |= 32;
-        }
-        if (Attacking)
-        {
-            res |= 64;
-        }
-        if (Using)
-        {
-            res |= 128;
-        }
+        if (MovingForward) res |= 1;
+        if (MovingBackwards) res |= 2;
+        if (MovingLeft) res |= 4;
+        if (MovingRight) res |= 8;
+        if (MovingUp) res |= 16;
+        if (MovingDown) res |= 32;
+        if (Attacking) res |= 64;
+        if (Using) res |= 128;
         writer.Write(res);
     }
 

@@ -17,7 +17,7 @@ public static class ResourceLoader
 
     public static string GetResourceContent(string s)
     {
-        using (StreamReader sr = GetResourceStreamReader(s))
+        using (var sr = GetResourceStreamReader(s))
         {
             return sr.ReadToEnd();
         }

@@ -13,7 +13,7 @@ public class MotionStateUpdatePacket : IPacket
     {
         State = state;
     }
-    
+
     public void Write(BinaryWriter writer)
     {
         State.Write(writer);

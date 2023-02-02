@@ -2,8 +2,9 @@ namespace BlockFactory.Network;
 
 public class OtherPlayerMessagePacket : IPacket
 {
-    public readonly string Player;
     public readonly string Msg;
+    public readonly string Player;
+
     public OtherPlayerMessagePacket(BinaryReader reader)
     {
         Player = reader.ReadString();

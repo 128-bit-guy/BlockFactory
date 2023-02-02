@@ -34,10 +34,7 @@ public class SideStripper
     {
         Console.WriteLine($"Excluding type {type.FullName}");
         _excludedTypes.Add(type.FullName);
-        foreach (var nestedType in type.NestedTypes)
-        {
-            AddExcludedTypes(nestedType);
-        }
+        foreach (var nestedType in type.NestedTypes) AddExcludedTypes(nestedType);
     }
 
     private void FindExcludedThings()
@@ -109,24 +106,15 @@ public class SideStripper
     private void FixMethod(MethodDefinition method)
     {
         foreach (var parameter in method.Parameters)
-        {
             if (_excludedTypes.Contains(parameter.ParameterType.FullName))
-            {
                 throw new InvalidOperationException(
                     $"Method {method.FullName} has parameter {parameter.Name} of excluded type {parameter.ParameterType.FullName}");
-            }
-        }
 
         if (_excludedTypes.Contains(method.ReturnType.FullName))
-        {
             throw new InvalidOperationException(
                 $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
-        }
 
-        if (method.IsAbstract)
-        {
-            return;
-        }
+        if (method.IsAbstract) return;
 
         var replacedInstructions = new List<Instruction>();
         foreach (var insn in method.Body.Instructions)
@@ -176,33 +164,21 @@ public class SideStripper
                 )
         {
             if (type.BaseType != null && _excludedTypes.Contains(type.BaseType.FullName))
-            {
                 throw new InvalidOperationException(
                     $"Base type {type.BaseType.FullName} of type {type.FullName} is excluded");
-            }
 
             foreach (var itf in type.Interfaces.Select(itf => itf.InterfaceType))
-            {
                 if (_excludedTypes.Contains(itf.FullName))
-                {
                     throw new InvalidOperationException(
                         $"Type {type.FullName} has implementation of excluded interface {itf.FullName}");
-                }
-            }
 
             foreach (var field in type.Fields.Where(f => !_excludedFields.Contains(f.FullName)))
-            {
                 if (_excludedTypes.Contains(field.FieldType.FullName))
-                {
                     throw new InvalidOperationException(
                         $"Field {field.FullName} is of excluded type {field.FieldType.FullName}");
-                }
-            }
             foreach (var methodDefinition in type.Methods
                          .Where(m => !_excludedMethods.Contains(m.FullName)))
-            {
                 FixMethod(methodDefinition);
-            }
         }
     }
 

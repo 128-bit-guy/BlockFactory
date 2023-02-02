@@ -1,7 +1,6 @@
-﻿namespace BlockFactory.Registry_
+﻿namespace BlockFactory.Registry_;
+
+public interface IRegistryEntry
 {
-    public interface IRegistryEntry
-    {
-        int Id { get; set; }
-    }
+    int Id { get; set; }
 }

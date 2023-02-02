@@ -1,7 +1,7 @@
-﻿using BlockFactory.Network;
+﻿using BlockFactory.Game;
+using BlockFactory.Network;
 using BlockFactory.Util;
 using OpenTK.Mathematics;
-using BlockFactory.Game;
 
 namespace BlockFactory.Gui.Widget;
 
@@ -9,8 +9,8 @@ public class InGameMenuWidget
 {
     public readonly InGameMenuWidgetType Type;
     public Box2i InclusiveBox;
-    public InGameMenu Menu = null!;
     public int Index = -1;
+    public InGameMenu Menu = null!;
 
     public InGameMenuWidget(InGameMenuWidgetType type, Box2i inclusiveBox)
     {
@@ -34,7 +34,6 @@ public class InGameMenuWidget
 
     public virtual void Update()
     {
-        
     }
 
     public virtual void WriteUpdateData(BinaryWriter writer)
@@ -43,15 +42,14 @@ public class InGameMenuWidget
 
     public virtual void ReadUpdateData(BinaryReader reader)
     {
-        
     }
 
     protected void SendUpdate()
     {
         if (Menu.Owner.GameInstance!.Kind.IsNetworked() && Menu.Owner.GameInstance!.Kind.DoesProcessLogic())
         {
-            using MemoryStream stream = new MemoryStream();
-            using BinaryWriter writer = new BinaryWriter(stream);
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
             WriteUpdateData(writer);
             Menu.Owner.GameInstance.NetworkHandler.GetPlayerConnection(Menu.Owner).SendPacket(
                 new WidgetUpdatePacket(Index, stream.ToArray()));
@@ -61,12 +59,8 @@ public class InGameMenuWidget
     public void ProcessAction(int actionNumber)
     {
         if (Menu.Owner.GameInstance!.Kind.DoesProcessLogic())
-        {
             OnAction(actionNumber);
-        } else if (Menu.Owner.GameInstance!.Kind.IsNetworked())
-        {
-            SendAction(actionNumber);
-        }
+        else if (Menu.Owner.GameInstance!.Kind.IsNetworked()) SendAction(actionNumber);
     }
 
     protected void SendAction(int actionNumber)
@@ -77,6 +71,5 @@ public class InGameMenuWidget
 
     protected virtual void OnAction(int actionNumber)
     {
-        
     }
 }

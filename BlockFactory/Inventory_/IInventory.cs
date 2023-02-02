@@ -4,8 +4,10 @@ namespace BlockFactory.Inventory_;
 
 public interface IInventory
 {
+    delegate void SlotContentChangeHandler(int slot, ItemStack previous, ItemStack current);
+
     int Size { get; }
-    
+
     ItemStack this[int i] { get; }
 
     ItemStack TryInsertStack(int slot, ItemStack stack, bool simulate);
@@ -13,8 +15,6 @@ public interface IInventory
     ItemStack TryExtractStack(int slot, int count, bool simulate);
 
     ItemStack GetExcessIfSlotIsEmpty(int slot, ItemStack stack);
-
-    delegate void SlotContentChangeHandler(int slot, ItemStack previous, ItemStack current);
 
     event SlotContentChangeHandler OnSlotContentChanged;
 }

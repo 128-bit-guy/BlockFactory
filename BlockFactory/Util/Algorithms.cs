@@ -7,10 +7,7 @@ public static class Algorithms
         for (var i = 0; i < l.Count; ++i)
         {
             var j = rng.Next(l.Count);
-            if (i != j)
-            {
-                (l[i], l[j]) = (l[j], l[i]);
-            }
+            if (i != j) (l[i], l[j]) = (l[j], l[i]);
         }
     }
 }

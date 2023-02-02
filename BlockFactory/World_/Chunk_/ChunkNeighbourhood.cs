@@ -1,86 +1,71 @@
-﻿using OpenTK.Mathematics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.World_.Api;
-using BlockFactory.Util.Math_;
+using OpenTK.Mathematics;
 
-namespace BlockFactory.World_.Chunk_
+namespace BlockFactory.World_.Chunk_;
+
+public class ChunkNeighbourhood : IBlockStorage
 {
-    public class ChunkNeighbourhood : IBlockStorage
+    public Chunk CenterChunk;
+    public Vector3i CenterPos;
+    public Chunk?[,,] Chunks;
+
+    public ChunkNeighbourhood(Chunk centerChunk)
     {
-        public Vector3i CenterPos;
-        public Chunk?[,,] Chunks;
-        public Chunk CenterChunk;
-        public ChunkNeighbourhood(Chunk centerChunk)
-        {
-            CenterChunk = centerChunk;
-            CenterPos = centerChunk.Pos;
-            Chunks = new Chunk?[3, 3, 3];
-            Chunks[1, 1, 1] = centerChunk;
-        }
+        CenterChunk = centerChunk;
+        CenterPos = centerChunk.Pos;
+        Chunks = new Chunk?[3, 3, 3];
+        Chunks[1, 1, 1] = centerChunk;
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private Vector3i GetArrayChunkPos(Vector3i blockPos)
+    public BlockState GetBlockState(Vector3i pos)
+    {
+        var arrayChunkPos = GetArrayChunkPos(pos);
+        if (IsArrayChunkPosInside(arrayChunkPos))
         {
-            Vector3i chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
-            Vector3i deltaChunkPos = chunkPos - CenterPos;
-            Vector3i arrChunkPos = deltaChunkPos + (1, 1, 1);
-            return arrChunkPos;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private static bool IsArrayChunkPosInside(Vector3i arrayChunkPos)
-        {
-            for (int i = 0; i < 3; ++i)
-            {
-                if (arrayChunkPos[i] < 0 || arrayChunkPos[i] >= 3)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        public BlockState GetBlockState(Vector3i pos)
-        {
-            Vector3i arrayChunkPos = GetArrayChunkPos(pos);
-            if (IsArrayChunkPosInside(arrayChunkPos))
-            {
-                var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
-                if (ch == null)
-                {
-                    return CenterChunk.World.GetBlockState(pos);
-                }
-                else
-                {
-                    return ch.GetBlockState(pos);
-                }
-            }
-            else
-            {
+            var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+            if (ch == null)
                 return CenterChunk.World.GetBlockState(pos);
-            }
+            return ch.GetBlockState(pos);
         }
 
-        public void SetBlockState(Vector3i pos, BlockState state)
+        return CenterChunk.World.GetBlockState(pos);
+    }
+
+    public void SetBlockState(Vector3i pos, BlockState state)
+    {
+        var arrayChunkPos = GetArrayChunkPos(pos);
+        if (IsArrayChunkPosInside(arrayChunkPos))
         {
-            Vector3i arrayChunkPos = GetArrayChunkPos(pos);
-            if (IsArrayChunkPosInside(arrayChunkPos))
-            {
-                var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
-                if (ch == null)
-                {
-                    CenterChunk.World.SetBlockState(pos, state);
-                }
-                else
-                {
-                    ch.SetBlockState(pos, state);
-                }
-            }
-            else
-            {
+            var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+            if (ch == null)
                 CenterChunk.World.SetBlockState(pos, state);
-            }
+            else
+                ch.SetBlockState(pos, state);
         }
+        else
+        {
+            CenterChunk.World.SetBlockState(pos, state);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    private Vector3i GetArrayChunkPos(Vector3i blockPos)
+    {
+        var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
+        var deltaChunkPos = chunkPos - CenterPos;
+        var arrChunkPos = deltaChunkPos + (1, 1, 1);
+        return arrChunkPos;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    private static bool IsArrayChunkPosInside(Vector3i arrayChunkPos)
+    {
+        for (var i = 0; i < 3; ++i)
+            if (arrayChunkPos[i] < 0 || arrayChunkPos[i] >= 3)
+                return false;
+        return true;
     }
 }

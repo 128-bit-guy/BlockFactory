@@ -6,10 +6,8 @@ namespace BlockFactory.Client.Render.Mesh.Vertex;
 [ExclusiveTo(Side.Client)]
 public struct ColorVertex
 {
-    [VertexAttribute(0)]
-    public Vector3 Pos;
-    [VertexAttribute(1)]
-    public Vector4 Color;
+    [VertexAttribute(0)] public Vector3 Pos;
+    [VertexAttribute(1)] public Vector4 Color;
 
     public ColorVertex(Vector3 pos, Vector4 color)
     {

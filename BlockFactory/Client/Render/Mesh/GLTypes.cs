@@ -10,24 +10,13 @@ public static class GLTypes
     public static (int count, VertexAttribPointerType type) GetVertexAttribType(Type t)
     {
         if (t == typeof(Vector3))
-        {
             return (3, VertexAttribPointerType.Float);
-        }
-        else if (t == typeof(float))
-        {
+        if (t == typeof(float))
             return (1, VertexAttribPointerType.Float);
-        }
-        else if (t == typeof(Vector2))
-        {
+        if (t == typeof(Vector2))
             return (2, VertexAttribPointerType.Float);
-        }
-        else if (t == typeof(Vector4))
-        {
+        if (t == typeof(Vector4))
             return (4, VertexAttribPointerType.Float);
-        }
-        else
-        {
-            throw new ArgumentException(string.Format("Type {0} is not GL type", t.Name));
-        }
+        throw new ArgumentException(string.Format("Type {0} is not GL type", t.Name));
     }
 }

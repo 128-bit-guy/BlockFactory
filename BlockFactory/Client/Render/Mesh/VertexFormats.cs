@@ -1,17 +1,16 @@
 using BlockFactory.Client.Render.Mesh.Vertex;
 using BlockFactory.CubeMath;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Client.Render.Mesh;
 
 [ExclusiveTo(Side.Client)]
 public static class VertexFormats
 {
-
     public static VertexFormat<BlockVertex> Block { get; private set; } = null!;
     public static VertexFormat<GuiVertex> Gui { get; private set; } = null!;
     public static VertexFormat<ColorVertex> Color { get; private set; } = null!;
+
     internal static void Init()
     {
         Block = new VertexFormat<BlockVertex>(

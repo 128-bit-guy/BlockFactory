@@ -1,5 +1,4 @@
 ﻿using BlockFactory.CubeMath;
-using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Util;
 
@@ -18,7 +17,8 @@ public static class RandomRotations
     public static CubeRotation KeepingY(Random rng)
     {
         var up = rng.Next(2) == 0;
-        return CubeRotation.GetFromTo(Direction.Up, up ? Direction.Up
+        return CubeRotation.GetFromTo(Direction.Up, up
+            ? Direction.Up
             : Direction.Down)[rng.Next(4)];
     }
 }

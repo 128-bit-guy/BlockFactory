@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
 using BlockFactory.Gui.Widget;
 using BlockFactory.Init;
 using BlockFactory.Inventory_;
@@ -6,26 +7,24 @@ using BlockFactory.Item_;
 using BlockFactory.Network;
 using BlockFactory.Util;
 using OpenTK.Mathematics;
-using BlockFactory.Game;
 
 namespace BlockFactory.Gui;
 
 public abstract class InGameMenu
 {
-    public Vector2i Size { get; protected init; }
-    public List<InGameMenuWidget> Widgets = new();
+    public readonly SimpleInventory MovedStackInventory;
     public readonly InGameMenuType Type;
     public PlayerEntity Owner = null!;
-    public readonly SimpleInventory MovedStackInventory;
+    public List<InGameMenuWidget> Widgets = new();
 
     public InGameMenu(InGameMenuType type, BinaryReader reader)
     {
         Type = type;
         Size = NetworkUtils.ReadVector2i(reader);
         var cnt = reader.Read7BitEncodedInt();
-        for (int i = 0; i < cnt; ++i)
+        for (var i = 0; i < cnt; ++i)
         {
-            int id = reader.Read7BitEncodedInt();
+            var id = reader.Read7BitEncodedInt();
             AddWidget(InGameMenuWidgetTypes.Registry[id].Loader(reader));
         }
 
@@ -35,10 +34,12 @@ public abstract class InGameMenu
 
     public InGameMenu(InGameMenuType type)
     {
-        this.Type = type;
+        Type = type;
         MovedStackInventory = new SimpleInventory(1);
         MovedStackInventory.OnSlotContentChanged += OnMovedStackSlotContentChanged;
     }
+
+    public Vector2i Size { get; protected init; }
 
     public void AddWidget(InGameMenuWidget widget)
     {
@@ -51,7 +52,7 @@ public abstract class InGameMenu
     {
         Size.Write(writer);
         writer.Write7BitEncodedInt(Widgets.Count);
-        foreach (InGameMenuWidget widget in Widgets)
+        foreach (var widget in Widgets)
         {
             writer.Write7BitEncodedInt(widget.Type.Id);
             widget.Write(writer);
@@ -60,20 +61,15 @@ public abstract class InGameMenu
 
     public virtual void OnOpen()
     {
-        
     }
 
     public virtual void OnClose()
     {
-        
     }
 
     public virtual void Update()
     {
-        foreach (InGameMenuWidget widget in Widgets)
-        {
-            widget.Update();
-        }
+        foreach (var widget in Widgets) widget.Update();
     }
 
     public virtual void WriteUpdateData(BinaryWriter writer)
@@ -90,8 +86,8 @@ public abstract class InGameMenu
     {
         if (Owner.GameInstance!.Kind.IsNetworked() && Owner.GameInstance!.Kind.DoesProcessLogic())
         {
-            using MemoryStream stream = new MemoryStream();
-            using BinaryWriter writer = new BinaryWriter(stream);
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
             WriteUpdateData(writer);
             Owner.GameInstance.NetworkHandler.GetPlayerConnection(Owner).SendPacket(
                 new WidgetUpdatePacket(Widgets.Count, stream.ToArray()));

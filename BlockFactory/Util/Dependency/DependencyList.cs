@@ -1,23 +1,23 @@
-﻿namespace BlockFactory.Util.Dependency
+﻿namespace BlockFactory.Util.Dependency;
+
+public class DependencyList : IDisposable
 {
-    public class DependencyList : IDisposable
+    private readonly List<IDependable> _dependencies;
+
+    public DependencyList()
     {
-        private List<IDependable> _dependencies;
-        public DependencyList() { 
-            _dependencies = new List<IDependable>();
-        }
+        _dependencies = new List<IDependable>();
+    }
 
-        public T Add<T>(T dep) where T : IDependable {
-            dep.OnDependencyAdded();
-            _dependencies.Add(dep);
-            return dep;
-        }
+    public void Dispose()
+    {
+        foreach (var dependable in _dependencies) dependable.OnDependencyRemoved();
+    }
 
-        public void Dispose()
-        {
-            foreach (IDependable dependable in _dependencies) {
-                dependable.OnDependencyRemoved();
-            }
-        }
+    public T Add<T>(T dep) where T : IDependable
+    {
+        dep.OnDependencyAdded();
+        _dependencies.Add(dep);
+        return dep;
     }
 }

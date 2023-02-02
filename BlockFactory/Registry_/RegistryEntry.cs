@@ -1,7 +1,6 @@
-﻿namespace BlockFactory.Registry_
+﻿namespace BlockFactory.Registry_;
+
+public class RegistryEntry : IRegistryEntry
 {
-    public class RegistryEntry : IRegistryEntry
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }

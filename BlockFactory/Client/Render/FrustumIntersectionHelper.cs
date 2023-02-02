@@ -12,19 +12,37 @@ public readonly struct FrustumIntersectionHelper
     private readonly float pyX, pyY, pyZ, pyW;
     private readonly float nzX, nzY, nzZ, nzW;
     private readonly float pzX, pzY, pzZ, pzW;
+
     public FrustumIntersectionHelper(Matrix4 m)
     {
-        nxX = m[0, 3] + m[0, 0]; nxY = m[1, 3] + m[1, 0]; nxZ = m[2, 3] + m[2, 0]; nxW = m[3, 3] + m[3, 0];
-        pxX = m[0, 3] - m[0, 0]; pxY = m[1, 3] - m[1, 0]; pxZ = m[2, 3] - m[2, 0]; pxW = m[3, 3] - m[3, 0];
-        nyX = m[0, 3] + m[0, 1]; nyY = m[1, 3] + m[1, 1]; nyZ = m[2, 3] + m[2, 1]; nyW = m[3, 3] + m[3, 1];
-        pyX = m[0, 3] - m[0, 1]; pyY = m[1, 3] - m[1, 1]; pyZ = m[2, 3] - m[2, 1]; pyW = m[3, 3] - m[3, 1];
-        nzX = m[0, 3] + m[0, 2]; nzY = m[1, 3] + m[1, 2]; nzZ = m[2, 3] + m[2, 2]; nzW = m[3, 3] + m[3, 2];
-        pzX = m[0, 3] - m[0, 2]; pzY = m[1, 3] - m[1, 2]; pzZ = m[2, 3] - m[2, 2]; pzW = m[3, 3] - m[3, 2];
+        nxX = m[0, 3] + m[0, 0];
+        nxY = m[1, 3] + m[1, 0];
+        nxZ = m[2, 3] + m[2, 0];
+        nxW = m[3, 3] + m[3, 0];
+        pxX = m[0, 3] - m[0, 0];
+        pxY = m[1, 3] - m[1, 0];
+        pxZ = m[2, 3] - m[2, 0];
+        pxW = m[3, 3] - m[3, 0];
+        nyX = m[0, 3] + m[0, 1];
+        nyY = m[1, 3] + m[1, 1];
+        nyZ = m[2, 3] + m[2, 1];
+        nyW = m[3, 3] + m[3, 1];
+        pyX = m[0, 3] - m[0, 1];
+        pyY = m[1, 3] - m[1, 1];
+        pyZ = m[2, 3] - m[2, 1];
+        pyW = m[3, 3] - m[3, 1];
+        nzX = m[0, 3] + m[0, 2];
+        nzY = m[1, 3] + m[1, 2];
+        nzZ = m[2, 3] + m[2, 2];
+        nzW = m[3, 3] + m[3, 2];
+        pzX = m[0, 3] - m[0, 2];
+        pzY = m[1, 3] - m[1, 2];
+        pzZ = m[2, 3] - m[2, 2];
+        pzW = m[3, 3] - m[3, 2];
     }
 
     public FrustumIntersectionHelper(VPMatrices matrices) : this(matrices.View * matrices.Projection)
     {
-
     }
 
     public bool TestAab(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
