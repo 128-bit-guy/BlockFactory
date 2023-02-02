@@ -38,7 +38,7 @@ public class ServerScreen : Screen
         {
             Client.InitMultiplayerGameInstance(TextInput.Text);
         }
-        catch (SocketException ex)
+        catch (Exception ex)
         {
             Client.CleanupGameInstance();
             Client.PopScreen();

@@ -66,7 +66,7 @@ public class NetworkConnection : IDisposable
         Dispose(false);
     }
 
-    private void Error(Exception exception)
+    public void SetErrored(Exception exception)
     {
         if (ExceptionUtils.NotCancelledException(exception))
         {
@@ -187,7 +187,7 @@ public class NetworkConnection : IDisposable
         }
         catch (Exception ex)
         {
-            Error(ex);
+            SetErrored(ex);
         }
     }
 
@@ -235,7 +235,7 @@ public class NetworkConnection : IDisposable
         }
         catch (Exception ex)
         {
-            Error(ex);
+            SetErrored(ex);
         }
     }
 

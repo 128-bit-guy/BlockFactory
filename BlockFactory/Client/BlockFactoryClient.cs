@@ -285,7 +285,14 @@ public class BlockFactoryClient
 
     private void ProcessPackets()
     {
-        ServerConnection!.ProcessInGamePackets();
+        try
+        {
+            ServerConnection!.ProcessInGamePackets();
+        }
+        catch (Exception ex)
+        {
+            ServerConnection!.SetErrored(ex);
+        }
     }
 
     private void UpdateAndRender()
@@ -312,13 +319,23 @@ public class BlockFactoryClient
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
             Use3DHudMatrices();
             HudRenderer!.Render3DHud();
-            if (GameInstance.Kind.IsNetworked() && ServerConnection!.Errored)
+            if (GameInstance.Kind.IsNetworked())
             {
-                Console.WriteLine(ServerConnection.LastError);
-                while (HasScreen()) PopScreen();
-                PushScreen(new MainMenuScreen(this));
-                PushScreen(new ForcedDisconnectionScreen(this, ServerConnection.LastError!));
-                CleanupGameInstance();
+                if (ServerConnection!.Errored)
+                {
+                    Console.WriteLine(ServerConnection.LastError);
+                    while (HasScreen()) PopScreen();
+                    PushScreen(new MainMenuScreen(this));
+                    PushScreen(new ForcedDisconnectionScreen(this, ServerConnection.LastError!));
+                    CleanupGameInstance();
+                } else if (!ServerConnection!.Socket.Connected || !ServerConnection.Working)
+                {
+                    Console.WriteLine(ServerConnection.LastError);
+                    while (HasScreen()) PopScreen();
+                    PushScreen(new MainMenuScreen(this));
+                    PushScreen(new ForcedDisconnectionScreen(this, "Disconnected"));
+                    CleanupGameInstance();
+                }
             }
         }
 

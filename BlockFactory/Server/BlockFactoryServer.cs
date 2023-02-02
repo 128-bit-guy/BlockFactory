@@ -86,6 +86,13 @@ public class BlockFactoryServer
 
     private void Update()
     {
+        foreach (var connection in Connections)
+        {
+            if (!connection.Socket.Connected)
+            {
+                connection.Stop();
+            }
+        }
         GameInstance.Update();
     }
 

@@ -16,7 +16,14 @@ public class ServerPlayerEntity : PlayerEntity
 
     private void ProcessPackets()
     {
-        Connection.ProcessInGamePackets();
+        try
+        {
+            Connection.ProcessInGamePackets();
+        }
+        catch (Exception ex)
+        {
+            Connection.SetErrored(ex);
+        }
     }
 
     protected override void TickInternal()
