@@ -34,11 +34,7 @@ public class EntityPosUpdatePacket : IPacket
         PlayerEntity? entity = BlockFactoryClient.Instance.Player;
         if (entity != null)
             if (entity.Id == Id)
-                connection.GameInstance!.EnqueueWork(() =>
-                {
-                    entity.SetNewPos(Pos);
-                    // entity.Pos = this.Pos;
-                });
+                entity.SetNewPos(Pos);
     }
 
     public bool SupportsGameKind(GameKind kind)

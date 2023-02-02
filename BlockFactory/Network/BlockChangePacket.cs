@@ -33,11 +33,8 @@ public class BlockChangePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            BlockFactoryClient.Instance.Player!.VisibleChunks[Pos.BitShiftRight(Chunk.SizeLog2)]
-                .SetBlockState(Pos, State);
-        });
+        BlockFactoryClient.Instance.Player!.VisibleChunks[Pos.BitShiftRight(Chunk.SizeLog2)]
+            .SetBlockState(Pos, State);
     }
 
     public bool SupportsGameKind(GameKind kind)

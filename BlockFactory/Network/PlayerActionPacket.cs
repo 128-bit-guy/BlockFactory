@@ -28,11 +28,7 @@ public class PlayerActionPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-            {
-                ((PlayerEntity)connection.SideObject!).HandlePlayerAction(ActionType, Number);
-            }
-        );
+        ((PlayerEntity)connection.SideObject!).HandlePlayerAction(ActionType, Number);
     }
 
     public bool SupportsGameKind(GameKind kind)

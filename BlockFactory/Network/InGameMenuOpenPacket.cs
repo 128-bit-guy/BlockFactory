@@ -44,7 +44,7 @@ public class InGameMenuOpenPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() => { BlockFactoryClient.Instance.Player!.SwitchMenu(CreateMenu()); });
+        BlockFactoryClient.Instance.Player!.SwitchMenu(CreateMenu());
     }
 
     public bool SupportsGameKind(GameKind kind)

@@ -279,6 +279,22 @@ public class BlockFactoryClient
         }
     }
 
+    private void ProcessPackets()
+    {
+        int cnt = ServerConnection!.ReceiveQueue.Count;
+        for (int i = 0; i < cnt; ++i)
+        {
+            if (ServerConnection.ReceiveQueue.TryDequeue(out var packet))
+            {
+                packet.Process(ServerConnection);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
     private void UpdateAndRender()
     {
         Matrices.Push();
@@ -291,6 +307,10 @@ public class BlockFactoryClient
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         if (GameInstance != null)
         {
+            if (GameInstance.Kind.IsNetworked())
+            {
+                ProcessPackets();
+            }
             if (!HasScreen()) Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
             GameInstance!.Update();
             UseWorldMatrices();

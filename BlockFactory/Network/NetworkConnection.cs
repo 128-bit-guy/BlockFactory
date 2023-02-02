@@ -16,6 +16,7 @@ public class NetworkConnection : IDisposable
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly SemaphoreSlim _semaphore;
     private readonly ConcurrentQueue<IPacket> _sendQueue;
+    public readonly ConcurrentQueue<IPacket> ReceiveQueue;
 
     /// <summary>
     ///     Socket which is used for this connection
@@ -41,6 +42,7 @@ public class NetworkConnection : IDisposable
         _working = 0;
         OnError = _ => { };
         OnStop = () => { };
+        ReceiveQueue = new ConcurrentQueue<IPacket>();
     }
 
     public bool Errored { get; private set; }
@@ -126,7 +128,7 @@ public class NetworkConnection : IDisposable
         if (!packet.SupportsGameKind(GameInstance.Kind))
             throw new InvalidOperationException(
                 $"Other side sent packet {packet.GetType().Name} which is not supported on this side");
-        packet.Process(this);
+        ReceiveQueue.Enqueue(packet);
     }
 
     private async ValueTask SendPacketList(List<IPacket> packetList)

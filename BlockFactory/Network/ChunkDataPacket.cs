@@ -31,12 +31,9 @@ public class ChunkDataPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            var ch = new Chunk(Data, Pos, BlockFactoryClient.Instance.Player!.World!);
-            BlockFactoryClient.Instance.Player!.World!.AddChunk(ch);
-            BlockFactoryClient.Instance.Player!.AddVisibleChunk(ch);
-        });
+        var ch = new Chunk(Data, Pos, BlockFactoryClient.Instance.Player!.World!);
+        BlockFactoryClient.Instance.Player!.World!.AddChunk(ch);
+        BlockFactoryClient.Instance.Player!.AddVisibleChunk(ch);
     }
 
     public bool SupportsGameKind(GameKind kind)

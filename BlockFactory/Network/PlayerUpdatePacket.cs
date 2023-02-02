@@ -29,10 +29,7 @@ public class PlayerUpdatePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            BlockFactoryClient.Instance.Player!.HandlePlayerUpdate(UpdateType, Number);
-        });
+        BlockFactoryClient.Instance.Player!.HandlePlayerUpdate(UpdateType, Number);
     }
 
     public bool SupportsGameKind(GameKind kind)

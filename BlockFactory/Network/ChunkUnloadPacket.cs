@@ -26,11 +26,8 @@ public class ChunkUnloadPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            BlockFactoryClient.Instance.Player?.RemoveVisibleChunk(Pos);
-            BlockFactoryClient.Instance.Player?.World!.RemoveChunk(Pos);
-        });
+        BlockFactoryClient.Instance.Player?.RemoveVisibleChunk(Pos);
+        BlockFactoryClient.Instance.Player?.World!.RemoveChunk(Pos);
     }
 
     public bool SupportsGameKind(GameKind kind)

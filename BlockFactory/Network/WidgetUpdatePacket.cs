@@ -30,16 +30,13 @@ public class WidgetUpdatePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            using Stream stream = new MemoryStream(Data);
-            using var reader = new BinaryReader(stream);
-            var menu = BlockFactoryClient.Instance.Player!.Menu!;
-            if (WidgetIndex == menu.Widgets.Count)
-                menu.ReadUpdateData(reader);
-            else
-                menu.Widgets[WidgetIndex].ReadUpdateData(reader);
-        });
+        using Stream stream = new MemoryStream(Data);
+        using var reader = new BinaryReader(stream);
+        var menu = BlockFactoryClient.Instance.Player!.Menu!;
+        if (WidgetIndex == menu.Widgets.Count)
+            menu.ReadUpdateData(reader);
+        else
+            menu.Widgets[WidgetIndex].ReadUpdateData(reader);
     }
 
     public bool SupportsGameKind(GameKind kind)

@@ -24,10 +24,7 @@ public class PlayerJoinWorldPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
-        });
+        if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
     }
 
     public bool SupportsGameKind(GameKind kind)

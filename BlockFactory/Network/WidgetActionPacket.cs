@@ -28,11 +28,8 @@ public class WidgetActionPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            ((PlayerEntity)connection.SideObject!).Menu!.Widgets[WidgetIndex]
-                .ProcessAction(ActionNumber);
-        });
+        ((PlayerEntity)connection.SideObject!).Menu!.Widgets[WidgetIndex]
+            .ProcessAction(ActionNumber);
     }
 
     public bool SupportsGameKind(GameKind kind)

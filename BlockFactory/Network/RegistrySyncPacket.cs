@@ -39,7 +39,7 @@ public class RegistrySyncPacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() => { SyncedRegistries.Sync(Data); });
+        SyncedRegistries.Sync(Data);
     }
 
     public bool SupportsGameKind(GameKind kind)
