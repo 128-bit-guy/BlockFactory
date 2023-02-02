@@ -1,3 +1,5 @@
+using BlockFactory.Game;
+
 namespace BlockFactory.Network;
 
 public class OtherPlayerMessagePacket : IPacket
@@ -21,5 +23,15 @@ public class OtherPlayerMessagePacket : IPacket
     {
         writer.Write(Player);
         writer.Write(Msg);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        Console.WriteLine("[{0}]: {1}", this.Player, this.Msg);
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

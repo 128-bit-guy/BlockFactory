@@ -123,12 +123,18 @@ public class NetworkConnection : IDisposable
     {
         var id = reader.ReadInt32();
         var packet = NetworkRegistry.ReadPacket(reader, id);
-        var handler = NetworkRegistry.GetHandler(id);
-        if (handler == null)
+        if (!packet.SupportsGameKind(GameInstance.Kind))
+        {
             throw new InvalidOperationException(
-                $"Other side sent packet {packet.GetType().Name}, which has no handler registered on this side. This packet is probably sent in wrong direction"
-            );
-        handler(packet, this);
+                $"Other side sent packet {packet.GetType().Name} which is not supported on this side");
+        }
+        packet.Process(this);
+        // var handler = NetworkRegistry.GetHandler(id);
+        // if (handler == null)
+        //     throw new InvalidOperationException(
+        //         $"Other side sent packet {packet.GetType().Name}, which has no handler registered on this side. This packet is probably sent in wrong direction"
+        //     );
+        // handler(packet, this);
         //return packet is ChunkUnloadPacket;
     }
 

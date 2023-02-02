@@ -1,3 +1,6 @@
+using BlockFactory.Game;
+using BlockFactory.Server.Entity_;
+
 namespace BlockFactory.Network;
 
 public class MotionStateUpdatePacket : IPacket
@@ -17,5 +20,15 @@ public class MotionStateUpdatePacket : IPacket
     public void Write(BinaryWriter writer)
     {
         State.Write(writer);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        ((ServerPlayerEntity)connection.SideObject!).MotionState = this.State;
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerBackend;
     }
 }

@@ -7,7 +7,6 @@ using BlockFactory.Init;
 using BlockFactory.Network;
 using BlockFactory.Server.Entity_;
 using BlockFactory.Server.Game;
-using BlockFactory.Server.Init;
 using BlockFactory.Server.Network;
 using BlockFactory.Side_;
 using BlockFactory.Util;
@@ -73,7 +72,6 @@ public class BlockFactoryServer
     private void Init()
     {
         CommonInit.Init();
-        PacketHandlers.Init();
         GameInstance = new GameInstance(GameKind.MultiplayerBackend, Thread.CurrentThread,
             unchecked((int)DateTime.UtcNow.Ticks), Path.GetFullPath("world"))
         {

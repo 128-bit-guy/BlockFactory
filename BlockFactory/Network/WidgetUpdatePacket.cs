@@ -1,4 +1,7 @@
-﻿namespace BlockFactory.Network;
+﻿using BlockFactory.Client;
+using BlockFactory.Game;
+
+namespace BlockFactory.Network;
 
 public class WidgetUpdatePacket : IPacket
 {
@@ -23,5 +26,23 @@ public class WidgetUpdatePacket : IPacket
         writer.Write7BitEncodedInt(WidgetIndex);
         writer.Write7BitEncodedInt(Data.Length);
         writer.Write(Data);
+    }
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            using Stream stream = new MemoryStream(this.Data);
+            using var reader = new BinaryReader(stream);
+            var menu = BlockFactoryClient.Instance.Player!.Menu!;
+            if (this.WidgetIndex == menu.Widgets.Count)
+                menu.ReadUpdateData(reader);
+            else
+                menu.Widgets[this.WidgetIndex].ReadUpdateData(reader);
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

@@ -1,4 +1,6 @@
-﻿using BlockFactory.Util;
+﻿using BlockFactory.Client;
+using BlockFactory.Game;
+using BlockFactory.Util;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
@@ -20,5 +22,19 @@ public class ChunkUnloadPacket : IPacket
     public void Write(BinaryWriter writer)
     {
         Pos.Write(writer);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            BlockFactoryClient.Instance.Player?.RemoveVisibleChunk(this.Pos);
+            BlockFactoryClient.Instance.Player?.World!.RemoveChunk(this.Pos);
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

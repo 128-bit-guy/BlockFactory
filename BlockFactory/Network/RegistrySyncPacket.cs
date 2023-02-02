@@ -1,4 +1,6 @@
-﻿using BlockFactory.Registry_;
+﻿using BlockFactory.Game;
+using BlockFactory.Init;
+using BlockFactory.Registry_;
 
 namespace BlockFactory.Network;
 
@@ -33,5 +35,14 @@ public class RegistrySyncPacket : IPacket
             writer.Write7BitEncodedInt(order.Length);
             for (var j = 0; j < order.Length; ++j) order[j].Write(writer);
         }
+    }
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() => { SyncedRegistries.Sync(this.Data); });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

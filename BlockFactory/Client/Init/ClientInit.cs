@@ -13,7 +13,6 @@ public class ClientInit
 {
     public static void Init()
     {
-        PacketHandlers.Init();
         BlockMeshing.Init();
         Shaders.Init();
         VertexFormats.Init();

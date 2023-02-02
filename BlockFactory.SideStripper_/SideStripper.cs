@@ -77,6 +77,18 @@ public class SideStripper
         }
     }
 
+    private void RemoveExcludedThingsFromType(TypeDefinition t)
+    {
+        t.Fields.RemoveIf(f => _excludedFields.Contains(f.FullName));
+        t.Methods.RemoveIf(m => _excludedMethods.Contains(m.FullName));
+        t.Properties.RemoveIf(p => _excludedProperties.Contains(p.FullName));
+        t.NestedTypes.RemoveIf(t => _excludedTypes.Contains(t.FullName));
+        foreach (var nestedType in t.NestedTypes)
+        {
+            RemoveExcludedThingsFromType(nestedType);
+        }
+    }
+
     private void RemoveExcludedThings()
     {
         foreach (var module in Definitions.SelectMany(def => def.Modules))
@@ -84,9 +96,7 @@ public class SideStripper
             module.Types.RemoveIf(t => _excludedTypes.Contains(t.FullName));
             foreach (var t in module.Types)
             {
-                t.Fields.RemoveIf(f => _excludedFields.Contains(f.FullName));
-                t.Methods.RemoveIf(m => _excludedMethods.Contains(m.FullName));
-                t.Properties.RemoveIf(p => _excludedProperties.Contains(p.FullName));
+                RemoveExcludedThingsFromType(t);
             }
         }
     }
@@ -114,7 +124,7 @@ public class SideStripper
             throw new InvalidOperationException(
                 $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
 
-        if (method.IsAbstract) return;
+        if (!method.HasBody) return;
 
         var replacedInstructions = new List<Instruction>();
         foreach (var insn in method.Body.Instructions)
@@ -155,6 +165,30 @@ public class SideStripper
         }
     }
 
+    private void FixType(TypeDefinition type)
+    {
+        if (type.BaseType != null && _excludedTypes.Contains(type.BaseType.FullName))
+            throw new InvalidOperationException(
+                $"Base type {type.BaseType.FullName} of type {type.FullName} is excluded");
+
+        foreach (var itf in type.Interfaces.Select(itf => itf.InterfaceType))
+            if (_excludedTypes.Contains(itf.FullName))
+                throw new InvalidOperationException(
+                    $"Type {type.FullName} has implementation of excluded interface {itf.FullName}");
+
+        foreach (var field in type.Fields.Where(f => !_excludedFields.Contains(f.FullName)))
+            if (_excludedTypes.Contains(field.FieldType.FullName))
+                throw new InvalidOperationException(
+                    $"Field {field.FullName} is of excluded type {field.FieldType.FullName}");
+        foreach (var methodDefinition in type.Methods
+                     .Where(m => !_excludedMethods.Contains(m.FullName)))
+            FixMethod(methodDefinition);
+        foreach (var nestedType in type.NestedTypes)
+        {
+            FixType(nestedType);
+        }
+    }
+
     private void FixDependentCode()
     {
         foreach (var type in Definitions
@@ -163,22 +197,7 @@ public class SideStripper
                      .Where(t => !_excludedTypes.Contains(t.FullName))
                 )
         {
-            if (type.BaseType != null && _excludedTypes.Contains(type.BaseType.FullName))
-                throw new InvalidOperationException(
-                    $"Base type {type.BaseType.FullName} of type {type.FullName} is excluded");
-
-            foreach (var itf in type.Interfaces.Select(itf => itf.InterfaceType))
-                if (_excludedTypes.Contains(itf.FullName))
-                    throw new InvalidOperationException(
-                        $"Type {type.FullName} has implementation of excluded interface {itf.FullName}");
-
-            foreach (var field in type.Fields.Where(f => !_excludedFields.Contains(f.FullName)))
-                if (_excludedTypes.Contains(field.FieldType.FullName))
-                    throw new InvalidOperationException(
-                        $"Field {field.FullName} is of excluded type {field.FieldType.FullName}");
-            foreach (var methodDefinition in type.Methods
-                         .Where(m => !_excludedMethods.Contains(m.FullName)))
-                FixMethod(methodDefinition);
+            FixType(type);
         }
     }
 

@@ -1,4 +1,6 @@
-﻿using BlockFactory.Util;
+﻿using BlockFactory.Client;
+using BlockFactory.Game;
+using BlockFactory.Util;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
@@ -25,5 +27,20 @@ public class ChunkDataPacket : IPacket
     {
         Pos.Write(writer);
         Data.Write(writer);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            var ch = new Chunk(this.Data, this.Pos, BlockFactoryClient.Instance.Player!.World!);
+            BlockFactoryClient.Instance.Player!.World!.AddChunk(ch);
+            BlockFactoryClient.Instance.Player!.AddVisibleChunk(ch);
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

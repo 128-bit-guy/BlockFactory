@@ -1,4 +1,6 @@
-﻿using BlockFactory.Gui;
+﻿using BlockFactory.Client;
+using BlockFactory.Game;
+using BlockFactory.Gui;
 using BlockFactory.Init;
 
 namespace BlockFactory.Network;
@@ -50,5 +52,17 @@ public class InGameMenuOpenPacket : IPacket
         using var stream = new MemoryStream(Data);
         using var reader = new BinaryReader(stream);
         return InGameMenuTypes.Registry[Id].Loader(reader);
+    }
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            BlockFactoryClient.Instance.Player!.SwitchMenu(this.CreateMenu());
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

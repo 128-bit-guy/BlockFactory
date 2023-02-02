@@ -1,5 +1,9 @@
 ﻿using BlockFactory.Block_;
+using BlockFactory.Client;
+using BlockFactory.CubeMath;
+using BlockFactory.Game;
 using BlockFactory.Util;
+using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
@@ -25,5 +29,18 @@ public class BlockChangePacket : IPacket
     {
         Pos.Write(writer);
         State.Write(writer);
+    }
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            BlockFactoryClient.Instance.Player!.VisibleChunks[this.Pos.BitShiftRight(Chunk.SizeLog2)]
+                .SetBlockState(this.Pos, this.State);
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

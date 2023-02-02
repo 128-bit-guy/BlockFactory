@@ -1,4 +1,6 @@
-﻿using BlockFactory.Entity_.Player;
+﻿using BlockFactory.Client;
+using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
@@ -23,5 +25,17 @@ public class PlayerUpdatePacket : IPacket
     {
         writer.Write((byte)UpdateType);
         writer.Write7BitEncodedInt(Number);
+    }
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+        {
+            BlockFactoryClient.Instance.Player!.HandlePlayerUpdate(this.UpdateType, this.Number);
+        });
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerFrontend;
     }
 }

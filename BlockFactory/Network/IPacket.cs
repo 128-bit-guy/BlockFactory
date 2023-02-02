@@ -1,3 +1,5 @@
+using BlockFactory.Game;
+
 namespace BlockFactory.Network;
 
 /// <summary>
@@ -13,4 +15,8 @@ public interface IPacket
     /// </summary>
     /// <param name="writer">BinaryWriter where the packet will be written to</param>
     public void Write(BinaryWriter writer);
+
+    public void Process(NetworkConnection connection);
+
+    public bool SupportsGameKind(GameKind kind);
 }

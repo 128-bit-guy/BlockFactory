@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
@@ -23,5 +24,19 @@ public class PlayerActionPacket : IPacket
     {
         writer.Write((byte)ActionType);
         writer.Write7BitEncodedInt(Number);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        connection.GameInstance!.EnqueueWork(() =>
+            {
+                ((PlayerEntity)connection.SideObject!).HandlePlayerAction(this.ActionType, this.Number);
+            }
+        );
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerBackend;
     }
 }

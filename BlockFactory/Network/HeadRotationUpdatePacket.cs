@@ -1,4 +1,6 @@
-﻿using BlockFactory.Util;
+﻿using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
+using BlockFactory.Util;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
@@ -20,5 +22,15 @@ public class HeadRotationUpdatePacket : IPacket
     public void Write(BinaryWriter writer)
     {
         NewRotation.Write(writer);
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        ((PlayerEntity)connection.SideObject!).HeadRotation = this.NewRotation;
+    }
+
+    public bool SupportsGameKind(GameKind kind)
+    {
+        return kind == GameKind.MultiplayerBackend;
     }
 }
