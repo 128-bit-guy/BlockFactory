@@ -109,6 +109,14 @@ namespace BlockFactory.World_.Gen
 
         public void ProcessScheduled()
         {
+            if (_scheduledUpgrades[(int)ChunkGenerationLevel.SurfaceGenerated].Count != 0)
+            {
+                Chunk ch = _scheduledUpgrades[(int)ChunkGenerationLevel.SurfaceGenerated][0];
+                ch.World.PushGenerationLevel(ChunkGenerationLevel.Exists);
+                Parallel.ForEach(_scheduledUpgrades[(int)ChunkGenerationLevel.SurfaceGenerated], GenerateBaseSurface);
+                ch.World.PopGenerationLevel();
+            }
+
             foreach (var generationLevel in _generationLevels)
             {
                 var mapos = 0;
@@ -146,15 +154,6 @@ namespace BlockFactory.World_.Gen
                     _chunkDistribution[i].Clear();
                 }
                 _scheduledUpgrades[(int)generationLevel].Clear();
-                // foreach (var rem in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
-                // {
-                //     var chunks = _scheduledUpgrades[(int)generationLevel, rem.X, rem.Y, rem.Z];
-                //     if (chunks.Count == 0) continue;
-                //     chunks[0].World.PushGenerationLevel(generationLevel - 1);
-                //     Parallel.ForEach(chunks, c => ActuallyUpgradeChunkToLevel(generationLevel, c));
-                //     chunks[0].World.PopGenerationLevel();
-                //     chunks.Clear();
-                // }
             }
         }
 
@@ -192,7 +191,7 @@ namespace BlockFactory.World_.Gen
             return new Random(unchecked(pos.X * a + pos.Y * b + pos.Z * c + d * Seed));
         }
 
-        private void GenerateSurface(Chunk chunk)
+        private void GenerateBaseSurface(Chunk chunk)
         {
             var random = GetChunkRandom(chunk.Pos, 1401634909, 1527589979, 1057394087, 1642081541);
             for (var x = 0; x < Chunk.Size; ++x)
@@ -213,7 +212,11 @@ namespace BlockFactory.World_.Gen
                     }
                 }
             }
+        }
 
+        private void GenerateSurface(Chunk chunk)
+        {
+            var random = GetChunkRandom(chunk.Pos, 1718678431, 1225666907, 1640233921, 1794161587);
             foreach (Vector3i a in chunk.GetInclusiveBox().InclusiveEnumerable()) {
                 if (a.Y >= 50 && a.Y <= 100 && random.Next(30000) == 0) {
                     foreach (Vector3i b in WorldEnumerators.GetSphereEnumerator(a, random.Next(5, 8)))
