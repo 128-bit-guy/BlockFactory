@@ -5,7 +5,7 @@ using BlockFactory.Init;
 
 namespace BlockFactory.Network;
 
-public class InGameMenuOpenPacket : IPacket
+public class InGameMenuOpenPacket : IInGamePacket
 {
     public readonly byte[] Data;
     public readonly int Id;

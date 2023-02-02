@@ -3,7 +3,7 @@ using BlockFactory.Server.Entity_;
 
 namespace BlockFactory.Network;
 
-public class MotionStateUpdatePacket : IPacket
+public class MotionStateUpdatePacket : IInGamePacket
 {
     public readonly MotionState State;
 

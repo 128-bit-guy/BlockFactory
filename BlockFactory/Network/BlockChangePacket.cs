@@ -8,7 +8,7 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
 
-public class BlockChangePacket : IPacket
+public class BlockChangePacket : IInGamePacket
 {
     public readonly Vector3i Pos;
     public readonly BlockState State;

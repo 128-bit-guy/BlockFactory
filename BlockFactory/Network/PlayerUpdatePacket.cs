@@ -4,7 +4,7 @@ using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
-public class PlayerUpdatePacket : IPacket
+public class PlayerUpdatePacket : IInGamePacket
 {
     public readonly int Number;
     public readonly PlayerUpdateType UpdateType;

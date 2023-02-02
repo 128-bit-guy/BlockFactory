@@ -3,7 +3,7 @@ using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
-public class WidgetUpdatePacket : IPacket
+public class WidgetUpdatePacket : IInGamePacket
 {
     public readonly byte[] Data;
     public readonly int WidgetIndex;

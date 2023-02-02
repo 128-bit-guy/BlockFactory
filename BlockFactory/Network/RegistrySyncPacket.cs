@@ -37,11 +37,6 @@ public class RegistrySyncPacket : IPacket
         }
     }
 
-    public void Process(NetworkConnection connection)
-    {
-        SyncedRegistries.Sync(Data);
-    }
-
     public bool SupportsGameKind(GameKind kind)
     {
         return kind == GameKind.MultiplayerFrontend;

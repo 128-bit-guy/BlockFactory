@@ -3,7 +3,7 @@ using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
-public class PlayerActionPacket : IPacket
+public class PlayerActionPacket : IInGamePacket
 {
     public readonly PlayerActionType ActionType;
     public readonly int Number;

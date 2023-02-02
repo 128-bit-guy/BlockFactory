@@ -4,7 +4,7 @@ using BlockFactory.Server;
 
 namespace BlockFactory.Network;
 
-public class MessagePacket : IPacket
+public class MessagePacket : IInGamePacket
 {
     public readonly string Msg;
 

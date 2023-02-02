@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
 
-public class ChunkUnloadPacket : IPacket
+public class ChunkUnloadPacket : IInGamePacket
 {
     public readonly Vector3i Pos;
 

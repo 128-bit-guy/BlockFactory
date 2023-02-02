@@ -6,7 +6,7 @@ using BlockFactory.Util.Math_;
 
 namespace BlockFactory.Network;
 
-public class EntityPosUpdatePacket : IPacket
+public class EntityPosUpdatePacket : IInGamePacket
 {
     public readonly long Id;
     public readonly EntityPos Pos;

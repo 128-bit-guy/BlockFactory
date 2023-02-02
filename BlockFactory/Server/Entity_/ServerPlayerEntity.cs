@@ -16,18 +16,7 @@ public class ServerPlayerEntity : PlayerEntity
 
     private void ProcessPackets()
     {
-        var cnt = Connection.ReceiveQueue.Count;
-        for (var i = 0; i < cnt; ++i)
-        {
-            if (Connection.ReceiveQueue.TryDequeue(out var packet))
-            {
-                packet.Process(Connection);
-            }
-            else
-            {
-                break;
-            }
-        }
+        Connection.ProcessInGamePackets();
     }
 
     protected override void TickInternal()

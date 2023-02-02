@@ -2,7 +2,7 @@ using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
-public class OtherPlayerMessagePacket : IPacket
+public class OtherPlayerMessagePacket : IInGamePacket
 {
     public readonly string Msg;
     public readonly string Player;

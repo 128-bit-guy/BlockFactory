@@ -5,7 +5,7 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
 
-public class HeadRotationUpdatePacket : IPacket
+public class HeadRotationUpdatePacket : IInGamePacket
 {
     public readonly Vector2 NewRotation;
 

@@ -6,7 +6,7 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.Network;
 
-public class ChunkDataPacket : IPacket
+public class ChunkDataPacket : IInGamePacket
 {
     public readonly ChunkData Data;
     public readonly Vector3i Pos;

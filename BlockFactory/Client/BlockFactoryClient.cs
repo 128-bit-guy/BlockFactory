@@ -136,10 +136,6 @@ public class BlockFactoryClient
     public void InitMultiplayerGameInstance(string serverAddressAndPort)
     {
         Socket socket;
-        Player = new ClientPlayerEntity
-        {
-            Pos = new EntityPos((0, 0, 10))
-        };
         GameInstance = new GameInstance(GameKind.MultiplayerFrontend, Thread.CurrentThread,
             unchecked((int)DateTime.UtcNow.Ticks), "-")
         {
@@ -161,8 +157,16 @@ public class BlockFactoryClient
             GameInstance = GameInstance
         };
         ServerConnection.Start();
+        var registrySyncPacket = ServerConnection.AwaitPacket<RegistrySyncPacket>();
+        SyncedRegistries.Sync(registrySyncPacket.Data);
+        var playerJoinWorldPacket = ServerConnection.AwaitPacket<PlayerJoinWorldPacket>();
+        Player = new ClientPlayerEntity
+        {
+            Pos = new EntityPos((0, 0, 10))
+        };
         GameInstance.Init();
         GameInstance.World.AddPlayer(Player);
+        Player.Id = playerJoinWorldPacket.Id;
         WorldRenderer = new WorldRenderer(GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);
@@ -281,18 +285,7 @@ public class BlockFactoryClient
 
     private void ProcessPackets()
     {
-        int cnt = ServerConnection!.ReceiveQueue.Count;
-        for (int i = 0; i < cnt; ++i)
-        {
-            if (ServerConnection.ReceiveQueue.TryDequeue(out var packet))
-            {
-                packet.Process(ServerConnection);
-            }
-            else
-            {
-                break;
-            }
-        }
+        ServerConnection!.ProcessInGamePackets();
     }
 
     private void UpdateAndRender()
@@ -311,6 +304,7 @@ public class BlockFactoryClient
             {
                 ProcessPackets();
             }
+
             if (!HasScreen()) Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
             GameInstance!.Update();
             UseWorldMatrices();

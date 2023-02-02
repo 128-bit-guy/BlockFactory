@@ -3,7 +3,7 @@ using BlockFactory.Game;
 
 namespace BlockFactory.Network;
 
-public class WidgetActionPacket : IPacket
+public class WidgetActionPacket : IInGamePacket
 {
     public readonly int ActionNumber;
     public readonly int WidgetIndex;
