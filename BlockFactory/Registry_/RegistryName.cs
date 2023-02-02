@@ -14,10 +14,7 @@ public struct RegistryName : IEquatable<RegistryName>
     public RegistryName(string name)
     {
         var parts = name.Split(':');
-        if (parts.Length > 2)
-        {
-            throw new ArgumentException("Name should not contain more than 2 components");
-        }
+        if (parts.Length > 2) throw new ArgumentException("Name should not contain more than 2 components");
 
         if (parts.Length == 2)
         {

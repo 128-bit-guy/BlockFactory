@@ -24,7 +24,7 @@ public class MotionStateUpdatePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        ((ServerPlayerEntity)connection.SideObject!).MotionState = this.State;
+        ((ServerPlayerEntity)connection.SideObject!).MotionState = State;
     }
 
     public bool SupportsGameKind(GameKind kind)

@@ -72,7 +72,7 @@ public abstract class PhysicsEntity : Entity
                 // World.GetBlockState(bap).AddCollisionBoxes(bap, Boxes, this);
             }
 
-            (var mVelocity, var collidedMask) = CollisionSolver.AdjustMovementForCollision(Velocity, bb, Boxes);
+            var (mVelocity, collidedMask) = CollisionSolver.AdjustMovementForCollision(Velocity, bb, Boxes);
             LastCollidedMask = collidedMask;
             Boxes.Clear();
             var newPos = Pos + mVelocity;

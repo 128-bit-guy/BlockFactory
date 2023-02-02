@@ -27,17 +27,18 @@ public class WidgetUpdatePacket : IPacket
         writer.Write7BitEncodedInt(Data.Length);
         writer.Write(Data);
     }
+
     public void Process(NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            using Stream stream = new MemoryStream(this.Data);
+            using Stream stream = new MemoryStream(Data);
             using var reader = new BinaryReader(stream);
             var menu = BlockFactoryClient.Instance.Player!.Menu!;
-            if (this.WidgetIndex == menu.Widgets.Count)
+            if (WidgetIndex == menu.Widgets.Count)
                 menu.ReadUpdateData(reader);
             else
-                menu.Widgets[this.WidgetIndex].ReadUpdateData(reader);
+                menu.Widgets[WidgetIndex].ReadUpdateData(reader);
         });
     }
 

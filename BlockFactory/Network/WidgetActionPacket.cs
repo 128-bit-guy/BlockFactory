@@ -30,8 +30,8 @@ public class WidgetActionPacket : IPacket
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            ((PlayerEntity)connection.SideObject!).Menu!.Widgets[this.WidgetIndex]
-                .ProcessAction(this.ActionNumber);
+            ((PlayerEntity)connection.SideObject!).Menu!.Widgets[WidgetIndex]
+                .ProcessAction(ActionNumber);
         });
     }
 

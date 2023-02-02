@@ -27,7 +27,7 @@ public class OtherPlayerMessagePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        Console.WriteLine("[{0}]: {1}", this.Player, this.Msg);
+        Console.WriteLine("[{0}]: {1}", Player, Msg);
     }
 
     public bool SupportsGameKind(GameKind kind)

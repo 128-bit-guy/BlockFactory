@@ -51,7 +51,7 @@ public class VertexFormat<T>
     public void Enable(int VAO, int VBO, int bindingIndex)
     {
         GL.VertexArrayVertexBuffer(VAO, bindingIndex, VBO, new IntPtr(0), Size);
-        foreach ((var layoutLocation, var offset, var count, var type) in VertexAttributeOffsets)
+        foreach (var (layoutLocation, offset, count, type) in VertexAttributeOffsets)
         {
             GL.EnableVertexArrayAttrib(VAO, layoutLocation);
             GL.VertexArrayAttribFormat(VAO, layoutLocation, count, (VertexAttribType)type, false, offset);

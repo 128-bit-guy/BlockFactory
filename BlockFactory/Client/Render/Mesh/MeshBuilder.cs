@@ -47,10 +47,7 @@ public class MeshBuilder<T>
 
     public void AddIndex(int i)
     {
-        if (CurrentIndexSpace == -1)
-        {
-            throw new InvalidOperationException("Index space did not begin");
-        }
+        if (CurrentIndexSpace == -1) throw new InvalidOperationException("Index space did not begin");
 
         if (IndexCount == Indices.Length) GrowIndices();
         Indices[IndexCount] = CurrentIndexSpace + i;
@@ -64,10 +61,7 @@ public class MeshBuilder<T>
 
     public void AddVertex(T v)
     {
-        if (CurrentIndexSpace == -1)
-        {
-            throw new InvalidOperationException("Index space did not begin");
-        }
+        if (CurrentIndexSpace == -1) throw new InvalidOperationException("Index space did not begin");
 
         if (VertexCount == Vertices.Length) GrowVertices();
         Vertices[VertexCount] = Format.LayerSetter(Format.Colorer(Format.MatrixApplier(v, MatrixStack), Color), Layer);
@@ -88,10 +82,7 @@ public class MeshBuilder<T>
 
     public void Reset()
     {
-        if (CurrentIndexSpace != -1)
-        {
-            throw new InvalidOperationException("Index space is not finished");
-        }
+        if (CurrentIndexSpace != -1) throw new InvalidOperationException("Index space is not finished");
 
         IndexCount = 0;
         VertexCount = 0;

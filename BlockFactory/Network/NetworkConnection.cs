@@ -119,44 +119,25 @@ public class NetworkConnection : IDisposable
         NetworkRegistry.WritePacket(packet, writer);
     }
 
-    private /*bool*/ void HandlePacket(BinaryReader reader)
+    private void HandlePacket(BinaryReader reader)
     {
         var id = reader.ReadInt32();
         var packet = NetworkRegistry.ReadPacket(reader, id);
         if (!packet.SupportsGameKind(GameInstance.Kind))
-        {
             throw new InvalidOperationException(
                 $"Other side sent packet {packet.GetType().Name} which is not supported on this side");
-        }
         packet.Process(this);
-        // var handler = NetworkRegistry.GetHandler(id);
-        // if (handler == null)
-        //     throw new InvalidOperationException(
-        //         $"Other side sent packet {packet.GetType().Name}, which has no handler registered on this side. This packet is probably sent in wrong direction"
-        //     );
-        // handler(packet, this);
-        //return packet is ChunkUnloadPacket;
     }
 
     private async ValueTask SendPacketList(List<IPacket> packetList)
     {
-        //bool hasChunkUnload = false;
-        //Stopwatch sw = new Stopwatch();
-        //sw.Start();
         using var stream = StreamManager.GetStream();
         using var writer = new BinaryWriter(stream);
         writer.Write(packetList.Count);
         foreach (var packet in packetList)
-            //if (packet is ChunkUnloadPacket) {
-            //    hasChunkUnload = true;
-            //}
             WritePacket(packet, writer);
         var res = stream.ToArray();
-        //long writeTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         var compressed = Zstd.Compress(res);
-        //long compressTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         var toSend = new byte[compressed.Length + 2 * sizeof(int)];
         Array.Copy(compressed, 0, toSend, 2 * sizeof(int), compressed.Length);
         BitConverter.TryWriteBytes(toSend, compressed.Length);
@@ -167,8 +148,6 @@ public class NetworkConnection : IDisposable
             Array.Reverse(toSend, sizeof(int), sizeof(int));
         }
 
-        //long addInfoTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         var toSendPos = 0;
         while (toSendPos < toSend.Length)
             toSendPos += await Socket.SendAsync(
@@ -176,12 +155,6 @@ public class NetworkConnection : IDisposable
                 0,
                 _cancellationTokenSource.Token
             );
-        //long sendTime = sw.ElapsedMilliseconds;
-        //sw.Stop();
-        //if (hasChunkUnload)
-        //{
-        //    Console.WriteLine($"Write time: {writeTime}, compress time: {compressTime}, add info time: {addInfoTime}, send time: {sendTime}");
-        //}
     }
 
     private async Task SendPackets()
@@ -236,8 +209,6 @@ public class NetworkConnection : IDisposable
 
         var compressedLength = BitConverter.ToInt32(lengths);
         var uncompressedLength = BitConverter.ToInt32(lengths.AsSpan()[sizeof(int)..]);
-        //long addInfoTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         var compressed = new byte[compressedLength];
         var compressedPos = 0;
         while (compressedPos < compressed.Length)
@@ -246,23 +217,12 @@ public class NetworkConnection : IDisposable
                 0,
                 _cancellationTokenSource.Token
             );
-        //long receiveTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         var uncompressed = Zstd.Decompress(compressed, uncompressedLength);
-        //long decompressTime = sw.ElapsedMilliseconds;
-        //sw.Restart();
         using var stream = StreamManager.GetStream(uncompressed);
         using var reader = new BinaryReader(stream);
         var cnt = reader.ReadInt32();
-        //bool hasChunkUnload = false;
         for (var i = 0; i < cnt; ++i)
-            /*hasChunkUnload |= */
             HandlePacket(reader);
-        //long readTime = sw.ElapsedMilliseconds;
-        //sw.Stop();
-        //if (hasChunkUnload) {
-        //    Console.WriteLine($"Add info time: {addInfoTime}, receive time: {receiveTime}, decompress time: {decompressTime}, read time: {readTime}");
-        //}
     }
 
     private async Task ReceivePackets()

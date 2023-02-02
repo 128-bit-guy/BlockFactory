@@ -30,12 +30,13 @@ public class BlockChangePacket : IPacket
         Pos.Write(writer);
         State.Write(writer);
     }
+
     public void Process(NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            BlockFactoryClient.Instance.Player!.VisibleChunks[this.Pos.BitShiftRight(Chunk.SizeLog2)]
-                .SetBlockState(this.Pos, this.State);
+            BlockFactoryClient.Instance.Player!.VisibleChunks[Pos.BitShiftRight(Chunk.SizeLog2)]
+                .SetBlockState(Pos, State);
         });
     }
 

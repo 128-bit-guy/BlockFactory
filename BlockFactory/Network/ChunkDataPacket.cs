@@ -33,7 +33,7 @@ public class ChunkDataPacket : IPacket
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            var ch = new Chunk(this.Data, this.Pos, BlockFactoryClient.Instance.Player!.World!);
+            var ch = new Chunk(Data, Pos, BlockFactoryClient.Instance.Player!.World!);
             BlockFactoryClient.Instance.Player!.World!.AddChunk(ch);
             BlockFactoryClient.Instance.Player!.AddVisibleChunk(ch);
         });

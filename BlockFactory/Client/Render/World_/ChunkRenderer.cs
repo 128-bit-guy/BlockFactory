@@ -12,11 +12,11 @@ namespace BlockFactory.Client.Render.World_;
 [ExclusiveTo(Side.Client)]
 public class ChunkRenderer : IDisposable
 {
+    private readonly RenderMesh<BlockVertex> _mesh;
     public readonly Chunk Chunk;
     public readonly ChunkRendererNeighbourhood Neighbourhood;
     public readonly Vector3i Pos;
     public readonly WorldRenderer WorldRenderer;
-    private readonly RenderMesh<BlockVertex> _mesh;
     public Task<MeshBuilder<BlockVertex>>? RebuildTask;
     public bool RequiresRebuild;
 

@@ -83,10 +83,7 @@ public class SideStripper
         t.Methods.RemoveIf(m => _excludedMethods.Contains(m.FullName));
         t.Properties.RemoveIf(p => _excludedProperties.Contains(p.FullName));
         t.NestedTypes.RemoveIf(t => _excludedTypes.Contains(t.FullName));
-        foreach (var nestedType in t.NestedTypes)
-        {
-            RemoveExcludedThingsFromType(nestedType);
-        }
+        foreach (var nestedType in t.NestedTypes) RemoveExcludedThingsFromType(nestedType);
     }
 
     private void RemoveExcludedThings()
@@ -94,10 +91,7 @@ public class SideStripper
         foreach (var module in Definitions.SelectMany(def => def.Modules))
         {
             module.Types.RemoveIf(t => _excludedTypes.Contains(t.FullName));
-            foreach (var t in module.Types)
-            {
-                RemoveExcludedThingsFromType(t);
-            }
+            foreach (var t in module.Types) RemoveExcludedThingsFromType(t);
         }
     }
 
@@ -183,10 +177,7 @@ public class SideStripper
         foreach (var methodDefinition in type.Methods
                      .Where(m => !_excludedMethods.Contains(m.FullName)))
             FixMethod(methodDefinition);
-        foreach (var nestedType in type.NestedTypes)
-        {
-            FixType(nestedType);
-        }
+        foreach (var nestedType in type.NestedTypes) FixType(nestedType);
     }
 
     private void FixDependentCode()
@@ -196,9 +187,7 @@ public class SideStripper
                      .SelectMany(m => m.Types)
                      .Where(t => !_excludedTypes.Contains(t.FullName))
                 )
-        {
             FixType(type);
-        }
     }
 
     public void Process()

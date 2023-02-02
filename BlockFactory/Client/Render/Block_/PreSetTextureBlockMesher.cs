@@ -9,8 +9,8 @@ namespace BlockFactory.Client.Render.Block_;
 [ExclusiveTo(Side.Client)]
 public class PreSetTextureBlockMesher : IBlockMesher
 {
-    private readonly string[] _textures;
     private readonly bool _areSidesSolid;
+    private readonly string[] _textures;
     private int[] _textureIndices;
 
     public PreSetTextureBlockMesher(string[] textures, bool areSidesSolid)

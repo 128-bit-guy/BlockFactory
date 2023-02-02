@@ -42,27 +42,22 @@ public class InGameMenuOpenPacket : IPacket
         writer.Write(Data);
     }
 
-    public InGameMenu? CreateMenu()
-    {
-        if (Id == -1)
-        {
-            return null;
-        }
-
-        using var stream = new MemoryStream(Data);
-        using var reader = new BinaryReader(stream);
-        return InGameMenuTypes.Registry[Id].Loader(reader);
-    }
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() =>
-        {
-            BlockFactoryClient.Instance.Player!.SwitchMenu(this.CreateMenu());
-        });
+        connection.GameInstance!.EnqueueWork(() => { BlockFactoryClient.Instance.Player!.SwitchMenu(CreateMenu()); });
     }
 
     public bool SupportsGameKind(GameKind kind)
     {
         return kind == GameKind.MultiplayerFrontend;
+    }
+
+    public InGameMenu? CreateMenu()
+    {
+        if (Id == -1) return null;
+
+        using var stream = new MemoryStream(Data);
+        using var reader = new BinaryReader(stream);
+        return InGameMenuTypes.Registry[Id].Loader(reader);
     }
 }

@@ -21,9 +21,9 @@ public class PlayerEntity : WalkingEntity
         BlockState newState);
 
     private readonly List<Vector3i> _chunksToRemove = new();
-    public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
 
     private readonly List<Chunk> _scheduledChunksBecameVisible;
+    public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
     private int _useCooldown;
     public int ChunkLoadDistance = 16;
 
@@ -147,7 +147,7 @@ public class PlayerEntity : WalkingEntity
 
     public void UnloadChunks(bool all)
     {
-        foreach ((var pos, var chunk) in VisibleChunks)
+        foreach (var (pos, chunk) in VisibleChunks)
             if (all || (Pos.ChunkPos - pos).SquareLength() > (ChunkLoadDistance + 2) * (ChunkLoadDistance + 2))
             {
                 OnVisibleChunkRemoved(chunk);

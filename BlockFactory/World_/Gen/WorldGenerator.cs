@@ -14,12 +14,12 @@ public class WorldGenerator
 {
     private readonly List<Chunk>[] _chunkDistribution = new List<Chunk>[3 * 3 * 3];
     private readonly List<Chunk>[,,] _componentChunks = new List<Chunk>[3, 3, 3];
-    public readonly int Seed;
-
-    [ExclusiveTo(Side.Server)] private long _chunksUpgradedOnOtherThread;
 
     private readonly ChunkGenerationLevel[] _generationLevels;
     private readonly List<Chunk>[] _scheduledUpgrades;
+    public readonly int Seed;
+
+    [ExclusiveTo(Side.Server)] private long _chunksUpgradedOnOtherThread;
 
     [ExclusiveTo(Side.Server)] private long _totalChunksUpgraded;
 

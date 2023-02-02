@@ -95,10 +95,7 @@ public class SlotWidget : InGameMenuWidget
 
     private ItemStack PutIntoNextGroup(ItemStack stack, bool simulate)
     {
-        if (Group.Next == null)
-        {
-            return stack;
-        }
+        if (Group.Next == null) return stack;
 
         var left = stack;
         foreach (var slot in Group.Next.Slots) left = slot.Inv!.TryInsertStack(slot.Slot, left, simulate);

@@ -21,7 +21,7 @@ public class InGameMenuScreen : Screen
 
     private Vector2 GetMinGridCellPos()
     {
-        (var width, var height) = Client.GetDimensions();
+        var (width, height) = Client.GetDimensions();
         var center = new Vector2(width, height) * (1 / 2f);
         var gridSize = Menu.Size.ToVector2() * (GridCellSize + GridCellPadding) - new Vector2(GridCellPadding);
         return center - gridSize * (1 / 2f);

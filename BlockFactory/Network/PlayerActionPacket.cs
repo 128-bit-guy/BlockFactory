@@ -30,7 +30,7 @@ public class PlayerActionPacket : IPacket
     {
         connection.GameInstance!.EnqueueWork(() =>
             {
-                ((PlayerEntity)connection.SideObject!).HandlePlayerAction(this.ActionType, this.Number);
+                ((PlayerEntity)connection.SideObject!).HandlePlayerAction(ActionType, Number);
             }
         );
     }

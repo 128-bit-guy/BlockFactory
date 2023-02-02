@@ -26,7 +26,7 @@ public class PlayerJoinWorldPacket : IPacket
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = this.Id;
+            if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
         });
     }
 

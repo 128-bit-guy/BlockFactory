@@ -26,11 +26,12 @@ public class PlayerUpdatePacket : IPacket
         writer.Write((byte)UpdateType);
         writer.Write7BitEncodedInt(Number);
     }
+
     public void Process(NetworkConnection connection)
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            BlockFactoryClient.Instance.Player!.HandlePlayerUpdate(this.UpdateType, this.Number);
+            BlockFactoryClient.Instance.Player!.HandlePlayerUpdate(UpdateType, Number);
         });
     }
 

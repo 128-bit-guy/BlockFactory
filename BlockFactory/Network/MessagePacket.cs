@@ -25,15 +25,15 @@ public class MessagePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        Console.WriteLine($"[{connection.Socket.RemoteEndPoint}]: {this.Msg}");
+        Console.WriteLine($"[{connection.Socket.RemoteEndPoint}]: {Msg}");
         connection.GameInstance!.EnqueueWork(() =>
         {
-            if (this.Msg.StartsWith('/'))
-                BlockFactoryServer.Instance.HandleCommand((PlayerEntity)connection.SideObject!, this.Msg);
+            if (Msg.StartsWith('/'))
+                BlockFactoryServer.Instance.HandleCommand((PlayerEntity)connection.SideObject!, Msg);
             else
                 foreach (var networkConnection in BlockFactoryServer.Instance.Connections)
                     networkConnection.SendPacket(
-                        new OtherPlayerMessagePacket(connection.Socket.RemoteEndPoint!.ToString()!, this.Msg));
+                        new OtherPlayerMessagePacket(connection.Socket.RemoteEndPoint!.ToString()!, Msg));
         });
     }
 

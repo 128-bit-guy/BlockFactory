@@ -73,10 +73,7 @@ public class Registry<T> : IRegistry
 
     public T2 Register<T2>(RegistryName name, T2 obj) where T2 : T
     {
-        if (Locked)
-        {
-            throw new InvalidOperationException("Registry is locked");
-        }
+        if (Locked) throw new InvalidOperationException("Registry is locked");
 
         obj.Id = _entries.Count;
         _entries.Add(obj);
@@ -86,10 +83,7 @@ public class Registry<T> : IRegistry
 
     public void Lock()
     {
-        if (Locked)
-        {
-            throw new InvalidOperationException("Registry is already locked");
-        }
+        if (Locked) throw new InvalidOperationException("Registry is already locked");
 
         Locked = true;
         _objects = new Dictionary<RegistryName, T>();

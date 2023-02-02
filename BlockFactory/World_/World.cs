@@ -100,7 +100,7 @@ public class World : IBlockStorage, IDisposable
 
     public void Tick()
     {
-        foreach ((var id, var player) in _players) player.Tick();
+        foreach (var (id, player) in _players) player.Tick();
 
         if (GameInstance.Kind.DoesProcessLogic())
         {

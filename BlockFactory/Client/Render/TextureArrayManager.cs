@@ -8,8 +8,8 @@ namespace BlockFactory.Client.Render;
 public class TextureArrayManager
 {
     private readonly Dictionary<string, int> _imageIndices;
-    private int Arr;
     private readonly List<ImageResult> Images;
+    private int Arr;
 
     public TextureArrayManager()
     {

@@ -26,7 +26,7 @@ public class HeadRotationUpdatePacket : IPacket
 
     public void Process(NetworkConnection connection)
     {
-        ((PlayerEntity)connection.SideObject!).HeadRotation = this.NewRotation;
+        ((PlayerEntity)connection.SideObject!).HeadRotation = NewRotation;
     }
 
     public bool SupportsGameKind(GameKind kind)

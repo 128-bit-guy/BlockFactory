@@ -28,8 +28,8 @@ public class ChunkUnloadPacket : IPacket
     {
         connection.GameInstance!.EnqueueWork(() =>
         {
-            BlockFactoryClient.Instance.Player?.RemoveVisibleChunk(this.Pos);
-            BlockFactoryClient.Instance.Player?.World!.RemoveChunk(this.Pos);
+            BlockFactoryClient.Instance.Player?.RemoveVisibleChunk(Pos);
+            BlockFactoryClient.Instance.Player?.World!.RemoveChunk(Pos);
         });
     }
 

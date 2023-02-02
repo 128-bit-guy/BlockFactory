@@ -36,9 +36,10 @@ public class RegistrySyncPacket : IPacket
             for (var j = 0; j < order.Length; ++j) order[j].Write(writer);
         }
     }
+
     public void Process(NetworkConnection connection)
     {
-        connection.GameInstance!.EnqueueWork(() => { SyncedRegistries.Sync(this.Data); });
+        connection.GameInstance!.EnqueueWork(() => { SyncedRegistries.Sync(Data); });
     }
 
     public bool SupportsGameKind(GameKind kind)
