@@ -1,4 +1,5 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
@@ -35,12 +36,12 @@ public class World : IBlockStorage, IDisposable
 
     public BlockState GetBlockState(Vector3i pos)
     {
-        return GetOrLoadChunk(pos.BitShiftRight(Chunk.SizeLog2)).GetBlockState(pos);
+        return GetOrLoadChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).GetBlockState(pos);
     }
 
     public void SetBlockState(Vector3i pos, BlockState state)
     {
-        GetOrLoadChunk(pos.BitShiftRight(Chunk.SizeLog2)).SetBlockState(pos, state);
+        GetOrLoadChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).SetBlockState(pos, state);
     }
 
     public void Dispose()

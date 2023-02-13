@@ -1,4 +1,5 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Game;
 using BlockFactory.Gui;
@@ -188,7 +189,7 @@ public class PlayerEntity : WalkingEntity
         OnVisibleBlockChange(chunk, pos, prevState, newState);
         if (GameInstance!.Kind.IsNetworked() && GameInstance.Kind.DoesProcessLogic())
         {
-            if (!VisibleChunks.ContainsKey(pos.BitShiftRight(Chunk.SizeLog2))) throw new Exception();
+            if (!VisibleChunks.ContainsKey(pos.BitShiftRight(Constants.ChunkSizeLog2))) throw new Exception();
             GameInstance.NetworkHandler.GetPlayerConnection(this).SendPacket(new BlockChangePacket(pos, newState));
         }
     }

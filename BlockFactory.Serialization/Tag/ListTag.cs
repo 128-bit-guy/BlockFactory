@@ -2,7 +2,7 @@
 
 public class ListTag : ITag
 {
-    private ITag[] _elements;
+    private List<ITag> _elements;
 
     public ListTag()
     {
@@ -10,7 +10,7 @@ public class ListTag : ITag
 
     public ListTag(ITag[] elements, TagType elementType)
     {
-        _elements = elements;
+        _elements = new List<ITag>(elements);
         ElementType = elementType;
     }
 
@@ -23,7 +23,7 @@ public class ListTag : ITag
 
     public void Write(BinaryWriter writer)
     {
-        writer.Write7BitEncodedInt(_elements.Length);
+        writer.Write7BitEncodedInt(_elements.Count);
         writer.Write((byte)ElementType);
         foreach (var tag in _elements) tag.Write(writer);
     }
@@ -31,7 +31,7 @@ public class ListTag : ITag
     public void Read(BinaryReader reader)
     {
         var cnt = reader.Read7BitEncodedInt();
-        _elements = new ITag[cnt];
+        _elements = new List<ITag>(new ITag[cnt]);
         ElementType = (TagType)reader.ReadByte();
         for (var i = 0; i < cnt; ++i)
         {
@@ -74,13 +74,29 @@ public class ListTag : ITag
             throw new InvalidOperationException("Tried to set element of list of invalid type");
     }
 
+    public void Add(ITag tag)
+    {
+        if (tag.Type == ElementType)
+            _elements.Add(tag);
+        else
+            throw new InvalidOperationException("Tried to set element of list of invalid type");
+    }
+
+    public void AddValue<T>(T value)
+    {
+        if (TagTypes.GetValueBasedTagType<T>() == ElementType)
+            _elements.Add(TagTypes.CreateValueBasedTag(value));
+        else
+            throw new InvalidOperationException("Tried to set element of list of invalid type");
+    }
+
     public IEnumerable<T> GetEnumerable<T>() where T : ITag
     {
-        for (var i = 0; i < _elements.Length; ++i) yield return Get<T>(i);
+        for (var i = 0; i < _elements.Count; ++i) yield return Get<T>(i);
     }
 
     public IEnumerable<T> GetValueEnumerable<T>()
     {
-        for (var i = 0; i < _elements.Length; ++i) yield return GetValue<T>(i);
+        for (var i = 0; i < _elements.Count; ++i) yield return GetValue<T>(i);
     }
 }

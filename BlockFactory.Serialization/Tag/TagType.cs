@@ -10,5 +10,7 @@ public enum TagType
     Byte,
     String,
     Int16,
-    Boolean
+    Boolean,
+    ChunkBlockData,
+    ChunkRotationData
 }

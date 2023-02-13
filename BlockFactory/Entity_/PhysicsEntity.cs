@@ -1,4 +1,5 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Base;
+using BlockFactory.CubeMath;
 using BlockFactory.Game;
 using BlockFactory.Physics;
 using BlockFactory.World_.Chunk_;
@@ -62,11 +63,11 @@ public abstract class PhysicsEntity : Entity
             for (var y = (int)MathF.Floor(broadphase.Min.Y); y <= broadphase.Max.Y; ++y)
             for (var z = (int)MathF.Floor(broadphase.Min.Z); z <= broadphase.Max.Z; ++z)
             {
-                var bco = Pos.ChunkPos.BitShiftLeft(Chunk.SizeLog2);
+                var bco = Pos.ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
                 var bap = bco + new Vector3i(x, y, z);
                 var state = World!.GetBlockState(bap);
                 var block = state.Block;
-                curOffset = bap - Pos.ChunkPos.BitShiftLeft(Chunk.SizeLog2);
+                curOffset = bap - Pos.ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
                 curRotation = state.Rotation;
                 block.AddCollisionBoxes(World, bap, state, consumer, this);
                 // World.GetBlockState(bap).AddCollisionBoxes(bap, Boxes, this);

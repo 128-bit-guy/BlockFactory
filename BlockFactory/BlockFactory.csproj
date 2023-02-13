@@ -8,7 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj" />
         <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
+        <ProjectReference Include="..\BlockFactory.Serialization\BlockFactory.Serialization.csproj" />
         <ProjectReference Include="..\BlockFactory.Side_\BlockFactory.Side_.csproj" />
     </ItemGroup>
 

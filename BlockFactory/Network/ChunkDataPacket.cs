@@ -20,13 +20,14 @@ public class ChunkDataPacket : IInGamePacket
     public ChunkDataPacket(BinaryReader reader)
     {
         Pos = NetworkUtils.ReadVector3i(reader);
-        Data = new ChunkData(reader);
+        Data = new ChunkData();
+        Data.DeserializeFromBinaryReader(reader);
     }
 
     public void Write(BinaryWriter writer)
     {
         Pos.Write(writer);
-        Data.Write(writer);
+        Data.SerializeToBinaryWriter(writer);
     }
 
     public void Process(NetworkConnection connection)

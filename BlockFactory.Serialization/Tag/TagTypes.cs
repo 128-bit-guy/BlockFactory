@@ -13,6 +13,8 @@ public static class TagTypes
         RegisterTag<StringTag>();
         RegisterTag<ListTag>();
         RegisterTag<DictionaryTag>();
+        RegisterTag<ChunkBlockDataTag>();
+        RegisterTag<ChunkRotationDataTag>();
         BuildTags();
     }
 

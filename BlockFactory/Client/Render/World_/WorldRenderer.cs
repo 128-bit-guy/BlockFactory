@@ -1,4 +1,5 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Client.Render.Shader;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
@@ -129,8 +130,8 @@ public class WorldRenderer : IDisposable
             var hasRebuildTask = chunkRenderer.RebuildTask != null;
             if (hasRebuildTask && !chunkRenderer.RebuildTask!.IsCompleted) --leftParallelRebuilds;
             var translation =
-                (chunkRenderer.Pos - BlockFactoryClient.Instance.Player!.Pos.ChunkPos).BitShiftLeft(Chunk.SizeLog2);
-            var box = new Box3(new Vector3(0), new Vector3(Chunk.Size)).Add(translation.ToVector3());
+                (chunkRenderer.Pos - BlockFactoryClient.Instance.Player!.Pos.ChunkPos).BitShiftLeft(Constants.ChunkSizeLog2);
+            var box = new Box3(new Vector3(0), new Vector3(Constants.ChunkSize)).Add(translation.ToVector3());
             if (intersectionHelper.TestAab(box))
             {
                 if (chunkRenderer.Neighbourhood.LoadedChunkCnt == 27 && chunkRenderer.RequiresRebuild &&
@@ -168,7 +169,7 @@ public class WorldRenderer : IDisposable
         for (var k = -1; k <= 1; ++k)
         {
             var blockPos = pos + new Vector3i(i, j, k);
-            var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
+            var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
             if (ChunkRenderers.TryGetValue(chunkPos, out var r)) r.RequiresRebuild = true;
         }
     }

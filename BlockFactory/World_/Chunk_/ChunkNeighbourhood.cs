@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.World_.Api;
@@ -54,7 +55,7 @@ public class ChunkNeighbourhood : IBlockStorage
     [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
     private Vector3i GetArrayChunkPos(Vector3i blockPos)
     {
-        var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
+        var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
         var deltaChunkPos = chunkPos - CenterPos;
         var arrChunkPos = deltaChunkPos + (1, 1, 1);
         return arrChunkPos;

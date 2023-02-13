@@ -6,12 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="ZstdSharp" Version="0.7.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj" />
-    </ItemGroup>
-
 </Project>

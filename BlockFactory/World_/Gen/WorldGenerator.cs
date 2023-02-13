@@ -1,4 +1,5 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Game;
 using BlockFactory.Init;
@@ -164,14 +165,14 @@ public class WorldGenerator
     private void GenerateBaseSurface(Chunk chunk)
     {
         var random = GetChunkRandom(chunk.Pos, 1401634909, 1527589979, 1057394087, 1642081541);
-        for (var x = 0; x < Chunk.Size; ++x)
+        for (var x = 0; x < Constants.ChunkSize; ++x)
         {
             var absX = chunk.GetBegin().X + x;
-            for (var z = 0; z < Chunk.Size; ++z)
+            for (var z = 0; z < Constants.ChunkSize; ++z)
             {
                 var absZ = chunk.GetBegin().Z + z;
                 var noise = Perlin.GetValue(absX / 100f, 0, absZ / 100f);
-                for (var y = 0; y < Chunk.Size; ++y)
+                for (var y = 0; y < Constants.ChunkSize; ++y)
                 {
                     var absY = chunk.GetBegin().Y + y;
                     if (noise >= absY)

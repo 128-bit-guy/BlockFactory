@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
@@ -161,7 +162,7 @@ public class BlockFactoryServer
                      ).InclusiveEnumerable())
             {
                 var blockPos = player.Pos.GetBlockPos() + offset;
-                var chunkPos = blockPos.BitShiftRight(Chunk.SizeLog2);
+                var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
                 world.GetOrLoadChunk(chunkPos, false);
             }
 

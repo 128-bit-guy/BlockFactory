@@ -1,4 +1,5 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Game;
@@ -33,7 +34,7 @@ public class BlockChangePacket : IInGamePacket
 
     public void Process(NetworkConnection connection)
     {
-        BlockFactoryClient.Instance.Player!.VisibleChunks[Pos.BitShiftRight(Chunk.SizeLog2)]
+        BlockFactoryClient.Instance.Player!.VisibleChunks[Pos.BitShiftRight(Constants.ChunkSizeLog2)]
             .SetBlockState(Pos, State);
     }
 

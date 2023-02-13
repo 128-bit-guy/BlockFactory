@@ -1,3 +1,4 @@
+using BlockFactory.Base;
 using BlockFactory.CubeMath;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
@@ -21,8 +22,8 @@ public struct EntityPos /*: ISerializable*/
         Fix();
     }
 
-    public EntityPos(Vector3i blockPos) : this(blockPos.BitAnd(Chunk.Mask).ToVector3(),
-        blockPos.BitShiftRight(Chunk.SizeLog2))
+    public EntityPos(Vector3i blockPos) : this(blockPos.BitAnd(Constants.ChunkMask).ToVector3(),
+        blockPos.BitShiftRight(Constants.ChunkSizeLog2))
     {
     }
 
@@ -43,9 +44,9 @@ public struct EntityPos /*: ISerializable*/
         for (var i = 0; i < 3; ++i)
         {
             var posInChunk = PosInChunk[i];
-            var deltaChunkPos = (int)MathF.Floor(posInChunk / Chunk.Size);
-            posInChunk %= Chunk.Size;
-            if (posInChunk < 0) posInChunk += Chunk.Size;
+            var deltaChunkPos = (int)MathF.Floor(posInChunk / Constants.ChunkSize);
+            posInChunk %= Constants.ChunkSize;
+            if (posInChunk < 0) posInChunk += Constants.ChunkSize;
             PosInChunk[i] = posInChunk;
             ChunkPos[i] += deltaChunkPos;
         }
@@ -63,12 +64,12 @@ public struct EntityPos /*: ISerializable*/
 
     public Vector3i GetBlockPos()
     {
-        return PosInChunk.Floor() + ChunkPos.BitShiftLeft(Chunk.SizeLog2);
+        return PosInChunk.Floor() + ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
     }
 
     public Vector3 GetAbsolutePos()
     {
-        return PosInChunk + ChunkPos.BitShiftLeft(Chunk.SizeLog2).ToVector3();
+        return PosInChunk + ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2).ToVector3();
     }
 
     public static EntityPos operator -(EntityPos a, EntityPos b)

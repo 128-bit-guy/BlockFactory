@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
@@ -10,9 +11,6 @@ namespace BlockFactory.World_.Chunk_;
 
 public class Chunk : IBlockStorage, IDependable
 {
-    public const int SizeLog2 = 4;
-    public const int Size = 1 << SizeLog2;
-    public const int Mask = Size - 1;
     public readonly Vector3i Pos;
     public readonly World World;
     private ChunkData? _data;
@@ -89,7 +87,7 @@ public class Chunk : IBlockStorage, IDependable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3i GetBegin()
     {
-        return Pos.BitShiftLeft(SizeLog2);
+        return Pos.BitShiftLeft(Constants.ChunkSizeLog2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,7 +96,7 @@ public class Chunk : IBlockStorage, IDependable
         var beg = GetBegin();
         var cur = pos - beg;
         for (var i = 0; i < 3; ++i)
-            if (cur[i] < 0 || cur[i] >= Size)
+            if (cur[i] < 0 || cur[i] >= Constants.ChunkSize)
                 return false;
         return true;
     }
@@ -117,6 +115,6 @@ public class Chunk : IBlockStorage, IDependable
     public Box3i GetInclusiveBox()
     {
         var begin = GetBegin();
-        return new Box3i(begin, begin + new Vector3i(Size - 1));
+        return new Box3i(begin, begin + new Vector3i(Constants.ChunkSize - 1));
     }
 }

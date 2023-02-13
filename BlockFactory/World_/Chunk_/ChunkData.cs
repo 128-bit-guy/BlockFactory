@@ -1,12 +1,15 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Init;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 using BlockFactory.World_.Api;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.World_.Chunk_;
 
-public class ChunkData : IBlockStorage
+public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
 {
     private ushort[,,] _blocks;
     public ChunkGenerationLevel _generationLevel;
@@ -14,22 +17,9 @@ public class ChunkData : IBlockStorage
 
     public ChunkData()
     {
-        _blocks = new ushort[Chunk.Size, Chunk.Size, Chunk.Size];
-        _rotations = new byte[Chunk.Size, Chunk.Size, Chunk.Size];
+        _blocks = new ushort[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
+        _rotations = new byte[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
         _generationLevel = ChunkGenerationLevel.Exists;
-    }
-
-    public ChunkData(BinaryReader reader) : this()
-    {
-        for (var i = 0; i < Chunk.Size; ++i)
-        for (var j = 0; j < Chunk.Size; ++j)
-        for (var k = 0; k < Chunk.Size; ++k)
-        {
-            _blocks[i, j, k] = reader.ReadUInt16();
-            _rotations[i, j, k] = reader.ReadByte();
-        }
-
-        _generationLevel = (ChunkGenerationLevel)reader.ReadByte();
     }
 
     public BlockState GetBlockState(Vector3i pos)
@@ -56,19 +46,6 @@ public class ChunkData : IBlockStorage
         return res;
     }
 
-    public void Write(BinaryWriter writer)
-    {
-        for (var i = 0; i < Chunk.Size; ++i)
-        for (var j = 0; j < Chunk.Size; ++j)
-        for (var k = 0; k < Chunk.Size; ++k)
-        {
-            writer.Write(_blocks[i, j, k]);
-            writer.Write(_rotations[i, j, k]);
-        }
-
-        writer.Write((byte)_generationLevel);
-    }
-
     // public void FromTag(CompoundTag tag)
     // {
     //     tag.ApplyChunkBlockData("blocks", _blocks);
@@ -84,4 +61,45 @@ public class ChunkData : IBlockStorage
     //     tag.SetByte("generationLevel", (byte)_generationLevel);
     //     return tag;
     // }
+    public DictionaryTag SerializeToTag()
+    {
+        DictionaryTag tag = new DictionaryTag();
+        tag.Set("blocks", new ChunkBlockDataTag(_blocks));
+        tag.Set("rotations", new ChunkRotationDataTag(_rotations));
+        tag.SetValue("generationLevel", (int)_generationLevel);
+        return tag;
+    }
+
+    public void DeserializeFromTag(DictionaryTag tag)
+    {
+        _blocks = tag.Get<ChunkBlockDataTag>("blocks").Data;
+        _rotations = tag.Get<ChunkRotationDataTag>("rotations").Data;
+        _generationLevel = (ChunkGenerationLevel)tag.GetValue<int>("generationLevel");
+    }
+
+    public void SerializeToBinaryWriter(BinaryWriter writer)
+    {
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
+        {
+            writer.Write(_blocks[i, j, k]);
+            writer.Write(_rotations[i, j, k]);
+        }
+
+        writer.Write((byte)_generationLevel);
+    }
+
+    public void DeserializeFromBinaryReader(BinaryReader reader)
+    {
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
+        {
+            _blocks[i, j, k] = reader.ReadUInt16();
+            _rotations[i, j, k] = reader.ReadByte();
+        }
+
+        _generationLevel = (ChunkGenerationLevel)reader.ReadByte();
+    }
 }
