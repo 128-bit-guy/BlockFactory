@@ -4,7 +4,7 @@ namespace BlockFactory.Serialization.Tag;
 
 public class ChunkRotationDataTag : ITag
 {
-    public TagType Type => TagType.ChunkBlockData;
+    public TagType Type => TagType.ChunkRotationData;
     public byte[,,] Data;
 
     public ChunkRotationDataTag() : this(new byte[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize])

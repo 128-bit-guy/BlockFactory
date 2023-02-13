@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Serialization;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
+using BlockFactory.Util.Dependency;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 using ZstdSharp;
@@ -8,13 +9,17 @@ using static BlockFactory.Serialization.VectorSerialization;
 
 namespace BlockFactory.World_.Save;
 
-public class ChunkRegion : ITagSerializable
+public class ChunkRegion : ITagSerializable, IDependable
 {
+    public const int SizeLog2 = 4;
+    public const int Size = 1 << SizeLog2;
+    public const int Mask = Size - 1;
     public readonly Dictionary<Vector3i, ChunkData> ChunkDatas;
     public readonly WorldSaveManager SaveManager;
     public readonly Vector3i Pos;
     public Task? LoadTask;
     public Task? UnloadTask;
+    private int _dependencyCount = 0;
 
     public ChunkRegion(WorldSaveManager saveManager, Vector3i pos)
     {
@@ -67,13 +72,15 @@ public class ChunkRegion : ITagSerializable
         {
             Array.Reverse(res, 0, sizeof(int));
         }
-        File.WriteAllBytes(SaveManager.GetRegionSaveLocation(Pos), res);
+
+        string file = SaveManager.GetRegionSaveLocation(Pos);
+        File.WriteAllBytes(file, res);
     }
 
     public DictionaryTag SerializeToTag()
     {
         var tag = new DictionaryTag();
-        var datas = new ListTag();
+        var datas = new ListTag(0, TagType.Dictionary);
         foreach (var (pos, data) in ChunkDatas)
         {
             var pair = new DictionaryTag();
@@ -91,11 +98,58 @@ public class ChunkRegion : ITagSerializable
         var datas = tag.Get<ListTag>("datas");
         foreach (var pair in datas.GetEnumerable<DictionaryTag>())
         {
-            Vector3i pos = DeserializeV3I(pair.Get<ListTag>("pos"));
+            var pos = DeserializeV3I(pair.Get<ListTag>("pos"));
             var data = new ChunkData();
             data.DeserializeFromTag(pair.Get<DictionaryTag>("data"));
             ChunkDatas.Add(pos, data);
         }
     }
+
+    public ChunkData GetOrCreateChunkData(Vector3i pos)
+    {
+        if(ChunkDatas.TryGetValue(pos, out var data))
+        {
+            return data;
+        }
+
+        data = new ChunkData();
+        ChunkDatas.Add(pos, data);
+        return data;
+    }
+
+    public void EnsureLoading()
+    {
+        if (UnloadTask != null)
+        {
+            UnloadTask.Wait();
+            UnloadTask = null;
+        }
+    }
+
+    public void EnsureLoaded()
+    {
+        EnsureLoading();
+        if (LoadTask != null)
+        {
+            LoadTask.Wait();
+            LoadTask = null;
+        }
+    }
+
+    public void EnsureUnloading()
+    {
+        if (LoadTask != null)
+        {
+            LoadTask.Wait();
+            LoadTask = null;
+        }
+
+        if (UnloadTask == null)
+        {
+            RunUnloadTask();
+        }
+    }
+
+    public ref int DependencyCount => ref _dependencyCount;
 }
 

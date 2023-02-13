@@ -4,6 +4,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Util;
+using BlockFactory.Util.Dependency;
 using BlockFactory.World_.Api;
 using BlockFactory.World_.Chunk_;
 using BlockFactory.World_.Gen;
@@ -84,8 +85,13 @@ public class World : IBlockStorage, IDisposable
     public Chunk GetOrLoadAnyLevelChunk(Vector3i pos)
     {
         if (_chunks.TryGetValue(pos, out var ch)) return ch;
-
-        var chunk = _chunks[pos] = new Chunk(new ChunkData(), pos, this);
+        var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
+        var region = SaveManager.GetRegion(regionPos);
+        region.EnsureLoaded();
+        ((IDependable)region).OnDependencyAdded();
+        var posInRegion = pos.BitAnd(ChunkRegion.Mask);
+        var data = region.GetOrCreateChunkData(posInRegion);
+        var chunk = _chunks[pos] = new Chunk(data, pos, this);
         OnChunkReadyForUse(chunk);
         return chunk;
     }
@@ -114,6 +120,7 @@ public class World : IBlockStorage, IDisposable
                 player.ProcessScheduledAddedVisibleChunks();
                 player.UnloadChunks(false);
             }
+            SaveManager.UnloadRegions();
         }
     }
 
