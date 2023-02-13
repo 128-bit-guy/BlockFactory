@@ -30,8 +30,8 @@ public class World : IBlockStorage, IDisposable
         GameInstance = gameInstance;
         Generator = new WorldGenerator(seed);
         _generationLevelStack.Push(ChunkGenerationLevel.Decorated);
-        OnChunkReadyForUse += OnChunkReadyForUse0;
-        OnChunkNotReadyForUse += OnChunkNotReadyForUse0;
+        OnChunkAdded += OnChunkAdded0;
+        OnChunkRemoved += OnChunkRemoved0;
         SaveManager = new WorldSaveManager(this, saveName);
     }
 
@@ -47,11 +47,12 @@ public class World : IBlockStorage, IDisposable
 
     public void Dispose()
     {
+        UnloadChunks(true);
         SaveManager.Dispose();
     }
 
-    public event ChunkEventHandler OnChunkReadyForUse = _ => { };
-    public event ChunkEventHandler OnChunkNotReadyForUse = _ => { };
+    public event ChunkEventHandler OnChunkAdded = _ => { };
+    public event ChunkEventHandler OnChunkRemoved = _ => { };
 
     public ChunkGenerationLevel GetGenerationLevel()
     {
@@ -92,7 +93,7 @@ public class World : IBlockStorage, IDisposable
         var posInRegion = pos.BitAnd(ChunkRegion.Mask);
         var data = region.GetOrCreateChunkData(posInRegion);
         var chunk = _chunks[pos] = new Chunk(data, pos, this);
-        OnChunkReadyForUse(chunk);
+        OnChunkAdded(chunk);
         return chunk;
     }
 
@@ -120,24 +121,48 @@ public class World : IBlockStorage, IDisposable
                 player.ProcessScheduledAddedVisibleChunks();
                 player.UnloadChunks(false);
             }
+            UnloadChunks(false);
             SaveManager.UnloadRegions();
+        }
+        
+    }
+
+    private void UnloadChunks(bool all)
+    {
+        var posesToRemove = new List<(Vector3i, Chunk)>();
+        foreach (var (pos, chunk) in _chunks)
+        {
+            if (chunk is { DependencyCount: 0, ViewingPlayers.Count: 0 } || all)
+            {
+                posesToRemove.Add((pos, chunk));
+            }
+        }
+
+        foreach (var (pos, chunk) in posesToRemove)
+        {
+            // Console.WriteLine($"Removing chunk at {pos}");
+            OnChunkRemoved(chunk);
+            var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
+            var region = SaveManager.GetRegion(regionPos);
+            ((IDependable)region).OnDependencyRemoved();
+            _chunks.Remove(pos);
         }
     }
 
     public void AddChunk(Chunk chunk)
     {
         _chunks.Add(chunk.Pos, chunk);
-        OnChunkReadyForUse(chunk);
+        OnChunkAdded(chunk);
     }
 
     public void RemoveChunk(Vector3i chunkPos)
     {
         var ch = _chunks[chunkPos];
-        OnChunkNotReadyForUse(ch);
+        OnChunkRemoved(ch);
         _chunks.Remove(chunkPos);
     }
 
-    private void OnChunkReadyForUse0(Chunk chunk)
+    private void OnChunkAdded0(Chunk chunk)
     {
         foreach (var a in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
             if (a != new Vector3i(1))
@@ -152,7 +177,7 @@ public class World : IBlockStorage, IDisposable
             }
     }
 
-    private void OnChunkNotReadyForUse0(Chunk chunk)
+    private void OnChunkRemoved0(Chunk chunk)
     {
         foreach (var a in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
             if (a != new Vector3i(1))

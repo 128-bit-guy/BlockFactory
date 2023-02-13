@@ -33,6 +33,7 @@ public class WorldSaveManager : IDisposable
 
             if (region.UnloadTask!.IsCompleted)
             {
+                // Console.WriteLine($"Region unloaded: {pos}");
                 posesToRemove.Add(pos);
             }
         }
