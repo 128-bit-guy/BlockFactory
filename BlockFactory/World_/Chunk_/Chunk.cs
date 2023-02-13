@@ -35,6 +35,7 @@ public class Chunk : IBlockStorage, IDependable
     }
 
     public ChunkData? Data;
+    public Task? GenerationTask = null;
 
     public BlockState GetBlockState(Vector3i pos)
     {
@@ -65,6 +66,25 @@ public class Chunk : IBlockStorage, IDependable
         {
             World.SetBlockState(pos, state);
         }
+    }
+
+    public void RunGenerationTask()
+    {
+        GenerationTask = Task.Run(Generate);
+    }
+
+    public void EnsureGenerated()
+    {
+        if (GenerationTask != null)
+        {
+            GenerationTask.Wait();
+            GenerationTask = null;
+        }
+    }
+
+    private void Generate()
+    {
+        World.Generator.GenerateBaseSurface(this);
     }
 
     public ref int DependencyCount => ref _dependencyCount;

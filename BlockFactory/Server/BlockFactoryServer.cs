@@ -63,7 +63,9 @@ public class BlockFactoryServer
                 };
                 addConnection.Start();
                 addConnection.SendPacket(new RegistrySyncPacket(SyncedRegistries.GetSyncData()));
+                addConnection.Flush();
                 addConnection.SendPacket(new PlayerJoinWorldPacket(player.Id));
+                addConnection.Flush();
                 SpawnPlayer(player, new Vector3i(0, 0, 0));
             });
         };
@@ -111,7 +113,10 @@ public class BlockFactoryServer
     {
         foreach (var oChunkPos in PlayerChunkLoading.ChunkOffsets.Select(offset => chunkPos + offset))
         {
-            var chunk = GameInstance.World.GetOrLoadChunk(oChunkPos);
+            if (Thread.CurrentThread != GameInstance.World.GameInstance.MainThread)
+                throw new InvalidOperationException("Can not get chunk from not main thread!");
+            var ch = GameInstance.World.GetOrLoadChunk(oChunkPos);
+            var chunk = ch;
             var neighbourhood = chunk.Neighbourhood;
             foreach (var blockPos in chunk.GetInclusiveBox().InclusiveEnumerable())
                 if (neighbourhood.GetBlockState(blockPos).Block == Blocks.Air &&

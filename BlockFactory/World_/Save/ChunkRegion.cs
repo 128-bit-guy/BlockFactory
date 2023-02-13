@@ -105,15 +105,17 @@ public class ChunkRegion : ITagSerializable, IDependable
         }
     }
 
-    public ChunkData GetOrCreateChunkData(Vector3i pos)
+    public ChunkData GetOrCreateChunkData(Vector3i pos, out bool created)
     {
         if(ChunkDatas.TryGetValue(pos, out var data))
         {
+            created = false;
             return data;
         }
 
         data = new ChunkData();
         ChunkDatas.Add(pos, data);
+        created = true;
         return data;
     }
 

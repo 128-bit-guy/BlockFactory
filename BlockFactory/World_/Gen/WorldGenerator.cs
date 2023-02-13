@@ -34,7 +34,7 @@ public class WorldGenerator
         return new Random(unchecked(pos.X * a + pos.Y * b + pos.Z * c + d * Seed));
     }
 
-    private void GenerateBaseSurface(Chunk chunk)
+    public void GenerateBaseSurface(Chunk chunk)
     {
         var random = GetChunkRandom(chunk.Pos, 1401634909, 1527589979, 1057394087, 1642081541);
         for (var x = 0; x < Constants.ChunkSize; ++x)

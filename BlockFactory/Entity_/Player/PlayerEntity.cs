@@ -132,7 +132,7 @@ public class PlayerEntity : WalkingEntity
             {
                 _scheduledChunksBecameVisible.Add(
                     VisibleChunks[Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]] =
-                        World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress], false));
+                        World!.GetOrLoadGeneratedChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]));
                 ++currentChunksBecameVisible;
             }
     }

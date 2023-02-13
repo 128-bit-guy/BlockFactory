@@ -35,12 +35,12 @@ public class World : IBlockStorage, IDisposable
 
     public BlockState GetBlockState(Vector3i pos)
     {
-        return GetOrLoadChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).GetBlockState(pos);
+        return GetOrLoadGeneratedChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).GetBlockState(pos);
     }
 
     public void SetBlockState(Vector3i pos, BlockState state)
     {
-        GetOrLoadChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).SetBlockState(pos, state);
+        GetOrLoadGeneratedChunk(pos.BitShiftRight(Constants.ChunkSizeLog2)).SetBlockState(pos, state);
     }
 
     public void Dispose()
@@ -66,25 +66,30 @@ public class World : IBlockStorage, IDisposable
         _players.Remove(player.Id);
     }
 
-    public Chunk GetOrLoadAnyLevelChunk(Vector3i pos)
+    public Chunk GetOrLoadChunk(Vector3i pos)
     {
+        if (Thread.CurrentThread != GameInstance.MainThread)
+            throw new InvalidOperationException("Can not get chunk from not main thread!");
         if (_chunks.TryGetValue(pos, out var ch)) return ch;
         var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
         var region = SaveManager.GetRegion(regionPos);
         region.EnsureLoaded();
         ((IDependable)region).OnDependencyAdded();
         var posInRegion = pos.BitAnd(ChunkRegion.Mask);
-        var data = region.GetOrCreateChunkData(posInRegion);
+        var data = region.GetOrCreateChunkData(posInRegion, out var created);
         var chunk = _chunks[pos] = new Chunk(data, pos, this);
         OnChunkAdded(chunk);
+        if (created)
+        {
+            chunk.RunGenerationTask();
+        }
         return chunk;
     }
 
-    public Chunk GetOrLoadChunk(Vector3i pos, bool process = true)
+    public Chunk GetOrLoadGeneratedChunk(Vector3i pos)
     {
-        if (Thread.CurrentThread != GameInstance.MainThread)
-            throw new InvalidOperationException("Can not get chunk from not main thread!");
-        var ch = GetOrLoadAnyLevelChunk(pos);
+        var ch = GetOrLoadChunk(pos);
+        ch.EnsureGenerated();
         return ch;
     }
 
