@@ -126,7 +126,6 @@ public class PlayerEntity : WalkingEntity
 
     public void LoadChunks()
     {
-        World!.Generator.ChunksUpgraded = 0;
         var currentChunksBecameVisible = 0;
         for (var progress = 0; progress < PlayerChunkLoading.MaxPoses[ChunkLoadDistance]; ++progress)
             if (!VisibleChunks.ContainsKey(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]))
@@ -135,8 +134,6 @@ public class PlayerEntity : WalkingEntity
                     VisibleChunks[Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]] =
                         World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress], false));
                 ++currentChunksBecameVisible;
-                if (World.Generator.ChunksUpgraded >= (int)ChunkGenerationLevel.Decorated * 20 ||
-                    currentChunksBecameVisible >= 20) break;
             }
     }
 

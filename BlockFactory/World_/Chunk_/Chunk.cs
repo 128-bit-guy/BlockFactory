@@ -13,13 +13,11 @@ public class Chunk : IBlockStorage, IDependable
 {
     public readonly Vector3i Pos;
     public readonly World World;
-    private ChunkData? _data;
     private int _dependencyCount;
     public ChunkNeighbourhood Neighbourhood;
     public bool ReadyForTick;
     public int ReadyForUseNeighbours;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
-    public ChunkGenerationLevel VisitedGenerationLevel;
 
     public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world)
     {
@@ -36,24 +34,12 @@ public class Chunk : IBlockStorage, IDependable
         Neighbourhood = new ChunkNeighbourhood(this);
     }
 
-    public ChunkData? Data
-    {
-        get => _data;
-        set
-        {
-            _data = value;
-            if (_data == null)
-                VisitedGenerationLevel = ChunkGenerationLevel.Exists;
-            else
-                VisitedGenerationLevel = _data._generationLevel;
-        }
-    }
+    public ChunkData? Data;
 
     public BlockState GetBlockState(Vector3i pos)
     {
         if (IsInside(pos))
         {
-            EnsureMinLevel(World.GetGenerationLevel());
             var beg = GetBegin();
             var cur = pos - beg;
             return Data!.GetBlockState(cur);
@@ -66,7 +52,6 @@ public class Chunk : IBlockStorage, IDependable
     {
         if (IsInside(pos))
         {
-            EnsureMinLevel(World.GetGenerationLevel());
             var beg = GetBegin();
             var cur = pos - beg;
             var prevState = Data!.GetBlockState(cur);
@@ -99,17 +84,6 @@ public class Chunk : IBlockStorage, IDependable
             if (cur[i] < 0 || cur[i] >= Constants.ChunkSize)
                 return false;
         return true;
-    }
-
-    public void EnsureMinLevel(ChunkGenerationLevel level, bool process = true)
-    {
-        if (Data!._generationLevel < level)
-        {
-            EnsureMinLevel(level - 1, false);
-            World.Generator.UpgradeChunkToLevel(level, this);
-            Data!._generationLevel = level;
-            if (process) World.Generator.ProcessScheduled();
-        }
     }
 
     public Box3i GetInclusiveBox()

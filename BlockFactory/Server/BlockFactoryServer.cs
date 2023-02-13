@@ -151,45 +151,41 @@ public class BlockFactoryServer
             islandPos.Y = 100 / 16;
             SpawnPlayer(player, islandPos);
         }
-        else if (split[0] == "/dighole")
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var world = player.World!;
-            foreach (var offset in new Box3i(
-                         new Vector3i(-10, -1000, -10),
-                         new Vector3i(10)
-                     ).InclusiveEnumerable())
-            {
-                var blockPos = player.Pos.GetBlockPos() + offset;
-                var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
-                world.GetOrLoadChunk(chunkPos, false);
-            }
-
-            stopwatch.Stop();
-            Console.WriteLine($"Scheduling chunks: {stopwatch.Elapsed.TotalMilliseconds}");
-            stopwatch.Restart();
-            world.Generator.ProcessScheduled();
-            stopwatch.Stop();
-            Console.WriteLine($"Generating chunks: {stopwatch.Elapsed.TotalMilliseconds}");
-            world.Generator.ChunksUpgraded = 0;
-            stopwatch.Restart();
-            foreach (var offset in new Box3i(
-                         new Vector3i(-10, -1000, -10),
-                         new Vector3i(10)
-                     ).InclusiveEnumerable())
-            {
-                var blockPos = player.Pos.GetBlockPos() + offset;
-                world.SetBlockState(blockPos, new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
-            }
-
-            stopwatch.Stop();
-            Console.WriteLine($"Placing blocks: {stopwatch.Elapsed.TotalMilliseconds}");
-            Console.WriteLine($"Chunks upgraded when placing blocks: {world.Generator.ChunksUpgraded}");
-        }
-        else if (split[0] == "/printstats")
-        {
-            Console.WriteLine($"Chunk upgrade on other thread ratio {player.World!.Generator.OtherThreadRatio}");
-        }
+        // else if (split[0] == "/dighole")
+        // {
+        //     var stopwatch = new Stopwatch();
+        //     stopwatch.Start();
+        //     var world = player.World!;
+        //     foreach (var offset in new Box3i(
+        //                  new Vector3i(-10, -1000, -10),
+        //                  new Vector3i(10)
+        //              ).InclusiveEnumerable())
+        //     {
+        //         var blockPos = player.Pos.GetBlockPos() + offset;
+        //         var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
+        //         world.GetOrLoadChunk(chunkPos, false);
+        //     }
+        //
+        //     stopwatch.Stop();
+        //     Console.WriteLine($"Scheduling chunks: {stopwatch.Elapsed.TotalMilliseconds}");
+        //     stopwatch.Restart();
+        //     world.Generator.ProcessScheduled();
+        //     stopwatch.Stop();
+        //     Console.WriteLine($"Generating chunks: {stopwatch.Elapsed.TotalMilliseconds}");
+        //     world.Generator.ChunksUpgraded = 0;
+        //     stopwatch.Restart();
+        //     foreach (var offset in new Box3i(
+        //                  new Vector3i(-10, -1000, -10),
+        //                  new Vector3i(10)
+        //              ).InclusiveEnumerable())
+        //     {
+        //         var blockPos = player.Pos.GetBlockPos() + offset;
+        //         world.SetBlockState(blockPos, new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
+        //     }
+        //
+        //     stopwatch.Stop();
+        //     Console.WriteLine($"Placing blocks: {stopwatch.Elapsed.TotalMilliseconds}");
+        //     Console.WriteLine($"Chunks upgraded when placing blocks: {world.Generator.ChunksUpgraded}");
+        // }
     }
 }

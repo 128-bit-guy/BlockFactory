@@ -12,14 +12,12 @@ namespace BlockFactory.World_.Chunk_;
 public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
 {
     private ushort[,,] _blocks;
-    public ChunkGenerationLevel _generationLevel;
     private byte[,,] _rotations;
 
     public ChunkData()
     {
         _blocks = new ushort[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
         _rotations = new byte[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
-        _generationLevel = ChunkGenerationLevel.Exists;
     }
 
     public BlockState GetBlockState(Vector3i pos)
@@ -40,8 +38,7 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         ChunkData res = new()
         {
             _blocks = (ushort[,,])_blocks.Clone(),
-            _rotations = (byte[,,])_rotations.Clone(),
-            _generationLevel = _generationLevel
+            _rotations = (byte[,,])_rotations.Clone()
         };
         return res;
     }
@@ -66,7 +63,6 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         DictionaryTag tag = new DictionaryTag();
         tag.Set("blocks", new ChunkBlockDataTag(_blocks));
         tag.Set("rotations", new ChunkRotationDataTag(_rotations));
-        tag.SetValue("generationLevel", (int)_generationLevel);
         return tag;
     }
 
@@ -74,7 +70,6 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
     {
         _blocks = tag.Get<ChunkBlockDataTag>("blocks").Data;
         _rotations = tag.Get<ChunkRotationDataTag>("rotations").Data;
-        _generationLevel = (ChunkGenerationLevel)tag.GetValue<int>("generationLevel");
     }
 
     public void SerializeToBinaryWriter(BinaryWriter writer)
@@ -86,8 +81,6 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
             writer.Write(_blocks[i, j, k]);
             writer.Write(_rotations[i, j, k]);
         }
-
-        writer.Write((byte)_generationLevel);
     }
 
     public void DeserializeFromBinaryReader(BinaryReader reader)
@@ -100,6 +93,5 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
             _rotations[i, j, k] = reader.ReadByte();
         }
 
-        _generationLevel = (ChunkGenerationLevel)reader.ReadByte();
     }
 }

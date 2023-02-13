@@ -18,7 +18,6 @@ public class World : IBlockStorage, IDisposable
     public delegate void ChunkEventHandler(Chunk chunk);
 
     private readonly Dictionary<Vector3i, Chunk> _chunks = new();
-    private readonly Stack<ChunkGenerationLevel> _generationLevelStack = new();
     private readonly Dictionary<long, PlayerEntity> _players = new();
     public readonly GameInstance GameInstance;
     public readonly WorldGenerator Generator;
@@ -29,7 +28,6 @@ public class World : IBlockStorage, IDisposable
     {
         GameInstance = gameInstance;
         Generator = new WorldGenerator(seed);
-        _generationLevelStack.Push(ChunkGenerationLevel.Decorated);
         OnChunkAdded += OnChunkAdded0;
         OnChunkRemoved += OnChunkRemoved0;
         SaveManager = new WorldSaveManager(this, saveName);
@@ -53,21 +51,6 @@ public class World : IBlockStorage, IDisposable
 
     public event ChunkEventHandler OnChunkAdded = _ => { };
     public event ChunkEventHandler OnChunkRemoved = _ => { };
-
-    public ChunkGenerationLevel GetGenerationLevel()
-    {
-        return _generationLevelStack.Peek();
-    }
-
-    public void PushGenerationLevel(ChunkGenerationLevel level)
-    {
-        _generationLevelStack.Push(level);
-    }
-
-    public void PopGenerationLevel()
-    {
-        _generationLevelStack.Pop();
-    }
 
     public void AddPlayer(PlayerEntity player)
     {
@@ -102,7 +85,6 @@ public class World : IBlockStorage, IDisposable
         if (Thread.CurrentThread != GameInstance.MainThread)
             throw new InvalidOperationException("Can not get chunk from not main thread!");
         var ch = GetOrLoadAnyLevelChunk(pos);
-        ch.EnsureMinLevel(GetGenerationLevel(), process);
         return ch;
     }
 
@@ -113,8 +95,6 @@ public class World : IBlockStorage, IDisposable
         if (GameInstance.Kind.DoesProcessLogic())
         {
             foreach (var (id, player) in _players) player.LoadChunks();
-
-            Generator.ProcessScheduled();
 
             foreach (var (id, player) in _players)
             {
