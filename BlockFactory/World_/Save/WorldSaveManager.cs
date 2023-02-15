@@ -18,7 +18,7 @@ public class WorldSaveManager : IDisposable
         _regions = new Dictionary<Vector3i, ChunkRegion>();
     }
 
-    private void UnloadRegions(bool all)
+    private void UnloadRegions(bool all, bool wait)
     {
         var posesToRemove = new List<Vector3i>();
         foreach (var (pos, region) in _regions)
@@ -26,14 +26,13 @@ public class WorldSaveManager : IDisposable
             if (region.DependencyCount != 0 && !all) continue;
             region.EnsureUnloading();
 
-            if (all)
+            if (wait)
             {
                 region.UnloadTask!.Wait();
             }
 
             if (region.UnloadTask!.IsCompleted)
             {
-                // Console.WriteLine($"Region unloaded: {pos}");
                 posesToRemove.Add(pos);
             }
         }
@@ -46,12 +45,13 @@ public class WorldSaveManager : IDisposable
 
     public void UnloadRegions()
     {
-        UnloadRegions(false);
+        UnloadRegions(false, false);
     }
 
     public void Dispose()
     {
-        UnloadRegions(true);
+        UnloadRegions(true, false);
+        UnloadRegions(true, true);
     }
 
     public string GetRegionSaveLocation(Vector3i pos)
