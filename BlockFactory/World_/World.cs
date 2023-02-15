@@ -73,16 +73,11 @@ public class World : IBlockStorage, IDisposable
         if (_chunks.TryGetValue(pos, out var ch)) return ch;
         var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
         var region = SaveManager.GetRegion(regionPos);
-        region.EnsureLoaded();
+        region.EnsureLoading();
         ((IDependable)region).OnDependencyAdded();
-        var posInRegion = pos.BitAnd(ChunkRegion.Mask);
-        var data = region.GetOrCreateChunkData(posInRegion, out var created);
-        var chunk = _chunks[pos] = new Chunk(data, pos, this);
+        var chunk = _chunks[pos] = new Chunk(pos, this, region);
         OnChunkAdded(chunk);
-        if (created)
-        {
-            chunk.RunGenerationTask();
-        }
+        chunk.RunGenerationTask();
 
         return chunk;
     }

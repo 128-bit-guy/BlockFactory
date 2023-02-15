@@ -132,20 +132,18 @@ public class PlayerEntity : WalkingEntity
         for (var progress = 0; progress < PlayerChunkLoading.MaxPoses[ChunkLoadDistance]; ++progress)
         {
             var chunkPos = Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress];
-            if (!VisibleChunks.ContainsKey(chunkPos) && !ScheduledChunks.ContainsKey(chunkPos))
+            if (VisibleChunks.ContainsKey(chunkPos) || ScheduledChunks.ContainsKey(chunkPos)) continue;
+            var c = World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]);
+            if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
             {
-                var c = World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]);
-                if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
+                ++currentChunksScheduled;
+                if (currentChunksScheduled == 20)
                 {
-                    ++currentChunksScheduled;
-                    if (currentChunksScheduled == 20)
-                    {
-                        break;
-                    }
+                    break;
                 }
-                ScheduledChunks.Add(chunkPos, c);
-                ((IDependable)c).OnDependencyAdded();
             }
+            ScheduledChunks.Add(chunkPos, c);
+            ((IDependable)c).OnDependencyAdded();
         }
         
         var currentChunksBecameVisible = 0;

@@ -3,8 +3,10 @@ using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
+using BlockFactory.Side_;
 using BlockFactory.Util.Dependency;
 using BlockFactory.World_.Api;
+using BlockFactory.World_.Save;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.World_.Chunk_;
@@ -18,13 +20,24 @@ public class Chunk : IBlockStorage, IDependable
     public bool ReadyForTick;
     public int ReadyForUseNeighbours;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
+    public readonly ChunkRegion? Region;
+    private ChunkData? _data;
+    private bool _chunkDataCreated;
 
-    public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world)
+    public ChunkData Data
     {
-        Data = data;
+        get { return _data ??= Region!.GetOrCreateChunkData(Pos.BitAnd(ChunkRegion.Mask), out _chunkDataCreated); }
     }
 
-    public Chunk(Vector3i pos, World world)
+    public Task? GenerationTask;
+
+    [ExclusiveTo(Side.Client)]
+    public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world, null)
+    {
+        _data = data;
+    }
+
+    public Chunk(Vector3i pos, World world, ChunkRegion? region)
     {
         Pos = pos;
         World = world;
@@ -32,10 +45,8 @@ public class Chunk : IBlockStorage, IDependable
         ReadyForUseNeighbours = 0;
         ReadyForTick = false;
         Neighbourhood = new ChunkNeighbourhood(this);
+        Region = region;
     }
-
-    public ChunkData? Data;
-    public Task? GenerationTask = null;
 
     public BlockState GetBlockState(Vector3i pos)
     {
@@ -70,7 +81,9 @@ public class Chunk : IBlockStorage, IDependable
 
     public void RunGenerationTask()
     {
-        GenerationTask = Task.Run(Generate);
+        GenerationTask = Region!.LoadTask == null
+            ? Task.Run(Generate)
+            : Task.Factory.ContinueWhenAll(new[] { Region.LoadTask }, _ => Generate());
     }
 
     public bool Generated => GenerationTask == null || GenerationTask.IsCompleted;
@@ -84,7 +97,11 @@ public class Chunk : IBlockStorage, IDependable
 
     private void Generate()
     {
-        World.Generator.GenerateBaseSurface(this);
+        var d = Data;
+        if (_chunkDataCreated)
+        {
+            World.Generator.GenerateBaseSurface(this);
+        }
     }
 
     public ref int DependencyCount => ref _dependencyCount;

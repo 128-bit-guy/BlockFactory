@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Serialization;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
+using BlockFactory.Util;
 using BlockFactory.Util.Dependency;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
@@ -14,7 +15,7 @@ public class ChunkRegion : ITagSerializable, IDependable
     public const int SizeLog2 = 4;
     public const int Size = 1 << SizeLog2;
     public const int Mask = Size - 1;
-    public readonly Dictionary<Vector3i, ChunkData> ChunkDatas;
+    private readonly ChunkData?[,,] _chunkDatas;
     public readonly WorldSaveManager SaveManager;
     public readonly Vector3i Pos;
     public Task? LoadTask;
@@ -25,7 +26,7 @@ public class ChunkRegion : ITagSerializable, IDependable
     {
         SaveManager = saveManager;
         Pos = pos;
-        ChunkDatas = new Dictionary<Vector3i, ChunkData>();
+        _chunkDatas = new ChunkData?[Size, Size, Size];
     }
 
     public void RunLoadTask()
@@ -81,8 +82,10 @@ public class ChunkRegion : ITagSerializable, IDependable
     {
         var tag = new DictionaryTag();
         var datas = new ListTag(0, TagType.Dictionary);
-        foreach (var (pos, data) in ChunkDatas)
+        foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(Size - 1)).InclusiveEnumerable())
         {
+            var data = _chunkDatas[pos.X, pos.Y, pos.Z];
+            if (data == null) continue;
             var pair = new DictionaryTag();
             pair.Set("pos", pos.SerializeToTag());
             pair.Set("data", data.SerializeToTag());
@@ -94,27 +97,31 @@ public class ChunkRegion : ITagSerializable, IDependable
 
     public void DeserializeFromTag(DictionaryTag tag)
     {
-        ChunkDatas.Clear();
+        foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(Size - 1)).InclusiveEnumerable())
+        {
+            _chunkDatas[pos.X, pos.Y, pos.Z] = null;
+        }
         var datas = tag.Get<ListTag>("datas");
         foreach (var pair in datas.GetEnumerable<DictionaryTag>())
         {
             var pos = DeserializeV3I(pair.Get<ListTag>("pos"));
             var data = new ChunkData();
             data.DeserializeFromTag(pair.Get<DictionaryTag>("data"));
-            ChunkDatas.Add(pos, data);
+            _chunkDatas[pos.X, pos.Y, pos.Z] = data;
         }
     }
 
     public ChunkData GetOrCreateChunkData(Vector3i pos, out bool created)
     {
-        if(ChunkDatas.TryGetValue(pos, out var data))
+        EnsureLoaded();
+        ref var data = ref _chunkDatas[pos.X, pos.Y, pos.Z];
+        if(data != null)
         {
             created = false;
             return data;
         }
 
         data = new ChunkData();
-        ChunkDatas.Add(pos, data);
         created = true;
         return data;
     }
@@ -131,18 +138,17 @@ public class ChunkRegion : ITagSerializable, IDependable
     public void EnsureLoaded()
     {
         EnsureLoading();
-        if (LoadTask != null)
-        {
-            LoadTask.Wait();
-            LoadTask = null;
-        }
+        var t = LoadTask;
+        t?.Wait();
+        LoadTask = null;
     }
 
     public void EnsureUnloading()
     {
-        if (LoadTask != null)
+        var t = LoadTask;
+        if (t != null)
         {
-            LoadTask.Wait();
+            t.Wait();
             LoadTask = null;
         }
 
