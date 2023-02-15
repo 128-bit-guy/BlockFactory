@@ -8,6 +8,7 @@ using BlockFactory.Inventory_;
 using BlockFactory.Item_;
 using BlockFactory.Network;
 using BlockFactory.Physics;
+using BlockFactory.Util.Dependency;
 using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
@@ -25,6 +26,7 @@ public class PlayerEntity : WalkingEntity
 
     private readonly List<Chunk> _scheduledChunksBecameVisible;
     public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
+    public readonly Dictionary<Vector3i, Chunk> ScheduledChunks = new();
     private int _useCooldown;
     public int ChunkLoadDistance = 16;
 
@@ -126,15 +128,46 @@ public class PlayerEntity : WalkingEntity
 
     public void LoadChunks()
     {
-        var currentChunksBecameVisible = 0;
+        var currentChunksScheduled = 0;
         for (var progress = 0; progress < PlayerChunkLoading.MaxPoses[ChunkLoadDistance]; ++progress)
-            if (!VisibleChunks.ContainsKey(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]))
+        {
+            var chunkPos = Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress];
+            if (!VisibleChunks.ContainsKey(chunkPos) && !ScheduledChunks.ContainsKey(chunkPos))
             {
-                _scheduledChunksBecameVisible.Add(
-                    VisibleChunks[Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]] =
-                        World!.GetOrLoadGeneratedChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]));
-                ++currentChunksBecameVisible;
+                var c = World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]);
+                if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
+                {
+                    ++currentChunksScheduled;
+                    if (currentChunksScheduled == 20)
+                    {
+                        break;
+                    }
+                }
+                ScheduledChunks.Add(chunkPos, c);
+                ((IDependable)c).OnDependencyAdded();
             }
+        }
+        
+        var currentChunksBecameVisible = 0;
+        foreach (var (chunkPos, c) in ScheduledChunks)
+        {
+            if (!c.Generated) continue;
+            _chunksToRemove.Add(chunkPos);
+            ((IDependable)c).OnDependencyRemoved();
+            VisibleChunks.Add(chunkPos, c);
+            _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
+            ++currentChunksBecameVisible;
+            if (currentChunksBecameVisible == 50)
+            {
+                break;
+            }
+        }
+
+        foreach (var chunkPos in _chunksToRemove)
+        {
+            ScheduledChunks.Remove(chunkPos);
+        }
+        _chunksToRemove.Clear();
     }
 
     public void ProcessScheduledAddedVisibleChunks()
@@ -143,16 +176,30 @@ public class PlayerEntity : WalkingEntity
         _scheduledChunksBecameVisible.Clear();
     }
 
+    private bool IsChunkTooFar(Vector3i pos)
+    {
+        return (Pos.ChunkPos - pos).SquareLength() > (ChunkLoadDistance + 2) * (ChunkLoadDistance + 2);
+    }
+
     public void UnloadChunks(bool all)
     {
         foreach (var (pos, chunk) in VisibleChunks)
-            if (all || (Pos.ChunkPos - pos).SquareLength() > (ChunkLoadDistance + 2) * (ChunkLoadDistance + 2))
+            if (all || IsChunkTooFar(pos))
             {
                 OnVisibleChunkRemoved(chunk);
                 _chunksToRemove.Add(pos);
             }
 
         foreach (var pos in _chunksToRemove) VisibleChunks.Remove(pos);
+        _chunksToRemove.Clear();
+        foreach(var (pos, chunk) in ScheduledChunks)
+            if (all || IsChunkTooFar(pos))
+            {
+                _chunksToRemove.Add(pos);
+                ((IDependable)chunk).OnDependencyRemoved();
+            }
+        
+        foreach (var pos in _chunksToRemove) ScheduledChunks.Remove(pos);
         _chunksToRemove.Clear();
     }
 

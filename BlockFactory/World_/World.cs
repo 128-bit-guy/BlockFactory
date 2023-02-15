@@ -83,6 +83,7 @@ public class World : IBlockStorage, IDisposable
         {
             chunk.RunGenerationTask();
         }
+
         return chunk;
     }
 
@@ -106,10 +107,10 @@ public class World : IBlockStorage, IDisposable
                 player.ProcessScheduledAddedVisibleChunks();
                 player.UnloadChunks(false);
             }
+
             UnloadChunks(false);
             SaveManager.UnloadRegions();
         }
-        
     }
 
     private void UnloadChunks(bool all)
@@ -117,10 +118,9 @@ public class World : IBlockStorage, IDisposable
         var posesToRemove = new List<(Vector3i, Chunk)>();
         foreach (var (pos, chunk) in _chunks)
         {
-            if (chunk is { DependencyCount: 0, ViewingPlayers.Count: 0 } || all)
-            {
-                posesToRemove.Add((pos, chunk));
-            }
+            if (chunk is not { DependencyCount: 0, ViewingPlayers.Count: 0, Generated: true } && !all) continue;
+            chunk.EnsureGenerated();
+            posesToRemove.Add((pos, chunk));
         }
 
         foreach (var (pos, chunk) in posesToRemove)

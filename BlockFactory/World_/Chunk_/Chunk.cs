@@ -73,13 +73,13 @@ public class Chunk : IBlockStorage, IDependable
         GenerationTask = Task.Run(Generate);
     }
 
+    public bool Generated => GenerationTask == null || GenerationTask.IsCompleted;
+
     public void EnsureGenerated()
     {
-        if (GenerationTask != null)
-        {
-            GenerationTask.Wait();
-            GenerationTask = null;
-        }
+        if (GenerationTask == null) return;
+        GenerationTask.Wait();
+        GenerationTask = null;
     }
 
     private void Generate()
