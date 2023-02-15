@@ -31,7 +31,7 @@ public class WorldGenerator
 
     private Random GetChunkRandom(Vector3i pos, int a, int b, int c, int d)
     {
-        return new Random(unchecked(pos.X * a + pos.Y * b + pos.Z * c + d * Seed));
+        return new LinearCongruentialRandom(unchecked(pos.X * a + pos.Y * b + pos.Z * c + d * Seed));
     }
 
     public void GenerateBaseSurface(Chunk chunk)
@@ -55,10 +55,18 @@ public class WorldGenerator
         }
     }
 
+    public void Decorate(Chunk c)
+    {
+        PlaceTopSoil(c);
+        AddPlants(c);
+    }
+
     private void PlaceTopSoil(Chunk chunk)
     {
         var random = GetChunkRandom(chunk.Pos, 1454274037, 1016482381, 1497360727, 1925636137);
-        foreach (var a in chunk.GetInclusiveBox().InclusiveEnumerable())
+        foreach (var a1 in chunk.GetInclusiveBox().InclusiveEnumerable())
+        {
+            var a = a1 - Vector3i.UnitY;
             if ((chunk.Neighbourhood.GetBlockState(a).Block == Blocks.Stone ||
                  chunk.Neighbourhood.GetBlockState(a).Block == Blocks.Dirt) &&
                 chunk.Neighbourhood.GetBlockState(a + new Vector3i(0, 1, 0)).Block == Blocks.Air)
@@ -66,7 +74,7 @@ public class WorldGenerator
                 var oPos = a;
                 while (true)
                 {
-                    if (a.Y - oPos.Y >= 15) break;
+                    if (a.Y - oPos.Y >= 5) break;
                     if (chunk.Neighbourhood.GetBlockState(oPos).Block == Blocks.Stone ||
                         chunk.Neighbourhood.GetBlockState(oPos).Block == Blocks.Dirt)
                     {
@@ -87,9 +95,10 @@ public class WorldGenerator
                     }
                 }
             }
+        }
     }
 
-    private void Decorate(Chunk chunk)
+    private void AddPlants(Chunk chunk)
     {
         var random = GetChunkRandom(chunk.Pos, 1514407261, 1177000723, 1707795989, 1133321689);
         foreach (var a in chunk.GetInclusiveBox().InclusiveEnumerable())

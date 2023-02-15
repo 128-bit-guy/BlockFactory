@@ -1,4 +1,5 @@
 ﻿using BlockFactory.CubeMath;
+using BlockFactory.Util;
 using OpenTK.Mathematics;
 using Algorithms = BlockFactory.Util.Algorithms;
 
@@ -60,7 +61,7 @@ public static class PlayerChunkLoading
         }
 
         var random = new Random(228);
-        Algorithms.Shuffle(ChunkOffsets, random);
+        ChunkOffsets.Shuffle(random);
         ChunkOffsets.Sort(Compare);
         var offsetsPos = 0;
         for (var i = 0; i <= MaxChunkLoadDistance; ++i)

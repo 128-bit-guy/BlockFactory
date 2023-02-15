@@ -128,7 +128,7 @@ public class PlayerEntity : WalkingEntity
 
     public void LoadChunks()
     {
-        var currentChunksScheduled = 0;
+        var currentChunksScheduled = ScheduledChunks.Count;
         for (var progress = 0; progress < PlayerChunkLoading.MaxPoses[ChunkLoadDistance]; ++progress)
         {
             var chunkPos = Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress];
@@ -137,7 +137,7 @@ public class PlayerEntity : WalkingEntity
             if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
             {
                 ++currentChunksScheduled;
-                if (currentChunksScheduled == 20)
+                if (currentChunksScheduled >= 20)
                 {
                     break;
                 }

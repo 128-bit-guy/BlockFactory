@@ -21,6 +21,25 @@ public class ChunkNeighbourhood : IBlockStorage
         Chunks[1, 1, 1] = centerChunk;
     }
 
+    public bool AreAllNeighboursLoaded()
+    {
+        for (var i = 0; i < 3; ++i)
+        {
+            for (var j = 0; j < 3; ++j)
+            {
+                for (var k = 0; k < 3; ++k)
+                {
+                    if (Chunks[i, j, k] == null || !Chunks[i, j, k].Generated)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     public BlockState GetBlockState(Vector3i pos)
     {
         var arrayChunkPos = GetArrayChunkPos(pos);

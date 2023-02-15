@@ -121,7 +121,7 @@ public class WorldRenderer : IDisposable
         BlockFactoryClient.Instance.VpMatrices.Set(Shaders.Block);
         //_mesh.Bind();
         var intersectionHelper = new FrustumIntersectionHelper(BlockFactoryClient.Instance.VpMatrices);
-        var leftParallelRebuilds = 8;
+        var leftParallelRebuilds = 4;
         var renderersSorted = new List<ChunkRenderer>();
         renderersSorted.AddRange(ChunkRenderers.Values);
         renderersSorted.Sort(Compare);
@@ -142,7 +142,7 @@ public class WorldRenderer : IDisposable
                     --leftParallelRebuilds;
                 }
 
-                if (chunkRenderer.RebuildTask != null && chunkRenderer.RebuildTask.IsCompletedSuccessfully)
+                if (chunkRenderer.RebuildTask is { IsCompletedSuccessfully: true })
                 {
                     chunkRenderer.Upload(chunkRenderer.RebuildTask.Result);
                     chunkRenderer.RebuildTask = null;

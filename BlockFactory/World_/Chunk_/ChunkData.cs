@@ -13,11 +13,13 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
 {
     private ushort[,,] _blocks;
     private byte[,,] _rotations;
+    public bool Decorated;
 
     public ChunkData()
     {
         _blocks = new ushort[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
         _rotations = new byte[Constants.ChunkSize, Constants.ChunkSize, Constants.ChunkSize];
+        Decorated = false;
     }
 
     public BlockState GetBlockState(Vector3i pos)
@@ -43,26 +45,12 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         return res;
     }
 
-    // public void FromTag(CompoundTag tag)
-    // {
-    //     tag.ApplyChunkBlockData("blocks", _blocks);
-    //     tag.ApplyChunkRotationData("rotations", _rotations);
-    //     _generationLevel = (ChunkGenerationLevel)tag.GetByte("generationLevel");
-    // }
-    //
-    // public CompoundTag ToTag()
-    // {
-    //     CompoundTag tag = new CompoundTag();
-    //     tag.SetChunkBlockData("blocks", _blocks);
-    //     tag.SetChunkRotationData("rotations", _rotations);
-    //     tag.SetByte("generationLevel", (byte)_generationLevel);
-    //     return tag;
-    // }
     public DictionaryTag SerializeToTag()
     {
-        DictionaryTag tag = new DictionaryTag();
+        var tag = new DictionaryTag();
         tag.Set("blocks", new ChunkBlockDataTag(_blocks));
         tag.Set("rotations", new ChunkRotationDataTag(_rotations));
+        tag.SetValue("decorated", Decorated);
         return tag;
     }
 
@@ -70,6 +58,7 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
     {
         _blocks = tag.Get<ChunkBlockDataTag>("blocks").Data;
         _rotations = tag.Get<ChunkRotationDataTag>("rotations").Data;
+        Decorated = tag.GetValue<bool>("decorated");
     }
 
     public void SerializeToBinaryWriter(BinaryWriter writer)

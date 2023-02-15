@@ -17,12 +17,12 @@ public class Chunk : IBlockStorage, IDependable
     public readonly World World;
     private int _dependencyCount;
     public ChunkNeighbourhood Neighbourhood;
-    public bool ReadyForTick;
     public int ReadyForUseNeighbours;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
     public readonly ChunkRegion? Region;
     private ChunkData? _data;
     private bool _chunkDataCreated;
+    public bool ExistsInWorld;
 
     public ChunkData Data
     {
@@ -43,7 +43,6 @@ public class Chunk : IBlockStorage, IDependable
         World = world;
         _dependencyCount = 0;
         ReadyForUseNeighbours = 0;
-        ReadyForTick = false;
         Neighbourhood = new ChunkNeighbourhood(this);
         Region = region;
     }
@@ -69,7 +68,7 @@ public class Chunk : IBlockStorage, IDependable
             var prevState = Data!.GetBlockState(cur);
             if (prevState != state)
             {
-                Data!.SetBlockState(cur, state);
+                Data.SetBlockState(cur, state);
                 foreach (var (_, player) in ViewingPlayers) player.VisibleBlockChanged(this, pos, prevState, state);
             }
         }
