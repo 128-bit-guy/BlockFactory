@@ -15,12 +15,8 @@ public static class Algorithms
     {
         var i = 0;
         for (var j = 0; j < l.Count; ++j)
-        {
             if (!p(l[j]))
-            {
                 l[i++] = l[j];
-            }
-        }
 
         l.RemoveRange(i, l.Count - i);
     }

@@ -6,11 +6,11 @@ namespace BlockFactory.Client.Gui.Singleplayer;
 [ExclusiveTo(Side.Client)]
 public class WorldDeletionScreen : Screen
 {
+    public readonly string WorldName;
+    public readonly string WorldPath;
     public ButtonWidget BackButton = null!;
     public ButtonWidget DeleteButton = null!;
-    public readonly string WorldPath;
-    public readonly string WorldName;
-    
+
     public WorldDeletionScreen(BlockFactoryClient client, string worldPath, string worldName) : base(client)
     {
         WorldPath = worldPath;

@@ -1,5 +1,4 @@
 ﻿using BlockFactory.Game;
-using BlockFactory.Init;
 using BlockFactory.Registry_;
 
 namespace BlockFactory.Network;

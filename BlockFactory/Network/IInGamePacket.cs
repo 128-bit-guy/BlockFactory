@@ -1,5 +1,3 @@
-using BlockFactory.Game;
-
 namespace BlockFactory.Network;
 
 /// <summary>

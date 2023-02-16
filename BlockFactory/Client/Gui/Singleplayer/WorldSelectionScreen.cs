@@ -7,8 +7,8 @@ namespace BlockFactory.Client.Gui.Singleplayer;
 public class WorldSelectionScreen : Screen
 {
     public ButtonWidget Back;
-    public ButtonWidget Delete;
     public ButtonWidget Create;
+    public ButtonWidget Delete;
     public ButtonWidget Play;
     public WorldSelectionWidget WorldSelection;
 
@@ -33,49 +33,41 @@ public class WorldSelectionScreen : Screen
                 this,
                 new Box2(centerX - 405, height - 80, centerX - 5, height - 10),
                 "Delete"
-                ));
+            ));
         Delete.OnClick += (_, _) => OpenDeletion();
         Widgets.Add(Create =
             new ButtonWidget(
                 this,
                 new Box2(centerX + 5, height - 80, centerX + 405, height - 10),
                 "Create"
-                ));
+            ));
         Create.OnClick += (_, _) => Client.PushScreen(new WorldCreationScreen(Client));
         Widgets.Add(Play =
             new ButtonWidget(
                 this,
                 new Box2(centerX + 415, height - 80, centerX + 815, height - 10),
                 "Play"
-                ));
+            ));
         Play.OnClick += (_, _) => StartWorld();
         Widgets.Add(WorldSelection = new WorldSelectionWidget(
-            this, 
+            this,
             new Box2(10, 10, width - 10, height - 90)
-            ));
+        ));
     }
 
     private void StartWorld()
     {
         var s = WorldSelection.GetSelectedPath();
-        if (s == null)
-        {
-            return;
-        }
+        if (s == null) return;
         Client.InitSingleplayerGameInstance(s);
-        while (Client.HasScreen())
-        {
-            Client.PopScreen();
-        }
+        while (Client.HasScreen()) Client.PopScreen();
     }
 
     private void OpenDeletion()
     {
         var selectedName = WorldSelection.GetSelectedPath();
         if (selectedName != null)
-        {
             Client.PushScreen(new WorldDeletionScreen(Client, selectedName, WorldSelection.GetSelectedName()!));
-        }
     }
 
     public override void UpdateAndRender()

@@ -250,7 +250,6 @@ public class NetworkConnection : IDisposable
     {
         var cnt = ReceiveQueue.Count;
         for (var i = 0; i < cnt; ++i)
-        {
             if (ReceiveQueue.TryDequeue(out var packet))
             {
                 if (packet is not IInGamePacket inGamePacket)
@@ -262,28 +261,23 @@ public class NetworkConnection : IDisposable
             {
                 break;
             }
-        }
     }
 
     public T AwaitPacket<T>() where T : IPacket
     {
         var wait = new SpinWait();
         IPacket packet;
-        DateTime begin = DateTime.UtcNow;
+        var begin = DateTime.UtcNow;
         while (!ReceiveQueue.TryDequeue(out packet))
         {
             if (DateTime.UtcNow - begin > TimeSpan.FromSeconds(1))
-            {
                 throw new TimeoutException($"Awaiting packet of type {typeof(T).Name} timed out");
-            }
             wait.SpinOnce();
         }
 
         if (packet is not T tPacket)
-        {
             throw new InvalidOperationException(
                 $"Received packet of type {packet.GetType()} when awaiting packet of type {typeof(T).Name}");
-        }
 
         return tPacket;
     }

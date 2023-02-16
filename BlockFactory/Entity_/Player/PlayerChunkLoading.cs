@@ -1,7 +1,6 @@
 ﻿using BlockFactory.CubeMath;
 using BlockFactory.Util;
 using OpenTK.Mathematics;
-using Algorithms = BlockFactory.Util.Algorithms;
 
 namespace BlockFactory.Entity_.Player;
 

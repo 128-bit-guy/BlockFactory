@@ -1,7 +1,4 @@
-using System.Diagnostics;
 using BlockFactory.Base;
-using BlockFactory.Block_;
-using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Init;
@@ -12,7 +9,6 @@ using BlockFactory.Server.Network;
 using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Math_;
-using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Server;
@@ -90,12 +86,8 @@ public class BlockFactoryServer
     private void Update()
     {
         foreach (var connection in Connections)
-        {
             if (!connection.Socket.Connected)
-            {
                 connection.Stop();
-            }
-        }
         GameInstance.Update();
     }
 

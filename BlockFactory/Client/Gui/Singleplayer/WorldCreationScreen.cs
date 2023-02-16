@@ -37,10 +37,7 @@ public class WorldCreationScreen : Screen
     {
         var s = GetWorldPath();
         Client.InitSingleplayerGameInstance(s);
-        while (Client.HasScreen())
-        {
-            Client.PopScreen();
-        }
+        while (Client.HasScreen()) Client.PopScreen();
     }
 
     private string GetWorldPath()

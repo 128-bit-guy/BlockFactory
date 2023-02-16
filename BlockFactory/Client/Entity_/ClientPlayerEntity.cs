@@ -1,9 +1,7 @@
 ﻿using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
-using BlockFactory.Init;
 using BlockFactory.Network;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client.Entity_;

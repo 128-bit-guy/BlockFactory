@@ -119,6 +119,7 @@ public class TextInputWidget : Widget
                         Text = Text.Remove(CursorPos, 1);
                         OnTextChanged();
                     }
+
                     break;
                 case Keys.Enter:
                     OnEnterPressed();

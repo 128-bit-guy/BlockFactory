@@ -25,8 +25,8 @@ public class PlayerEntity : WalkingEntity
     private readonly List<Vector3i> _chunksToRemove = new();
 
     private readonly List<Chunk> _scheduledChunksBecameVisible;
-    public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
     public readonly Dictionary<Vector3i, Chunk> ScheduledChunks = new();
+    public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
     private int _useCooldown;
     public int ChunkLoadDistance = 16;
 
@@ -137,15 +137,13 @@ public class PlayerEntity : WalkingEntity
             if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
             {
                 ++currentChunksScheduled;
-                if (currentChunksScheduled >= 20)
-                {
-                    break;
-                }
+                if (currentChunksScheduled >= 20) break;
             }
+
             ScheduledChunks.Add(chunkPos, c);
             ((IDependable)c).OnDependencyAdded();
         }
-        
+
         var currentChunksBecameVisible = 0;
         foreach (var (chunkPos, c) in ScheduledChunks)
         {
@@ -155,16 +153,10 @@ public class PlayerEntity : WalkingEntity
             VisibleChunks.Add(chunkPos, c);
             _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
             ++currentChunksBecameVisible;
-            if (currentChunksBecameVisible == 50)
-            {
-                break;
-            }
+            if (currentChunksBecameVisible == 50) break;
         }
 
-        foreach (var chunkPos in _chunksToRemove)
-        {
-            ScheduledChunks.Remove(chunkPos);
-        }
+        foreach (var chunkPos in _chunksToRemove) ScheduledChunks.Remove(chunkPos);
         _chunksToRemove.Clear();
     }
 
@@ -190,13 +182,13 @@ public class PlayerEntity : WalkingEntity
 
         foreach (var pos in _chunksToRemove) VisibleChunks.Remove(pos);
         _chunksToRemove.Clear();
-        foreach(var (pos, chunk) in ScheduledChunks)
+        foreach (var (pos, chunk) in ScheduledChunks)
             if (all || IsChunkTooFar(pos))
             {
                 _chunksToRemove.Add(pos);
                 ((IDependable)chunk).OnDependencyRemoved();
             }
-        
+
         foreach (var pos in _chunksToRemove) ScheduledChunks.Remove(pos);
         _chunksToRemove.Clear();
     }

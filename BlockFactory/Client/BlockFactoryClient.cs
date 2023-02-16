@@ -50,7 +50,6 @@ public class BlockFactoryClient
     public NetworkConnection? ServerConnection;
     public VPMatrices VpMatrices = null!;
     public WorldRenderer? WorldRenderer;
-    public string WorldsDirectory { get; private set; }
 
     private BlockFactoryClient()
     {
@@ -59,6 +58,8 @@ public class BlockFactoryClient
         OnCharInput = _ => { };
         OnKeyInput = OnKeyInput0;
     }
+
+    public string WorldsDirectory { get; private set; }
 
     public unsafe Window* Window { get; private set; }
     public TimeSpan DeltaTime { get; private set; }
@@ -310,10 +311,7 @@ public class BlockFactoryClient
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         if (GameInstance != null)
         {
-            if (GameInstance.Kind.IsNetworked())
-            {
-                ProcessPackets();
-            }
+            if (GameInstance.Kind.IsNetworked()) ProcessPackets();
 
             if (!HasScreen()) Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
             GameInstance!.Update();
@@ -331,7 +329,8 @@ public class BlockFactoryClient
                     PushScreen(new MainMenuScreen(this));
                     PushScreen(new ForcedDisconnectionScreen(this, ServerConnection.LastError!));
                     CleanupGameInstance();
-                } else if (!ServerConnection!.Socket.Connected || !ServerConnection.Working)
+                }
+                else if (!ServerConnection!.Socket.Connected || !ServerConnection.Working)
                 {
                     Console.WriteLine(ServerConnection.LastError);
                     while (HasScreen()) PopScreen();

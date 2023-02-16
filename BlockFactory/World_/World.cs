@@ -18,14 +18,14 @@ public class World : IBlockStorage, IDisposable
     public delegate void ChunkEventHandler(Chunk chunk);
 
     private readonly Dictionary<Vector3i, Chunk> _chunks = new();
+    private readonly List<Chunk>[] _groupedChunks;
     private readonly Dictionary<long, PlayerEntity> _players = new();
     public readonly GameInstance GameInstance;
     public readonly WorldGenerator Generator;
     public readonly WorldSaveManager SaveManager;
-    private readonly List<Chunk>[] _groupedChunks;
-    private long _lastId;
     private bool _decoratingChunks;
     private long _gameTime;
+    private long _lastId;
 
     public World(GameInstance gameInstance, int seed, string saveName)
     {
@@ -36,9 +36,7 @@ public class World : IBlockStorage, IDisposable
         SaveManager = new WorldSaveManager(this, saveName);
         _groupedChunks = new List<Chunk>[3 * 3 * 3];
         foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
-        {
             _groupedChunks[pos.X * 9 + pos.Y * 3 + pos.Z] = new List<Chunk>();
-        }
 
         _decoratingChunks = false;
 
@@ -82,10 +80,7 @@ public class World : IBlockStorage, IDisposable
     {
         if (Thread.CurrentThread != GameInstance.MainThread)
             throw new InvalidOperationException("Can not get chunk from not main thread!");
-        if (_decoratingChunks)
-        {
-            throw new InvalidOperationException("Can not get chunk when decorating chunks!");
-        }
+        if (_decoratingChunks) throw new InvalidOperationException("Can not get chunk when decorating chunks!");
         if (_chunks.TryGetValue(pos, out var ch)) return ch;
         var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
         var region = SaveManager.GetRegion(regionPos);
@@ -107,10 +102,7 @@ public class World : IBlockStorage, IDisposable
 
     private void DecorateChunkIfNecessary(Chunk c)
     {
-        if (!c.ExistsInWorld || !c.Neighbourhood.AreAllNeighboursLoaded() || c.Data.Decorated)
-        {
-            return;
-        }
+        if (!c.ExistsInWorld || !c.Neighbourhood.AreAllNeighboursLoaded() || c.Data.Decorated) return;
 
         c.Data.Decorated = true;
         Generator.Decorate(c);
@@ -123,7 +115,7 @@ public class World : IBlockStorage, IDisposable
         if (GameInstance.Kind.DoesProcessLogic())
         {
             foreach (var (id, player) in _players) player.LoadChunks();
-            
+
             foreach (var (id, player) in _players)
             {
                 player.ProcessScheduledAddedVisibleChunks();
@@ -165,15 +157,14 @@ public class World : IBlockStorage, IDisposable
             ((IDependable)region).OnDependencyRemoved();
             _chunks.Remove(pos);
         }
+
         FixGroupedChunks();
     }
 
     private void FixGroupedChunks()
     {
         foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
-        {
             _groupedChunks[pos.X * 9 + pos.Y * 3 + pos.Z].RemoveIf(c => !c.ExistsInWorld);
-        }
     }
 
     public void AddChunk(Chunk chunk)
@@ -196,11 +187,9 @@ public class World : IBlockStorage, IDisposable
         for (var i = 0; i < 3; ++i)
         {
             cg[i] %= 3;
-            if (cg[i] < 0)
-            {
-                cg[i] += 3;
-            }
+            if (cg[i] < 0) cg[i] += 3;
         }
+
         _groupedChunks[cg.X * 9 + cg.Y * 3 + cg.Z].Add(chunk);
         foreach (var a in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
             if (a != new Vector3i(1))

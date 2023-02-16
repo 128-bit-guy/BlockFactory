@@ -22,13 +22,13 @@ public class PlayerJoinWorldPacket : IPacket
         writer.Write(Id);
     }
 
-    public void Process(NetworkConnection connection)
-    {
-        if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
-    }
-
     public bool SupportsGameKind(GameKind kind)
     {
         return kind == GameKind.MultiplayerFrontend;
+    }
+
+    public void Process(NetworkConnection connection)
+    {
+        if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
     }
 }

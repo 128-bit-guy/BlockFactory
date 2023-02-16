@@ -13,10 +13,11 @@ public class Entity
     public Vector2 HeadRotation;
     public long Id;
     public EntityPos Pos;
-    [ExclusiveTo(Side.Client)]
-    public Vector3 PrevPosDelta;
-    [ExclusiveTo(Side.Client)]
-    public double PrevTime;
+
+    [ExclusiveTo(Side.Client)] public Vector3 PrevPosDelta;
+
+    [ExclusiveTo(Side.Client)] public double PrevTime;
+
     public World? World;
 
     private void UpdatePos()

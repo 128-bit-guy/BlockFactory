@@ -14,22 +14,17 @@ namespace BlockFactory.World_.Chunk_;
 public class Chunk : IBlockStorage, IDependable
 {
     public readonly Vector3i Pos;
+    public readonly ChunkRegion? Region;
     public readonly World World;
+    private bool _chunkDataCreated;
+    private ChunkData? _data;
     private int _dependencyCount;
+    public bool ExistsInWorld;
+
+    public Task? GenerationTask;
     public ChunkNeighbourhood Neighbourhood;
     public int ReadyForUseNeighbours;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
-    public readonly ChunkRegion? Region;
-    private ChunkData? _data;
-    private bool _chunkDataCreated;
-    public bool ExistsInWorld;
-
-    public ChunkData Data
-    {
-        get { return _data ??= Region!.GetOrCreateChunkData(Pos.BitAnd(ChunkRegion.Mask), out _chunkDataCreated); }
-    }
-
-    public Task? GenerationTask;
 
     [ExclusiveTo(Side.Client)]
     public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world, null)
@@ -46,6 +41,13 @@ public class Chunk : IBlockStorage, IDependable
         Neighbourhood = new ChunkNeighbourhood(this);
         Region = region;
     }
+
+    public ChunkData Data
+    {
+        get { return _data ??= Region!.GetOrCreateChunkData(Pos.BitAnd(ChunkRegion.Mask), out _chunkDataCreated); }
+    }
+
+    public bool Generated => GenerationTask == null || GenerationTask.IsCompleted;
 
     public BlockState GetBlockState(Vector3i pos)
     {
@@ -78,14 +80,14 @@ public class Chunk : IBlockStorage, IDependable
         }
     }
 
+    public ref int DependencyCount => ref _dependencyCount;
+
     public void RunGenerationTask()
     {
         GenerationTask = Region!.LoadTask == null
             ? Task.Run(Generate)
             : Task.Factory.ContinueWhenAll(new[] { Region.LoadTask }, _ => Generate());
     }
-
-    public bool Generated => GenerationTask == null || GenerationTask.IsCompleted;
 
     public void EnsureGenerated()
     {
@@ -97,13 +99,8 @@ public class Chunk : IBlockStorage, IDependable
     private void Generate()
     {
         var d = Data;
-        if (_chunkDataCreated)
-        {
-            World.Generator.GenerateBaseSurface(this);
-        }
+        if (_chunkDataCreated) World.Generator.GenerateBaseSurface(this);
     }
-
-    public ref int DependencyCount => ref _dependencyCount;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector3i GetBegin()

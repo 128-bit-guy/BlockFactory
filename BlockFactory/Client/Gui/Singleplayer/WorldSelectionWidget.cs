@@ -9,8 +9,8 @@ namespace BlockFactory.Client.Gui.Singleplayer;
 [ExclusiveTo(Side.Client)]
 public class WorldSelectionWidget : Widget
 {
-    private readonly string _worldsDirectory;
     private readonly List<string> _worlds;
+    private readonly string _worldsDirectory;
     private int? _selected;
     private bool _unselectNextTick;
 
@@ -21,9 +21,7 @@ public class WorldSelectionWidget : Widget
         Directory.CreateDirectory(_worldsDirectory);
         _worlds = new List<string>();
         foreach (var directory in Directory.EnumerateDirectories(_worldsDirectory))
-        {
             _worlds.Add(Path.GetRelativePath(_worldsDirectory, directory));
-        }
 
         _unselectNextTick = false;
     }
@@ -42,6 +40,7 @@ public class WorldSelectionWidget : Widget
             _selected = null;
             _unselectNextTick = false;
         }
+
         Screen.GuiMeshBuilder.Color = new Vector3(0.6f, 0.6f, 0.6f);
         Screen.DrawTexturedRect(Box, ZIndex, 64, Textures.DirtTexture);
         Screen.DrawColoredRect(new Box2(Box.Min, (Box.Max.X, Box.Min.Y + 5)), ZIndex + 0.5f, (0, 0, 0, 1));
@@ -84,7 +83,7 @@ public class WorldSelectionWidget : Widget
                     0,
                     64,
                     Textures.StoneTexture
-                    );
+                );
                 Screen.Client.Matrices.Pop();
             }
 
@@ -125,19 +124,14 @@ public class WorldSelectionWidget : Widget
     public string? GetSelectedPath()
     {
         if (_selected != null && _selected.Value < _worlds.Count)
-        {
             return Path.Combine(_worldsDirectory, _worlds[_selected.Value]);
-        }
 
         return null;
     }
 
     public string? GetSelectedName()
     {
-        if (_selected != null && _selected.Value < _worlds.Count)
-        {
-            return _worlds[_selected.Value];
-        }
+        if (_selected != null && _selected.Value < _worlds.Count) return _worlds[_selected.Value];
 
         return null;
     }

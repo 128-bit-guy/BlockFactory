@@ -130,7 +130,8 @@ public class WorldRenderer : IDisposable
             var hasRebuildTask = chunkRenderer.RebuildTask != null;
             if (hasRebuildTask && !chunkRenderer.RebuildTask!.IsCompleted) --leftParallelRebuilds;
             var translation =
-                (chunkRenderer.Pos - BlockFactoryClient.Instance.Player!.Pos.ChunkPos).BitShiftLeft(Constants.ChunkSizeLog2);
+                (chunkRenderer.Pos - BlockFactoryClient.Instance.Player!.Pos.ChunkPos).BitShiftLeft(Constants
+                    .ChunkSizeLog2);
             var box = new Box3(new Vector3(0), new Vector3(Constants.ChunkSize)).Add(translation.ToVector3());
             if (intersectionHelper.TestAab(box))
             {

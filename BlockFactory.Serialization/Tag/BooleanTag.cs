@@ -2,8 +2,6 @@
 
 public class BooleanTag : IValueBasedTag<bool>
 {
-    public TagType Type => TagType.Boolean;
-
     public BooleanTag(bool value)
     {
         Value = value;
@@ -11,8 +9,10 @@ public class BooleanTag : IValueBasedTag<bool>
 
     public BooleanTag()
     {
-        
     }
+
+    public TagType Type => TagType.Boolean;
+
     public void Write(BinaryWriter writer)
     {
         writer.Write(Value);

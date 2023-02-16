@@ -2,7 +2,6 @@
 using BlockFactory.CubeMath;
 using BlockFactory.Game;
 using BlockFactory.Physics;
-using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Entity_;
