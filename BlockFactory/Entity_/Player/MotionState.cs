@@ -1,4 +1,4 @@
-namespace BlockFactory;
+namespace BlockFactory.Entity_.Player;
 
 public struct MotionState : IEquatable<MotionState>
 {
