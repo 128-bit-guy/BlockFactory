@@ -33,7 +33,7 @@ public class MainMenuScreen : Screen
         MultiplayerButton.OnClick += (_, _) => Client.PushScreen(new ServerScreen(Client));
         Widgets.Add(SettingsButton = new ButtonWidget(this,
             new Box2(centerX - 300, centerY - 50, centerX + 300, centerY + 20), "Settings"));
-        SettingsButton.Enabled = false;
+        SettingsButton.OnClick += (_, _) => Client.PushScreen(new CredentialsScreen(Client));
         Widgets.Add(ResourcePacksButton = new ButtonWidget(this,
             new Box2(centerX - 300, centerY + 30, centerX + 300, centerY + 100), "Resource Packs"));
         ResourcePacksButton.Enabled = false;

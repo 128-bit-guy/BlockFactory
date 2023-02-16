@@ -12,6 +12,7 @@ public class SerializationManager
     private readonly Dictionary<Type, AutoSerializer> _serializers;
     private readonly Dictionary<Type, ISpecialSerializer> _specialAttributeSerializers;
     private readonly Dictionary<Type, ISpecialSerializer> _specialSerializers;
+    public static readonly SerializationManager Common = new();
 
     public SerializationManager()
     {

@@ -2,12 +2,12 @@
 
 public class AutoSerializable : IAutoSerializable
 {
-    public AutoSerializable()
+    public AutoSerializable() : this(SerializationManager.Common)
     {
-        AutoSerializer = null!;
+        
     }
 
-    public AutoSerializable(SerializationManager manager) : this()
+    public AutoSerializable(SerializationManager manager)
     {
         InitSerializer(manager);
     }

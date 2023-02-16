@@ -14,11 +14,14 @@ using BlockFactory.Game;
 using BlockFactory.Gui;
 using BlockFactory.Init;
 using BlockFactory.Network;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using ZstdSharp;
 
 namespace BlockFactory.Client;
 
@@ -50,6 +53,8 @@ public class BlockFactoryClient
     public NetworkConnection? ServerConnection;
     public VPMatrices VpMatrices = null!;
     public WorldRenderer? WorldRenderer;
+    public ClientSettings ClientSettings = null!;
+    private string SettingsLocation = null!;
 
     private BlockFactoryClient()
     {
@@ -124,6 +129,41 @@ public class BlockFactoryClient
         GLFW.SetScrollCallback(Window, _scb = (w, dx, dy) => OnScroll(dx, dy));
         _shouldRun = true;
         WorldsDirectory = Path.GetFullPath("worlds");
+        ClientSettings = new ClientSettings();
+        SettingsLocation = Path.GetFullPath("settings.dat");
+        LoadSettings();
+    }
+
+    public void LoadSettings()
+    {
+        var saveLocation = SettingsLocation;
+        if (!File.Exists(saveLocation)) return;
+        var b = File.ReadAllBytes(saveLocation);
+        if (BitConverter.IsLittleEndian) Array.Reverse(b, 0, sizeof(int));
+
+        var uncompressedSize = BitConverter.ToInt32(b);
+        var uncompressed = Zstd.Decompress(b, sizeof(int), b.Length - sizeof(int), uncompressedSize);
+        using var stream = new MemoryStream(uncompressed);
+        using var reader = new BinaryReader(stream);
+        var tag = new DictionaryTag();
+        tag.Read(reader);
+        ((ITagSerializable)ClientSettings).DeserializeFromTag(tag);
+    }
+
+    public void SaveSettings()
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        var tag = ((ITagSerializable)ClientSettings).SerializeToTag();
+        tag.Write(writer);
+        var uncompressed = stream.ToArray();
+        var compressed = Zstd.Compress(uncompressed);
+        var res = new byte[compressed.Length + sizeof(int)];
+        Array.Copy(compressed, 0, res, sizeof(int), compressed.Length);
+        BitConverter.TryWriteBytes(res, uncompressed.Length);
+        if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
+        var file = SettingsLocation;
+        File.WriteAllBytes(file, res);
     }
 
     private void OnScroll(double dX, double dY)
@@ -437,7 +477,7 @@ public class BlockFactoryClient
             UpdateAndRender();
             GLFW.SwapBuffers(Window);
         }
-
+        SaveSettings();
         if (GameInstance != null) CleanupGameInstance();
         GLFW.Terminate();
     }
