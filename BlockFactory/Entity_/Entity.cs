@@ -1,5 +1,6 @@
 using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_;
 using OpenTK.Mathematics;
@@ -12,8 +13,10 @@ public class Entity
     public Vector2 HeadRotation;
     public long Id;
     public EntityPos Pos;
-    public Vector3 PrevPosDelta = Vector3.Zero;
-    public double PrevTime = 0;
+    [ExclusiveTo(Side.Client)]
+    public Vector3 PrevPosDelta;
+    [ExclusiveTo(Side.Client)]
+    public double PrevTime;
     public World? World;
 
     private void UpdatePos()
