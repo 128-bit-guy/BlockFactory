@@ -19,6 +19,7 @@ public class TextInputWidget : Widget
     }
 
     public event Action OnEnterPressed = () => { };
+    public event Action OnTextChanged = () => { };
 
     public unsafe bool IsMouseOver()
     {
@@ -85,6 +86,7 @@ public class TextInputWidget : Widget
         {
             Text = Text.Insert(CursorPos, s);
             CursorPos += s.Length;
+            OnTextChanged();
         }
     }
 
@@ -101,6 +103,7 @@ public class TextInputWidget : Widget
                     {
                         Text = Text.Remove(CursorPos - 1, 1);
                         --CursorPos;
+                        OnTextChanged();
                     }
 
                     break;
@@ -111,7 +114,11 @@ public class TextInputWidget : Widget
                     if (CursorPos != Text.Length) ++CursorPos;
                     break;
                 case Keys.Delete:
-                    if (CursorPos != Text.Length) Text = Text.Remove(CursorPos, 1);
+                    if (CursorPos != Text.Length)
+                    {
+                        Text = Text.Remove(CursorPos, 1);
+                        OnTextChanged();
+                    }
                     break;
                 case Keys.Enter:
                     OnEnterPressed();

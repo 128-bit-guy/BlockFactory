@@ -50,6 +50,7 @@ public class BlockFactoryClient
     public NetworkConnection? ServerConnection;
     public VPMatrices VpMatrices = null!;
     public WorldRenderer? WorldRenderer;
+    public string WorldsDirectory { get; private set; }
 
     private BlockFactoryClient()
     {
@@ -121,6 +122,7 @@ public class BlockFactoryClient
         GLFW.SetKeyCallback(Window, _kcb = (w, key, scancode, action, mods) => OnKeyInput(key, scancode, action, mods));
         GLFW.SetScrollCallback(Window, _scb = (w, dx, dy) => OnScroll(dx, dy));
         _shouldRun = true;
+        WorldsDirectory = Path.GetFullPath("worlds");
     }
 
     private void OnScroll(double dX, double dY)
@@ -174,14 +176,14 @@ public class BlockFactoryClient
         Player.OnMenuChange += OnInGameMenuOpen;
     }
 
-    public void InitSingleplayerGameInstance()
+    public void InitSingleplayerGameInstance(string s)
     {
         Player = new ClientPlayerEntity
         {
             Pos = new EntityPos((0, 0, 10))
         };
         GameInstance = new GameInstance(GameKind.Singleplayer, Thread.CurrentThread,
-            unchecked((int)DateTime.UtcNow.Ticks), Path.GetFullPath("world"))
+            unchecked((int)DateTime.UtcNow.Ticks), s)
         {
             NetworkHandler = new SingleplayerNetworkHandler(),
             SideHandler = new ClientSideHandler(this)
