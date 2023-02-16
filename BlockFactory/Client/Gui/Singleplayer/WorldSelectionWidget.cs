@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Client.Gui.Singleplayer;
 
 [ExclusiveTo(Side.Client)]
 public class WorldSelectionWidget : Widget

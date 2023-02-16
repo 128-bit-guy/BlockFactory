@@ -1,7 +1,7 @@
 ﻿using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Client.Gui.Singleplayer;
 
 [ExclusiveTo(Side.Client)]
 public class WorldDeletionScreen : Screen
