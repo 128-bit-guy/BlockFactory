@@ -25,7 +25,7 @@ public class PlayerEntity : WalkingEntity
     private readonly List<Vector3i> _chunksToRemove = new();
 
     private readonly List<Chunk> _scheduledChunksBecameVisible;
-    public readonly Dictionary<Vector3i, Chunk> ScheduledChunks = new();
+    public readonly Dictionary<Vector3i, Chunk> InvDepChunks = new();
     public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
     private int _useCooldown;
     public int ChunkLoadDistance = 16;
@@ -126,13 +126,48 @@ public class PlayerEntity : WalkingEntity
         ChunkBecameInvisible(chunk);
     }
 
+    private static void AddDependencyChunk(Chunk chunk)
+    {
+        // for (var i = -1; i <= 1; ++i)
+        // {
+        //     for (var j = -1; j <= 1; ++j)
+        //     {
+        //         for (var k = -1; k <= 1; ++k)
+        //         {
+        //             var neighbour = chunk.Neighbourhood.Chunks[i + 1, j + 1, k + 1] ??
+        //                             chunk.World.GetOrLoadChunk(chunk.Pos + new Vector3i(i, j, k));
+        //             ((IDependable)neighbour).OnDependencyAdded();
+        //         }
+        //     }
+        // }
+        ((IDependable)chunk).OnDependencyAdded();
+    }
+
+    private static void RemoveDependencyChunk(Chunk chunk)
+    {
+        // for (var i = -1; i <= 1; ++i)
+        // {
+        //     for (var j = -1; j <= 1; ++j)
+        //     {
+        //         for (var k = -1; k <= 1; ++k)
+        //         {
+        //             var neighbour = chunk.Neighbourhood.Chunks[i + 1, j + 1, k + 1] ??
+        //                             chunk.World.GetOrLoadChunk(chunk.Pos + new Vector3i(i, j, k));
+        //             ((IDependable)neighbour).OnDependencyRemoved();
+        //         }
+        //     }
+        // }
+        ((IDependable)chunk).OnDependencyRemoved();
+    }
+
     public void LoadChunks()
     {
-        var currentChunksScheduled = ScheduledChunks.Count;
+        var currentChunksScheduled = 0;
+        var currentChunksAdded = 0;
         for (var progress = 0; progress < PlayerChunkLoading.MaxPoses[ChunkLoadDistance]; ++progress)
         {
             var chunkPos = Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress];
-            if (VisibleChunks.ContainsKey(chunkPos) || ScheduledChunks.ContainsKey(chunkPos)) continue;
+            if (VisibleChunks.ContainsKey(chunkPos)) continue;
             var c = World!.GetOrLoadChunk(Pos.ChunkPos + PlayerChunkLoading.ChunkOffsets[progress]);
             if (!(c.GenerationTask == null || c.GenerationTask.IsCompleted))
             {
@@ -140,23 +175,27 @@ public class PlayerEntity : WalkingEntity
                 if (currentChunksScheduled >= 20) break;
             }
 
-            ScheduledChunks.Add(chunkPos, c);
-            ((IDependable)c).OnDependencyAdded();
+            var scheduledContains = InvDepChunks.ContainsKey(chunkPos);
+            if (scheduledContains) continue;
+            InvDepChunks.Add(chunkPos, c);
+            AddDependencyChunk(c);
+            ++currentChunksAdded;
+            if (currentChunksAdded >= 50)
+            {
+                break;
+            }
         }
 
-        var currentChunksBecameVisible = 0;
-        foreach (var (chunkPos, c) in ScheduledChunks)
+        foreach (var (chunkPos, c) in InvDepChunks)
         {
             if (!c.Generated) continue;
+            if (!c.Data.Decorated) continue;
             _chunksToRemove.Add(chunkPos);
-            ((IDependable)c).OnDependencyRemoved();
             VisibleChunks.Add(chunkPos, c);
             _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
-            ++currentChunksBecameVisible;
-            if (currentChunksBecameVisible == 50) break;
         }
 
-        foreach (var chunkPos in _chunksToRemove) ScheduledChunks.Remove(chunkPos);
+        foreach (var chunkPos in _chunksToRemove) InvDepChunks.Remove(chunkPos);
         _chunksToRemove.Clear();
     }
 
@@ -176,20 +215,21 @@ public class PlayerEntity : WalkingEntity
         foreach (var (pos, chunk) in VisibleChunks)
             if (all || IsChunkTooFar(pos))
             {
+                RemoveDependencyChunk(chunk);
                 OnVisibleChunkRemoved(chunk);
                 _chunksToRemove.Add(pos);
             }
 
         foreach (var pos in _chunksToRemove) VisibleChunks.Remove(pos);
         _chunksToRemove.Clear();
-        foreach (var (pos, chunk) in ScheduledChunks)
+        foreach (var (pos, chunk) in InvDepChunks)
             if (all || IsChunkTooFar(pos))
             {
                 _chunksToRemove.Add(pos);
-                ((IDependable)chunk).OnDependencyRemoved();
+                RemoveDependencyChunk(chunk);
             }
 
-        foreach (var pos in _chunksToRemove) ScheduledChunks.Remove(pos);
+        foreach (var pos in _chunksToRemove) InvDepChunks.Remove(pos);
         _chunksToRemove.Clear();
     }
 
