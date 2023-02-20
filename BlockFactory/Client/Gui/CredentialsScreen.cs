@@ -7,10 +7,11 @@ namespace BlockFactory.Client.Gui;
 [ExclusiveTo(Side.Client)]
 public class CredentialsScreen : Screen
 {
+    private readonly Credentials _credentials;
     public TextInputWidget Name;
     public TextInputWidget Password;
     public ButtonWidget Save;
-    private Credentials _credentials;
+
     public CredentialsScreen(BlockFactoryClient client) : base(client)
     {
         _credentials = client.ClientSettings.Credentials;

@@ -1,5 +1,4 @@
-﻿using BlockFactory.Client;
-using BlockFactory.Client.Entity_;
+﻿using BlockFactory.Client.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Serialization.Serializable;

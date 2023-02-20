@@ -11,18 +11,19 @@ namespace BlockFactory.Entity_;
 
 public class Entity : AutoSerializable
 {
-    [NotSerialized]
-    public GameInstance? GameInstance;
+    [NotSerialized] public GameInstance? GameInstance;
+
     public Vector2 HeadRotation;
     public long Id;
     public EntityPos Pos;
 
-    [NotSerialized]
-    [ExclusiveTo(Side.Client)] public Vector3 PrevPosDelta;
-    [NotSerialized]
-    [ExclusiveTo(Side.Client)] public double PrevTime;
-    [NotSerialized]
-    public World? World;
+    [NotSerialized] [ExclusiveTo(Side.Client)]
+    public Vector3 PrevPosDelta;
+
+    [NotSerialized] [ExclusiveTo(Side.Client)]
+    public double PrevTime;
+
+    [NotSerialized] public World? World;
 
     private void UpdatePos()
     {

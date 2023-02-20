@@ -9,9 +9,10 @@ public class SingleTag : IValueBasedTag<float>
 
     public SingleTag()
     {
-        
     }
+
     public TagType Type => TagType.Single;
+
     public void Write(BinaryWriter writer)
     {
         writer.Write(Value);

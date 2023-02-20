@@ -7,12 +7,12 @@ namespace BlockFactory.Serialization.Automatic;
 
 public class SerializationManager
 {
+    public static readonly SerializationManager Common = new();
     private readonly SerializerBuilder _builder;
     private readonly ConcurrentQueue<(Type, AutoSerializer)> _serializerAddQueue;
     private readonly Dictionary<Type, AutoSerializer> _serializers;
     private readonly Dictionary<Type, ISpecialSerializer> _specialAttributeSerializers;
     private readonly Dictionary<Type, List<ISpecialSerializer>> _specialSerializers;
-    public static readonly SerializationManager Common = new();
 
     public SerializationManager()
     {
@@ -39,10 +39,7 @@ public class SerializationManager
 
     private List<ISpecialSerializer> GetSerializers(Type t)
     {
-        if (_specialSerializers.TryGetValue(t, out var res))
-        {
-            return res;
-        }
+        if (_specialSerializers.TryGetValue(t, out var res)) return res;
 
         res = new List<ISpecialSerializer>();
         _specialSerializers.Add(t, res);
@@ -99,18 +96,11 @@ public class SerializationManager
         while (true)
         {
             if (_specialSerializers.TryGetValue(fieldOrPropertyType, out var serializers))
-            {
                 if (serializers.Any(serializer => serializer.GenerateSpecialExpressions(t, fieldOrProperty, null,
                         type, parameters, variables, res)))
-                {
                     return true;
-                }
-            }
 
-            if (fieldOrPropertyType.BaseType == null || fieldOrPropertyType == typeof(object))
-            {
-                return false;
-            }
+            if (fieldOrPropertyType.BaseType == null || fieldOrPropertyType == typeof(object)) return false;
 
             fieldOrPropertyType = fieldOrPropertyType.BaseType;
         }

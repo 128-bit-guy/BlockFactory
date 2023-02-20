@@ -80,6 +80,7 @@ public struct EntityPos : ITagSerializable
         ep.Fix();
         return ep;
     }
+
     // public void FromTag(CompoundTag tag)
     // {
     //     PosInChunk.X = tag.GetSingle("pos_in_chunk_x");

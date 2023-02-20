@@ -9,6 +9,10 @@ namespace BlockFactory.Client.Entity_;
 [ExclusiveTo(Side.Client)]
 public class ClientPlayerEntity : PlayerEntity
 {
+    public ClientPlayerEntity(PlayerInfo? playerInfo) : base(playerInfo)
+    {
+    }
+
     private void SendMotionUpdate()
     {
         GameInstance!.NetworkHandler.GetServerConnection().SendPacket(new MotionStateUpdatePacket(MotionState));
@@ -46,9 +50,5 @@ public class ClientPlayerEntity : PlayerEntity
         }
 
         base.TickInternal();
-    }
-
-    public ClientPlayerEntity(PlayerInfo? playerInfo) : base(playerInfo)
-    {
     }
 }

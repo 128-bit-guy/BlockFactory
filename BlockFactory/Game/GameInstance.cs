@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Base;
-using BlockFactory.Client;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
 using BlockFactory.World_;
@@ -12,15 +11,15 @@ public class GameInstance : IDisposable
 {
     private readonly ConcurrentQueue<Action> Actions = new();
     public readonly GameKind Kind;
+    public readonly string PlayerDataLocation;
     public readonly string SaveLocation;
     private DateTime _nextTickTime;
     public Thread MainThread;
     public INetworkHandler NetworkHandler = null!;
+    public PlayerManager PlayerManager;
     public Random Random;
     public ISideHandler SideHandler = null!;
     public World World;
-    public PlayerManager PlayerManager;
-    public readonly string PlayerDataLocation;
 
     public GameInstance(GameKind kind, Thread mainThread, int seed, string saveLocation)
     {
@@ -31,18 +30,12 @@ public class GameInstance : IDisposable
         World = new World(this, seed, saveLocation);
         PlayerManager = new PlayerManager(this);
         PlayerDataLocation = Path.Combine(SaveLocation, "players.dat");
-        if (kind.DoesProcessLogic())
-        {
-            LoadGlobalData();
-        }
+        if (kind.DoesProcessLogic()) LoadGlobalData();
     }
 
     public void Dispose()
     {
-        if (Kind.DoesProcessLogic())
-        {
-            SaveGlobalData();
-        }
+        if (Kind.DoesProcessLogic()) SaveGlobalData();
 
         World.Dispose();
     }

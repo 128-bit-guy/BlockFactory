@@ -70,6 +70,7 @@ public class World : IBlockStorage, IDisposable
         player.World = this;
         _players[player.Id] = player;
     }
+
     [ExclusiveTo(Side.Client)]
     public void AddRemotePlayer(PlayerEntity player)
     {

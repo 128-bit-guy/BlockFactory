@@ -23,29 +23,27 @@ public class PlayerEntity : WalkingEntity
     public delegate void VisibleBlockChangeHandler(Chunk chunk, Vector3i pos, BlockState oldState,
         BlockState newState);
 
-    [NotSerialized]
-    private readonly List<Vector3i> _chunksToRemove = new();
-    [NotSerialized]
-    private readonly List<Chunk> _scheduledChunksBecameVisible;
-    [NotSerialized]
-    public readonly Dictionary<Vector3i, Chunk> InvDepChunks = new();
-    [NotSerialized]
-    public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
+    [NotSerialized] private readonly List<Vector3i> _chunksToRemove = new();
+
+    [NotSerialized] private readonly List<Chunk> _scheduledChunksBecameVisible;
+
+    [NotSerialized] public readonly Dictionary<Vector3i, Chunk> InvDepChunks = new();
+
+    public readonly PlayerInfo? PlayerInfo;
+
+    [NotSerialized] public readonly Dictionary<Vector3i, Chunk> VisibleChunks = new();
+
     private int _useCooldown;
     public int ChunkLoadDistance = 16;
 
     public int HotbarPos;
     public MotionState MotionState;
     public float Speed;
-    public readonly PlayerInfo? PlayerInfo; 
 
     public PlayerEntity(PlayerInfo? playerInfo)
     {
         PlayerInfo = playerInfo;
-        if (playerInfo != null)
-        {
-            playerInfo.Player = this;
-        }
+        if (playerInfo != null) playerInfo.Player = this;
         Inventory = new SimpleInventory(3 * 9);
         for (var i = 0; i < Items.Registry.GetRegisteredEntries().Count; ++i)
             Inventory.TryInsertStack(i, new ItemStack(Items.Registry[i], 64), false);
@@ -54,17 +52,14 @@ public class PlayerEntity : WalkingEntity
         _scheduledChunksBecameVisible = new List<Chunk>();
     }
 
-    [NotSerialized]
-    public static int MaxHotbarPos => Items.Registry.GetRegisteredEntries().Count;
+    [NotSerialized] public static int MaxHotbarPos => Items.Registry.GetRegisteredEntries().Count;
 
-    [NotSerialized]
-    public InGameMenu? Menu { get; private set; }
+    [NotSerialized] public InGameMenu? Menu { get; private set; }
 
-    [NotSerialized]
-    public SimpleInventory Inventory { get; }
+    [NotSerialized] public SimpleInventory Inventory { get; }
 
-    [NotSerialized]
-    public SimpleInventory Hotbar { get; }
+    [NotSerialized] public SimpleInventory Hotbar { get; }
+
     public event World.ChunkEventHandler ChunkBecameVisible = _ => { };
     public event World.ChunkEventHandler ChunkBecameInvisible = _ => { };
 
@@ -82,8 +77,10 @@ public class PlayerEntity : WalkingEntity
                 TargetWalkVelocity += GetForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
             if ((MotionState & MotionState.MovingBackwards) != 0)
                 TargetWalkVelocity -= GetForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
-            if ((MotionState & MotionState.MovingLeft) != 0) TargetWalkVelocity -= GetRight().Xz * (float)Constants.TickPeriod.TotalSeconds;
-            if ((MotionState & MotionState.MovingRight) != 0) TargetWalkVelocity += GetRight().Xz * (float)Constants.TickPeriod.TotalSeconds;
+            if ((MotionState & MotionState.MovingLeft) != 0)
+                TargetWalkVelocity -= GetRight().Xz * (float)Constants.TickPeriod.TotalSeconds;
+            if ((MotionState & MotionState.MovingRight) != 0)
+                TargetWalkVelocity += GetRight().Xz * (float)Constants.TickPeriod.TotalSeconds;
 
             if (TargetWalkVelocity.LengthSquared > 0.0001f)
             {
@@ -194,10 +191,7 @@ public class PlayerEntity : WalkingEntity
             InvDepChunks.Add(chunkPos, c);
             AddDependencyChunk(c);
             ++currentChunksAdded;
-            if (currentChunksAdded >= 50)
-            {
-                break;
-            }
+            if (currentChunksAdded >= 50) break;
         }
 
         foreach (var (chunkPos, c) in InvDepChunks)

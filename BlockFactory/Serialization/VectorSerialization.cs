@@ -20,6 +20,7 @@ public static class VectorSerialization
 
         return res;
     }
+
     public static ListTag SerializeToTag(this Vector3 vec)
     {
         var res = new ListTag(3, TagType.Single);
@@ -35,6 +36,7 @@ public static class VectorSerialization
 
         return res;
     }
+
     public static ListTag SerializeToTag(this Vector2 vec)
     {
         var res = new ListTag(2, TagType.Single);

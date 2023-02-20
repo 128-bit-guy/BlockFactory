@@ -9,8 +9,7 @@ namespace BlockFactory.Server.Entity_;
 [ExclusiveTo(Side.Server)]
 public class ServerPlayerEntity : PlayerEntity
 {
-    [NotSerialized]
-    public NetworkConnection Connection = null!;
+    [NotSerialized] public NetworkConnection Connection = null!;
 
     public ServerPlayerEntity(PlayerInfo info) : base(info)
     {

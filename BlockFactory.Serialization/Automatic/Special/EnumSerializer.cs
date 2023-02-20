@@ -6,14 +6,12 @@ namespace BlockFactory.Serialization.Automatic.Special;
 
 public class EnumSerializer : ISpecialSerializer
 {
-    public bool GenerateSpecialExpressions(Type t, MemberInfo fieldOrProperty, object? attribute, SerializationExpressionType type,
+    public bool GenerateSpecialExpressions(Type t, MemberInfo fieldOrProperty, object? attribute,
+        SerializationExpressionType type,
         ParameterExpression[] parameters, ParameterExpression[] variables, List<Expression> res)
     {
         var targetType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);
-        if (!targetType.IsEnum)
-        {
-            return false;
-        }
+        if (!targetType.IsEnum) return false;
         Expression targetExpr = Expression.MakeMemberAccess(variables[0], fieldOrProperty);
         Expression targetName = Expression.Constant(fieldOrProperty.Name);
         switch (type)

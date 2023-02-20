@@ -7,24 +7,20 @@ namespace BlockFactory.Serialization.Automatic;
 
 public class VectorSpecialSerializer : ISpecialSerializer
 {
-    private static Dictionary<Type, MethodInfo> TagSerializers = new();
-    private static Dictionary<Type, MethodInfo> TagDeserializers = new();
+    private static readonly Dictionary<Type, MethodInfo> TagSerializers = new();
+    private static readonly Dictionary<Type, MethodInfo> TagDeserializers = new();
 
     static VectorSpecialSerializer()
     {
         foreach (var m in typeof(VectorSerialization).GetMethods())
-        {
             if (m.ReturnType == typeof(ListTag))
-            {
                 TagSerializers.Add(m.GetParameters()[0].ParameterType, m);
-            }
             else
-            {
                 TagDeserializers.Add(m.ReturnType, m);
-            }
-        }
     }
-    public bool GenerateSpecialExpressions(Type t, MemberInfo fieldOrProperty, object? attribute, SerializationExpressionType type,
+
+    public bool GenerateSpecialExpressions(Type t, MemberInfo fieldOrProperty, object? attribute,
+        SerializationExpressionType type,
         ParameterExpression[] parameters, ParameterExpression[] variables, List<Expression> res)
     {
         var targetType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);

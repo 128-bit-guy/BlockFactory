@@ -17,7 +17,6 @@ using BlockFactory.Network;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
 using BlockFactory.Side_;
-using BlockFactory.Util.Math_;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -45,16 +44,16 @@ public class BlockFactoryClient
     private GLFWCallbacks.MouseButtonCallback _mbcb = null!;
     private GLFWCallbacks.ScrollCallback _scb = null!;
     private bool _shouldRun;
+    public ClientSettings ClientSettings = null!;
     public bool CursorVisible;
     public GameInstance? GameInstance;
     public HudRenderer? HudRenderer;
     public ItemRenderer? ItemRenderer;
     public ClientPlayerEntity? Player;
     public NetworkConnection? ServerConnection;
+    private string SettingsLocation = null!;
     public VPMatrices VpMatrices = null!;
     public WorldRenderer? WorldRenderer;
-    public ClientSettings ClientSettings = null!;
-    private string SettingsLocation = null!;
 
     private BlockFactoryClient()
     {

@@ -64,10 +64,7 @@ public class BlockFactoryServer
                         });
                     };
                     GameInstance.World.AddPlayer(player);
-                    if (created)
-                    {
-                        SpawnPlayer(player, new Vector3i(0, 0, 0));
-                    }
+                    if (created) SpawnPlayer(player, new Vector3i(0, 0, 0));
 
                     addConnection.SendPacket(new PlayerJoinWorldPacket(player));
                     addConnection.Flush();
@@ -163,7 +160,8 @@ public class BlockFactoryServer
             var islandPos = chunkPos;
             islandPos.Y = 100 / 16;
             SpawnPlayer(player, islandPos);
-        } else if (split[0] == "/stop")
+        }
+        else if (split[0] == "/stop")
         {
             ShouldRun = false;
         }

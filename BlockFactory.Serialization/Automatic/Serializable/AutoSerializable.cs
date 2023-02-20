@@ -4,7 +4,6 @@ public class AutoSerializable : IAutoSerializable
 {
     public AutoSerializable() : this(SerializationManager.Common)
     {
-        
     }
 
     public AutoSerializable(SerializationManager manager)

@@ -7,8 +7,8 @@ namespace BlockFactory.Game;
 public class PlayerInfo : AutoSerializable
 {
     public Credentials Credentials;
-    [NotSerialized]
-    public PlayerEntity Player;
+
+    [NotSerialized] public PlayerEntity Player;
 
     public PlayerInfo(Credentials credentials)
     {
