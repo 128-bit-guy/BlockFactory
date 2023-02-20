@@ -22,8 +22,8 @@ public class World : IBlockStorage, IDisposable
     private readonly List<Chunk>[] _groupedChunks;
     private readonly Dictionary<long, PlayerEntity> _players = new();
     public readonly GameInstance GameInstance;
-    public readonly WorldGenerator Generator;
-    public readonly WorldSaveManager SaveManager;
+    public readonly WorldGenerator Generator = null!;
+    public readonly WorldSaveManager SaveManager = null!;
     private bool _decoratingChunks;
     private long _gameTime;
     private long _lastId;
@@ -31,10 +31,18 @@ public class World : IBlockStorage, IDisposable
     public World(GameInstance gameInstance, int seed, string saveName)
     {
         GameInstance = gameInstance;
-        Generator = new WorldGenerator(seed);
+        if (GameInstance.Kind.DoesProcessLogic())
+        {
+            Generator = new WorldGenerator(seed);
+        }
+
         OnChunkAdded += OnChunkAdded0;
         OnChunkRemoved += OnChunkRemoved0;
-        SaveManager = new WorldSaveManager(this, saveName);
+        if (GameInstance.Kind.DoesProcessLogic())
+        {
+            SaveManager = new WorldSaveManager(this, saveName);
+        }
+
         _groupedChunks = new List<Chunk>[3 * 3 * 3];
         foreach (var pos in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
             _groupedChunks[pos.X * 9 + pos.Y * 3 + pos.Z] = new List<Chunk>();
@@ -57,7 +65,10 @@ public class World : IBlockStorage, IDisposable
     public void Dispose()
     {
         UnloadChunks(true);
-        SaveManager.Dispose();
+        if (GameInstance.Kind.DoesProcessLogic())
+        {
+            SaveManager.Dispose();
+        }
     }
 
     public event ChunkEventHandler OnChunkAdded = _ => { };
@@ -161,9 +172,13 @@ public class World : IBlockStorage, IDisposable
         {
             // Console.WriteLine($"Removing chunk at {pos}");
             OnChunkRemoved(chunk);
-            var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
-            var region = SaveManager.GetRegion(regionPos);
-            ((IDependable)region).OnDependencyRemoved();
+            if (GameInstance.Kind.DoesProcessLogic())
+            {
+                var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
+                var region = SaveManager.GetRegion(regionPos);
+                ((IDependable)region).OnDependencyRemoved();
+            }
+
             _chunks.Remove(pos);
         }
 
