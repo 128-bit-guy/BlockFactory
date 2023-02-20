@@ -71,7 +71,7 @@ public class BaseSurfaceGenerator
                 {
                     var absY = chunk.GetBegin().Y + y;
                     if (noise >= absY)
-                        chunk.Neighbourhood.SetBlockState((absX, absY, absZ), new BlockState(Blocks.Stone,
+                        chunk.Data.SetBlockState((x, y, z), new BlockState(Blocks.Stone,
                             RandomRotations.Any(random)));
                 }
             }
