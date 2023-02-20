@@ -57,6 +57,15 @@ public class PlayerManager : ITagSerializable
                 : null;
         }
 
+        if (_game.Kind == GameKind.Singleplayer)
+        {
+            var c2 = new Credentials
+            {
+                Name = c.Name,
+                Password = "Admin"
+            };
+            c = c2;
+        }
         info = new PlayerInfo(c);
         var p = NewPlayer(info);
         _playerInfos.Add(c.Name, info);
