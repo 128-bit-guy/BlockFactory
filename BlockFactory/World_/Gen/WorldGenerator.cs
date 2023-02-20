@@ -12,45 +12,22 @@ namespace BlockFactory.World_.Gen;
 public class WorldGenerator
 {
     public readonly int Seed;
-    public Perlin Perlin;
+    private readonly BaseSurfaceGenerator _baseSurfaceGenerator;
 
     public WorldGenerator(int seed)
     {
         Seed = seed;
-        Perlin = new Perlin
-        {
-            Seed = unchecked(1798783699 * seed + 1675735027),
-            Frequency = 2f,
-            Lacunarity = 2f,
-            Persistence = 2f,
-            OctaveCount = 3
-        };
+        _baseSurfaceGenerator = new BaseSurfaceGenerator(this);
     }
 
-    private Random GetChunkRandom(Vector3i pos, int a, int b, int c, int d)
+    public Random GetChunkRandom(Vector3i pos, int a, int b, int c, int d)
     {
         return new LinearCongruentialRandom(unchecked(pos.X * a + pos.Y * b + pos.Z * c + d * Seed));
     }
 
     public void GenerateBaseSurface(Chunk chunk)
     {
-        var random = GetChunkRandom(chunk.Pos, 1401634909, 1527589979, 1057394087, 1642081541);
-        for (var x = 0; x < Constants.ChunkSize; ++x)
-        {
-            var absX = chunk.GetBegin().X + x;
-            for (var z = 0; z < Constants.ChunkSize; ++z)
-            {
-                var absZ = chunk.GetBegin().Z + z;
-                var noise = Perlin.GetValue(absX / 100f, 0, absZ / 100f);
-                for (var y = 0; y < Constants.ChunkSize; ++y)
-                {
-                    var absY = chunk.GetBegin().Y + y;
-                    if (noise >= absY)
-                        chunk.Neighbourhood.SetBlockState((absX, absY, absZ), new BlockState(Blocks.Stone,
-                            RandomRotations.Any(random)));
-                }
-            }
-        }
+        _baseSurfaceGenerator.GenerateBaseSurface(chunk);
     }
 
     public void Decorate(Chunk c)

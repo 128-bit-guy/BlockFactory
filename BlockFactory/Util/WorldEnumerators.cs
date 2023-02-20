@@ -12,6 +12,13 @@ public static class WorldEnumerators
         for (var k = box.Min.Z; k <= box.Max.Z; ++k)
             yield return new Vector3i(i, j, k);
     }
+    
+    public static IEnumerable<Vector2i> InclusiveEnumerable(this Box2i box)
+    {
+        for (var i = box.Min.X; i <= box.Max.X; ++i)
+        for (var j = box.Min.Y; j <= box.Max.Y; ++j)
+            yield return new Vector2i(i, j);
+    }
 
     public static IEnumerable<Vector3i> GetSphereEnumerator(Vector3i center, int radius)
     {
