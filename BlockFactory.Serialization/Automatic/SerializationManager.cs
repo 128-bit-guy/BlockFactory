@@ -11,7 +11,7 @@ public class SerializationManager
     private readonly ConcurrentQueue<(Type, AutoSerializer)> _serializerAddQueue;
     private readonly Dictionary<Type, AutoSerializer> _serializers;
     private readonly Dictionary<Type, ISpecialSerializer> _specialAttributeSerializers;
-    private readonly Dictionary<Type, ISpecialSerializer> _specialSerializers;
+    private readonly Dictionary<Type, List<ISpecialSerializer>> _specialSerializers;
     public static readonly SerializationManager Common = new();
 
     public SerializationManager()
@@ -19,7 +19,7 @@ public class SerializationManager
         _serializers = new Dictionary<Type, AutoSerializer>();
         _serializerAddQueue = new ConcurrentQueue<(Type, AutoSerializer)>();
         _builder = new SerializerBuilder(this);
-        _specialSerializers = new Dictionary<Type, ISpecialSerializer>();
+        _specialSerializers = new Dictionary<Type, List<ISpecialSerializer>>();
         _specialAttributeSerializers = new Dictionary<Type, ISpecialSerializer>();
         AddDefaultSpecialSerializers();
     }
@@ -37,9 +37,21 @@ public class SerializationManager
         return serializer1;
     }
 
+    private List<ISpecialSerializer> GetSerializers(Type t)
+    {
+        if (_specialSerializers.TryGetValue(t, out var res))
+        {
+            return res;
+        }
+
+        res = new List<ISpecialSerializer>();
+        _specialSerializers.Add(t, res);
+        return res;
+    }
+
     public void RegisterSpecialSerializer(Type type, ISpecialSerializer specialSerializer)
     {
-        _specialSerializers.Add(type, specialSerializer);
+        GetSerializers(type).Add(specialSerializer);
     }
 
     public void RegisterSpecialAttributeSerializer(Type type, ISpecialSerializer specialSerializer)
@@ -54,6 +66,9 @@ public class SerializationManager
         RegisterSpecialSerializer(typeof(long), new PrimitiveSerializer());
         RegisterSpecialSerializer(typeof(byte), new PrimitiveSerializer());
         RegisterSpecialSerializer(typeof(string), new PrimitiveSerializer());
+        RegisterSpecialSerializer(typeof(float), new PrimitiveSerializer());
+        RegisterSpecialSerializer(typeof(bool), new PrimitiveSerializer());
+        RegisterSpecialSerializer(typeof(ValueType), new EnumSerializer());
         RegisterSpecialAttributeSerializer(typeof(RangeAttribute), new PrimitiveSerializer());
     }
 
@@ -81,8 +96,23 @@ public class SerializationManager
         }
 
         var fieldOrPropertyType = ReflectionUtils.GetFieldOrPropertyType(fieldOrProperty);
-        if (!_specialSerializers.TryGetValue(fieldOrPropertyType, out var specialSerializer1)) return false;
-        return specialSerializer1.GenerateSpecialExpressions(t, fieldOrProperty, null, type, parameters, variables,
-            res);
+        while (true)
+        {
+            if (_specialSerializers.TryGetValue(fieldOrPropertyType, out var serializers))
+            {
+                if (serializers.Any(serializer => serializer.GenerateSpecialExpressions(t, fieldOrProperty, null,
+                        type, parameters, variables, res)))
+                {
+                    return true;
+                }
+            }
+
+            if (fieldOrPropertyType.BaseType == null || fieldOrPropertyType == typeof(object))
+            {
+                return false;
+            }
+
+            fieldOrPropertyType = fieldOrPropertyType.BaseType;
+        }
     }
 }

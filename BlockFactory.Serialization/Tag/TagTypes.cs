@@ -16,6 +16,7 @@ public static class TagTypes
         RegisterTag<ChunkBlockDataTag>();
         RegisterTag<ChunkRotationDataTag>();
         RegisterTag<BooleanTag>();
+        RegisterTag<SingleTag>();
         BuildTags();
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using BlockFactory.Side_;
 
 namespace BlockFactory.Game;
 
@@ -20,5 +21,10 @@ public static class GameKindUtils
     public static bool IsNetworked(this GameKind kind)
     {
         return kind != GameKind.Singleplayer;
+    }
+
+    public static Side GetPhysicalSide(this GameKind kind)
+    {
+        return kind == GameKind.MultiplayerBackend ? Side.Server : Side.Client;
     }
 }

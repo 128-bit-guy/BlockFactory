@@ -1,5 +1,7 @@
 using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Serialization.Automatic;
+using BlockFactory.Serialization.Automatic.Serializable;
 using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_;
@@ -7,17 +9,19 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.Entity_;
 
-public class Entity
+public class Entity : AutoSerializable
 {
+    [NotSerialized]
     public GameInstance? GameInstance;
     public Vector2 HeadRotation;
     public long Id;
     public EntityPos Pos;
 
+    [NotSerialized]
     [ExclusiveTo(Side.Client)] public Vector3 PrevPosDelta;
-
+    [NotSerialized]
     [ExclusiveTo(Side.Client)] public double PrevTime;
-
+    [NotSerialized]
     public World? World;
 
     private void UpdatePos()

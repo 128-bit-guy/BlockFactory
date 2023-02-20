@@ -10,7 +10,7 @@ public class MotionStateUpdatePacket : IInGamePacket
 
     public MotionStateUpdatePacket(BinaryReader reader)
     {
-        State = new MotionState(reader);
+        State = (MotionState)reader.Read7BitEncodedInt();
     }
 
     public MotionStateUpdatePacket(MotionState state)
@@ -20,7 +20,7 @@ public class MotionStateUpdatePacket : IInGamePacket
 
     public void Write(BinaryWriter writer)
     {
-        State.Write(writer);
+        writer.Write7BitEncodedInt((int)State);
     }
 
     public void Process(NetworkConnection connection)

@@ -1,8 +1,10 @@
 ﻿using BlockFactory.Game;
+using BlockFactory.Side_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Client.Gui;
 
+[ExclusiveTo(Side.Client)]
 public class CredentialsScreen : Screen
 {
     public TextInputWidget Name;

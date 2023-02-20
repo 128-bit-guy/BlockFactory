@@ -3,6 +3,7 @@ using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
+using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Dependency;
 using BlockFactory.World_.Api;
@@ -65,6 +66,13 @@ public class World : IBlockStorage, IDisposable
     public void AddPlayer(PlayerEntity player)
     {
         player.Id = _lastId++;
+        player.GameInstance = GameInstance;
+        player.World = this;
+        _players[player.Id] = player;
+    }
+    [ExclusiveTo(Side.Client)]
+    public void AddRemotePlayer(PlayerEntity player)
+    {
         player.GameInstance = GameInstance;
         player.World = this;
         _players[player.Id] = player;

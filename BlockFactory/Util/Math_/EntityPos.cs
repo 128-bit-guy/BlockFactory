@@ -1,10 +1,13 @@
 using BlockFactory.Base;
 using BlockFactory.CubeMath;
+using BlockFactory.Serialization;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Util.Math_;
 
-public struct EntityPos /*: ISerializable*/
+public struct EntityPos : ITagSerializable
 {
     public Vector3 PosInChunk;
     public Vector3i ChunkPos;
@@ -99,4 +102,17 @@ public struct EntityPos /*: ISerializable*/
     //
     //     return tag;
     // }
+    public DictionaryTag SerializeToTag()
+    {
+        var tag = new DictionaryTag();
+        tag.Set("PosInChunk", PosInChunk.SerializeToTag());
+        tag.Set("ChunkPos", ChunkPos.SerializeToTag());
+        return tag;
+    }
+
+    public void DeserializeFromTag(DictionaryTag tag)
+    {
+        PosInChunk = VectorSerialization.DeserializeV3(tag.Get<ListTag>("PosInChunk"));
+        ChunkPos = VectorSerialization.DeserializeV3I(tag.Get<ListTag>("ChunkPos"));
+    }
 }

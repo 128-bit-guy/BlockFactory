@@ -20,4 +20,34 @@ public static class VectorSerialization
 
         return res;
     }
+    public static ListTag SerializeToTag(this Vector3 vec)
+    {
+        var res = new ListTag(3, TagType.Single);
+        for (var i = 0; i < 3; ++i) res.SetValue(i, vec[i]);
+
+        return res;
+    }
+
+    public static Vector3 DeserializeV3(ListTag tag)
+    {
+        var res = new Vector3();
+        for (var i = 0; i < 3; ++i) res[i] = tag.GetValue<float>(i);
+
+        return res;
+    }
+    public static ListTag SerializeToTag(this Vector2 vec)
+    {
+        var res = new ListTag(2, TagType.Single);
+        for (var i = 0; i < 2; ++i) res.SetValue(i, vec[i]);
+
+        return res;
+    }
+
+    public static Vector2 DeserializeV2(ListTag tag)
+    {
+        var res = new Vector2();
+        for (var i = 0; i < 2; ++i) res[i] = tag.GetValue<float>(i);
+
+        return res;
+    }
 }

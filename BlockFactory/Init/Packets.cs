@@ -21,5 +21,6 @@ public static class Packets
         NetworkRegistry.Register<InGameMenuOpenPacket>();
         NetworkRegistry.Register<WidgetUpdatePacket>();
         NetworkRegistry.Register<WidgetActionPacket>();
+        NetworkRegistry.Register<CredentialsPacket>();
     }
 }

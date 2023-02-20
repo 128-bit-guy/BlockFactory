@@ -201,16 +201,14 @@ public class BlockFactoryClient
             GameInstance = GameInstance
         };
         ServerConnection.Start();
+        ServerConnection.SendPacket(new CredentialsPacket(ClientSettings.Credentials));
+        ServerConnection.Flush();
         var registrySyncPacket = ServerConnection.AwaitPacket<RegistrySyncPacket>();
         SyncedRegistries.Sync(registrySyncPacket.Data);
         var playerJoinWorldPacket = ServerConnection.AwaitPacket<PlayerJoinWorldPacket>();
-        Player = new ClientPlayerEntity
-        {
-            Pos = new EntityPos((0, 0, 10))
-        };
+        Player = (ClientPlayerEntity)playerJoinWorldPacket.Player;
         GameInstance.Init();
-        GameInstance.World.AddPlayer(Player);
-        Player.Id = playerJoinWorldPacket.Id;
+        GameInstance.World.AddRemotePlayer(Player);
         WorldRenderer = new WorldRenderer(GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);
@@ -219,16 +217,14 @@ public class BlockFactoryClient
 
     public void InitSingleplayerGameInstance(string s)
     {
-        Player = new ClientPlayerEntity
-        {
-            Pos = new EntityPos((0, 0, 10))
-        };
         GameInstance = new GameInstance(GameKind.Singleplayer, Thread.CurrentThread,
             unchecked((int)DateTime.UtcNow.Ticks), s)
         {
             NetworkHandler = new SingleplayerNetworkHandler(),
             SideHandler = new ClientSideHandler(this)
         };
+        Player = (ClientPlayerEntity)GameInstance.PlayerManager.GetOrCreatePlayer(ClientSettings.Credentials,
+            out var created)!;
         GameInstance.Init();
         GameInstance.World.AddPlayer(Player);
         WorldRenderer = new WorldRenderer(GameInstance.World, Player);
@@ -477,6 +473,7 @@ public class BlockFactoryClient
             UpdateAndRender();
             GLFW.SwapBuffers(Window);
         }
+
         SaveSettings();
         if (GameInstance != null) CleanupGameInstance();
         GLFW.Terminate();

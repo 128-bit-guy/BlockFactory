@@ -270,7 +270,7 @@ public class NetworkConnection : IDisposable
         var begin = DateTime.UtcNow;
         while (!ReceiveQueue.TryDequeue(out packet))
         {
-            if (DateTime.UtcNow - begin > TimeSpan.FromSeconds(1))
+            if (DateTime.UtcNow - begin > TimeSpan.FromSeconds(10))
                 throw new TimeoutException($"Awaiting packet of type {typeof(T).Name} timed out");
             wait.SpinOnce();
         }

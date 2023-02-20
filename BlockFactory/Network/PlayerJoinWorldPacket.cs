@@ -1,34 +1,37 @@
 ﻿using BlockFactory.Client;
+using BlockFactory.Client.Entity_;
+using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 
 namespace BlockFactory.Network;
 
 public class PlayerJoinWorldPacket : IPacket
 {
-    public readonly long Id;
+    public readonly PlayerEntity Player;
 
     public PlayerJoinWorldPacket(BinaryReader reader)
     {
-        Id = reader.ReadInt64();
+        var tag = new DictionaryTag();
+        tag.Read(reader);
+        Player = new ClientPlayerEntity(new PlayerInfo(new Credentials()));
+        ((ITagSerializable)Player).DeserializeFromTag(tag);
     }
 
-    public PlayerJoinWorldPacket(long id)
+    public PlayerJoinWorldPacket(PlayerEntity entity)
     {
-        Id = id;
+        Player = entity;
     }
 
     public void Write(BinaryWriter writer)
     {
-        writer.Write(Id);
+        var tag = ((ITagSerializable)Player).SerializeToTag();
+        tag.Write(writer);
     }
 
     public bool SupportsGameKind(GameKind kind)
     {
         return kind == GameKind.MultiplayerFrontend;
-    }
-
-    public void Process(NetworkConnection connection)
-    {
-        if (BlockFactoryClient.Instance.Player != null) BlockFactoryClient.Instance.Player.Id = Id;
     }
 }

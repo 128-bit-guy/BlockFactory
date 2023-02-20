@@ -38,31 +38,47 @@ public class BlockFactoryServer
             addConnection.GameInstance = GameInstance;
             GameInstance.EnqueueWork(() =>
             {
-                ServerPlayerEntity player = new(addConnection);
-                addConnection.SideObject = player;
-                foreach (var connection in Connections)
-                    connection.SendPacket(new OtherPlayerMessagePacket("Server",
-                        $"Player {connection.Socket.RemoteEndPoint} joined server"));
-
                 Connections.Add(addConnection);
-                GameInstance.World.AddPlayer(player);
-                addConnection.OnStop += () =>
-                {
-                    GameInstance.EnqueueWork(() =>
-                    {
-                        Connections.Remove(addConnection);
-                        GameInstance.World.RemovePlayer(player);
-                        foreach (var connection in Connections)
-                            connection.SendPacket(new OtherPlayerMessagePacket("Server",
-                                $"Player {connection.Socket.RemoteEndPoint} left server"));
-                    });
-                };
                 addConnection.Start();
-                addConnection.SendPacket(new RegistrySyncPacket(SyncedRegistries.GetSyncData()));
-                addConnection.Flush();
-                addConnection.SendPacket(new PlayerJoinWorldPacket(player.Id));
-                addConnection.Flush();
-                SpawnPlayer(player, new Vector3i(0, 0, 0));
+                try
+                {
+                    var packet = addConnection.AwaitPacket<CredentialsPacket>();
+                    Console.WriteLine($"Player logged in! {packet.Credentials.Name}, {packet.Credentials.Password}");
+                    addConnection.SendPacket(new RegistrySyncPacket(SyncedRegistries.GetSyncData()));
+                    addConnection.Flush();
+                    var player =
+                        (ServerPlayerEntity)GameInstance.PlayerManager.GetOrCreatePlayer(packet.Credentials,
+                            out var created)!;
+                    player.Connection = addConnection;
+                    addConnection.SideObject = player;
+                    addConnection.OnStop += () =>
+                    {
+                        GameInstance.EnqueueWork(() =>
+                        {
+                            Connections.Remove(addConnection);
+                            GameInstance.World.RemovePlayer(player);
+                            player.Connection = null!;
+                            foreach (var connection in Connections)
+                                connection.SendPacket(new OtherPlayerMessagePacket("Server",
+                                    $"Player {connection.Socket.RemoteEndPoint} left server"));
+                        });
+                    };
+                    GameInstance.World.AddPlayer(player);
+                    if (created)
+                    {
+                        SpawnPlayer(player, new Vector3i(0, 0, 0));
+                    }
+
+                    addConnection.SendPacket(new PlayerJoinWorldPacket(player));
+                    addConnection.Flush();
+                    foreach (var connection in Connections)
+                        connection.SendPacket(new OtherPlayerMessagePacket("Server",
+                            $"Player {connection.Socket.RemoteEndPoint} joined server"));
+                }
+                catch (Exception ex)
+                {
+                    addConnection.SetErrored(ex);
+                }
             });
         };
         ConnectionAcceptor.Start();
@@ -147,6 +163,9 @@ public class BlockFactoryServer
             var islandPos = chunkPos;
             islandPos.Y = 100 / 16;
             SpawnPlayer(player, islandPos);
+        } else if (split[0] == "/stop")
+        {
+            ShouldRun = false;
         }
         // else if (split[0] == "/dighole")
         // {

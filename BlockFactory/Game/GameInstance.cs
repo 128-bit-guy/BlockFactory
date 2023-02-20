@@ -1,6 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Base;
+using BlockFactory.Client;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 using BlockFactory.World_;
+using ZstdSharp;
 
 namespace BlockFactory.Game;
 
@@ -15,6 +19,8 @@ public class GameInstance : IDisposable
     public Random Random;
     public ISideHandler SideHandler = null!;
     public World World;
+    public PlayerManager PlayerManager;
+    public readonly string PlayerDataLocation;
 
     public GameInstance(GameKind kind, Thread mainThread, int seed, string saveLocation)
     {
@@ -23,10 +29,21 @@ public class GameInstance : IDisposable
         Random = new Random();
         SaveLocation = saveLocation;
         World = new World(this, seed, saveLocation);
+        PlayerManager = new PlayerManager(this);
+        PlayerDataLocation = Path.Combine(SaveLocation, "players.dat");
+        if (kind.DoesProcessLogic())
+        {
+            LoadGlobalData();
+        }
     }
 
     public void Dispose()
     {
+        if (Kind.DoesProcessLogic())
+        {
+            SaveGlobalData();
+        }
+
         World.Dispose();
     }
 
@@ -62,11 +79,6 @@ public class GameInstance : IDisposable
         return false;
     }
 
-    public void Wait(Task task)
-    {
-        task.Wait();
-    }
-
     public void ProcessScheduled()
     {
         var cnt = Actions.Count;
@@ -78,5 +90,37 @@ public class GameInstance : IDisposable
     public void EnqueueWork(Action action)
     {
         Actions.Enqueue(action);
+    }
+
+    public void LoadGlobalData()
+    {
+        var saveLocation = PlayerDataLocation;
+        if (!File.Exists(saveLocation)) return;
+        var b = File.ReadAllBytes(saveLocation);
+        if (BitConverter.IsLittleEndian) Array.Reverse(b, 0, sizeof(int));
+
+        var uncompressedSize = BitConverter.ToInt32(b);
+        var uncompressed = Zstd.Decompress(b, sizeof(int), b.Length - sizeof(int), uncompressedSize);
+        using var stream = new MemoryStream(uncompressed);
+        using var reader = new BinaryReader(stream);
+        var tag = new DictionaryTag();
+        tag.Read(reader);
+        ((ITagSerializable)PlayerManager).DeserializeFromTag(tag);
+    }
+
+    public void SaveGlobalData()
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        var tag = ((ITagSerializable)PlayerManager).SerializeToTag();
+        tag.Write(writer);
+        var uncompressed = stream.ToArray();
+        var compressed = Zstd.Compress(uncompressed);
+        var res = new byte[compressed.Length + sizeof(int)];
+        Array.Copy(compressed, 0, res, sizeof(int), compressed.Length);
+        BitConverter.TryWriteBytes(res, uncompressed.Length);
+        if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
+        var file = PlayerDataLocation;
+        File.WriteAllBytes(file, res);
     }
 }

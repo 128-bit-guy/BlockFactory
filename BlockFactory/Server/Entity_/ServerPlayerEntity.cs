@@ -1,5 +1,7 @@
 ﻿using BlockFactory.Entity_.Player;
+using BlockFactory.Game;
 using BlockFactory.Network;
+using BlockFactory.Serialization.Automatic;
 using BlockFactory.Side_;
 
 namespace BlockFactory.Server.Entity_;
@@ -7,11 +9,11 @@ namespace BlockFactory.Server.Entity_;
 [ExclusiveTo(Side.Server)]
 public class ServerPlayerEntity : PlayerEntity
 {
-    public NetworkConnection Connection;
+    [NotSerialized]
+    public NetworkConnection Connection = null!;
 
-    public ServerPlayerEntity(NetworkConnection connection)
+    public ServerPlayerEntity(PlayerInfo info) : base(info)
     {
-        Connection = connection;
     }
 
     private void ProcessPackets()

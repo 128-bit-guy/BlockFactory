@@ -13,5 +13,6 @@ public static class CommonInit
         InGameMenuWidgetTypes.Init();
         InGameMenuTypes.Init();
         PlayerChunkLoading.Init();
+        Serializers.Init();
     }
 }
