@@ -38,7 +38,9 @@ public class PlayerManager : ITagSerializable
         if (_playerInfos.TryGetValue(c.Name, out var info))
         {
             created = false;
-            return c.Password == info.Credentials.Password ? info.Player : null;
+            return (c.Password == info.Credentials.Password || _game.Kind == GameKind.Singleplayer)
+                ? info.Player
+                : null;
         }
 
         info = new PlayerInfo(c);
@@ -56,6 +58,7 @@ public class PlayerManager : ITagSerializable
         {
             tag.Add(((ITagSerializable)info.Player).SerializeToTag());
         }
+
         res.Set("players", tag);
         return res;
     }
