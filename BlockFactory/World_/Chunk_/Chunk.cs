@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Block_;
+using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
@@ -28,11 +29,22 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
     public Task? GenerationTask;
     public ChunkNeighbourhood Neighbourhood;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
+    [ExclusiveTo(Side.Client)]
+    public bool IsFakePlayerChunk;
 
     [ExclusiveTo(Side.Client)]
     public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world, null)
     {
         _data = data;
+        _data.Decorated = true;
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public Chunk(Vector3i pos, World world) : this(pos, world, null)
+    {
+        _data = new ChunkData();
+        _data.Decorated = true;
+        IsFakePlayerChunk = true;
     }
 
     public Chunk(Vector3i pos, World world, ChunkRegion? region)
@@ -98,15 +110,20 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         GenerationTask = null;
     }
 
-    private void Generate()
+    public void AddObjectsToWorld()
     {
-        var d = Data;
-        if (_chunkDataCreated) World.Generator.GenerateBaseSurface(this);
         foreach (var entity in Data.EntitiesInChunk.Values)
         {
             entity.Chunk = this;
             World.OnLoadedEntityAdded(entity);
         }
+    }
+
+    private void Generate()
+    {
+        var d = Data;
+        if (_chunkDataCreated) World.Generator.GenerateBaseSurface(this);
+        AddObjectsToWorld();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

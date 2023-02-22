@@ -153,7 +153,7 @@ public class PlayerEntity : WalkingEntity
     {
         if (GameInstance!.Kind.IsNetworked() && GameInstance.Kind.DoesProcessLogic())
             GameInstance.NetworkHandler.GetPlayerConnection(this)
-                .SendPacket(new ChunkDataPacket(chunk.Pos, chunk.Data!.ConvertForSending()));
+                .SendPacket(new ChunkDataPacket(chunk.Pos, chunk.Data!.ConvertForSending(this)));
         chunk.ViewingPlayers.Add(Id, this);
         ChunkBecameVisible(chunk);
     }

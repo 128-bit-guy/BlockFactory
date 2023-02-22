@@ -2,6 +2,7 @@
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
+using BlockFactory.Entity_.Player;
 using BlockFactory.Init;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
@@ -114,20 +115,21 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         }
     }
 
-    private List<(EntityType, DictionaryTag)> GetEntityTags()
+    private List<(EntityType, DictionaryTag)> GetEntityTags(PlayerEntity e)
     {
         return (from entity in EntitiesInChunk.Values
+            where entity != e
             let tag = ((ITagSerializable)entity).SerializeToTag()
             select (entity.Type, tag)).ToList();
     }
 
-    public ChunkData ConvertForSending()
+    public ChunkData ConvertForSending(PlayerEntity entity)
     {
         ChunkData res = new()
         {
             _blocks = (ushort[,,])_blocks.Clone(),
             _rotations = (byte[,,])_rotations.Clone(),
-            _entityTags = GetEntityTags()
+            _entityTags = GetEntityTags(entity)
         };
         return res;
     }

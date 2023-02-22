@@ -113,10 +113,23 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
         }
     }
 
+    [ExclusiveTo(Side.Client)]
+    private Chunk CreateFakePlayerChunk(Vector3i pos)
+    {
+        var c = new Chunk(pos, this);
+        _chunks.Add(pos, c);
+        return c;
+    }
+
     public Chunk GetOrLoadChunk(Vector3i pos)
     {
         if (Thread.CurrentThread != GameInstance.MainThread)
             throw new InvalidOperationException("Can not get chunk from not main thread!");
+        if (!GameInstance.Kind.DoesProcessLogic())
+        {
+            return CreateFakePlayerChunk(pos);
+        }
+
         if (_decoratingChunks) throw new InvalidOperationException("Can not get chunk when decorating chunks!");
         if (_chunks.TryGetValue(pos, out var ch)) return ch;
         var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
@@ -151,6 +164,7 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
         {
             Parallel.ForEach(list, c => c.TickPass0());
         }
+
         foreach (var list in _groupedChunks)
         {
             Parallel.ForEach(list, c => c.TickPass1());
@@ -216,12 +230,29 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
             _groupedChunks[pos.X * 9 + pos.Y * 3 + pos.Z].RemoveIf(c => !c.ExistsInWorld);
     }
 
+    [ExclusiveTo(Side.Client)]
     public void AddChunk(Chunk chunk)
     {
-        _chunks.Add(chunk.Pos, chunk);
+        if (_chunks.TryGetValue(chunk.Pos, out var c))
+        {
+            if (!c.IsFakePlayerChunk) 
+                throw new InvalidOperationException($"Chunk at pos {chunk.Pos} is already added");
+        }
+
+        _chunks[chunk.Pos] = chunk;
         OnChunkAdded(chunk);
+        chunk.AddObjectsToWorld();
+        if (c != null)
+        {
+            foreach (var entity in c.Data.EntitiesInChunk.Values)
+            {
+                chunk.Data.EntitiesInChunk.Add(entity.Id, entity);
+                entity.Chunk = chunk;
+            }
+        }
     }
 
+    [ExclusiveTo(Side.Client)]
     public void RemoveChunk(Vector3i chunkPos)
     {
         var ch = _chunks[chunkPos];

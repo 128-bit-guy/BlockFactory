@@ -35,7 +35,7 @@ public struct EntityPos : ITagSerializable
         ChunkPos = NetworkUtils.ReadVector3i(reader);
     }
 
-    public void Write(BinaryWriter writer)
+    public readonly void Write(BinaryWriter writer)
     {
         PosInChunk.Write(writer);
         ChunkPos.Write(writer);
@@ -77,7 +77,6 @@ public struct EntityPos : ITagSerializable
     public static EntityPos operator -(EntityPos a, EntityPos b)
     {
         EntityPos ep = new(a.PosInChunk - b.PosInChunk, a.ChunkPos - b.ChunkPos);
-        ep.Fix();
         return ep;
     }
 

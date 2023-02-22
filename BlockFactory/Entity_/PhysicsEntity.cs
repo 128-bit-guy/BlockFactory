@@ -79,7 +79,6 @@ public abstract class PhysicsEntity : Entity
             LastCollidedMask = collidedMask;
             Boxes.Clear();
             var newPos = Pos + mVelocity;
-            newPos.Fix();
             GameInstance.SideHandler.SetEntityPos(this, newPos);
             IsStandingOnGround = Velocity[1] < 0.0f && (collidedMask & 2) != 0;
             for (var i = 0; i < 3; ++i)
