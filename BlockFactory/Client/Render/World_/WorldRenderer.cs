@@ -2,11 +2,13 @@
 using BlockFactory.Block_;
 using BlockFactory.Client.Render.Shader;
 using BlockFactory.CubeMath;
+using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Side_;
 using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace BlockFactory.Client.Render.World_;
 
@@ -125,6 +127,8 @@ public class WorldRenderer : IDisposable
         var renderersSorted = new List<ChunkRenderer>();
         renderersSorted.AddRange(ChunkRenderers.Values);
         renderersSorted.Sort(Compare);
+        MatrixStack stack = BlockFactoryClient.Instance.Matrices;
+        stack.Push();
         foreach (var chunkRenderer in renderersSorted)
         {
             var hasRebuildTask = chunkRenderer.RebuildTask != null;
@@ -135,6 +139,8 @@ public class WorldRenderer : IDisposable
             var box = new Box3(new Vector3(0), new Vector3(Constants.ChunkSize)).Add(translation.ToVector3());
             if (intersectionHelper.TestAab(box))
             {
+                stack.Push();
+                stack.Translate(translation);
                 if (chunkRenderer.Neighbourhood.LoadedChunkCnt == 27 && chunkRenderer.RequiresRebuild &&
                     !hasRebuildTask && leftParallelRebuilds > 0)
                 {
@@ -149,8 +155,25 @@ public class WorldRenderer : IDisposable
                     chunkRenderer.RebuildTask = null;
                 }
 
-                Shaders.Block.SetModel(Matrix4.CreateTranslation(translation));
+                Shaders.Block.SetModel(stack);
                 if (chunkRenderer.HasAnythingToRender()) chunkRenderer.Render();
+                foreach (var entity in chunkRenderer.Chunk.Data.EntitiesInChunk.Values)
+                {
+                    stack.Push();
+                    stack.Translate(entity.Pos.PosInChunk);
+                    if (entity is ItemEntity item)
+                    {
+                        stack.Push();
+                        stack.RotateY((float)GLFW.GetTime() / 3);
+                        stack.Scale(0.2f);
+                        stack.Translate(new Vector3(-0.5f));
+                        BlockFactoryClient.Instance.ItemRenderer!.RenderItemStack(item.Stack);
+                        stack.Pop();
+                    }
+                        
+                    stack.Pop();
+                }
+                stack.Pop();
             }
             //if (chunkRenderer.Neighbourhood.LoadedChunkCnt != 27)
             //{
@@ -161,6 +184,7 @@ public class WorldRenderer : IDisposable
             //}
             //}
         }
+        stack.Pop();
     }
 
     private void OnVisibleBlockChange(Chunk chunk, Vector3i pos, BlockState prevState, BlockState newState)

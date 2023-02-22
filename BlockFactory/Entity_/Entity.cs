@@ -5,11 +5,12 @@ using BlockFactory.Serialization.Automatic.Serializable;
 using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_;
+using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Entity_;
 
-public class Entity : AutoSerializable
+public abstract class Entity : AutoSerializable
 {
     [NotSerialized] public GameInstance? GameInstance;
 
@@ -24,6 +25,9 @@ public class Entity : AutoSerializable
     public double PrevTime;
 
     [NotSerialized] public World? World;
+    
+    [NotSerialized] public abstract EntityType Type { get; }
+    [NotSerialized] public Chunk? Chunk;
 
     private void UpdatePos()
     {
@@ -37,6 +41,11 @@ public class Entity : AutoSerializable
 
     protected virtual void TickPhysics()
     {
+    }
+
+    public virtual void OnAddToWorld()
+    {
+        
     }
 
     public virtual void OnRemoveFromWorld()

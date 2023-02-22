@@ -22,6 +22,7 @@ public class ChunkDataPacket : IInGamePacket
         Pos = NetworkUtils.ReadVector3i(reader);
         Data = new ChunkData();
         Data.DeserializeFromBinaryReader(reader);
+        Data.UnConvertFromSending();
     }
 
     public void Write(BinaryWriter writer)

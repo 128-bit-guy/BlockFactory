@@ -10,7 +10,10 @@ public abstract class PhysicsEntity : Entity
 {
     public delegate void BoxConsumer(Box3 box);
 
-    private static readonly List<Box3> Boxes = new();
+    [ThreadStatic]
+    private static List<Box3>? _boxes;
+    
+    private static List<Box3> Boxes => _boxes ??= new List<Box3>();
     public bool IsStandingOnGround;
     public int LastCollidedMask;
     public Vector3 Velocity;
@@ -44,34 +47,34 @@ public abstract class PhysicsEntity : Entity
 
     protected override void TickPhysics()
     {
-        if (GameInstance.Kind.DoesProcessLogic())
+        if (GameInstance!.Kind.DoesProcessLogic())
         {
             if (HasGravity()) AddForce((0f, -0.01357f, 0f));
-
+        
             Vector3i curOffset = default;
             CubeRotation curRotation = null!;
             BoxConsumer consumer = b => { Boxes.Add(curRotation.RotateAroundCenter(b).Add(curOffset.ToVector3())); };
-
+        
             var bb = GetOffsetBoundingBox();
             var broadphase = bb;
             broadphase.Inflate(bb.Min + Velocity);
             broadphase.Inflate(bb.Max + Velocity);
-            broadphase.Inflate(broadphase.Min - (1.0f, 1.0f, 1.0f));
-            broadphase.Inflate(broadphase.Max + (1.0f, 1.0f, 1.0f));
-            for (var x = (int)MathF.Floor(broadphase.Min.X); x <= broadphase.Max.X; ++x)
-            for (var y = (int)MathF.Floor(broadphase.Min.Y); y <= broadphase.Max.Y; ++y)
-            for (var z = (int)MathF.Floor(broadphase.Min.Z); z <= broadphase.Max.Z; ++z)
+            // broadphase.Inflate(broadphase.Min - (1.0f, 1.0f, 1.0f));
+            // broadphase.Inflate(broadphase.Max + (1.0f, 1.0f, 1.0f));
+            for (var x = (int)MathF.Floor(broadphase.Min.X); x < (int)MathF.Ceiling(broadphase.Max.X); ++x)
+            for (var y = (int)MathF.Floor(broadphase.Min.Y); y < (int)MathF.Ceiling(broadphase.Max.Y); ++y)
+            for (var z = (int)MathF.Floor(broadphase.Min.Z); z < (int)MathF.Ceiling(broadphase.Max.Z); ++z)
             {
                 var bco = Pos.ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
                 var bap = bco + new Vector3i(x, y, z);
-                var state = World!.GetBlockState(bap);
+                var state = Chunk!.Neighbourhood.GetBlockState(bap);
                 var block = state.Block;
                 curOffset = bap - Pos.ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
                 curRotation = state.Rotation;
-                block.AddCollisionBoxes(World, bap, state, consumer, this);
+                block.AddCollisionBoxes(Chunk!.Neighbourhood, bap, state, consumer, this);
                 // World.GetBlockState(bap).AddCollisionBoxes(bap, Boxes, this);
             }
-
+        
             var (mVelocity, collidedMask) = CollisionSolver.AdjustMovementForCollision(Velocity, bb, Boxes);
             LastCollidedMask = collidedMask;
             Boxes.Clear();
@@ -82,12 +85,12 @@ public abstract class PhysicsEntity : Entity
             for (var i = 0; i < 3; ++i)
                 if ((collidedMask & (1 << i)) != 0)
                     Velocity[i] = 0f;
-
+        
             var velocityLength = Velocity.Length;
             if (velocityLength > 1e-5f)
             {
                 if (HasAirFriction()) Velocity -= Velocity / velocityLength * MathF.Min(velocityLength, 0.002f);
-
+        
                 if (ShouldHaveFriction()) Velocity -= Velocity / velocityLength * MathF.Min(velocityLength, 0.01f);
             }
         }

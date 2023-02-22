@@ -17,19 +17,16 @@ public class BlockItem : Item
         Block = block;
     }
 
-    public override bool OnUse(IStackContainer container, PlayerEntity entity,
+    public override bool OnUse(SlotPointer container, PlayerEntity entity,
         (Vector3i pos, float time, Direction dir)? rayCastRes)
     {
-        if (Block != Blocks.Air && rayCastRes.HasValue)
-        {
-            var (blockPos, time, dir) = rayCastRes.Value;
-            entity.World!.SetBlockState(blockPos + dir.GetOffset(), new BlockState(Block,
-                RandomRotations.Any(entity.GameInstance!.Random)));
-            entity.AddUseCooldown(3);
-            container.ChangeStack(container.GetStack() - 1);
-            return true;
-        }
+        if (Block == Blocks.Air || !rayCastRes.HasValue) return false;
+        if (container.TryExtractStack(1, false).Count != 1) return false;
+        var (blockPos, time, dir) = rayCastRes.Value;
+        entity.World!.SetBlockState(blockPos + dir.GetOffset(), new BlockState(Block,
+            RandomRotations.Any(entity.GameInstance!.Random)));
+        entity.AddUseCooldown(3);
+        return true;
 
-        return false;
     }
 }

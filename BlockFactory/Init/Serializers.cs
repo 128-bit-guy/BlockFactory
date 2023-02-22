@@ -1,4 +1,5 @@
-﻿using BlockFactory.Serialization.Automatic;
+﻿using BlockFactory.Item_;
+using BlockFactory.Serialization.Automatic;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Init;
@@ -11,5 +12,6 @@ public class Serializers
         manager.RegisterSpecialSerializer(typeof(Vector3), new VectorSpecialSerializer());
         manager.RegisterSpecialSerializer(typeof(Vector3i), new VectorSpecialSerializer());
         manager.RegisterSpecialSerializer(typeof(Vector2), new VectorSpecialSerializer());
+        manager.RegisterSpecialSerializer(typeof(ItemStack), new ItemStackSpecialSerializer());
     }
 }

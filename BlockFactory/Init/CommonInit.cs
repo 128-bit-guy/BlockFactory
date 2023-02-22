@@ -10,6 +10,7 @@ public static class CommonInit
         SyncedRegistries.Init();
         Blocks.Init();
         Items.Init();
+        Entities.Init();
         InGameMenuWidgetTypes.Init();
         InGameMenuTypes.Init();
         PlayerChunkLoading.Init();

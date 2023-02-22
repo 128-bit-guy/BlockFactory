@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
+using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
 using BlockFactory.Side_;
@@ -14,7 +15,7 @@ using OpenTK.Mathematics;
 
 namespace BlockFactory.World_;
 
-public class World : IBlockStorage, IDisposable
+public class World : IBlockStorage, IDisposable, IEntityStorage
 {
     public delegate void ChunkEventHandler(Chunk chunk);
 
@@ -74,26 +75,42 @@ public class World : IBlockStorage, IDisposable
     public event ChunkEventHandler OnChunkAdded = _ => { };
     public event ChunkEventHandler OnChunkRemoved = _ => { };
 
-    public void AddPlayer(PlayerEntity player)
+    public void OnEntityAdded(Entity entity, bool loaded)
     {
-        player.Id = _lastId++;
-        player.GameInstance = GameInstance;
-        player.World = this;
-        _players[player.Id] = player;
+        if (loaded)
+        {
+            OnLoadedEntityAdded(entity);
+        }
+        else
+        {
+            OnNewEntityAdded(entity);
+        }
     }
 
-    [ExclusiveTo(Side.Client)]
-    public void AddRemotePlayer(PlayerEntity player)
+    public void OnNewEntityAdded(Entity entity)
     {
-        player.GameInstance = GameInstance;
-        player.World = this;
-        _players[player.Id] = player;
+        entity.Id = Interlocked.Increment(ref _lastId);
+        OnLoadedEntityAdded(entity);
     }
 
-    public void RemovePlayer(PlayerEntity player)
+    public void OnLoadedEntityAdded(Entity entity)
     {
-        player.OnRemoveFromWorld();
-        _players.Remove(player.Id);
+        entity.GameInstance = GameInstance;
+        entity.World = this;
+        entity.OnAddToWorld();
+        if (entity is PlayerEntity playerEntity && GameInstance.Kind.DoesProcessLogic())
+        {
+            _players[playerEntity.Id] = playerEntity;
+        }
+    }
+
+    public void OnEntityRemoved(Entity entity)
+    {
+        entity.OnRemoveFromWorld();
+        if (entity is PlayerEntity && GameInstance.Kind.DoesProcessLogic())
+        {
+            _players.Remove(entity.Id);
+        }
     }
 
     public Chunk GetOrLoadChunk(Vector3i pos)
@@ -130,7 +147,15 @@ public class World : IBlockStorage, IDisposable
 
     public void Tick()
     {
-        foreach (var (id, player) in _players) player.Tick();
+        foreach (var list in _groupedChunks)
+        {
+            Parallel.ForEach(list, c => c.TickPass0());
+        }
+        foreach (var list in _groupedChunks)
+        {
+            Parallel.ForEach(list, c => c.TickPass1());
+        }
+        // foreach (var (id, player) in _players) player.Tick();
 
         if (GameInstance.Kind.DoesProcessLogic())
         {
@@ -230,6 +255,7 @@ public class World : IBlockStorage, IDisposable
 
     private void OnChunkRemoved0(Chunk chunk)
     {
+        chunk.OnRemovedFromWorld();
         chunk.ExistsInWorld = false;
         foreach (var a in new Box3i(new Vector3i(0), new Vector3i(2)).InclusiveEnumerable())
             if (a != new Vector3i(1))
@@ -238,5 +264,15 @@ public class World : IBlockStorage, IDisposable
                 var oa = new Vector3i(2) - a;
                 if (_chunks.TryGetValue(oPos, out var oChunk)) oChunk.Neighbourhood.Chunks[oa.X, oa.Y, oa.Z] = null!;
             }
+    }
+
+    public void AddEntity(Entity entity, bool loaded = false)
+    {
+        GetOrLoadGeneratedChunk(entity.Pos.ChunkPos).AddEntity(entity, loaded);
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        GetOrLoadGeneratedChunk(entity.Pos.ChunkPos).RemoveEntity(entity);
     }
 }

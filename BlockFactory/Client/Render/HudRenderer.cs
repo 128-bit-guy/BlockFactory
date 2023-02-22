@@ -32,8 +32,8 @@ public class HudRenderer : IDisposable
         Client.Matrices.RotateY(-MathF.PI / 12);
         Client.Matrices.Scale(4);
         Client.Matrices.Translate(new Vector3(-0.5f));
-        var stack = Client.Player!.GetStackInHand();
-        Client.ItemRenderer.RenderItemStack(stack);
+        var stack = Client.Player!.StackInHand;
+        Client.ItemRenderer!.RenderItemStack(stack);
         Client.Matrices.Pop();
     }
 }

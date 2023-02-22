@@ -2,12 +2,13 @@
 using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
+using BlockFactory.Entity_;
 using BlockFactory.World_.Api;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.World_.Chunk_;
 
-public class ChunkNeighbourhood : IBlockStorage
+public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
 {
     public Chunk CenterChunk;
     public Vector3i CenterPos;
@@ -24,15 +25,9 @@ public class ChunkNeighbourhood : IBlockStorage
     public BlockState GetBlockState(Vector3i pos)
     {
         var arrayChunkPos = GetArrayChunkPos(pos);
-        if (IsArrayChunkPosInside(arrayChunkPos))
-        {
-            var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
-            if (ch == null)
-                return CenterChunk.World.GetBlockState(pos);
-            return ch.GetBlockState(pos);
-        }
-
-        return CenterChunk.World.GetBlockState(pos);
+        if (!IsArrayChunkPosInside(arrayChunkPos)) return CenterChunk.World.GetBlockState(pos);
+        var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+        return ch?.GetBlockState(pos) ?? CenterChunk.World.GetBlockState(pos);
     }
 
     public void SetBlockState(Vector3i pos, BlockState state)
@@ -57,7 +52,18 @@ public class ChunkNeighbourhood : IBlockStorage
         for (var i = 0; i < 3; ++i)
         for (var j = 0; j < 3; ++j)
         for (var k = 0; k < 3; ++k)
-            if (Chunks[i, j, k] == null || !Chunks[i, j, k].Generated)
+            if (Chunks[i, j, k] == null || !Chunks[i, j, k]!.Generated)
+                return false;
+
+        return true;
+    }
+
+    public bool AreAllNeighboursDecorated()
+    {
+        for (var i = 0; i < 3; ++i)
+        for (var j = 0; j < 3; ++j)
+        for (var k = 0; k < 3; ++k)
+            if (Chunks[i, j, k] == null || !Chunks[i, j, k]!.Generated || !Chunks[i, j, k]!.Data.Decorated)
                 return false;
 
         return true;
@@ -67,6 +73,12 @@ public class ChunkNeighbourhood : IBlockStorage
     private Vector3i GetArrayChunkPos(Vector3i blockPos)
     {
         var chunkPos = blockPos.BitShiftRight(Constants.ChunkSizeLog2);
+        return ToArrayChunkPos(chunkPos);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    private Vector3i ToArrayChunkPos(Vector3i chunkPos)
+    {
         var deltaChunkPos = chunkPos - CenterPos;
         var arrChunkPos = deltaChunkPos + (1, 1, 1);
         return arrChunkPos;
@@ -79,5 +91,43 @@ public class ChunkNeighbourhood : IBlockStorage
             if (arrayChunkPos[i] < 0 || arrayChunkPos[i] >= 3)
                 return false;
         return true;
+    }
+
+    public void AddEntity(Entity entity, bool loaded = false)
+    {
+        var arrayChunkPos = ToArrayChunkPos(entity.Pos.ChunkPos);
+        if (!IsArrayChunkPosInside(arrayChunkPos)) return;
+        var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+        if (ch == null)
+        {
+            CenterChunk.World.AddEntity(entity, loaded);
+        }
+        else
+        {
+            ch.AddEntity(entity, loaded);
+        }
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        var arrayChunkPos = ToArrayChunkPos(entity.Pos.ChunkPos);
+        if (!IsArrayChunkPosInside(arrayChunkPos)) return;
+        var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+        if (ch == null)
+        {
+            CenterChunk.World.RemoveEntity(entity);
+        }
+        else
+        {
+            ch.RemoveEntity(entity);
+        }
+    }
+
+    public Chunk GetChunk(Vector3i pos)
+    {
+        var arrayChunkPos = ToArrayChunkPos(pos);
+        if (!IsArrayChunkPosInside(arrayChunkPos)) return CenterChunk.World.GetOrLoadChunk(pos);
+        var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+        return ch ?? CenterChunk.World.GetOrLoadChunk(pos);
     }
 }

@@ -6,6 +6,7 @@ public class ListTag : ITag
 
     public ListTag()
     {
+        _elements = new List<ITag>();
     }
 
     public ListTag(ITag[] elements, TagType elementType)

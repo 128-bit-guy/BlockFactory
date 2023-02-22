@@ -207,7 +207,7 @@ public class BlockFactoryClient
         var playerJoinWorldPacket = ServerConnection.AwaitPacket<PlayerJoinWorldPacket>();
         Player = (ClientPlayerEntity)playerJoinWorldPacket.Player;
         GameInstance.Init();
-        GameInstance.World.AddRemotePlayer(Player);
+        GameInstance.World.AddEntity(Player, true);
         WorldRenderer = new WorldRenderer(GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);
@@ -225,7 +225,7 @@ public class BlockFactoryClient
         Player = (ClientPlayerEntity)GameInstance.PlayerManager.GetOrCreatePlayer(ClientSettings.Credentials,
             out var created)!;
         GameInstance.Init();
-        GameInstance.World.AddPlayer(Player);
+        GameInstance.World.AddEntity(Player);
         WorldRenderer = new WorldRenderer(GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);

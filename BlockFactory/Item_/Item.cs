@@ -10,7 +10,7 @@ public class Item : IRegistryEntry
 {
     public int Id { get; set; }
 
-    public virtual bool OnUse(IStackContainer container, PlayerEntity entity,
+    public virtual bool OnUse(SlotPointer container, PlayerEntity entity,
         (Vector3i pos, float time, Direction dir)? rayCastRes)
     {
         return false;

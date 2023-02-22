@@ -6,7 +6,10 @@ namespace BlockFactory.Physics;
 public class CollisionSolver
 {
     public const float Eps = 1e-4f;
-    private static readonly List<(int, float, float, int)> CollisionResults = new();
+    [ThreadStatic] private static List<(int, float, float, int)>? _collisionResults;
+
+    private static List<(int, float, float, int)> CollisionResults =>
+        _collisionResults ??= new List<(int, float, float, int)>();
 
     public static (Vector3, int) AdjustMovementForCollision(Vector3 movement, Box3 movingBox,
         List<Box3> staticBoxes)

@@ -59,14 +59,14 @@ public class BlockFactoryServer
                         GameInstance.EnqueueWork(() =>
                         {
                             Connections.Remove(addConnection);
-                            GameInstance.World.RemovePlayer(player);
+                            GameInstance.World.RemoveEntity(player);
                             player.Connection = null!;
                             foreach (var connection in Connections)
                                 connection.SendPacket(new OtherPlayerMessagePacket("Server",
                                     $"Player {connection.Socket.RemoteEndPoint} left server"));
                         });
                     };
-                    GameInstance.World.AddPlayer(player);
+                    GameInstance.World.AddEntity(player, !created);
                     if (created) SpawnPlayer(player, new Vector3i(0, 0, 0));
 
                     addConnection.SendPacket(new PlayerJoinWorldPacket(player));

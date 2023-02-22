@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Init;
+using BlockFactory.Serialization.Tag;
 
 namespace BlockFactory.Item_;
 
@@ -8,7 +9,7 @@ public class ItemStack : IEquatable<ItemStack>
     public readonly int Count;
     public readonly Item Item;
 
-    public ItemStack(Item item, int count)
+    public ItemStack(Item item, int count = 1)
     {
         if (count == 0 || item == Items.BlockItems[Blocks.Air])
         {
@@ -28,8 +29,10 @@ public class ItemStack : IEquatable<ItemStack>
         Count = reader.Read7BitEncodedInt();
     }
 
-    public ItemStack(Item item) : this(item, 1)
+    public ItemStack(DictionaryTag tag)
     {
+        Item = Items.Registry[tag.GetValue<int>("item")];
+        Count = tag.GetValue<int>("count");
     }
 
     public bool Equals(ItemStack? other)
@@ -95,5 +98,13 @@ public class ItemStack : IEquatable<ItemStack>
     public ItemStack WithCount(int nCnt)
     {
         return new ItemStack(Item, nCnt);
+    }
+
+    public DictionaryTag SerializeToTag()
+    {
+        var res = new DictionaryTag();
+        res.SetValue("item", Item.Id);
+        res.SetValue("count", Count);
+        return res;
     }
 }

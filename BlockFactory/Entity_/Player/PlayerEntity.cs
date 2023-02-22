@@ -10,6 +10,7 @@ using BlockFactory.Network;
 using BlockFactory.Physics;
 using BlockFactory.Serialization.Automatic;
 using BlockFactory.Util.Dependency;
+using BlockFactory.Util.Math_;
 using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
 using OpenTK.Mathematics;
@@ -52,7 +53,7 @@ public class PlayerEntity : WalkingEntity
         _scheduledChunksBecameVisible = new List<Chunk>();
     }
 
-    [NotSerialized] public static int MaxHotbarPos => Items.Registry.GetRegisteredEntries().Count;
+    [NotSerialized] public static int MaxHotbarPos => 9;
 
     [NotSerialized] public InGameMenu? Menu { get; private set; }
 
@@ -60,12 +61,16 @@ public class PlayerEntity : WalkingEntity
 
     [NotSerialized] public SimpleInventory Hotbar { get; }
 
+    [NotSerialized] public ItemStack StackInHand = ItemStack.Empty;
+
     public event World.ChunkEventHandler ChunkBecameVisible = _ => { };
     public event World.ChunkEventHandler ChunkBecameInvisible = _ => { };
 
     public event VisibleBlockChangeHandler OnVisibleBlockChange = (_, _, _, _) => { };
 
     public event MenuChangeHandler OnMenuChange = (_, _) => { };
+
+    public override EntityType Type => Entities.Player;
 
     protected override void TickInternal()
     {
@@ -95,11 +100,11 @@ public class PlayerEntity : WalkingEntity
             Pos.Fix();
             if ((MotionState & (MotionState.Using | MotionState.Attacking)) != 0)
             {
-                var rayCastRes = RayCaster.RayCastBlocks(Pos, GetForward() * 10f, World!);
+                var rayCastRes = RayCaster.RayCastBlocks(Pos, GetForward() * 10f, Chunk!.Neighbourhood);
                 if ((MotionState & MotionState.Using) != 0 && _useCooldown == 0)
                 {
                     var stack = GetStackInHand();
-                    stack.Item.OnUse(new SimpleStackContainer(stack), this, rayCastRes);
+                    stack.Item.OnUse(new SlotPointer(Hotbar, HotbarPos), this, rayCastRes);
                 }
 
                 if (rayCastRes.HasValue)
@@ -107,11 +112,35 @@ public class PlayerEntity : WalkingEntity
                     var (blockPos, time, dir) = rayCastRes.Value;
 
                     if ((MotionState & MotionState.Attacking) != 0)
-                        World!.SetBlockState(blockPos, new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
+                    {
+                        Random rng = GameInstance.Random;
+                        var state = Chunk!.Neighbourhood.GetBlockState(blockPos);
+                        var entity = new ItemEntity(new ItemStack(Items.BlockItems[state.Block]))
+                        {
+                            Pos = new EntityPos(blockPos) +
+                                  new Vector3(rng.NextSingle(), rng.NextSingle(), rng.NextSingle()),
+                            Velocity = RandomUtils.PointOnSphere(rng) * 0.1f
+                        };
+                        entity.Pos.Fix();
+                        Chunk!.Neighbourhood.AddEntity(entity);
+                        Chunk!.Neighbourhood.SetBlockState(blockPos,
+                            new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
+                    }
                 }
             }
 
             if (Menu != null) Menu.Update();
+
+            var stackInHand = GetStackInHand();
+            if (stackInHand != StackInHand)
+            {
+                StackInHand = stackInHand;
+                if (GameInstance.Kind.IsNetworked())
+                {
+                    GameInstance.NetworkHandler.GetPlayerConnection(this)
+                        .SendPacket(new StackInHandUpdatePacket(Id, StackInHand));
+                }
+            }
         }
     }
 
@@ -124,7 +153,7 @@ public class PlayerEntity : WalkingEntity
     {
         if (GameInstance!.Kind.IsNetworked() && GameInstance.Kind.DoesProcessLogic())
             GameInstance.NetworkHandler.GetPlayerConnection(this)
-                .SendPacket(new ChunkDataPacket(chunk.Pos, chunk.Data!.Clone()));
+                .SendPacket(new ChunkDataPacket(chunk.Pos, chunk.Data!.ConvertForSending()));
         chunk.ViewingPlayers.Add(Id, this);
         ChunkBecameVisible(chunk);
     }
@@ -306,7 +335,7 @@ public class PlayerEntity : WalkingEntity
 
     public ItemStack GetStackInHand()
     {
-        return new ItemStack(Items.Registry[HotbarPos]);
+        return Hotbar[HotbarPos];
     }
 
     public void HandlePlayerAction(PlayerActionType actionType, int number)
