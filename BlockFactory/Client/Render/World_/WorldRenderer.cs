@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Block_;
+using BlockFactory.Client.Entity_;
 using BlockFactory.Client.Render.Shader;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
@@ -160,7 +161,7 @@ public class WorldRenderer : IDisposable
                 foreach (var entity in chunkRenderer.Chunk.Data.EntitiesInChunk.Values)
                 {
                     stack.Push();
-                    stack.Translate(entity.Pos.PosInChunk);
+                    stack.Translate(entity.GetInterpolatedPos().PosInChunk);
                     if (entity is ItemEntity item)
                     {
                         stack.Push();
