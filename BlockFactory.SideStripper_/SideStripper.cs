@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Side_;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 
 namespace BlockFactory.SideStripper_;
 
@@ -95,16 +96,18 @@ public class SideStripper
         }
     }
 
-    private void BuildException(Instruction insn, ILProcessor processor)
+    private Instruction BuildException(Instruction insn, ILProcessor processor)
     {
         var constructorRef = processor.Body.Method.DeclaringType.Module
             .ImportReference(typeof(InvalidSideException).GetConstructor(new[] { typeof(string) }));
-        processor.InsertBefore(insn, Instruction.Create(
+        Instruction res;
+        processor.InsertBefore(insn, res = Instruction.Create(
             OpCodes.Ldstr,
             $"{insn} is not available on side {_side}"
         ));
         processor.InsertBefore(insn, Instruction.Create(OpCodes.Newobj, constructorRef));
         processor.InsertBefore(insn, Instruction.Create(OpCodes.Throw));
+        return res;
     }
 
     private void FixMethod(MethodDefinition method)
@@ -119,6 +122,8 @@ public class SideStripper
                 $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
 
         if (!method.HasBody) return;
+        
+        method.Body.SimplifyMacros();
 
         var replacedInstructions = new List<Instruction>();
         foreach (var insn in method.Body.Instructions)
@@ -154,9 +159,19 @@ public class SideStripper
                 processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldnull));
             }
 
-            BuildException(insn, processor);
+            var insn2 = BuildException(insn, processor);
             processor.Remove(insn);
+
+            foreach (var insn1 in method.Body.Instructions)
+            {
+                if (insn1.Operand == insn)
+                {
+                    insn1.Operand = insn2;
+                }
+            }
         }
+        
+        method.Body.OptimizeMacros();
     }
 
     private void FixType(TypeDefinition type)
