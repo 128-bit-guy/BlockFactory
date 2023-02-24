@@ -97,7 +97,6 @@ public class PlayerEntity : WalkingEntity
                 if ((MotionState & MotionState.MovingUp) != 0)
                     AddForce(Vector3.UnitY * 0.2f);
 
-            Pos.Fix();
             if ((MotionState & (MotionState.Using | MotionState.Attacking)) != 0)
             {
                 var rayCastRes = RayCaster.RayCastBlocks(Pos, GetForward() * 10f, Chunk!.Neighbourhood);

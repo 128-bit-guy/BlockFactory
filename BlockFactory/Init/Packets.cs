@@ -25,5 +25,6 @@ public static class Packets
         NetworkRegistry.Register<StackInHandUpdatePacket>();
         NetworkRegistry.Register<EntityAddedPacket>();
         NetworkRegistry.Register<EntityRemovedPacket>();
+        NetworkRegistry.Register<EntityChunkPosUpdatePacket>();
     }
 }

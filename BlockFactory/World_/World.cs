@@ -125,13 +125,14 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
     {
         if (Thread.CurrentThread != GameInstance.MainThread)
             throw new InvalidOperationException("Can not get chunk from not main thread!");
+
+        if (_decoratingChunks) throw new InvalidOperationException("Can not get chunk when decorating chunks!");
+        if (_chunks.TryGetValue(pos, out var ch)) return ch;
         if (!GameInstance.Kind.DoesProcessLogic())
         {
             return CreateFakePlayerChunk(pos);
         }
 
-        if (_decoratingChunks) throw new InvalidOperationException("Can not get chunk when decorating chunks!");
-        if (_chunks.TryGetValue(pos, out var ch)) return ch;
         var regionPos = pos.BitShiftRight(ChunkRegion.SizeLog2);
         var region = SaveManager.GetRegion(regionPos);
         region.EnsureLoading();

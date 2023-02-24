@@ -29,8 +29,7 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
     public Task? GenerationTask;
     public ChunkNeighbourhood Neighbourhood;
     public Dictionary<long, PlayerEntity> ViewingPlayers = new();
-    [ExclusiveTo(Side.Client)]
-    public bool IsFakePlayerChunk;
+    [ExclusiveTo(Side.Client)] public bool IsFakePlayerChunk;
 
     [ExclusiveTo(Side.Client)]
     public Chunk(ChunkData data, Vector3i pos, World world) : this(pos, world, null)
@@ -160,7 +159,7 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
             foreach (var player in ViewingPlayers.Values.Where(player => entity != player))
             {
                 World.GameInstance.NetworkHandler.GetPlayerConnection(player)
-                    .SendPacket(new EntityAddedPacket(entity.Type, ((ITagSerializable)entity).SerializeToTag()));
+                    .SendPacket(entity.CreateAddedPacket());
             }
         }
         else
@@ -205,7 +204,7 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
 
     public void TickPass0()
     {
-        if(!Neighbourhood.AreAllNeighboursDecorated()) return;
+        if (!Neighbourhood.AreAllNeighboursDecorated()) return;
         var list = new List<Entity>(Data.EntitiesInChunk.Values);
         foreach (var entity in list)
         {
@@ -213,9 +212,34 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         }
     }
 
+    [ExclusiveTo(Side.Server)]
+    private void SendChunkPosUpdates(Entity e)
+    {
+        foreach (var player in ViewingPlayers.Values)
+        {
+            if (e.Chunk!.ViewingPlayers.ContainsKey(player.Id))
+            {
+                World.GameInstance.NetworkHandler.GetPlayerConnection(player)
+                    .SendPacket(new EntityChunkPosUpdatePacket(e.Id, Pos, e.Chunk.Pos));
+            }
+            else
+            {
+                World.GameInstance.NetworkHandler.GetPlayerConnection(player)
+                    .SendPacket(new EntityRemovedPacket(Pos, e.Id));
+            }
+        }
+
+        foreach (var player in e.Chunk!.ViewingPlayers.Values.Where(player => !ViewingPlayers.ContainsKey(player.Id)))
+        {
+            World.GameInstance.NetworkHandler.GetPlayerConnection(player)
+                .SendPacket(e.CreateAddedPacket());
+        }
+    }
+
     public void TickPass1()
     {
-        if(!Neighbourhood.AreAllNeighboursDecorated()) return;
+        if (!World.GameInstance.Kind.DoesProcessLogic()) return;
+        if (!Neighbourhood.AreAllNeighboursDecorated()) return;
         var idsToRemove = new List<long>();
         foreach (var entity in Data.EntitiesInChunk.Values)
         {
@@ -225,6 +249,10 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
             var c = Neighbourhood.GetChunk(entity.Pos.ChunkPos);
             c.Data.EntitiesInChunk.Add(entity.Id, entity);
             entity.Chunk = c;
+            if (World.GameInstance.Kind.IsNetworked())
+            {
+                SendChunkPosUpdates(entity);
+            }
         }
 
         foreach (var i in idsToRemove)

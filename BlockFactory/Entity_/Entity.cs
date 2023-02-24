@@ -2,6 +2,7 @@ using BlockFactory.Game;
 using BlockFactory.Network;
 using BlockFactory.Serialization.Automatic;
 using BlockFactory.Serialization.Automatic.Serializable;
+using BlockFactory.Serialization.Serializable;
 using BlockFactory.Side_;
 using BlockFactory.Util.Math_;
 using BlockFactory.World_;
@@ -32,7 +33,7 @@ public abstract class Entity : AutoSerializable
     private void UpdatePos()
     {
         foreach (var connection in GameInstance!.NetworkHandler.GetAllConnections())
-            connection.SendPacket(new EntityPosUpdatePacket(Pos, Id));
+            connection.SendPacket(new EntityPosUpdatePacket(Pos, Id, Chunk!.Pos));
     }
 
     protected virtual void TickInternal()
@@ -79,5 +80,11 @@ public abstract class Entity : AutoSerializable
     public Vector3 GetRight()
     {
         return Vector3.Cross(GetForward(), GetUp());
+    }
+
+    [ExclusiveTo(Side.Server)]
+    public EntityAddedPacket CreateAddedPacket()
+    {
+        return new EntityAddedPacket(Type, ((ITagSerializable)this).SerializeToTag());
     }
 }
