@@ -30,12 +30,6 @@ public abstract class Entity : AutoSerializable
     [NotSerialized] public abstract EntityType Type { get; }
     [NotSerialized] public Chunk? Chunk;
 
-    private void UpdatePos()
-    {
-        foreach (var connection in GameInstance!.NetworkHandler.GetAllConnections())
-            connection.SendPacket(new EntityPosUpdatePacket(Pos, Id, Chunk!.Pos));
-    }
-
     protected virtual void TickInternal()
     {
     }
@@ -58,7 +52,6 @@ public abstract class Entity : AutoSerializable
     {
         TickInternal();
         TickPhysics();
-        if (GameInstance!.Kind.DoesProcessLogic() && GameInstance!.Kind.IsNetworked()) UpdatePos();
     }
 
     public Vector3 GetForward()

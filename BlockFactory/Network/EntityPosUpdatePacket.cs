@@ -12,36 +12,45 @@ namespace BlockFactory.Network;
 
 public class EntityPosUpdatePacket : IInGamePacket
 {
-    public readonly long Id;
-    public readonly EntityPos Pos;
-    public readonly Vector3i ChunkPos;
+    public readonly List<(Vector3i, long, EntityPos)> PosUpdates;
 
     public EntityPosUpdatePacket(BinaryReader reader)
     {
-        Pos = new EntityPos(reader);
-        Id = reader.ReadInt64();
-        ChunkPos = NetworkUtils.ReadVector3i(reader);
+        var cnt = reader.Read7BitEncodedInt();
+        PosUpdates = new List<(Vector3i, long, EntityPos)>(new (Vector3i, long, EntityPos)[cnt]);
+        for (var i = 0; i < cnt; ++i)
+        {
+            var chunkPos = NetworkUtils.ReadVector3i(reader);
+            var id = reader.ReadInt64();
+            var pos = new EntityPos(reader);
+            PosUpdates[i] = (chunkPos, id, pos);
+        }
     }
 
-    public EntityPosUpdatePacket(EntityPos pos, long id, Vector3i chunkPos)
+    public EntityPosUpdatePacket(List<(Vector3i, long, EntityPos)> posUpdates)
     {
-        Pos = pos;
-        Id = id;
-        ChunkPos = chunkPos;
+        PosUpdates = posUpdates;
     }
 
     public void Write(BinaryWriter writer)
     {
-        Pos.Write(writer);
-        writer.Write(Id);
-        ChunkPos.Write(writer);
+        writer.Write7BitEncodedInt(PosUpdates.Count);
+        foreach (var (chunkPos, id, pos) in PosUpdates)
+        {
+            chunkPos.Write(writer);
+            writer.Write(id);
+            pos.Write(writer);
+        }
     }
 
     public void Process(NetworkConnection connection)
     {
-        var c = BlockFactoryClient.Instance.GameInstance!.World.GetOrLoadChunk(ChunkPos);
-        var e = c.GetEntity(Id);
-        e.SetNewPos(Pos);
+        foreach (var (chunkPos, id, pos) in PosUpdates)
+        {
+            var c = BlockFactoryClient.Instance.GameInstance!.World.GetOrLoadChunk(chunkPos);
+            var e = c.GetEntity(id);
+            e.SetNewPos(pos);
+        }
         // PlayerEntity? entity = BlockFactoryClient.Instance.Player;
         // if (entity != null)
         //     if (entity.Id == Id)

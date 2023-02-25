@@ -26,7 +26,7 @@ public class PlayerEntity : WalkingEntity
 
     [NotSerialized] private readonly List<Vector3i> _chunksToRemove = new();
 
-    [NotSerialized] private readonly List<Chunk> _scheduledChunksBecameVisible;
+    // [NotSerialized] private readonly List<Chunk> _scheduledChunksBecameVisible;
 
     [NotSerialized] public readonly Dictionary<Vector3i, Chunk> InvDepChunks = new();
 
@@ -50,7 +50,7 @@ public class PlayerEntity : WalkingEntity
             Inventory.TryInsertStack(i, new ItemStack(Items.Registry[i], 64), false);
         Hotbar = new SimpleInventory(9);
         Speed = 0.125f;
-        _scheduledChunksBecameVisible = new List<Chunk>();
+        // _scheduledChunksBecameVisible = new List<Chunk>();
     }
 
     [NotSerialized] public static int MaxHotbarPos => 9;
@@ -140,6 +140,15 @@ public class PlayerEntity : WalkingEntity
                         .SendPacket(new StackInHandUpdatePacket(Id, StackInHand));
                 }
             }
+
+            if (GameInstance.Kind.IsNetworked())
+            {
+                var posUpdates = (from chunk in VisibleChunks.Values
+                    from entity in chunk.Data.EntitiesInChunk.Values
+                    select (entity.Chunk!.Pos, entity.Id, entity.Pos)).ToList();
+                World!.GameInstance.NetworkHandler.GetPlayerConnection(this)
+                    .SendPacket(new EntityPosUpdatePacket(posUpdates));
+            }
         }
     }
 
@@ -150,6 +159,7 @@ public class PlayerEntity : WalkingEntity
 
     private void OnVisibleChunkAdded(Chunk chunk)
     {
+        VisibleChunks.Add(chunk.Pos, chunk);
         if (GameInstance!.Kind.IsNetworked() && GameInstance.Kind.DoesProcessLogic())
             GameInstance.NetworkHandler.GetPlayerConnection(this)
                 .SendPacket(new ChunkDataPacket(chunk.Pos, chunk.Data!.ConvertForSending(this)));
@@ -227,8 +237,8 @@ public class PlayerEntity : WalkingEntity
             if (!c.Generated) continue;
             if (!c.Data.Decorated) continue;
             _chunksToRemove.Add(chunkPos);
-            VisibleChunks.Add(chunkPos, c);
-            _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
+            OnVisibleChunkAdded(c);
+            // _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
         }
 
         foreach (var chunkPos in _chunksToRemove) InvDepChunks.Remove(chunkPos);
@@ -237,8 +247,8 @@ public class PlayerEntity : WalkingEntity
 
     public void ProcessScheduledAddedVisibleChunks()
     {
-        foreach (var chunk in _scheduledChunksBecameVisible) OnVisibleChunkAdded(chunk);
-        _scheduledChunksBecameVisible.Clear();
+        // foreach (var chunk in _scheduledChunksBecameVisible) OnVisibleChunkAdded(chunk);
+        // _scheduledChunksBecameVisible.Clear();
     }
 
     private bool IsChunkTooFar(Vector3i pos)
@@ -271,7 +281,6 @@ public class PlayerEntity : WalkingEntity
 
     public void AddVisibleChunk(Chunk chunk)
     {
-        VisibleChunks.Add(chunk.Pos, chunk);
         OnVisibleChunkAdded(chunk);
     }
 
