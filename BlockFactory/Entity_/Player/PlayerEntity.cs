@@ -159,7 +159,8 @@ public class PlayerEntity : WalkingEntity
         var bb = GetBoundingBox();
         bb.Min -= new Vector3(1);
         bb.Max += new Vector3(1);
-        var e = Chunk!.Neighbourhood.GetInBoxEntityEnumerable(Pos, bb).OfType<ItemEntity>().ToList();
+        var e = Chunk!.Neighbourhood.GetInBoxEntityEnumerable(Pos, bb).OfType<ItemEntity>()
+            .Where(e => e.PickUpDelay == 0).ToList();
         foreach (var item in e)
         {
             item.Chunk!.RemoveEntity(item);
