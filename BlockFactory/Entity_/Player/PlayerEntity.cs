@@ -128,6 +128,8 @@ public class PlayerEntity : WalkingEntity
                 }
             }
 
+            PickUpItems();
+
             if (Menu != null) Menu.Update();
 
             var stackInHand = GetStackInHand();
@@ -149,6 +151,20 @@ public class PlayerEntity : WalkingEntity
                 World!.GameInstance.NetworkHandler.GetPlayerConnection(this)
                     .SendPacket(new EntityPosUpdatePacket(posUpdates));
             }
+        }
+    }
+
+    private void PickUpItems()
+    {
+        var bb = GetBoundingBox();
+        bb.Min -= new Vector3(1);
+        bb.Max += new Vector3(1);
+        var e = Chunk!.Neighbourhood.GetInBoxEntityEnumerable(Pos, bb).OfType<ItemEntity>().ToList();
+        foreach (var item in e)
+        {
+            item.Chunk!.RemoveEntity(item);
+            var stack = Inventory.Insert(item.Stack, false);
+            Hotbar.Insert(stack, false);
         }
     }
 

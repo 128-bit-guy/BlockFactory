@@ -10,6 +10,7 @@ using BlockFactory.Network;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Side_;
 using BlockFactory.Util.Dependency;
+using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
 using BlockFactory.World_.Save;
 using OpenTK.Mathematics;
@@ -25,6 +26,7 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
     private ChunkData? _data;
     private int _dependencyCount;
     public bool ExistsInWorld;
+    private bool _addedToWorld = false;
 
     public Task? GenerationTask;
     public ChunkNeighbourhood Neighbourhood;
@@ -111,6 +113,7 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
 
     public void AddObjectsToWorld()
     {
+        _addedToWorld = true;
         foreach (var entity in Data.EntitiesInChunk.Values)
         {
             entity.Chunk = this;
@@ -188,8 +191,28 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         }
     }
 
+    public IEnumerable<Entity> GetInBoxEntityEnumerable(EntityPos p, Box3 b)
+    {
+        var delta = (p - new EntityPos(GetBegin())).GetAbsolutePos();
+        var b2 = b.Add(delta);
+        var c = new Box3(new Vector3(0), new Vector3(Constants.ChunkSize)).Contains(b2);
+        return c ? GetInBoxChunkEntityEnumerable(p, b) : World.GetInBoxEntityEnumerable(p, b);
+    }
+
+    private bool IsInBox(Entity e, EntityPos p, Box3 b)
+    {
+        var delta = (e.Pos - p).GetAbsolutePos();
+        return b.Contains(delta);
+    }
+
+    public IEnumerable<Entity> GetInBoxChunkEntityEnumerable(EntityPos p, Box3 b)
+    {
+        return Data.EntitiesInChunk.Values.Where(e => IsInBox(e, p, b));
+    }
+
     public void OnRemovedFromWorld()
     {
+        _addedToWorld = false;
         foreach (var entity in Data.EntitiesInChunk.Values)
         {
             entity.Chunk = null;
@@ -204,11 +227,13 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
 
     public void TickPass0()
     {
+        if (!_addedToWorld) return;
         if (!Neighbourhood.AreAllNeighboursDecorated()) return;
         var list = new List<Entity>(Data.EntitiesInChunk.Values);
         foreach (var entity in list)
         {
-            entity.Tick();
+            if (entity.World != null)
+                entity.Tick();
         }
     }
 
@@ -238,11 +263,13 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
 
     public void TickPass1()
     {
+        if (!_addedToWorld) return;
         if (!World.GameInstance.Kind.DoesProcessLogic()) return;
         if (!Neighbourhood.AreAllNeighboursDecorated()) return;
         var idsToRemove = new List<long>();
         foreach (var entity in Data.EntitiesInChunk.Values)
         {
+            if(entity.World == null) continue;
             entity.Pos.Fix();
             if (entity.Pos.ChunkPos == Pos) continue;
             idsToRemove.Add(entity.Id);

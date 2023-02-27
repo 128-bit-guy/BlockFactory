@@ -7,6 +7,7 @@ using BlockFactory.Game;
 using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Dependency;
+using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
 using BlockFactory.World_.Chunk_;
 using BlockFactory.World_.Gen;
@@ -306,5 +307,20 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
     public void RemoveEntity(Entity entity)
     {
         GetOrLoadGeneratedChunk(entity.Pos.ChunkPos).RemoveEntity(entity);
+    }
+
+    public IEnumerable<Entity> GetInBoxEntityEnumerable(EntityPos p, Box3 b)
+    {
+        var min = p + b.Min;
+        var max = p + b.Max;
+        min.Fix();
+        max.Fix();
+        foreach (var chunkPos in new Box3i(min.ChunkPos, max.ChunkPos).InclusiveEnumerable())
+        {
+            foreach (var entity in GetOrLoadGeneratedChunk(chunkPos).GetInBoxEntityEnumerable(p, b))
+            {
+                yield return entity;
+            }
+        }
     }
 }

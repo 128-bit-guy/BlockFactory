@@ -3,6 +3,8 @@ using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
+using BlockFactory.Util;
+using BlockFactory.Util.Math_;
 using BlockFactory.World_.Api;
 using OpenTK.Mathematics;
 
@@ -120,6 +122,21 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
         else
         {
             ch.RemoveEntity(entity);
+        }
+    }
+
+    public IEnumerable<Entity> GetInBoxEntityEnumerable(EntityPos p, Box3 b)
+    {
+        var min = p + b.Min;
+        var max = p + b.Max;
+        min.Fix();
+        max.Fix();
+        foreach (var chunkPos in new Box3i(min.ChunkPos, max.ChunkPos).InclusiveEnumerable())
+        {
+            foreach (var entity in GetChunk(chunkPos).GetInBoxEntityEnumerable(p, b))
+            {
+                yield return entity;
+            }
         }
     }
 

@@ -100,6 +100,11 @@ public class ItemStack : IEquatable<ItemStack>
         return new ItemStack(Item, nCnt);
     }
 
+    public ItemStack Incremented(int nCnt)
+    {
+        return WithCount(Count + nCnt);
+    }
+
     public DictionaryTag SerializeToTag()
     {
         var res = new DictionaryTag();
