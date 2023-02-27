@@ -15,8 +15,7 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class ItemRenderer : IDisposable
 {
-    private readonly RenderMesh<BlockVertex> BlockMesh;
-    private readonly MeshBuilder<BlockVertex> BlockMeshBuilder;
+    private readonly StreamMesh<BlockVertex> BlockMesh;
     public readonly BlockFactoryClient Client;
     public readonly EmptyBlockReader EmptyBlockReader;
     public readonly WorldRenderer Renderer;
@@ -26,8 +25,7 @@ public class ItemRenderer : IDisposable
         Client = client;
         Renderer = renderer;
         EmptyBlockReader = new EmptyBlockReader();
-        BlockMesh = new RenderMesh<BlockVertex>(VertexFormats.Block);
-        BlockMeshBuilder = new MeshBuilder<BlockVertex>(VertexFormats.Block);
+        BlockMesh = new StreamMesh<BlockVertex>(VertexFormats.Block);
     }
 
     public void Dispose()
@@ -37,14 +35,11 @@ public class ItemRenderer : IDisposable
 
     public void RenderItemStack(ItemStack stack)
     {
-        RenderItemStack(stack, BlockMeshBuilder);
-        BlockMeshBuilder.Upload(BlockMesh);
-        BlockMeshBuilder.Reset();
+        RenderItemStack(stack, BlockMesh.Builder);
         Shaders.Block.Use();
         Client.VpMatrices.Set(Shaders.Block);
         Shaders.Block.SetModel(BlockFactoryClient.Instance.Matrices);
-        BlockMesh.Bind();
-        GL.DrawElements(PrimitiveType.Triangles, BlockMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+        BlockMesh.Flush();
         GL.BindVertexArray(0);
     }
 

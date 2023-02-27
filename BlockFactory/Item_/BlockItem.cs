@@ -23,7 +23,7 @@ public class BlockItem : Item
         if (Block == Blocks.Air || !rayCastRes.HasValue) return false;
         if (container.TryExtractStack(1, false).Count != 1) return false;
         var (blockPos, time, dir) = rayCastRes.Value;
-        entity.World!.SetBlockState(blockPos + dir.GetOffset(), new BlockState(Block,
+        entity.Chunk!.Neighbourhood.SetBlockState(blockPos + dir.GetOffset(), new BlockState(Block,
             RandomRotations.Any(entity.GameInstance!.Random)));
         entity.AddUseCooldown(3);
         return true;

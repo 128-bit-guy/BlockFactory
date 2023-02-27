@@ -15,7 +15,11 @@ public class MeshBuilder<T>
     public float Layer;
     private T[] Vertices;
 
-    public MeshBuilder(VertexFormat<T> format)
+    public MeshBuilder(VertexFormat<T> format) : this(format, new MatrixStack())
+    {
+    }
+
+    public MeshBuilder(VertexFormat<T> format, MatrixStack stack)
     {
         Color = (1, 1, 1);
         Layer = 0f;
@@ -25,7 +29,7 @@ public class MeshBuilder<T>
         VertexCount = 0;
         IndexCount = 0;
         CurrentIndexSpace = -1;
-        MatrixStack = new MatrixStack();
+        MatrixStack = stack;
     }
 
     public int VertexCount { get; private set; }
@@ -80,13 +84,14 @@ public class MeshBuilder<T>
         m.Upload(VertexCount, Vertices, IndexCount, Indices);
     }
 
-    public void Reset()
+    public void Reset(bool resetMatrices = true)
     {
         if (CurrentIndexSpace != -1) throw new InvalidOperationException("Index space is not finished");
 
         IndexCount = 0;
         VertexCount = 0;
-        MatrixStack.Reset();
+        if (resetMatrices)
+            MatrixStack.Reset();
         Color = (1, 1, 1);
         Layer = 0f;
     }

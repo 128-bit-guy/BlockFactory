@@ -21,9 +21,10 @@ public class WorldRenderer : IDisposable
     public readonly Dictionary<Vector3i, ChunkRenderer> ChunkRenderers;
     public readonly PlayerEntity Player;
     public readonly World World;
-    
+    public readonly WorldStreamMeshes StreamMeshes;
 
-    public WorldRenderer(World world, PlayerEntity player)
+
+    public WorldRenderer(BlockFactoryClient client, World world, PlayerEntity player)
     {
         World = world;
         Player = player;
@@ -32,6 +33,7 @@ public class WorldRenderer : IDisposable
         player.ChunkBecameInvisible += OnChunkNotReadyForUse;
         player.OnVisibleBlockChange += OnVisibleBlockChange;
         BlockRenderer = new BlockRenderer(this);
+        StreamMeshes = new WorldStreamMeshes(client);
         //_mesh = new RenderMesh<BlockVertex>(VertexFormats.Block);
         //MeshBuilder<BlockVertex> mb = new MeshBuilder<BlockVertex>(VertexFormats.Block);
         //mb.Layer = Textures.Dirt;
@@ -68,6 +70,7 @@ public class WorldRenderer : IDisposable
         Player.ChunkBecameInvisible -= OnChunkNotReadyForUse;
         Player.OnVisibleBlockChange -= OnVisibleBlockChange;
         foreach (var chunkRenderer in ChunkRenderers.Values) chunkRenderer.Dispose();
+        StreamMeshes.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -129,7 +132,7 @@ public class WorldRenderer : IDisposable
         var renderersSorted = new List<ChunkRenderer>();
         renderersSorted.AddRange(ChunkRenderers.Values);
         renderersSorted.Sort(Compare);
-        MatrixStack stack = BlockFactoryClient.Instance.Matrices;
+        var stack = BlockFactoryClient.Instance.Matrices;
         stack.Push();
         foreach (var chunkRenderer in renderersSorted)
         {
@@ -169,12 +172,14 @@ public class WorldRenderer : IDisposable
                         stack.RotateY((float)GLFW.GetTime() / 3);
                         stack.Scale(0.2f);
                         stack.Translate(new Vector3(-0.5f));
-                        BlockFactoryClient.Instance.ItemRenderer!.RenderItemStack(item.Stack);
+                        BlockFactoryClient.Instance.ItemRenderer!.RenderItemStack(item.Stack,
+                            StreamMeshes.Block.Builder);
                         stack.Pop();
                     }
-                        
+
                     stack.Pop();
                 }
+
                 stack.Pop();
             }
             //if (chunkRenderer.Neighbourhood.LoadedChunkCnt != 27)
@@ -186,7 +191,10 @@ public class WorldRenderer : IDisposable
             //}
             //}
         }
+
         stack.Pop();
+        
+        StreamMeshes.FlushAll();
     }
 
     private void OnVisibleBlockChange(Chunk chunk, Vector3i pos, BlockState prevState, BlockState newState)

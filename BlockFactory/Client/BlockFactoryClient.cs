@@ -208,7 +208,7 @@ public class BlockFactoryClient
         Player = (ClientPlayerEntity)playerJoinWorldPacket.Player;
         GameInstance.Init();
         GameInstance.World.AddEntity(Player, true);
-        WorldRenderer = new WorldRenderer(GameInstance.World, Player);
+        WorldRenderer = new WorldRenderer(this, GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);
         Player.OnMenuChange += OnInGameMenuOpen;
@@ -226,7 +226,7 @@ public class BlockFactoryClient
             out var created)!;
         GameInstance.Init();
         GameInstance.World.AddEntity(Player);
-        WorldRenderer = new WorldRenderer(GameInstance.World, Player);
+        WorldRenderer = new WorldRenderer(this, GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);
         Player.OnMenuChange += OnInGameMenuOpen;
