@@ -33,7 +33,7 @@ public class ChunkRenderer : IDisposable
 
     public void Dispose()
     {
-        _mesh.DeleteGl();
+        _mesh.Dispose();
         GC.SuppressFinalize(this);
     }
 

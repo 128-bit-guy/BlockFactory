@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace BlockFactory.Client.Render.Mesh;
 
 [ExclusiveTo(Side.Client)]
-public class RenderMesh<T>
+public class RenderMesh<T> : IDisposable
     where T : struct
 {
     private readonly VertexFormat<T> Format;
@@ -57,7 +57,7 @@ public class RenderMesh<T>
         if (VAO != -1) GL.BindVertexArray(VAO);
     }
 
-    public void DeleteGl()
+    public void Dispose()
     {
         if (VAO != -1)
         {

@@ -32,16 +32,12 @@ public class ItemRenderer : IDisposable
 
     public void Dispose()
     {
-        BlockMesh.DeleteGl();
+        BlockMesh.Dispose();
     }
 
     public void RenderItemStack(ItemStack stack)
     {
-        BlockMeshBuilder.MatrixStack.Push();
-        if (stack.Item is BlockItem b)
-            Renderer.BlockRenderer.RenderBlock(new BlockState(b.Block, CubeRotation.Rotations[0]),
-                EmptyBlockReader, new Vector3i(0, 0, 0), BlockMeshBuilder);
-        BlockMeshBuilder.MatrixStack.Pop();
+        RenderItemStack(stack, BlockMeshBuilder);
         BlockMeshBuilder.Upload(BlockMesh);
         BlockMeshBuilder.Reset();
         Shaders.Block.Use();
@@ -50,5 +46,14 @@ public class ItemRenderer : IDisposable
         BlockMesh.Bind();
         GL.DrawElements(PrimitiveType.Triangles, BlockMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         GL.BindVertexArray(0);
+    }
+
+    public void RenderItemStack(ItemStack stack, MeshBuilder<BlockVertex> blockMeshBuilder)
+    {
+        blockMeshBuilder.MatrixStack.Push();
+        if (stack.Item is BlockItem b)
+            Renderer.BlockRenderer.RenderBlock(new BlockState(b.Block, CubeRotation.Rotations[0]),
+                EmptyBlockReader, new Vector3i(0, 0, 0), blockMeshBuilder);
+        blockMeshBuilder.MatrixStack.Pop();
     }
 }

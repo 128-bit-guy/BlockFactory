@@ -21,6 +21,7 @@ public class WorldRenderer : IDisposable
     public readonly Dictionary<Vector3i, ChunkRenderer> ChunkRenderers;
     public readonly PlayerEntity Player;
     public readonly World World;
+    
 
     public WorldRenderer(World world, PlayerEntity player)
     {

@@ -41,7 +41,7 @@ public class WorldSelectionWidget : Widget
             _unselectNextTick = false;
         }
 
-        Screen.GuiMeshBuilder.Color = new Vector3(0.6f, 0.6f, 0.6f);
+        Screen.GuiMesh.Builder.Color = new Vector3(0.6f, 0.6f, 0.6f);
         Screen.DrawTexturedRect(Box, ZIndex, 64, Textures.DirtTexture);
         Screen.DrawColoredRect(new Box2(Box.Min, (Box.Max.X, Box.Min.Y + 5)), ZIndex + 0.5f, (0, 0, 0, 1));
         Screen.DrawColoredRect(new Box2(Box.Min, (Box.Min.X + 5, Box.Max.Y)), ZIndex + 0.5f, (0, 0, 0, 1));

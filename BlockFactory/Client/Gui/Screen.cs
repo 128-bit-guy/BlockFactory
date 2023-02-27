@@ -13,10 +13,8 @@ namespace BlockFactory.Client.Gui;
 public class Screen : IDisposable
 {
     public readonly BlockFactoryClient Client;
-    public readonly RenderMesh<ColorVertex> ColorMesh;
-    public readonly MeshBuilder<ColorVertex> ColorMeshBuilder;
-    public readonly RenderMesh<GuiVertex> GuiMesh;
-    public readonly MeshBuilder<GuiVertex> GuiMeshBuilder;
+    public readonly StreamMesh<ColorVertex> ColorMesh;
+    public readonly StreamMesh<GuiVertex> GuiMesh;
     public readonly List<Widget> Widgets;
     private Vector2i _lastSize;
     public Widget? ActiveWidget;
@@ -24,10 +22,8 @@ public class Screen : IDisposable
     public Screen(BlockFactoryClient client)
     {
         Client = client;
-        GuiMeshBuilder = new MeshBuilder<GuiVertex>(VertexFormats.Gui);
-        GuiMesh = new RenderMesh<GuiVertex>(VertexFormats.Gui);
-        ColorMeshBuilder = new MeshBuilder<ColorVertex>(VertexFormats.Color);
-        ColorMesh = new RenderMesh<ColorVertex>(VertexFormats.Color);
+        ColorMesh = new StreamMesh<ColorVertex>(VertexFormats.Color);
+        GuiMesh = new StreamMesh<GuiVertex>(VertexFormats.Gui);
         _lastSize = new Vector2i(-1, -1);
         Widgets = new List<Widget>();
     }
@@ -35,8 +31,8 @@ public class Screen : IDisposable
     public virtual void Dispose()
     {
         DestroyWidgets();
-        GuiMesh.DeleteGl();
-        ColorMesh.DeleteGl();
+        GuiMesh.Dispose();
+        ColorMesh.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -98,9 +94,9 @@ public class Screen : IDisposable
 
     public void DrawTexturedRect(Box2 box, float zIndex, float textureScale, Texture2D texture)
     {
-        GuiMeshBuilder.MatrixStack.Push();
-        GuiMeshBuilder.BeginIndexSpace();
-        GuiMeshBuilder.AddIndices(0, 2, 1, 0, 3, 2);
+        GuiMesh.Builder.MatrixStack.Push();
+        GuiMesh.Builder.BeginIndexSpace();
+        GuiMesh.Builder.AddIndices(0, 2, 1, 0, 3, 2);
         var miX = box.Min.X;
         var maX = box.Max.X;
         var miY = box.Min.Y;
@@ -109,60 +105,51 @@ public class Screen : IDisposable
         var maTX = box.Max.X / textureScale;
         var miTY = box.Min.Y / textureScale;
         var maTY = box.Max.Y / textureScale;
-        GuiMeshBuilder.AddVertex((miX, miY, zIndex, 1, 1, 1, miTX, miTY));
-        GuiMeshBuilder.AddVertex((maX, miY, zIndex, 1, 1, 1, maTX, miTY));
-        GuiMeshBuilder.AddVertex((maX, maY, zIndex, 1, 1, 1, maTX, maTY));
-        GuiMeshBuilder.AddVertex((miX, maY, zIndex, 1, 1, 1, miTX, maTY));
-        GuiMeshBuilder.EndIndexSpace();
-        GuiMeshBuilder.MatrixStack.Pop();
-        GuiMeshBuilder.Upload(GuiMesh);
-        GuiMeshBuilder.Reset();
-        GuiMesh.Bind();
+        GuiMesh.Builder.AddVertex((miX, miY, zIndex, 1, 1, 1, miTX, miTY));
+        GuiMesh.Builder.AddVertex((maX, miY, zIndex, 1, 1, 1, maTX, miTY));
+        GuiMesh.Builder.AddVertex((maX, maY, zIndex, 1, 1, 1, maTX, maTY));
+        GuiMesh.Builder.AddVertex((miX, maY, zIndex, 1, 1, 1, miTX, maTY));
+        GuiMesh.Builder.EndIndexSpace();
+        GuiMesh.Builder.MatrixStack.Pop();
         Shaders.Gui.Use();
         Client.VpMatrices.Set(Shaders.Gui);
         Shaders.Gui.SetModel(Client.Matrices);
         texture.BindTexture();
-        GL.DrawElements(PrimitiveType.Triangles, GuiMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+        GuiMesh.Flush();
     }
 
     public void DrawColoredRect(Box2 box, float zIndex, Vector4 color)
     {
-        ColorMeshBuilder.MatrixStack.Push();
-        ColorMeshBuilder.BeginIndexSpace();
-        ColorMeshBuilder.AddIndices(0, 2, 1, 0, 3, 2);
+        ColorMesh.Builder.MatrixStack.Push();
+        ColorMesh.Builder.BeginIndexSpace();
+        ColorMesh.Builder.AddIndices(0, 2, 1, 0, 3, 2);
         var miX = box.Min.X;
         var maX = box.Max.X;
         var miY = box.Min.Y;
         var maY = box.Max.Y;
-        ColorMeshBuilder.AddVertex((miX, miY, zIndex, color.X, color.Y, color.Z, color.W));
-        ColorMeshBuilder.AddVertex((maX, miY, zIndex, color.X, color.Y, color.Z, color.W));
-        ColorMeshBuilder.AddVertex((maX, maY, zIndex, color.X, color.Y, color.Z, color.W));
-        ColorMeshBuilder.AddVertex((miX, maY, zIndex, color.X, color.Y, color.Z, color.W));
-        ColorMeshBuilder.EndIndexSpace();
-        ColorMeshBuilder.MatrixStack.Pop();
-        ColorMeshBuilder.Upload(ColorMesh);
-        ColorMeshBuilder.Reset();
-        ColorMesh.Bind();
+        ColorMesh.Builder.AddVertex((miX, miY, zIndex, color.X, color.Y, color.Z, color.W));
+        ColorMesh.Builder.AddVertex((maX, miY, zIndex, color.X, color.Y, color.Z, color.W));
+        ColorMesh.Builder.AddVertex((maX, maY, zIndex, color.X, color.Y, color.Z, color.W));
+        ColorMesh.Builder.AddVertex((miX, maY, zIndex, color.X, color.Y, color.Z, color.W));
+        ColorMesh.Builder.EndIndexSpace();
+        ColorMesh.Builder.MatrixStack.Pop();
         Shaders.Color.Use();
         Client.VpMatrices.Set(Shaders.Color);
         Shaders.Color.SetModel(Client.Matrices);
         Shaders.Color.SetColor(Vector4.One);
-        GL.DrawElements(PrimitiveType.Triangles, ColorMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+        ColorMesh.Flush();
     }
 
     public void DrawText(ReadOnlySpan<char> text, int align)
     {
-        GuiMeshBuilder.MatrixStack.Push();
-        Textures.TextRenderer.Render(text, GuiMeshBuilder, align);
-        GuiMeshBuilder.MatrixStack.Pop();
-        GuiMeshBuilder.Upload(GuiMesh);
-        GuiMeshBuilder.Reset();
+        GuiMesh.Builder.MatrixStack.Push();
+        Textures.TextRenderer.Render(text, GuiMesh.Builder, align);
+        GuiMesh.Builder.MatrixStack.Pop();
         Shaders.Text.Use();
         Client.VpMatrices.Set(Shaders.Text);
         Shaders.Text.SetModel(Client.Matrices);
         Textures.TextRenderer.BindTexture();
-        GuiMesh.Bind();
-        GL.DrawElements(PrimitiveType.Triangles, GuiMesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+        GuiMesh.Flush();
     }
 
     public void DrawStack(ItemStack stack)
