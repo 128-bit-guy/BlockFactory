@@ -157,8 +157,7 @@ public class BlockFactoryClient
     public void InitMultiplayerGameInstance(string serverAddressAndPort)
     {
         Socket socket;
-        GameInstance = new GameInstance(GameKind.MultiplayerFrontend, Thread.CurrentThread,
-            unchecked((int)DateTime.UtcNow.Ticks), "-")
+        GameInstance = new GameInstance(GameKind.MultiplayerFrontend, Thread.CurrentThread, "-")
         {
             NetworkHandler = new MultiplayerFrontendNetworkHandler(this),
             SideHandler = new ClientSideHandler(this)
@@ -194,16 +193,27 @@ public class BlockFactoryClient
 
     public void InitSingleplayerGameInstance(string s)
     {
-        GameInstance = new GameInstance(GameKind.Singleplayer, Thread.CurrentThread,
-            unchecked((int)DateTime.UtcNow.Ticks), s)
+        if (GameInstance.Exists(s))
         {
-            NetworkHandler = new SingleplayerNetworkHandler(),
-            SideHandler = new ClientSideHandler(this)
-        };
+            GameInstance = new GameInstance(GameKind.Singleplayer, Thread.CurrentThread, s)
+            {
+                NetworkHandler = new SingleplayerNetworkHandler(),
+                SideHandler = new ClientSideHandler(this)
+            };
+        }
+        else
+        {
+            GameInstance = new GameInstance(GameKind.Singleplayer, Thread.CurrentThread, s,
+                unchecked((int)DateTime.UtcNow.Ticks))
+            {
+                NetworkHandler = new SingleplayerNetworkHandler(),
+                SideHandler = new ClientSideHandler(this)
+            };
+        }
         Player = (ClientPlayerEntity)GameInstance.PlayerManager.GetOrCreatePlayer(ClientSettings.Credentials,
             out var created)!;
         GameInstance.Init();
-        GameInstance.World.AddEntity(Player);
+        GameInstance.World.AddEntity(Player, !created);
         WorldRenderer = new WorldRenderer(this, GameInstance.World, Player);
         HudRenderer = new HudRenderer(this, WorldRenderer);
         ItemRenderer = new ItemRenderer(this, WorldRenderer);

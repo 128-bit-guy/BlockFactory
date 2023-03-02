@@ -11,12 +11,13 @@ namespace BlockFactory.World_.Gen;
 
 public class WorldGenerator
 {
-    public readonly int Seed;
+    public readonly World World;
+    public int Seed => World.Data.Seed;
     private readonly BaseSurfaceGenerator _baseSurfaceGenerator;
 
-    public WorldGenerator(int seed)
+    public WorldGenerator(World world)
     {
-        Seed = seed;
+        World = world;
         _baseSurfaceGenerator = new BaseSurfaceGenerator(this);
     }
 

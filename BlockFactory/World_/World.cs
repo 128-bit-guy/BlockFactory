@@ -4,6 +4,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Game;
+using BlockFactory.Serialization.Tag;
 using BlockFactory.Side_;
 using BlockFactory.Util;
 using BlockFactory.Util.Dependency;
@@ -24,25 +25,25 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
     private readonly List<Chunk>[] _groupedChunks;
     private readonly Dictionary<long, PlayerEntity> _players = new();
     public readonly GameInstance GameInstance;
-    public readonly WorldGenerator Generator = null!;
+    public WorldGenerator Generator { get; private set; } = null!;
     public readonly WorldSaveManager SaveManager = null!;
     private bool _decoratingChunks;
-    private long _gameTime;
-    private long _lastId;
+    public readonly WorldData Data;
+    public readonly string DataLocation;
 
-    public World(GameInstance gameInstance, int seed, string saveName)
+    public World(GameInstance gameInstance, string saveName)
     {
         GameInstance = gameInstance;
-        if (GameInstance.Kind.DoesProcessLogic())
-        {
-            Generator = new WorldGenerator(seed);
-        }
+
+        Data = new WorldData();
 
         OnChunkAdded += OnChunkAdded0;
         OnChunkRemoved += OnChunkRemoved0;
         if (GameInstance.Kind.DoesProcessLogic())
         {
             SaveManager = new WorldSaveManager(this, saveName);
+            DataLocation = Path.Combine(SaveManager.SaveDir, "data.dat");
+            LoadData();
         }
 
         _groupedChunks = new List<Chunk>[3 * 3 * 3];
@@ -50,8 +51,19 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
             _groupedChunks[pos.X * 9 + pos.Y * 3 + pos.Z] = new List<Chunk>();
 
         _decoratingChunks = false;
+    }
 
-        _gameTime = 0;
+    public World(GameInstance gameInstance, string saveName, int seed) : this(gameInstance, saveName)
+    {
+        Data.Seed = seed;
+    }
+
+    public void InitGenerator()
+    {
+        if (GameInstance.Kind.DoesProcessLogic())
+        {
+            Generator = new WorldGenerator(this);
+        }
     }
 
     public BlockState GetBlockState(Vector3i pos)
@@ -90,7 +102,7 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
 
     public void OnNewEntityAdded(Entity entity)
     {
-        entity.Id = Interlocked.Increment(ref _lastId);
+        entity.Id = Interlocked.Increment(ref Data.LastId);
         OnLoadedEntityAdded(entity);
     }
 
@@ -185,13 +197,13 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
 
             _decoratingChunks = true;
 
-            Parallel.ForEach(_groupedChunks[_gameTime % 27], DecorateChunkIfNecessary);
+            Parallel.ForEach(_groupedChunks[Data.Time % 27], DecorateChunkIfNecessary);
 
             _decoratingChunks = false;
 
             UnloadChunks(false);
             SaveManager.UnloadRegions();
-            ++_gameTime;
+            ++Data.Time;
         }
         else
         {
@@ -322,5 +334,15 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
                 yield return entity;
             }
         }
+    }
+
+    public void SaveData()
+    {
+        TagIO.Serialize(DataLocation, Data);
+    }
+
+    public void LoadData()
+    {
+        TagIO.Deserialize(DataLocation, Data);
     }
 }

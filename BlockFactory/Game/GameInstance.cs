@@ -21,16 +21,35 @@ public class GameInstance : IDisposable
     public ISideHandler SideHandler = null!;
     public World World;
 
-    public GameInstance(GameKind kind, Thread mainThread, int seed, string saveLocation)
+    public GameInstance(GameKind kind, Thread mainThread, string saveLocation)
     {
         Kind = kind;
         MainThread = mainThread;
         Random = new Random();
         SaveLocation = saveLocation;
-        World = new World(this, seed, saveLocation);
+        World = new World(this, saveLocation);
+        World.InitGenerator();
         PlayerManager = new PlayerManager(this);
         PlayerDataLocation = Path.Combine(SaveLocation, "players.dat");
         if (kind.DoesProcessLogic()) LoadGlobalData();
+    }
+
+    public GameInstance(GameKind kind, Thread mainThread, string saveLocation, int seed)
+    {
+        Kind = kind;
+        MainThread = mainThread;
+        Random = new Random();
+        SaveLocation = saveLocation;
+        World = new World(this, saveLocation, seed);
+        World.InitGenerator();
+        PlayerManager = new PlayerManager(this);
+        PlayerDataLocation = Path.Combine(SaveLocation, "players.dat");
+        if (kind.DoesProcessLogic()) LoadGlobalData();
+    }
+
+    public static bool Exists(string saveLocation)
+    {
+        return Directory.Exists(saveLocation);
     }
 
     public void Dispose()
@@ -93,5 +112,6 @@ public class GameInstance : IDisposable
     public void SaveGlobalData()
     {
         TagIO.Serialize(PlayerDataLocation, PlayerManager);
+        World.SaveData();
     }
 }

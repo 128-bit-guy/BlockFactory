@@ -87,12 +87,24 @@ public class BlockFactoryServer
     private void Init()
     {
         CommonInit.Init();
-        GameInstance = new GameInstance(GameKind.MultiplayerBackend, Thread.CurrentThread,
-            unchecked((int)DateTime.UtcNow.Ticks), Path.GetFullPath("world"))
+        string saveLocation = Path.GetFullPath("world");
+        if (GameInstance.Exists(saveLocation))
         {
-            NetworkHandler = new MultiplayerBackendNetworkHandler(this),
-            SideHandler = new ServerSideHandler(this)
-        };
+            GameInstance = new GameInstance(GameKind.MultiplayerBackend, Thread.CurrentThread, saveLocation)
+            {
+                NetworkHandler = new MultiplayerBackendNetworkHandler(this),
+                SideHandler = new ServerSideHandler(this)
+            };
+        }
+        else
+        {
+            GameInstance = new GameInstance(GameKind.MultiplayerBackend, Thread.CurrentThread, saveLocation,
+                unchecked((int)DateTime.UtcNow.Ticks))
+            {
+                NetworkHandler = new MultiplayerBackendNetworkHandler(this),
+                SideHandler = new ServerSideHandler(this)
+            };
+        }
         InitConnectionAcceptor();
         GameInstance.Init();
         ShouldRun = true;
