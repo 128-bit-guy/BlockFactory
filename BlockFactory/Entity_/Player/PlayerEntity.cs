@@ -49,7 +49,7 @@ public class PlayerEntity : WalkingEntity
         for (var i = 0; i < Items.Registry.GetRegisteredEntries().Count; ++i)
             Inventory.TryInsertStack(i, new ItemStack(Items.Registry[i], 64), false);
         Hotbar = new SimpleInventory(9);
-        Speed = 0.125f;
+        Speed = 0.2f;
         // _scheduledChunksBecameVisible = new List<Chunk>();
     }
 
@@ -95,7 +95,7 @@ public class PlayerEntity : WalkingEntity
 
             if (IsStandingOnGround)
                 if ((MotionState & MotionState.MovingUp) != 0)
-                    AddForce(Vector3.UnitY * 0.2f);
+                    AddForce(Vector3.UnitY * 0.3f);
 
             if ((MotionState & (MotionState.Using | MotionState.Attacking)) != 0)
             {

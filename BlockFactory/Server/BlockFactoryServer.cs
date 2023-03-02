@@ -158,7 +158,7 @@ public class BlockFactoryServer
         {
             if (split.Length == 1)
             {
-                player.Speed = 0.125f;
+                player.Speed = 0.2f;
             }
             else
             {

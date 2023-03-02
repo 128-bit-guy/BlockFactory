@@ -49,7 +49,7 @@ public abstract class PhysicsEntity : Entity
     {
         if (GameInstance!.Kind.DoesProcessLogic())
         {
-            if (HasGravity()) AddForce((0f, -0.01357f, 0f));
+            if (HasGravity()) AddForce((0f, -0.02714f, 0f));
         
             Vector3i curOffset = default;
             CubeRotation curRotation = null!;
