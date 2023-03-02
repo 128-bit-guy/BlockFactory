@@ -1,4 +1,7 @@
-﻿namespace BlockFactory.Serialization.Tag;
+﻿using BlockFactory.Serialization.Serializable;
+using ZstdSharp;
+
+namespace BlockFactory.Serialization.Tag;
 
 public static class TagIO
 {
@@ -16,6 +19,50 @@ public static class TagIO
     {
         writer.Write((byte)t.Type);
         t.Write(writer);
+    }
+
+    public static DictionaryTag? Read(string file)
+    {
+        if (!File.Exists(file)) return null;
+        var b = File.ReadAllBytes(file);
+        if (BitConverter.IsLittleEndian) Array.Reverse(b, 0, sizeof(int));
+
+        var uncompressedSize = BitConverter.ToInt32(b);
+        var uncompressed = Zstd.Decompress(b, sizeof(int), b.Length - sizeof(int), uncompressedSize);
+        using var stream = new MemoryStream(uncompressed);
+        using var reader = new BinaryReader(stream);
+        var tag = new DictionaryTag();
+        tag.Read(reader);
+        return tag;
+    }
+
+    public static void Write(string file, DictionaryTag tag)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream);
+        tag.Write(writer);
+        var uncompressed = stream.ToArray();
+        var compressed = Zstd.Compress(uncompressed);
+        var res = new byte[compressed.Length + sizeof(int)];
+        Array.Copy(compressed, 0, res, sizeof(int), compressed.Length);
+        BitConverter.TryWriteBytes(res, uncompressed.Length);
+        if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
+        File.WriteAllBytes(file, res);
+    }
+
+    public static void Deserialize(string file, ITagSerializable s)
+    {
+        var tag = Read(file);
+        if (tag != null)
+        {
+            s.DeserializeFromTag(tag);
+        }
+    }
+
+    public static void Serialize(string file, ITagSerializable s)
+    {
+        var tag = s.SerializeToTag();
+        Write(file, tag);
     }
 
     // public static T ReadCompressed<T>(ReadOnlySpan<byte> b) where T : ITag, new()
