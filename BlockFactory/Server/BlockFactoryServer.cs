@@ -66,8 +66,8 @@ public class BlockFactoryServer
                                     $"Player {connection.Socket.RemoteEndPoint} left server"));
                         });
                     };
-                    GameInstance.World.AddEntity(player, !created);
                     if (created) SpawnPlayer(player, new Vector3i(0, 0, 0));
+                    GameInstance.World.AddEntity(player, !created);
 
                     addConnection.SendPacket(new PlayerJoinWorldPacket(player));
                     addConnection.Flush();
