@@ -77,6 +77,16 @@
         <EmbeddedResource Include="Assets\Textures\log_side.png" />
         <EmbeddedResource Include="Assets\Textures\log_top.png" />
         <EmbeddedResource Include="Assets\Textures\stone.png" />
+        <None Remove="Assets\Textures\crosshair.png" />
+        <EmbeddedResource Include="Assets\Textures\crosshair.png" />
+        <None Remove="Assets\Textures\hotbar.png" />
+        <EmbeddedResource Include="Assets\Textures\hotbar.png" />
+        <None Remove="Assets\Textures\heart.png" />
+        <EmbeddedResource Include="Assets\Textures\heart.png" />
+        <None Remove="Assets\Textures\heart_empty.png" />
+        <EmbeddedResource Include="Assets\Textures\empty_heart.png" />
+        <None Remove="Assets\Textures\hotbar_selected.png" />
+        <EmbeddedResource Include="Assets\Textures\hotbar_selected.png" />
     </ItemGroup>
 
 </Project>

@@ -100,4 +100,6 @@ public class ListTag : ITag
     {
         for (var i = 0; i < _elements.Count; ++i) yield return GetValue<T>(i);
     }
+
+    public int Count => _elements.Count;
 }

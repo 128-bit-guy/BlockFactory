@@ -22,7 +22,7 @@ public static class Packets
         NetworkRegistry.Register<WidgetUpdatePacket>();
         NetworkRegistry.Register<WidgetActionPacket>();
         NetworkRegistry.Register<CredentialsPacket>();
-        NetworkRegistry.Register<StackInHandUpdatePacket>();
+        NetworkRegistry.Register<EntityStackUpdatePacket>();
         NetworkRegistry.Register<EntityAddedPacket>();
         NetworkRegistry.Register<EntityRemovedPacket>();
         NetworkRegistry.Register<EntityChunkPosUpdatePacket>();

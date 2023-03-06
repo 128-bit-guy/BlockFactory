@@ -118,6 +118,32 @@ public class Screen : IDisposable
         GuiMesh.Flush();
     }
 
+    public void DrawStretchedTexturedRect(Box2 box, float zIndex, float textureCnt, Texture2D texture)
+    {
+        GuiMesh.Builder.MatrixStack.Push();
+        GuiMesh.Builder.BeginIndexSpace();
+        GuiMesh.Builder.AddIndices(0, 2, 1, 0, 3, 2);
+        var miX = box.Min.X;
+        var maX = box.Max.X;
+        var miY = box.Min.Y;
+        var maY = box.Max.Y;
+        var miTX = 0;
+        var maTX = textureCnt;
+        var miTY = 0;
+        var maTY = textureCnt;
+        GuiMesh.Builder.AddVertex((miX, miY, zIndex, 1, 1, 1, miTX, miTY));
+        GuiMesh.Builder.AddVertex((maX, miY, zIndex, 1, 1, 1, maTX, miTY));
+        GuiMesh.Builder.AddVertex((maX, maY, zIndex, 1, 1, 1, maTX, maTY));
+        GuiMesh.Builder.AddVertex((miX, maY, zIndex, 1, 1, 1, miTX, maTY));
+        GuiMesh.Builder.EndIndexSpace();
+        GuiMesh.Builder.MatrixStack.Pop();
+        Shaders.Gui.Use();
+        Client.VpMatrices.Set(Shaders.Gui);
+        Shaders.Gui.SetModel(Client.Matrices);
+        texture.BindTexture();
+        GuiMesh.Flush();
+    }
+
     public void DrawColoredRect(Box2 box, float zIndex, Vector4 color)
     {
         ColorMesh.Builder.MatrixStack.Push();

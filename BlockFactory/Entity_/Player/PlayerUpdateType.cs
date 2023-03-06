@@ -2,5 +2,5 @@
 
 public enum PlayerUpdateType
 {
-    HotbarPos
+    HotbarPos, Health
 }

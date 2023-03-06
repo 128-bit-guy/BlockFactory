@@ -45,6 +45,16 @@ public abstract class PhysicsEntity : Entity
         return (LastCollidedMask & 2) != 0;
     }
 
+    protected void HandleCollisionVelocityChange(Vector3 velocityBeforeCollision, Vector3 velocityAfterCollision)
+    {
+        var delta = velocityAfterCollision - velocityBeforeCollision;
+        var energy = delta.LengthSquared * 10;
+        if (energy > 2)
+        {
+            Health -= (int)MathF.Floor(energy);
+        }
+    }
+
     protected override void TickPhysics()
     {
         if (GameInstance!.Kind.DoesProcessLogic())
@@ -81,9 +91,11 @@ public abstract class PhysicsEntity : Entity
             var newPos = Pos + mVelocity;
             GameInstance.SideHandler.SetEntityPos(this, newPos);
             IsStandingOnGround = Velocity[1] < 0.0f && (collidedMask & 2) != 0;
+            var oldVelocity = Velocity;
             for (var i = 0; i < 3; ++i)
                 if ((collidedMask & (1 << i)) != 0)
                     Velocity[i] = 0f;
+            HandleCollisionVelocityChange(oldVelocity, Velocity);
         
             var velocityLength = Velocity.Length;
             if (velocityLength > 1e-5f)

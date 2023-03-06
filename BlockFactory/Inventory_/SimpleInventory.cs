@@ -1,32 +1,34 @@
 ﻿using BlockFactory.Item_;
+using BlockFactory.Serialization.Serializable;
+using BlockFactory.Serialization.Tag;
 
 namespace BlockFactory.Inventory_;
 
-public class SimpleInventory : IInventory
+public class SimpleInventory : IInventory, ITagSerializable
 {
-    private readonly ItemStack[] Stacks;
+    private ItemStack[] _stacks;
 
     public SimpleInventory(ItemStack[] stacks)
     {
-        Stacks = stacks;
+        _stacks = stacks;
         OnSlotContentChanged = (_, _, _) => { };
     }
 
     public SimpleInventory(int count) : this(new ItemStack[count])
     {
-        Array.Fill(Stacks, ItemStack.Empty);
+        Array.Fill(_stacks, ItemStack.Empty);
     }
 
-    public int Size => Stacks.Length;
+    public int Size => _stacks.Length;
 
     public ItemStack this[int i]
     {
-        get => Stacks[i];
+        get => _stacks[i];
         set
         {
-            var previous = Stacks[i];
-            Stacks[i] = value;
-            OnSlotContentChanged(i, previous, Stacks[i]);
+            var previous = _stacks[i];
+            _stacks[i] = value;
+            OnSlotContentChanged(i, previous, _stacks[i]);
         }
     }
 
@@ -34,20 +36,20 @@ public class SimpleInventory : IInventory
     {
         if (stack.IsEmpty()) return ItemStack.Empty;
 
-        if (stack.CanMergeWith(Stacks[slot]))
+        if (stack.CanMergeWith(_stacks[slot]))
         {
             var maxCnt = stack.Item.GetMaxStackSize(stack);
-            var newCnt = Math.Min(Stacks[slot].Count + stack.Count, maxCnt);
-            var delta = newCnt - Stacks[slot].Count;
+            var newCnt = Math.Min(_stacks[slot].Count + stack.Count, maxCnt);
+            var delta = newCnt - _stacks[slot].Count;
             if (!simulate)
             {
-                var previous = Stacks[slot];
-                if (Stacks[slot].IsEmpty())
-                    Stacks[slot] = stack.WithCount(newCnt);
+                var previous = _stacks[slot];
+                if (_stacks[slot].IsEmpty())
+                    _stacks[slot] = stack.WithCount(newCnt);
                 else
-                    Stacks[slot] += delta;
+                    _stacks[slot] += delta;
 
-                OnSlotContentChanged(slot, previous, Stacks[slot]);
+                OnSlotContentChanged(slot, previous, _stacks[slot]);
             }
 
             return stack - delta;
@@ -58,13 +60,13 @@ public class SimpleInventory : IInventory
 
     public ItemStack TryExtractStack(int slot, int count, bool simulate)
     {
-        var delta = Math.Min(Stacks[slot].Count, count);
-        var res = Stacks[slot].WithCount(delta);
+        var delta = Math.Min(_stacks[slot].Count, count);
+        var res = _stacks[slot].WithCount(delta);
         if (!simulate)
         {
-            var previous = Stacks[slot];
-            Stacks[slot] -= delta;
-            OnSlotContentChanged(slot, previous, Stacks[slot]);
+            var previous = _stacks[slot];
+            _stacks[slot] -= delta;
+            OnSlotContentChanged(slot, previous, _stacks[slot]);
         }
 
         return res;
@@ -78,4 +80,25 @@ public class SimpleInventory : IInventory
     }
 
     public event IInventory.SlotContentChangeHandler OnSlotContentChanged;
+    public DictionaryTag SerializeToTag()
+    {
+        var res = new DictionaryTag();
+        var tag = new ListTag(_stacks.Length, TagType.Dictionary);
+        for (var i = 0; i < _stacks.Length; ++i)
+        {
+            tag.Set(i, _stacks[i].SerializeToTag());
+        }
+        res.Set("Stacks", tag);
+        return res;
+    }
+
+    public void DeserializeFromTag(DictionaryTag tag)
+    {
+        var list = tag.Get<ListTag>("Stacks");
+        _stacks = new ItemStack[list.Count];
+        for (var i = 0; i < list.Count; ++i)
+        {
+            _stacks[i] = new ItemStack(list.Get<DictionaryTag>(i));
+        }
+    }
 }

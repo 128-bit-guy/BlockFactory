@@ -366,6 +366,11 @@ public class BlockFactoryClient
 
         GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         UseGuiMatrices();
+        if (GameInstance != null)
+        {
+            HudRenderer!.Render2DHud();
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        }
         if (HasScreen()) _screenStack.Peek().UpdateAndRender();
         Matrices.Pop();
     }

@@ -25,6 +25,8 @@ public class ItemEntity : PhysicsEntity
         return new Box3(new Vector3(-0.2f), new Vector3(0.2f));
     }
 
+    public override int MaxHealth => 1;
+
     protected override void TickInternal()
     {
         base.TickInternal();

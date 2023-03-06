@@ -49,6 +49,7 @@ public class PlayerEntity : WalkingEntity
         for (var i = 0; i < Items.Registry.GetRegisteredEntries().Count; ++i)
             Inventory.TryInsertStack(i, new ItemStack(Items.Registry[i], 64), false);
         Hotbar = new SimpleInventory(9);
+        Hotbar.OnSlotContentChanged += OnHotbarItemChange;
         Speed = 0.2f;
         // _scheduledChunksBecameVisible = new List<Chunk>();
     }
@@ -57,9 +58,9 @@ public class PlayerEntity : WalkingEntity
 
     [NotSerialized] public InGameMenu? Menu { get; private set; }
 
-    [NotSerialized] public SimpleInventory Inventory { get; }
+    public SimpleInventory Inventory;
 
-    [NotSerialized] public SimpleInventory Hotbar { get; }
+    public SimpleInventory Hotbar;
 
     [NotSerialized] public ItemStack StackInHand = ItemStack.Empty;
 
@@ -71,6 +72,8 @@ public class PlayerEntity : WalkingEntity
     public event MenuChangeHandler OnMenuChange = (_, _) => { };
 
     public override EntityType Type => Entities.Player;
+
+    public override int MaxHealth => 20;
 
     protected override void TickInternal()
     {
@@ -138,8 +141,11 @@ public class PlayerEntity : WalkingEntity
                 StackInHand = stackInHand;
                 if (GameInstance.Kind.IsNetworked())
                 {
-                    GameInstance.NetworkHandler.GetPlayerConnection(this)
-                        .SendPacket(new StackInHandUpdatePacket(Id, StackInHand));
+                    foreach (var player in Chunk!.ViewingPlayers.Values)
+                    {
+                        GameInstance.NetworkHandler.GetPlayerConnection(player)
+                            .SendPacket(new EntityStackUpdatePacket(Chunk.Pos, Id, 0, StackInHand));
+                    }
                 }
             }
 
@@ -151,6 +157,20 @@ public class PlayerEntity : WalkingEntity
                 World!.GameInstance.NetworkHandler.GetPlayerConnection(this)
                     .SendPacket(new EntityPosUpdatePacket(posUpdates));
             }
+
+            if (Health < MaxHealth && GameInstance.Random.Next(3) == 0)
+            {
+                ++Health;
+            }
+        }
+    }
+
+    private void OnHotbarItemChange(int i, ItemStack prev, ItemStack cur)
+    {
+        if (GameInstance!.Kind.DoesProcessLogic() && GameInstance.Kind.IsNetworked())
+        {
+            GameInstance.NetworkHandler.GetPlayerConnection(this)
+                .SendPacket(new EntityStackUpdatePacket(Chunk.Pos, Id, i + 1, cur));
         }
     }
 
@@ -355,6 +375,9 @@ public class PlayerEntity : WalkingEntity
             case PlayerUpdateType.HotbarPos:
                 HotbarPos = number;
                 break;
+            case PlayerUpdateType.Health:
+                Health = number;
+                break;
         }
     }
 
@@ -418,5 +441,29 @@ public class PlayerEntity : WalkingEntity
             GameInstance.NetworkHandler.GetPlayerConnection(this).SendPacket(new InGameMenuOpenPacket(menu));
 
         OnMenuChange(previousMenu, Menu);
+    }
+
+    public override void OnStackUpdate(int type, ItemStack stack)
+    {
+        base.OnStackUpdate(type, stack);
+        if (type == 0)
+        {
+            StackInHand = stack;
+        }
+        else if (type is >= 1 and < 10)
+        {
+            Hotbar[type - 1] = stack;
+        }
+    }
+
+    protected override void OnHealthChanged()
+    {
+        base.OnHealthChanged();
+        if (Chunk == null) return;
+        if (GameInstance!.Kind.IsNetworked() && GameInstance.Kind.DoesProcessLogic())
+        {
+            GameInstance.NetworkHandler.GetPlayerConnection(this)
+                .SendPacket(new PlayerUpdatePacket(PlayerUpdateType.Health, Health));
+        }
     }
 }

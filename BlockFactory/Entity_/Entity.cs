@@ -1,4 +1,5 @@
 using BlockFactory.Game;
+using BlockFactory.Item_;
 using BlockFactory.Network;
 using BlockFactory.Serialization.Automatic;
 using BlockFactory.Serialization.Automatic.Serializable;
@@ -29,6 +30,29 @@ public abstract class Entity : AutoSerializable
     
     [NotSerialized] public abstract EntityType Type { get; }
     [NotSerialized] public Chunk? Chunk;
+    private int _health;
+    public int Health
+    {
+        get => _health;
+        set
+        {
+            _health = value;
+            OnHealthChanged();
+        }
+    }
+
+    protected Entity()
+    {
+        Health = MaxHealth;
+    }
+
+    protected virtual void OnHealthChanged()
+    {
+        
+    }
+    
+    [NotSerialized]
+    public abstract int MaxHealth { get; }
 
     protected virtual void TickInternal()
     {
@@ -79,5 +103,10 @@ public abstract class Entity : AutoSerializable
     public EntityAddedPacket CreateAddedPacket()
     {
         return new EntityAddedPacket(Type, ((ITagSerializable)this).SerializeToTag());
+    }
+
+    public virtual void OnStackUpdate(int type, ItemStack stack)
+    {
+        
     }
 }
