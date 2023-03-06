@@ -1,4 +1,5 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Block_.Instance;
+using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Inventory_;
@@ -27,5 +28,10 @@ public class Block : RegistryEntry
         PhysicsEntity.BoxConsumer consumer)
     {
         consumer(new Box3(0, 0, 0, 1, 1, 1));
+    }
+
+    public virtual BlockInstance? CreateInstance()
+    {
+        return null;
     }
 }

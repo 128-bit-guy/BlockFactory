@@ -12,6 +12,7 @@ public class Blocks
     public static GrassBlock Grass { get; private set; } = null!;
     public static LogBlock Log { get; private set; } = null!;
     public static LeavesBlock Leaves { get; private set; } = null!;
+    public static WorkbenchBlock Workbench { get; private set; } = null!;
 
     public static void Init()
     {
@@ -22,6 +23,7 @@ public class Blocks
         Grass = Registry.Register(new RegistryName("Grass"), new GrassBlock());
         Log = Registry.Register(new RegistryName("Log"), new LogBlock());
         Leaves = Registry.Register(new RegistryName("Leaves"), new LeavesBlock());
+        Workbench = Registry.Register(new RegistryName("Workbench"), new WorkbenchBlock());
         Registry.Lock();
     }
 }

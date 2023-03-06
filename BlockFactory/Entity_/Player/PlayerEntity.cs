@@ -105,10 +105,18 @@ public class PlayerEntity : WalkingEntity
                 var rayCastRes = RayCaster.RayCastBlocks(Pos, GetForward() * 10f, Chunk!.Neighbourhood);
                 if ((MotionState & MotionState.Using) != 0 && _useCooldown == 0)
                 {
+                    var state = Chunk.Neighbourhood.GetBlockState(rayCastRes.Value.Item1);
+                    if (state.Instance != null)
+                    {
+                        if (state.Instance.OnUsed(this, rayCastRes.Value))
+                        {
+                            goto UseEnd;
+                        }
+                    }
                     var stack = GetStackInHand();
                     stack.Item.OnUse(new SlotPointer(Hotbar, HotbarPos), this, rayCastRes);
                 }
-
+                UseEnd: ;
                 if (rayCastRes.HasValue)
                 {
                     var (blockPos, time, dir) = rayCastRes.Value;

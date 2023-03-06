@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Block_;
+using BlockFactory.Block_.Instance;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
@@ -86,6 +87,17 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
             if (prevState != state)
             {
                 Data.SetBlockState(cur, state);
+                if (prevState.Instance != null)
+                {
+                    prevState.Instance.Chunk = null;
+                    World.OnBlockInstanceRemoved(prevState.Instance);
+                }
+
+                if (state.Instance != null)
+                {
+                    state.Instance.Chunk = this;
+                    World.OnBlockInstanceAdded(state.Instance);
+                }
                 foreach (var (_, player) in ViewingPlayers) player.VisibleBlockChanged(this, pos, prevState, state);
             }
         }
@@ -118,6 +130,12 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         {
             entity.Chunk = this;
             World.OnLoadedEntityAdded(entity);
+        }
+
+        foreach (var blockInstance in Data.BlockInstancesInChunk.Values)
+        {
+            blockInstance.Chunk = this;
+            World.OnBlockInstanceAdded(blockInstance);
         }
     }
 
@@ -218,6 +236,12 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
             entity.Chunk = null;
             World.OnEntityRemoved(entity);
         }
+
+        foreach (var blockInstance in Data.BlockInstancesInChunk.Values)
+        {
+            blockInstance.Chunk = null;
+            World.OnBlockInstanceRemoved(blockInstance);
+        }
     }
 
     public Entity GetEntity(long id)
@@ -234,6 +258,14 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         {
             if (entity.World != null)
                 entity.Tick();
+        }
+        var list1 = new List<BlockInstance>(Data.BlockInstancesInChunk.Values);
+        foreach (var blockInstance in list1)
+        {
+            if (blockInstance.World != null)
+            {
+                blockInstance.Tick();
+            }
         }
     }
 

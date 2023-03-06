@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Block_;
+using BlockFactory.Block_.Instance;
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
@@ -120,10 +121,26 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
     public void OnEntityRemoved(Entity entity)
     {
         entity.OnRemoveFromWorld();
+        entity.World = null;
+        entity.GameInstance = null;
         if (entity is PlayerEntity && GameInstance.Kind.DoesProcessLogic())
         {
             _players.Remove(entity.Id);
         }
+    }
+
+    public void OnBlockInstanceAdded(BlockInstance instance)
+    {
+        instance.GameInstance = GameInstance;
+        instance.World = this;
+        instance.OnAddToWorld();
+    }
+
+    public void OnBlockInstanceRemoved(BlockInstance instance)
+    {
+        instance.OnRemoveFromWorld();
+        instance.World = null;
+        instance.GameInstance = null;
     }
 
     [ExclusiveTo(Side.Client)]
