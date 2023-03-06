@@ -1,7 +1,9 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Game;
 using BlockFactory.Physics;
+using OpenTK.Graphics.Egl;
 using OpenTK.Mathematics;
 
 namespace BlockFactory.Entity_;
@@ -105,5 +107,37 @@ public abstract class PhysicsEntity : Entity
                 if (ShouldHaveFriction()) Velocity -= Velocity / velocityLength * MathF.Min(velocityLength, 0.01f);
             }
         }
+    }
+
+    public bool DoesBlockIntersect(Vector3i blockPos, BlockState state)
+    {
+        Vector3i curOffset = default;
+        CubeRotation curRotation = null!;
+        BoxConsumer consumer = b => { Boxes.Add(curRotation.RotateAroundCenter(b).Add(curOffset.ToVector3())); };
+        
+        var bb = GetOffsetBoundingBox();
+        var bap = blockPos;
+        curOffset = bap - Pos.ChunkPos.BitShiftLeft(Constants.ChunkSizeLog2);
+        curRotation = state.Rotation;
+        var block = state.Block;
+        block.AddCollisionBoxes(Chunk!.Neighbourhood, bap, state, consumer, this);
+        bool intersects = false;
+        foreach (var box in Boxes)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                if (bb.Min[i] >= box.Max[i] || bb.Max[i] <= box.Min[i])
+                {
+                    goto Egl;
+                }
+            }
+
+            intersects = true;
+            break;
+            
+            Egl: ;
+        }
+        Boxes.Clear();
+        return intersects;
     }
 }
