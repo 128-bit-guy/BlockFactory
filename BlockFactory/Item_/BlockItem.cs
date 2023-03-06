@@ -26,7 +26,7 @@ public class BlockItem : Item
         var (blockPos, time, dir) = rayCastRes.Value;
         var placePos = blockPos + dir.GetOffset();
         if (entity.Chunk!.Neighbourhood.GetBlockState(placePos).Block != Blocks.Air) return false;
-        var placeState = new BlockState(Block, RandomRotations.Any(entity.GameInstance!.Random));
+        var placeState = Block.GetPlacementState(placePos, container, entity, rayCastRes.Value);
         var center = new EntityPos(placePos);
         var b = new Box3(new Vector3(-2), new Vector3(2));
         if (entity.Chunk!.Neighbourhood.GetInBoxEntityEnumerable(center, b).Where(e => e is PhysicsEntity)
