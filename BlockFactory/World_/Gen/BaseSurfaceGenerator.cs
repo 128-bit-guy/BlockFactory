@@ -12,6 +12,7 @@ public class BaseSurfaceGenerator
 {
     public readonly WorldGenerator WorldGenerator;
     public Perlin Perlin;
+    public Perlin MountainPerlin;
 
     public BaseSurfaceGenerator(WorldGenerator worldGenerator)
     {
@@ -19,6 +20,14 @@ public class BaseSurfaceGenerator
         Perlin = new Perlin
         {
             Seed = unchecked(1798783699 * worldGenerator.Seed + 1675735027),
+            Frequency = 2f,
+            Lacunarity = 2f,
+            Persistence = 2f,
+            OctaveCount = 3
+        };
+        MountainPerlin = new Perlin
+        {
+            Seed = unchecked(1798783679 * worldGenerator.Seed + 1675735027),
             Frequency = 2f,
             Lacunarity = 2f,
             Persistence = 2f,
@@ -33,18 +42,24 @@ public class BaseSurfaceGenerator
             1927163633, 0, 1272879857, 1501771811
         );
         if (random.Next(50) != 0) return;
-        var height = random.Next(50, 80);
+        var height = random.Next(50, 75);
         var relX = random.Next(Constants.ChunkSize);
         var relY = random.Next(Constants.ChunkSize);
         var relPos1 = new Vector2i(relX, relY);
-        var relToChunk = affectedChunkPos * Constants.ChunkSize -
-                         (relPos1 + featureChunkPos * Constants.ChunkSize);
+        var mountainCenter = relPos1 + featureChunkPos * Constants.ChunkSize;
+        var relToChunk = affectedChunkPos * Constants.ChunkSize - mountainCenter;
         var modifier = random.NextDouble() + 1;
         foreach (var relPos2 in new Box2i(new Vector2i(0), new Vector2i(Constants.ChunkSize - 1))
                      .InclusiveEnumerable())
         {
+            var noiseVal = 0.0d;
             var delta = relToChunk + relPos2;
-            double curVal = height - delta.EuclideanLength;
+            if (delta != Vector2i.Zero)
+            {
+                var noisePos = ((Vector2d)delta).Normalized() * 10 + mountainCenter;
+                noiseVal = MountainPerlin.GetValue(noisePos.X / 30, 0, noisePos.Y / 30);
+            }
+            double curVal = height - delta.EuclideanLength * (1 + noiseVal / 15);
             affectedChunkHeights[relPos2.X, relPos2.Y] =
                 Math.Max(affectedChunkHeights[relPos2.X, relPos2.Y], curVal * modifier);
         }
