@@ -280,7 +280,7 @@ public class PlayerEntity : WalkingEntity
         foreach (var (chunkPos, c) in InvDepChunks)
         {
             if (!c.Generated) continue;
-            if (!c.Data.Decorated) continue;
+            if (!c.Data.IsFullyDecorated) continue;
             _chunksToRemove.Add(chunkPos);
             OnVisibleChunkAdded(c);
             // _scheduledChunksBecameVisible.Add(VisibleChunks[chunkPos] = c);
@@ -298,7 +298,7 @@ public class PlayerEntity : WalkingEntity
 
     private bool IsChunkTooFar(Vector3i pos)
     {
-        return (Pos.ChunkPos - pos).SquareLength() > (ChunkLoadDistance + 2) * (ChunkLoadDistance + 2);
+        return (Pos.ChunkPos - pos).SquareLength() > (ChunkLoadDistance + 3) * (ChunkLoadDistance + 3);
     }
 
     public void UnloadChunks(bool all)

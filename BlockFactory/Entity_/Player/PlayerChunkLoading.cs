@@ -14,9 +14,9 @@ public static class PlayerChunkLoading
     private static int GetDistanceSortKey(Vector3i pos)
     {
         var min = (int)1e9;
-        for (var i = -2; i <= 2; ++i)
-        for (var j = -2; j <= 2; ++j)
-        for (var k = -2; k <= 2; ++k)
+        for (var i = -3; i <= 3; ++i)
+        for (var j = -3; j <= 3; ++j)
+        for (var k = -3; k <= 3; ++k)
         {
             Vector3i oPos = (i, j, k);
             var oPos2 = oPos + pos;
@@ -51,9 +51,9 @@ public static class PlayerChunkLoading
     public static void Init()
     {
         for (var dist = 0; dist <= MaxChunkLoadDistance; ++dist) DistanceSqrs[dist] = dist * dist;
-        for (var i = -MaxChunkLoadDistance - 2; i <= MaxChunkLoadDistance + 2; ++i)
-        for (var j = -MaxChunkLoadDistance - 2; j <= MaxChunkLoadDistance + 2; ++j)
-        for (var k = -MaxChunkLoadDistance - 2; k <= MaxChunkLoadDistance + 2; ++k)
+        for (var i = -MaxChunkLoadDistance - 3; i <= MaxChunkLoadDistance + 3; ++i)
+        for (var j = -MaxChunkLoadDistance - 3; j <= MaxChunkLoadDistance + 3; ++j)
+        for (var k = -MaxChunkLoadDistance - 3; k <= MaxChunkLoadDistance + 3; ++k)
         {
             Vector3i pos = (i, j, k);
             if (GetDistanceSortKey(pos) <= MaxChunkLoadDistance) ChunkOffsets.Add(pos);

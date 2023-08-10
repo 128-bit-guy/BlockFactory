@@ -6,6 +6,7 @@ using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
 using BlockFactory.Init;
 using BlockFactory.Serialization;
+using BlockFactory.Serialization.Automatic;
 using BlockFactory.Serialization.Serializable;
 using BlockFactory.Serialization.Tag;
 using BlockFactory.Util;
@@ -19,6 +20,8 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
     private ushort[,,] _blocks;
     private byte[,,] _rotations;
     public bool Decorated;
+    public int DecoratedNeighbours = 0;
+    [NotSerialized] public bool IsFullyDecorated => DecoratedNeighbours == 27;
     public Dictionary<long, Entity> EntitiesInChunk;
     public Dictionary<Vector3i, BlockInstance> BlockInstancesInChunk;
     private List<(EntityType, DictionaryTag)>? _entityTags;

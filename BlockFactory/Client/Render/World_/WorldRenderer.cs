@@ -129,12 +129,10 @@ public class WorldRenderer : IDisposable
         //_mesh.Bind();
         var intersectionHelper = new FrustumIntersectionHelper(BlockFactoryClient.Instance.VpMatrices);
         var leftParallelRebuilds = 4;
-        var renderersSorted = new List<ChunkRenderer>();
-        renderersSorted.AddRange(ChunkRenderers.Values);
-        renderersSorted.Sort(Compare);
         var stack = BlockFactoryClient.Instance.Matrices;
         stack.Push();
-        foreach (var chunkRenderer in renderersSorted)
+        var renderersSorted = new List<ChunkRenderer>();
+        foreach (var chunkRenderer in ChunkRenderers.Values)
         {
             var hasRebuildTask = chunkRenderer.RebuildTask != null;
             if (hasRebuildTask && !chunkRenderer.RebuildTask!.IsCompleted) --leftParallelRebuilds;
@@ -144,43 +142,7 @@ public class WorldRenderer : IDisposable
             var box = new Box3(new Vector3(0), new Vector3(Constants.ChunkSize)).Add(translation.ToVector3());
             if (intersectionHelper.TestAab(box))
             {
-                stack.Push();
-                stack.Translate(translation);
-                if (chunkRenderer.Neighbourhood.LoadedChunkCnt == 27 && chunkRenderer.RequiresRebuild &&
-                    !hasRebuildTask && leftParallelRebuilds > 0)
-                {
-                    chunkRenderer.RequiresRebuild = false;
-                    chunkRenderer.RebuildTask = Task.Run(chunkRenderer.Rebuild);
-                    --leftParallelRebuilds;
-                }
-
-                if (chunkRenderer.RebuildTask is { IsCompletedSuccessfully: true })
-                {
-                    chunkRenderer.Upload(chunkRenderer.RebuildTask.Result);
-                    chunkRenderer.RebuildTask = null;
-                }
-
-                Shaders.Block.SetModel(stack);
-                if (chunkRenderer.HasAnythingToRender()) chunkRenderer.Render();
-                foreach (var entity in chunkRenderer.Chunk.Data.EntitiesInChunk.Values)
-                {
-                    stack.Push();
-                    stack.Translate(entity.GetInterpolatedPos().PosInChunk);
-                    if (entity is ItemEntity item)
-                    {
-                        stack.Push();
-                        stack.RotateY((float)GLFW.GetTime() / 3);
-                        stack.Scale(0.2f);
-                        stack.Translate(new Vector3(-0.5f));
-                        BlockFactoryClient.Instance.ItemRenderer!.RenderItemStack(item.Stack,
-                            StreamMeshes.Block.Builder);
-                        stack.Pop();
-                    }
-
-                    stack.Pop();
-                }
-
-                stack.Pop();
+                renderersSorted.Add(chunkRenderer);
             }
             //if (chunkRenderer.Neighbourhood.LoadedChunkCnt != 27)
             //{
@@ -190,6 +152,51 @@ public class WorldRenderer : IDisposable
             //    GL.DrawElements(PrimitiveType.Triangles, _mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
             //}
             //}
+        }
+        renderersSorted.Sort(Compare);
+        foreach (var chunkRenderer in renderersSorted)
+        {
+            var hasRebuildTask = chunkRenderer.RebuildTask != null;
+            var translation =
+                (chunkRenderer.Pos - BlockFactoryClient.Instance.Player!.Pos.ChunkPos).BitShiftLeft(Constants
+                    .ChunkSizeLog2);
+            stack.Push();
+            stack.Translate(translation);
+            if (chunkRenderer.Neighbourhood.LoadedChunkCnt == 27 && chunkRenderer.RequiresRebuild &&
+                !hasRebuildTask && leftParallelRebuilds > 0)
+            {
+                chunkRenderer.RequiresRebuild = false;
+                chunkRenderer.RebuildTask = Task.Run(chunkRenderer.Rebuild);
+                --leftParallelRebuilds;
+            }
+
+            if (chunkRenderer.RebuildTask is { IsCompletedSuccessfully: true })
+            {
+                chunkRenderer.Upload(chunkRenderer.RebuildTask.Result);
+                chunkRenderer.RebuildTask = null;
+            }
+
+            Shaders.Block.SetModel(stack);
+            if (chunkRenderer.HasAnythingToRender()) chunkRenderer.Render();
+            foreach (var entity in chunkRenderer.Chunk.Data.EntitiesInChunk.Values)
+            {
+                stack.Push();
+                stack.Translate(entity.GetInterpolatedPos().PosInChunk);
+                if (entity is ItemEntity item)
+                {
+                    stack.Push();
+                    stack.RotateY((float)GLFW.GetTime() / 3);
+                    stack.Scale(0.2f);
+                    stack.Translate(new Vector3(-0.5f));
+                    BlockFactoryClient.Instance.ItemRenderer!.RenderItemStack(item.Stack,
+                        StreamMeshes.Block.Builder);
+                    stack.Pop();
+                }
+
+                stack.Pop();
+            }
+
+            stack.Pop();
         }
 
         stack.Pop();

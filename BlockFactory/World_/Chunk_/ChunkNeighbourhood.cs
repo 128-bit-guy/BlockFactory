@@ -27,7 +27,6 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
     public BlockState GetBlockState(Vector3i pos)
     {
         var arrayChunkPos = GetArrayChunkPos(pos);
-        if (!IsArrayChunkPosInside(arrayChunkPos)) return CenterChunk.World.GetBlockState(pos);
         var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
         return ch?.GetBlockState(pos) ?? CenterChunk.World.GetBlockState(pos);
     }
@@ -35,18 +34,11 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
     public void SetBlockState(Vector3i pos, BlockState state)
     {
         var arrayChunkPos = GetArrayChunkPos(pos);
-        if (IsArrayChunkPosInside(arrayChunkPos))
-        {
-            var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
-            if (ch == null)
-                CenterChunk.World.SetBlockState(pos, state);
-            else
-                ch.SetBlockState(pos, state);
-        }
-        else
-        {
+        var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
+        if (ch == null)
             CenterChunk.World.SetBlockState(pos, state);
-        }
+        else
+            ch.SetBlockState(pos, state);
     }
 
     public bool AreAllNeighboursLoaded()
@@ -86,19 +78,18 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
         return arrChunkPos;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-    private static bool IsArrayChunkPosInside(Vector3i arrayChunkPos)
-    {
-        for (var i = 0; i < 3; ++i)
-            if (arrayChunkPos[i] < 0 || arrayChunkPos[i] >= 3)
-                return false;
-        return true;
-    }
+    // [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+    // private static bool IsArrayChunkPosInside(Vector3i arrayChunkPos)
+    // {
+    //     for (var i = 0; i < 3; ++i)
+    //         if (arrayChunkPos[i] < 0 || arrayChunkPos[i] >= 3)
+    //             return false;
+    //     return true;
+    // }
 
     public void AddEntity(Entity entity, bool loaded = false)
     {
         var arrayChunkPos = ToArrayChunkPos(entity.Pos.ChunkPos);
-        if (!IsArrayChunkPosInside(arrayChunkPos)) return;
         var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
         if (ch == null)
         {
@@ -113,7 +104,6 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
     public void RemoveEntity(Entity entity)
     {
         var arrayChunkPos = ToArrayChunkPos(entity.Pos.ChunkPos);
-        if (!IsArrayChunkPosInside(arrayChunkPos)) return;
         var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
         if (ch == null)
         {
@@ -143,7 +133,6 @@ public class ChunkNeighbourhood : IBlockStorage, IEntityStorage
     public Chunk GetChunk(Vector3i pos)
     {
         var arrayChunkPos = ToArrayChunkPos(pos);
-        if (!IsArrayChunkPosInside(arrayChunkPos)) return CenterChunk.World.GetOrLoadChunk(pos);
         var ch = Chunks[arrayChunkPos.X, arrayChunkPos.Y, arrayChunkPos.Z];
         return ch ?? CenterChunk.World.GetOrLoadChunk(pos);
     }

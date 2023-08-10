@@ -186,6 +186,10 @@ public class World : IBlockStorage, IDisposable, IEntityStorage
         if (!c.ExistsInWorld || !c.Neighbourhood.AreAllNeighboursLoaded() || c.Data.Decorated) return;
 
         c.Data.Decorated = true;
+        foreach (var delta in new Box3i(new Vector3i(-1), new Vector3i(1)).InclusiveEnumerable())
+        {
+            ++c.Neighbourhood.GetChunk(c.Pos + delta).Data.DecoratedNeighbours;
+        }
         Generator.Decorate(c);
     }
 

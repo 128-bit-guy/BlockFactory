@@ -67,43 +67,31 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
 
     public BlockState GetBlockState(Vector3i pos)
     {
-        if (IsInside(pos))
-        {
-            var beg = GetBegin();
-            var cur = pos - beg;
-            return Data!.GetBlockState(cur);
-        }
-
-        return World.GetBlockState(pos);
+        var beg = GetBegin();
+        var cur = pos - beg;
+        return Data!.GetBlockState(cur);
     }
 
     public void SetBlockState(Vector3i pos, BlockState state)
     {
-        if (IsInside(pos))
+        var beg = GetBegin();
+        var cur = pos - beg;
+        var prevState = Data!.GetBlockState(cur);
+        if (prevState != state)
         {
-            var beg = GetBegin();
-            var cur = pos - beg;
-            var prevState = Data!.GetBlockState(cur);
-            if (prevState != state)
+            Data.SetBlockState(cur, state);
+            if (prevState.Instance != null)
             {
-                Data.SetBlockState(cur, state);
-                if (prevState.Instance != null)
-                {
-                    prevState.Instance.Chunk = null;
-                    World.OnBlockInstanceRemoved(prevState.Instance);
-                }
-
-                if (state.Instance != null)
-                {
-                    state.Instance.Chunk = this;
-                    World.OnBlockInstanceAdded(state.Instance);
-                }
-                foreach (var (_, player) in ViewingPlayers) player.VisibleBlockChanged(this, pos, prevState, state);
+                prevState.Instance.Chunk = null;
+                World.OnBlockInstanceRemoved(prevState.Instance);
             }
-        }
-        else
-        {
-            World.SetBlockState(pos, state);
+
+            if (state.Instance != null)
+            {
+                state.Instance.Chunk = this;
+                World.OnBlockInstanceAdded(state.Instance);
+            }
+            foreach (var (_, player) in ViewingPlayers) player.VisibleBlockChanged(this, pos, prevState, state);
         }
     }
 
@@ -152,16 +140,16 @@ public class Chunk : IBlockStorage, IEntityStorage, IDependable
         return Pos.BitShiftLeft(Constants.ChunkSizeLog2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsInside(Vector3i pos)
-    {
-        var beg = GetBegin();
-        var cur = pos - beg;
-        for (var i = 0; i < 3; ++i)
-            if (cur[i] < 0 || cur[i] >= Constants.ChunkSize)
-                return false;
-        return true;
-    }
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public bool IsInside(Vector3i pos)
+    // {
+    //     var beg = GetBegin();
+    //     var cur = pos - beg;
+    //     for (var i = 0; i < 3; ++i)
+    //         if (cur[i] < 0 || cur[i] >= Constants.ChunkSize)
+    //             return false;
+    //     return true;
+    // }
 
     public Box3i GetInclusiveBox()
     {
