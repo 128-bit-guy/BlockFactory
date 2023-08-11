@@ -117,6 +117,7 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         tag.Set("blocks", new ChunkBlockDataTag(_blocks));
         tag.Set("rotations", new ChunkRotationDataTag(_rotations));
         tag.SetValue("decorated", Decorated);
+        tag.SetValue("decorated_neighbours", DecoratedNeighbours);
         var listTag = new ListTag(0, TagType.Dictionary);
         foreach (var entity in EntitiesInChunk.Values)
         {
@@ -148,6 +149,7 @@ public class ChunkData : IBlockStorage, ITagSerializable, IBinarySerializable
         _blocks = tag.Get<ChunkBlockDataTag>("blocks").Data;
         _rotations = tag.Get<ChunkRotationDataTag>("rotations").Data;
         Decorated = tag.GetValue<bool>("decorated");
+        DecoratedNeighbours = tag.GetValue<int>("decorated_neighbours");
         var listTag = tag.Get<ListTag>("entities");
         EntitiesInChunk.Clear();
         foreach (var dictTag in listTag.GetEnumerable<DictionaryTag>())
