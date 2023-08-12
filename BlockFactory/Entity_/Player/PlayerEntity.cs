@@ -50,6 +50,9 @@ public class PlayerEntity : WalkingEntity
             Inventory.TryInsertStack(i, new ItemStack(Items.Registry[i], 64), false);
         Hotbar = new SimpleInventory(9);
         Hotbar.OnSlotContentChanged += OnHotbarItemChange;
+        CombinedInventory = new CombinedInventory(Hotbar, Inventory);
+        _filteredInventory =
+            new FilteredInventory(CombinedInventory, (slot, _) => !_filteredInventory![slot].IsEmpty());
         Speed = 0.2f;
         // _scheduledChunksBecameVisible = new List<Chunk>();
     }
@@ -61,6 +64,10 @@ public class PlayerEntity : WalkingEntity
     public SimpleInventory Inventory;
 
     public SimpleInventory Hotbar;
+
+    [NotSerialized] public CombinedInventory CombinedInventory;
+
+    [NotSerialized] private FilteredInventory _filteredInventory;
 
     [NotSerialized] public ItemStack StackInHand = ItemStack.Empty;
 
@@ -198,9 +205,16 @@ public class PlayerEntity : WalkingEntity
             .Where(e => e.PickUpDelay == 0).ToList();
         foreach (var item in e)
         {
-            item.Chunk!.RemoveEntity(item);
-            var stack = Inventory.Insert(item.Stack, false);
-            Hotbar.Insert(stack, false);
+            var stack = _filteredInventory.Insert(item.Stack, false);
+            stack = CombinedInventory.Insert(stack, false);
+            if (stack.IsEmpty())
+            {
+                item.Chunk!.RemoveEntity(item);
+            }
+            else
+            {
+                item.Stack = stack;
+            }
         }
     }
 
