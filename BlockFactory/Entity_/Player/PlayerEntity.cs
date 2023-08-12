@@ -123,16 +123,22 @@ public class PlayerEntity : WalkingEntity
 
                     if ((MotionState & MotionState.Attacking) != 0)
                     {
-                        Random rng = GameInstance.Random;
+                        var rng = GameInstance.Random;
                         var state = Chunk!.Neighbourhood.GetBlockState(blockPos);
-                        var entity = new ItemEntity(new ItemStack(Items.BlockItems[state.Block]))
+                        var droppedStacks = new List<ItemStack>();
+                        state.Block.AddDroppedStacks(World, blockPos, state, this, droppedStacks);
+                        foreach (var stack in droppedStacks)
                         {
-                            Pos = new EntityPos(blockPos) +
-                                  new Vector3(rng.NextSingle(), rng.NextSingle(), rng.NextSingle()),
-                            Velocity = RandomUtils.PointOnSphere(rng) * 0.1f
-                        };
-                        entity.Pos.Fix();
-                        Chunk!.Neighbourhood.AddEntity(entity);
+                            var entity = new ItemEntity(stack)
+                            {
+                                Pos = new EntityPos(blockPos) +
+                                      new Vector3(rng.NextSingle(), rng.NextSingle(), rng.NextSingle()),
+                                Velocity = RandomUtils.PointOnSphere(rng) * 0.1f
+                            };
+                            entity.Pos.Fix();
+                            Chunk!.Neighbourhood.AddEntity(entity);
+                        }
+
                         Chunk!.Neighbourhood.SetBlockState(blockPos,
                             new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
                     }

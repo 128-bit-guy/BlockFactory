@@ -87,6 +87,8 @@
         <EmbeddedResource Include="Assets\Textures\empty_heart.png" />
         <None Remove="Assets\Textures\hotbar_selected.png" />
         <EmbeddedResource Include="Assets\Textures\hotbar_selected.png" />
+        <None Remove="Assets\Textures\cobblestone.png" />
+        <EmbeddedResource Include="Assets\Textures\cobblestone.png" />
     </ItemGroup>
 
 </Project>

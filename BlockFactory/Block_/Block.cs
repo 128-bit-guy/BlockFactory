@@ -2,7 +2,9 @@
 using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Entity_.Player;
+using BlockFactory.Init;
 using BlockFactory.Inventory_;
+using BlockFactory.Item_;
 using BlockFactory.Registry_;
 using BlockFactory.Util;
 using BlockFactory.World_.Api;
@@ -28,6 +30,12 @@ public class Block : RegistryEntry
         PhysicsEntity.BoxConsumer consumer)
     {
         consumer(new Box3(0, 0, 0, 1, 1, 1));
+    }
+
+    public virtual void AddDroppedStacks(IBlockReader world, Vector3i pos, BlockState state, PlayerEntity breaker,
+        List<ItemStack> stacks)
+    {
+        stacks.Add(new ItemStack(Items.BlockItems[this]));
     }
 
     public virtual BlockInstance? CreateInstance()

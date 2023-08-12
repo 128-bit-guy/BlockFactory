@@ -22,6 +22,7 @@ public class BlockMeshing
             "log_side.png", "log_top.png");
         SetTextureAllNS(Blocks.Leaves, "BlockFactory.Assets.Textures.leaves.png");
         SetTextureAll(Blocks.Workbench, "BlockFactory.Assets.Textures.log_top.png");
+        SetTextureAll(Blocks.Cobblestone, "BlockFactory.Assets.Textures.cobblestone.png");
     }
 
     public static void SetTextures(Block block, string prefix, params string[] textures)
