@@ -336,7 +336,12 @@ public class BlockFactoryClient
         {
             if (GameInstance.Kind.IsNetworked()) ProcessPackets();
 
-            if (!HasScreen()) Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
+            if (!HasScreen())
+            {
+                Player!.HeadRotation -= (Vector2)CursorPosDelta * 0.001f;
+                Player!.HeadRotation.Y = MathF.Max(-MathF.PI / 2, MathF.Min(MathF.PI / 2, Player.HeadRotation.Y));
+                Player!.HeadRotation.X %= 2 * MathF.PI;
+            }
             GameInstance!.Update();
             UseWorldMatrices();
             WorldRenderer!.UpdateAndRender();
