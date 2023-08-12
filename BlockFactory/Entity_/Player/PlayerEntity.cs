@@ -121,7 +121,7 @@ public class PlayerEntity : WalkingEntity
                 {
                     var (blockPos, time, dir) = rayCastRes.Value;
 
-                    if ((MotionState & MotionState.Attacking) != 0)
+                    if ((MotionState & MotionState.Attacking) != 0 && _useCooldown == 0)
                     {
                         var rng = GameInstance.Random;
                         var state = Chunk!.Neighbourhood.GetBlockState(blockPos);
@@ -141,6 +141,7 @@ public class PlayerEntity : WalkingEntity
 
                         Chunk!.Neighbourhood.SetBlockState(blockPos,
                             new BlockState(Blocks.Air, CubeRotation.Rotations[0]));
+                        AddUseCooldown(3);
                     }
                 }
             }
