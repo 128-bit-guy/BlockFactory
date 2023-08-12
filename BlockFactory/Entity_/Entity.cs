@@ -85,6 +85,13 @@ public abstract class Entity : AutoSerializable
         var z = MathF.Cos(HeadRotation.X) * MathF.Cos(HeadRotation.Y);
         return (x, y, z);
     }
+    
+    public Vector3 GetHorizontalForward()
+    {
+        var x = MathF.Sin(HeadRotation.X);
+        var z = MathF.Cos(HeadRotation.X);
+        return (x, 0, z);
+    }
 
     public Vector3 GetUp()
     {

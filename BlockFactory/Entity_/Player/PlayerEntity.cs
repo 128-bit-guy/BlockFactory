@@ -82,9 +82,9 @@ public class PlayerEntity : WalkingEntity
         if (GameInstance!.Kind.DoesProcessLogic())
         {
             if ((MotionState & MotionState.MovingForward) != 0)
-                TargetWalkVelocity += GetForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
+                TargetWalkVelocity += GetHorizontalForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
             if ((MotionState & MotionState.MovingBackwards) != 0)
-                TargetWalkVelocity -= GetForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
+                TargetWalkVelocity -= GetHorizontalForward().Xz * (float)Constants.TickPeriod.TotalSeconds;
             if ((MotionState & MotionState.MovingLeft) != 0)
                 TargetWalkVelocity -= GetRight().Xz * (float)Constants.TickPeriod.TotalSeconds;
             if ((MotionState & MotionState.MovingRight) != 0)
