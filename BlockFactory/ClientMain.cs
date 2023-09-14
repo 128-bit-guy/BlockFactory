@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+using BlockFactory.Client;
+
 
 namespace BlockFactory;
 
@@ -10,7 +11,6 @@ public static class ClientMain
     public static void Main()
     {
         Console.WriteLine("Launching Client!");
-        Console.WriteLine(ServerMain.x);
-        GLFW.Init();
+        BlockFactoryClient.Run();
     }
 }
