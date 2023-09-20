@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +20,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Shaders\Terrain\Fragment.glsl" />
+      <EmbeddedResource Include="Shaders\Block\Fragment.glsl" />
+      <None Remove="Shaders\Terrain\Vertex.glsl" />
+      <EmbeddedResource Include="Shaders\Block\Vertex.glsl" />
     </ItemGroup>
 
 </Project>
