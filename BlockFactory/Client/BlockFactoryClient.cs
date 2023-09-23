@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Mesh_;
@@ -44,6 +43,7 @@ public static class BlockFactoryClient
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, 3, DrawElementsType.UnsignedInt, null);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
+        BfDebug.UpdateAndRender(deltaTime);
     }
 
     private static void OnWindowLoad()
@@ -79,11 +79,13 @@ public static class BlockFactoryClient
         BfRendering.Gl.DeleteVertexArray(_vertexArray);
         BfRendering.Gl.DeleteBuffer(_vertexBuffer);
         BfRendering.Gl.DeleteBuffer(_indexBuffer);
+        BfDebug.OnWindowClose();
     }
 
     private static void AddEvents()
     {
         Window.Load += BfRendering.OnWindowLoad;
+        Window.Load += BfDebug.OnWindowLoad;
         Window.Load += OnWindowLoad;
         Window.Render += UpdateAndRender;
         Window.FramebufferResize += BfRendering.OnFramebufferResize;

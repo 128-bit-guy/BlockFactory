@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace BlockFactory.DebugLauncher;
@@ -51,9 +52,16 @@ public class LauncherLoadingContext : AssemblyLoadContext
 
     protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
     {
+        var ext = ".so";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            ext = ".dll";
+        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            ext = ".dylib";
+        }
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
-            if (file.EndsWith(unmanagedDllName) || file.EndsWith(unmanagedDllName + ".dll") ||
-                file.EndsWith(unmanagedDllName + ".dylib") || file.EndsWith(unmanagedDllName + ".so"))
+            if (file.EndsWith(unmanagedDllName + ext))
                 return LoadUnmanagedDllFromPath(file);
         // Console.WriteLine(unmanagedDllName);
         return base.LoadUnmanagedDll(unmanagedDllName);
