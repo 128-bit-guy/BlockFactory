@@ -1,7 +1,9 @@
-﻿using Silk.NET.OpenGL;
+﻿using BlockFactory.Base;
+using Silk.NET.OpenGL;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
+[ExclusiveTo(Side.Client)]
 public struct VertexAttributeInfo
 {
     public readonly uint LayoutLocation;

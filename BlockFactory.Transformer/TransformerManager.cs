@@ -16,17 +16,18 @@ public class TransformerManager
         _transformers = transformers;
     }
 
-    private static AssemblyDefinition LoadAssemblyDefinition(string path)
+    private static AssemblyDefinition LoadAssemblyDefinition(string path, IAssemblyResolver resolver)
     {
         var readerParameters = new ReaderParameters
         {
-            ReadSymbols = true
+            ReadSymbols = true,
+            AssemblyResolver = resolver
         };
         return AssemblyDefinition.ReadAssembly(path, readerParameters);
     }
 
-    public TransformerManager(string[] assemblyPaths, IAssemblyTransformer[] transformers) : this(
-        assemblyPaths.Select(LoadAssemblyDefinition).ToArray(), transformers)
+    public TransformerManager(string[] assemblyPaths, IAssemblyResolver resolver, IAssemblyTransformer[] transformers) : this(
+        assemblyPaths.Select(p => LoadAssemblyDefinition(p, resolver)).ToArray(), transformers)
     {
     }
 

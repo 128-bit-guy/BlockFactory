@@ -1,7 +1,9 @@
-﻿using Silk.NET.Maths;
+﻿using BlockFactory.Base;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
+[ExclusiveTo(Side.Client)]
 public struct BlockVertex
 {
     [LayoutLocation(0)]

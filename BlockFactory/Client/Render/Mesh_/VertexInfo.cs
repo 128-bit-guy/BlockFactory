@@ -3,11 +3,13 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using BlockFactory.Base;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
+[ExclusiveTo(Side.Client)]
 [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
 public static class VertexInfo<T> where T : unmanaged
 {

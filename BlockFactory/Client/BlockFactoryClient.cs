@@ -16,9 +16,8 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     private static uint _shaderProgram;
-    private static uint _vertexArray;
-    private static uint _vertexBuffer;
-    private static uint _indexBuffer;
+
+    private static RenderMesh _triangle;
 
     private static void InitWindow()
     {
@@ -39,8 +38,8 @@ public static class BlockFactoryClient
     {
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         BfRendering.Gl.UseProgram(_shaderProgram);
-        BfRendering.Gl.BindVertexArray(_vertexArray);
-        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, 3, DrawElementsType.UnsignedInt, null);
+        _triangle.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _triangle.IndexCount, DrawElementsType.UnsignedInt, null);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfDebug.UpdateAndRender(deltaTime);
@@ -62,23 +61,16 @@ public static class BlockFactoryClient
         BfRendering.Gl.LinkProgram(_shaderProgram);
         BfRendering.Gl.DeleteShader(vs);
         BfRendering.Gl.DeleteShader(fs);
-        Vector3D<float>[] verts = { new(0, 1, 0), new(1, 0, 0), new(-1, 0, 0) };
+        BlockVertex[] verts = { new(0, 1, 0), new(1, 0, 0), new(-1, 0, 0) };
         uint[] inds = { 0, 1, 2 };
-        _vertexBuffer = BfRendering.Gl.CreateBuffer();
-        BfRendering.Gl.NamedBufferData<Vector3D<float>>(_vertexBuffer, verts, VertexBufferObjectUsage.StaticDraw);
-        _indexBuffer = BfRendering.Gl.CreateBuffer();
-        BfRendering.Gl.NamedBufferData<uint>(_indexBuffer, inds, VertexBufferObjectUsage.StaticDraw);
-        _vertexArray = BfRendering.Gl.CreateVertexArray();
-        VertexInfo<BlockVertex>.AttachVbo(_vertexArray, _vertexBuffer, 0);
-        BfRendering.Gl.VertexArrayElementBuffer(_vertexArray, _indexBuffer);
+        _triangle = new RenderMesh();
+        _triangle.Upload<BlockVertex>(verts, inds);
     }
 
     private static void OnWindowClose()
     {
         BfRendering.Gl.DeleteProgram(_shaderProgram);
-        BfRendering.Gl.DeleteVertexArray(_vertexArray);
-        BfRendering.Gl.DeleteBuffer(_vertexBuffer);
-        BfRendering.Gl.DeleteBuffer(_indexBuffer);
+        _triangle.Dispose();
         BfDebug.OnWindowClose();
     }
 

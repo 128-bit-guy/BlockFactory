@@ -32,10 +32,12 @@ public static class DebugLauncher
             Directory.CreateDirectory(newDir);
             File.Copy(name, newPath);
         }
+
         var bfAssemblyPath = Path.GetFullPath(Path.Combine(bfBuildPath, "BlockFactory.dll"));
         var context = new LauncherLoadingContext(bfBuildPath, "Block Factory debug context");
-        var manager = new TransformerManager(new[] { bfAssemblyPath }, 
-                new IAssemblyTransformer[]{new SideStripperTransformer(side)});
+        var manager = new TransformerManager(new[] { bfAssemblyPath },
+            new LauncherAssemblyResolver(bfBuildPath),
+            new IAssemblyTransformer[] { new SideStripperTransformer(side) });
         manager.Process();
         var assemblies = manager.LoadAssemblies(context);
         var entryPoint = assemblies[0].DefinedTypes.SelectMany(t => t.DeclaredMethods).First(m =>

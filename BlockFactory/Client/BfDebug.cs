@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using ImGuiNET;
 using Silk.NET.Input;
@@ -6,10 +8,12 @@ using Silk.NET.OpenGL.Extensions.ImGui;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
+[SuppressMessage("Usage", "CA2211")]
 public static class BfDebug
 {
-    public static ImGuiController Controller;
-    private static readonly List<float> _frameDeltas = new();
+    public static ImGuiController Controller = null!;
+    private static readonly List<float> FrameDeltas = new();
     private static float _fps;
     private static int _fpsUpdateTime = 0;
 
@@ -35,15 +39,16 @@ public static class BfDebug
             }
 
             ImGui.Text($"FPS: {_fps}");
-            _frameDeltas.Add((float)deltaTime);
-            if (_frameDeltas.Count > 60)
+            FrameDeltas.Add((float)deltaTime);
+            if (FrameDeltas.Count > 60)
             {
-                _frameDeltas.RemoveAt(0);
+                FrameDeltas.RemoveAt(0);
             }
 
-            var values = _frameDeltas.ToArray();
+            var values = FrameDeltas.ToArray();
             ImGui.PlotHistogram(string.Empty, ref values[0], values.Length, 0,
                 string.Empty, 0, 1 / 60f, new Vector2(300, 100));
+            
         }
 
         ImGui.End();

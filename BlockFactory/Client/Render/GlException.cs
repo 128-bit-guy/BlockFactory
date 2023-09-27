@@ -1,7 +1,9 @@
 ﻿using System.Runtime.Serialization;
+using BlockFactory.Base;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class GlException : Exception
 {
     public GlException()
