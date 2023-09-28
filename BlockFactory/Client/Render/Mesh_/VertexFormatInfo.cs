@@ -11,17 +11,15 @@ namespace BlockFactory.Client.Render.Mesh_;
 
 [ExclusiveTo(Side.Client)]
 [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
-public static class VertexInfo<T> where T : unmanaged
+public static class VertexFormatInfo<T> where T : unmanaged
 {
     private static uint _size;
     private static List<VertexAttributeInfo> _vertexAttributeInfos;
-    private static List<(FieldInfo field, TransformType type)> _transformTypes;
 
-    static VertexInfo()
+    static VertexFormatInfo()
     {
         _size = (uint)Unsafe.SizeOf<T>();
         _vertexAttributeInfos = new List<VertexAttributeInfo>();
-        _transformTypes = new List<(FieldInfo field, TransformType type)>();
         var attribTypes = new Dictionary<Type, VertexAttribType>
         {
             [typeof(float)] = VertexAttribType.Float,
@@ -72,13 +70,6 @@ public static class VertexInfo<T> where T : unmanaged
                     throw new ArgumentException(
                         $"{typeof(T)} has field {field.Name} of type {t.FullName} which is not supported");
                 }
-            }
-
-            var transformType = (TransformationTypeAttribute?)field
-                .GetCustomAttributes(true).FirstOrDefault(a => a is TransformationTypeAttribute);
-            if (transformType != null)
-            {
-                _transformTypes.Add((field, transformType.TransformType));
             }
         }
     }

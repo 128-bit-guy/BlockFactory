@@ -35,7 +35,7 @@ public class RenderMesh : IDisposable
         BfRendering.Gl.CreateBuffers(buffers);
         _vbo = buffers[0];
         _ibo = buffers[1];
-        VertexInfo<T>.AttachVbo(_vao, _vbo, 0);
+        VertexFormatInfo<T>.AttachVbo(_vao, _vbo, 0);
         BfRendering.Gl.VertexArrayElementBuffer(_vao, _ibo);
     }
 

@@ -8,7 +8,7 @@ public struct BlockVertex
 {
     [LayoutLocation(0)]
     [TransformationType(TransformType.Position)]
-    public readonly Vector3D<float> Pos;
+    public Vector3D<float> Pos;
 
     public BlockVertex(Vector3D<float> pos)
     {

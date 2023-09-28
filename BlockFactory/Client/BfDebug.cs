@@ -26,7 +26,7 @@ public static class BfDebug
     public static void UpdateAndRender(double deltaTime)
     {
         Controller.Update((float)deltaTime);
-        if (ImGui.Begin("Performance"))
+        if (ImGui.Begin("Performance", ImGuiWindowFlags.NoResize))
         {
             if (_fpsUpdateTime == 0)
             {

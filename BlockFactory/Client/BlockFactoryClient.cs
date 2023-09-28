@@ -37,6 +37,21 @@ public static class BlockFactoryClient
     private static unsafe void UpdateAndRender(double deltaTime)
     {
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        var builder = new MeshBuilder<BlockVertex>();
+        builder.Matrices.Push();
+        builder.Matrices.Scale(0.5f);
+        builder.Matrices.Translate(1, 0, 0);
+        builder.NewPolygon().Indices(0, 1, 2)
+            .Vertex(new BlockVertex(0, 1, 0))
+            .Vertex(new BlockVertex(1, 0, 0))
+            .Vertex(new BlockVertex(-1, 0, 0));
+        builder.NewPolygon().Indices(0, 1, 2)
+            .Vertex(new BlockVertex((float)Math.Sin(Window.Time), 0, 0))
+            .Vertex(new BlockVertex(1, -1, 0))
+            .Vertex(new BlockVertex(-1, -1, 0));
+        builder.Matrices.Pop();
+        builder.Upload(_triangle);
+        builder.Reset();
         BfRendering.Gl.UseProgram(_shaderProgram);
         _triangle.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _triangle.IndexCount, DrawElementsType.UnsignedInt, null);
@@ -61,10 +76,7 @@ public static class BlockFactoryClient
         BfRendering.Gl.LinkProgram(_shaderProgram);
         BfRendering.Gl.DeleteShader(vs);
         BfRendering.Gl.DeleteShader(fs);
-        BlockVertex[] verts = { new(0, 1, 0), new(1, 0, 0), new(-1, 0, 0) };
-        uint[] inds = { 0, 1, 2 };
-        _triangle = new RenderMesh();
-        _triangle.Upload<BlockVertex>(verts, inds);
+        _triangle = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
     }
 
     private static void OnWindowClose()
