@@ -125,10 +125,19 @@ public partial class SideStripperTransformer
     {
         foreach (var type in def.AllTypes())
         {
-            if (!ScanDataContains(scanDataGetter, type))
+            var shouldSkip = false;
+            for (var curType = type; curType != null; curType = curType.DeclaringType)
             {
-                FixType(type, scanDataGetter);
+                if (!ScanDataContains(scanDataGetter, curType)) continue;
+                shouldSkip = true;
+                break;
             }
+
+            if (shouldSkip)
+            {
+                continue;
+            }
+            FixType(type, scanDataGetter);
         }
     }
 }
