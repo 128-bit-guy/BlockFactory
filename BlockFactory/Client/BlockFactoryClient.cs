@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Mesh_;
+using BlockFactory.CubeMath;
 using BlockFactory.Resource;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -39,22 +40,46 @@ public static class BlockFactoryClient
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         BfRendering.Gl.Enable(EnableCap.CullFace);
         BfRendering.Gl.CullFace(TriangleFace.Back);
+        BfRendering.Gl.Enable(EnableCap.DepthTest);
+        BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
         var builder = new MeshBuilder<BlockVertex>();
         builder.Matrices.Push();
-        builder.NewPolygon().Indices(0, 1, 2)
-            .Vertex(new BlockVertex(0, 1, 0))
-            .Vertex(new BlockVertex(1, 0, 0))
-            .Vertex(new BlockVertex(-1, 0, 0));
-        builder.NewPolygon().Indices(0, 1, 2)
-            .Vertex(new BlockVertex((float)Math.Sin(Window.Time), 0, 0))
-            .Vertex(new BlockVertex(1, -1, 0))
-            .Vertex(new BlockVertex(-1, -1, 0));
+        foreach (var face in CubeFaceUtils.Values())
+        {
+            builder.Matrices.Push();
+            CubeSymmetry s;
+            if (face.GetAxis() == 1)
+            {
+                s = CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0];
+            }
+            else
+            {
+                s = CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
+            }
+            builder.Matrices.Multiply(s.Matrix4);
+            var light = (float)(face.GetAxis() + 8) / 10;
+            var light2 = light / 2;
+            builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
+                .Vertex(new BlockVertex(-1, -1, -1, light, light, light, 1))
+                .Vertex(new BlockVertex(-1, 1, -1, light, light, light, 1))
+                .Vertex(new BlockVertex(1, 1, -1, light, light, light, 1))
+                .Vertex(new BlockVertex(1, -1, -1, light, light, light, 1));
+            builder.Matrices.Push();
+            builder.Matrices.Multiply(Matrix4X4.CreateRotationZ((float)Window.Time));
+            builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
+                .Vertex(new BlockVertex(0, 0, -2, light2, light, light2, 1))
+                .Vertex(new BlockVertex(0, 2, -2, light2, light2, light, 1))
+                .Vertex(new BlockVertex(2, 2, -2, light2, light, light2, 1))
+                .Vertex(new BlockVertex(2, 0, -2, light2, light2, light, 1));
+            builder.Matrices.Pop();
+            builder.Matrices.Pop();
+        }
         builder.Matrices.Pop();
         builder.Upload(_triangle);
         builder.Reset();
         _program.SetModel(Matrix4X4<float>.Identity);
         var cameraPos =
-            new Vector3D<float>((float)Math.Sin(Window.Time * 0.75), (float)Math.Cos(Window.Time * 1.25) / 5,
+            new Vector3D<float>((float)Math.Sin(Window.Time * 0.75), (float)Math.Cos(Window.Time * 1.25) / 3,
                 (float)Math.Cos(Window.Time * 0.75)) * 10;
         _program.SetView(Matrix4X4.CreateLookAt(cameraPos, Vector3D<float>.Zero, 
             Vector3D<float>.UnitY));

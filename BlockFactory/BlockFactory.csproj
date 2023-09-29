@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj" />
+      <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
     </ItemGroup>
 
     <ItemGroup>

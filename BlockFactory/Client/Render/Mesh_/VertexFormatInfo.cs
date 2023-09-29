@@ -77,9 +77,9 @@ public static class VertexFormatInfo<T> where T : unmanaged
     public static void AttachVbo(uint vao, uint vbo, uint binding)
     {
         BfRendering.Gl.VertexArrayVertexBuffer(vao, binding, vbo, 0, _size);
-        BfRendering.Gl.EnableVertexArrayAttrib(vao, binding);
         foreach (var info in _vertexAttributeInfos)
         {
+            BfRendering.Gl.EnableVertexArrayAttrib(vao, info.LayoutLocation);
             BfRendering.Gl.VertexArrayAttribFormat(vao, info.LayoutLocation, info.Count, info.Type,
                 false, info.Offset);
             BfRendering.Gl.VertexArrayAttribBinding(vao, info.LayoutLocation, binding);
