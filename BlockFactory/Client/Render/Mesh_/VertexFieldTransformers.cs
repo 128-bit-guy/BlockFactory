@@ -10,4 +10,9 @@ public static class VertexFieldTransformers<T> where T : unmanaged
     {
         return Vector3D.Transform(pos, builder.Matrices);
     }
+
+    public static Vector2D<float> TransformUv(Vector2D<float> pos, MeshBuilder<T> builder)
+    {
+        return builder.UvTransformer.TransformUv(pos);
+    }
 }

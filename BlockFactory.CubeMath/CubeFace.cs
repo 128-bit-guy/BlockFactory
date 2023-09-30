@@ -6,6 +6,6 @@ public enum CubeFace
     Left = 1,
     Top = 2,
     Bottom = 3,
-    Back = 4,
-    Front = 5
+    Front = 4,
+    Back = 5
 }

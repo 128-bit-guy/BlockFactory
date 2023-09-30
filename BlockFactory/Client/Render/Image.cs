@@ -16,13 +16,6 @@ public class Image
         Width = result.Width;
         Height = result.Height;
         Data = (byte[])result.Data.Clone();
-        for (var x = 0; x < result.Width >> 1; ++x)
-        {
-            for (var y = 0; y < result.Height; ++y)
-            {
-                (this[x, y], this[Width - x - 1, y]) = (this[Width - x - 1, y], this[x, y]);
-            }
-        }
     }
 
     public Image(int width, int height, Color color)
@@ -48,12 +41,12 @@ public class Image
     {
         get
         {
-            var idx = (Width - x - 1) * 4 + y * 4 * Width;
+            var idx = x * 4 + y * 4 * Width;
             return Color.FromArgb(Data[idx + 3], Data[idx], Data[idx + 1], Data[idx + 2]);
         }
         set
         {
-            var idx = (Width - x - 1) * 4 + y * 4 * Width;
+            var idx = x * 4 + y * 4 * Width;
             Data[idx] = value.R;
             Data[idx + 1] = value.G;
             Data[idx + 2] = value.B;

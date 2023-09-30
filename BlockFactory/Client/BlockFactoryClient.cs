@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Mesh_;
+using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
 using BlockFactory.Resource;
 using Silk.NET.Maths;
@@ -17,6 +18,9 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     private static ShaderProgram _program;
+    private static MeshBuilder<BlockVertex> _meshBuilder;
+    private static TextureAtlasUvTransformer _uvTransformer;
+    private static uint[] _quadIndices = { 0, 1, 2, 0, 2, 3 };
 
     private static RenderMesh _triangle;
 
@@ -42,8 +46,10 @@ public static class BlockFactoryClient
         BfRendering.Gl.CullFace(TriangleFace.Back);
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
-        var builder = new MeshBuilder<BlockVertex>();
+        var builder = _meshBuilder;
         builder.Matrices.Push();
+        int sprite1 = ((int)Math.Floor(Window.Time)) & 3;
+        int sprite2 = (sprite1 + 1) & 3;
         foreach (var face in CubeFaceUtils.Values())
         {
             builder.Matrices.Push();
@@ -56,21 +62,24 @@ public static class BlockFactoryClient
             {
                 s = CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
             }
+
             builder.Matrices.Multiply(s.Matrix4);
             var light = (float)(face.GetAxis() + 8) / 10;
             var light2 = light / 2;
-            builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
-                .Vertex(new BlockVertex(-1, -1, -1, light, light, light, 1, 0, 0))
-                .Vertex(new BlockVertex(-1, 1, -1, light, light, light, 1, 0, 1))
-                .Vertex(new BlockVertex(1, 1, -1, light, light, light, 1, 1, 1))
-                .Vertex(new BlockVertex(1, -1, -1, light, light, light, 1, 1, 0));
+            _uvTransformer.Sprite = sprite1;
+            builder.NewPolygon().Indices(_quadIndices)
+                .Vertex(new BlockVertex(-1, -1, 1, light, light, light, 1, 0, 0))
+                .Vertex(new BlockVertex(1, -1, 1, light, light, light, 1, 1, 0))
+                .Vertex(new BlockVertex(1, 1, 1, light, light, light, 1, 1, 1))
+                .Vertex(new BlockVertex(-1, 1, 1, light, light, light, 1, 0, 1));
             builder.Matrices.Push();
             builder.Matrices.Multiply(Matrix4X4.CreateRotationZ((float)Window.Time));
-            builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
-                .Vertex(new BlockVertex(0, 0, -2, light2, light, light2, 1, 0, 0))
-                .Vertex(new BlockVertex(0, 2, -2, light2, light2, light, 1, 0, 1))
-                .Vertex(new BlockVertex(2, 2, -2, light2, light, light2, 1, 1, 1))
-                .Vertex(new BlockVertex(2, 0, -2, light2, light2, light, 1, 1, 0));
+            _uvTransformer.Sprite = sprite2;
+            builder.NewPolygon().Indices(_quadIndices)
+                .Vertex(new BlockVertex(0, 0, 2, light2, light, light2, 1, 0, 0))
+                .Vertex(new BlockVertex(2, 0, 2, light2, light2, light, 1, 1, 0))
+                .Vertex(new BlockVertex(2, 2, 2, light2, light, light2, 1, 1, 1))
+                .Vertex(new BlockVertex(0, 2, 2, light2, light2, light, 1, 0, 1));
             builder.Matrices.Pop();
             builder.Matrices.Pop();
         }
@@ -88,7 +97,7 @@ public static class BlockFactoryClient
             100f));
         _program.Use();
         _triangle.Bind();
-        Textures.Stone.Bind();
+        Textures.Blocks.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _triangle.IndexCount, DrawElementsType.UnsignedInt,
             null);
         BfRendering.Gl.BindVertexArray(0);
@@ -106,6 +115,8 @@ public static class BlockFactoryClient
         _program = new ShaderProgram(vertText, fragText);
         _triangle = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
         Textures.Init();
+        _uvTransformer = new TextureAtlasUvTransformer(Textures.Blocks);
+        _meshBuilder = new MeshBuilder<BlockVertex>(_uvTransformer);
     }
 
     private static void OnWindowClose()

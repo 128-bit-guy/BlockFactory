@@ -11,15 +11,22 @@ public class MeshBuilder<T> where T : unmanaged
     private int _indCnt;
     private uint _indBegin;
     public readonly MatrixStack Matrices;
+    public readonly IUvTransformer UvTransformer;
 
-    public MeshBuilder(MatrixStack matrices)
+    public MeshBuilder(MatrixStack matrices, IUvTransformer transformer)
     {
         _vertices = new T[1];
         _indices = new uint[1];
         Matrices = matrices;
+        UvTransformer = transformer;
     }
 
-    public MeshBuilder() : this(new MatrixStack())
+    public MeshBuilder(IUvTransformer transformer) : this(new MatrixStack(), transformer)
+    {
+        
+    }
+
+    public MeshBuilder() : this(IdentityUvTransformer.Instance)
     {
         
     }

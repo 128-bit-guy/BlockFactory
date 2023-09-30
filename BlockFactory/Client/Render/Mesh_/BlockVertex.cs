@@ -14,6 +14,7 @@ public struct BlockVertex
     public Vector4D<float> Color;
 
     [LayoutLocation(2)] 
+    [TransformationType(TransformType.Uv)]
     public Vector2D<float> Uv;
 
     public BlockVertex(Vector3D<float> pos, Vector4D<float> color, Vector2D<float> uv)

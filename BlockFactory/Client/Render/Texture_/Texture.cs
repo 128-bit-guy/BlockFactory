@@ -1,7 +1,7 @@
 ﻿using BlockFactory.Base;
 using Silk.NET.OpenGL;
 
-namespace BlockFactory.Client.Render;
+namespace BlockFactory.Client.Render.Texture_;
 
 [ExclusiveTo(Side.Client)]
 public class Texture : IDisposable
