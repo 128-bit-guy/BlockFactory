@@ -13,14 +13,19 @@ public struct BlockVertex
     [LayoutLocation(1)] 
     public Vector4D<float> Color;
 
-    public BlockVertex(Vector3D<float> pos, Vector4D<float> color)
+    [LayoutLocation(2)] 
+    public Vector2D<float> Uv;
+
+    public BlockVertex(Vector3D<float> pos, Vector4D<float> color, Vector2D<float> uv)
     {
         Pos = pos;
         Color = color;
+        Uv = uv;
     }
 
-    public BlockVertex(float x, float y, float z, float r, float g, float b, float a) : 
-        this(new Vector3D<float>(x, y, z), new Vector4D<float>(r, g, b, a))
+    public BlockVertex(float x, float y, float z, float r, float g, float b, float a, float u, float v) : 
+        this(new Vector3D<float>(x, y, z), new Vector4D<float>(r, g, b, a),
+            new Vector2D<float>(u, v))
     {
         
     }

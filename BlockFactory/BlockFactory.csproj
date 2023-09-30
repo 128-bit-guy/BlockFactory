@@ -30,6 +30,8 @@
       <EmbeddedResource Include="Shaders\Block\Fragment.glsl" />
       <None Remove="Shaders\Terrain\Vertex.glsl" />
       <EmbeddedResource Include="Shaders\Block\Vertex.glsl" />
+      <None Remove="Textures\Stone.png" />
+      <EmbeddedResource Include="Textures\Stone.png" />
     </ItemGroup>
 
 </Project>

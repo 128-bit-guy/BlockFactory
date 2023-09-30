@@ -60,17 +60,17 @@ public static class BlockFactoryClient
             var light = (float)(face.GetAxis() + 8) / 10;
             var light2 = light / 2;
             builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
-                .Vertex(new BlockVertex(-1, -1, -1, light, light, light, 1))
-                .Vertex(new BlockVertex(-1, 1, -1, light, light, light, 1))
-                .Vertex(new BlockVertex(1, 1, -1, light, light, light, 1))
-                .Vertex(new BlockVertex(1, -1, -1, light, light, light, 1));
+                .Vertex(new BlockVertex(-1, -1, -1, light, light, light, 1, 0, 0))
+                .Vertex(new BlockVertex(-1, 1, -1, light, light, light, 1, 0, 1))
+                .Vertex(new BlockVertex(1, 1, -1, light, light, light, 1, 1, 1))
+                .Vertex(new BlockVertex(1, -1, -1, light, light, light, 1, 1, 0));
             builder.Matrices.Push();
             builder.Matrices.Multiply(Matrix4X4.CreateRotationZ((float)Window.Time));
             builder.NewPolygon().Indices(0, 1, 2, 0, 2, 3)
-                .Vertex(new BlockVertex(0, 0, -2, light2, light, light2, 1))
-                .Vertex(new BlockVertex(0, 2, -2, light2, light2, light, 1))
-                .Vertex(new BlockVertex(2, 2, -2, light2, light, light2, 1))
-                .Vertex(new BlockVertex(2, 0, -2, light2, light2, light, 1));
+                .Vertex(new BlockVertex(0, 0, -2, light2, light, light2, 1, 0, 0))
+                .Vertex(new BlockVertex(0, 2, -2, light2, light2, light, 1, 0, 1))
+                .Vertex(new BlockVertex(2, 2, -2, light2, light, light2, 1, 1, 1))
+                .Vertex(new BlockVertex(2, 0, -2, light2, light2, light, 1, 1, 0));
             builder.Matrices.Pop();
             builder.Matrices.Pop();
         }
@@ -88,10 +88,12 @@ public static class BlockFactoryClient
             100f));
         _program.Use();
         _triangle.Bind();
+        Textures.Stone.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _triangle.IndexCount, DrawElementsType.UnsignedInt,
             null);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
         BfDebug.UpdateAndRender(deltaTime);
     }
 
@@ -103,19 +105,21 @@ public static class BlockFactoryClient
         var fragText = ResourceLoader.GetResourceText("BlockFactory.Shaders.Block.Fragment.glsl")!;
         _program = new ShaderProgram(vertText, fragText);
         _triangle = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
+        Textures.Init();
     }
 
     private static void OnWindowClose()
     {
+        Textures.Destroy();
         _program.Dispose();
         _triangle.Dispose();
-        BfDebug.OnWindowClose();
+        BfDebug.Destroy();
     }
 
     private static void AddEvents()
     {
-        Window.Load += BfRendering.OnWindowLoad;
-        Window.Load += BfDebug.OnWindowLoad;
+        Window.Load += BfRendering.Init;
+        Window.Load += BfDebug.Init;
         Window.Load += OnWindowLoad;
         Window.Render += UpdateAndRender;
         Window.FramebufferResize += BfRendering.OnFramebufferResize;

@@ -17,7 +17,7 @@ public static class BfDebug
     private static float _fps;
     private static int _fpsUpdateTime = 0;
 
-    public static void OnWindowLoad()
+    public static void Init()
     {
         Controller = new ImGuiController(BfRendering.Gl, BlockFactoryClient.Window,
             BlockFactoryClient.Window.CreateInput());
@@ -55,7 +55,7 @@ public static class BfDebug
         Controller.Render();
     }
 
-    public static void OnWindowClose()
+    public static void Destroy()
     {
         Controller.Dispose();
     }

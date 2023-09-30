@@ -15,7 +15,7 @@ public static class BfRendering
 {
     public static GL Gl = null!;
 
-    public static unsafe void OnWindowLoad()
+    public static unsafe void Init()
     {
         Gl = BlockFactoryClient.Window.CreateOpenGL();
         Gl.ClearColor(Color.Aqua);
