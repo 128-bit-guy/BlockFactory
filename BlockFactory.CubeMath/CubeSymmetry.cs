@@ -120,6 +120,8 @@ public class CubeSymmetry
 
     public readonly Matrix4X4<float> Matrix4;
 
+    public readonly Matrix4X4<float> AroundCenterMatrix4;
+
     public readonly bool IsRotation;
 
     public readonly bool IsSymmetry;
@@ -154,6 +156,9 @@ public class CubeSymmetry
                 Matrix4.SetValue(i, j, Matrix[i, j]);
             }
         }
+
+        AroundCenterMatrix4 = Matrix4X4.CreateTranslation(-0.5f, -0.5f, -0.5f) * Matrix4 *
+                              Matrix4X4.CreateTranslation(0.5f, 0.5f, 0.5f);
     }
 
     #region Application

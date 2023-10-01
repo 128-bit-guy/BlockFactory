@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
+using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
 using BlockFactory.Resource;
+using BlockFactory.World_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -46,46 +48,6 @@ public static class BlockFactoryClient
         BfRendering.Gl.CullFace(TriangleFace.Back);
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
-        var builder = _meshBuilder;
-        builder.Matrices.Push();
-        int sprite1 = ((int)Math.Floor(Window.Time)) & 3;
-        int sprite2 = (sprite1 + 1) & 3;
-        foreach (var face in CubeFaceUtils.Values())
-        {
-            builder.Matrices.Push();
-            CubeSymmetry s;
-            if (face.GetAxis() == 1)
-            {
-                s = CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0];
-            }
-            else
-            {
-                s = CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
-            }
-
-            builder.Matrices.Multiply(s.Matrix4);
-            var light = (float)(face.GetAxis() + 8) / 10;
-            var light2 = light / 2;
-            _uvTransformer.Sprite = sprite1;
-            builder.NewPolygon().Indices(_quadIndices)
-                .Vertex(new BlockVertex(-1, -1, 1, light, light, light, 1, 0, 0))
-                .Vertex(new BlockVertex(1, -1, 1, light, light, light, 1, 1, 0))
-                .Vertex(new BlockVertex(1, 1, 1, light, light, light, 1, 1, 1))
-                .Vertex(new BlockVertex(-1, 1, 1, light, light, light, 1, 0, 1));
-            builder.Matrices.Push();
-            builder.Matrices.Multiply(Matrix4X4.CreateRotationZ((float)Window.Time));
-            _uvTransformer.Sprite = sprite2;
-            builder.NewPolygon().Indices(_quadIndices)
-                .Vertex(new BlockVertex(0, 0, 2, light2, light, light2, 1, 0, 0))
-                .Vertex(new BlockVertex(2, 0, 2, light2, light2, light, 1, 1, 0))
-                .Vertex(new BlockVertex(2, 2, 2, light2, light, light2, 1, 1, 1))
-                .Vertex(new BlockVertex(0, 2, 2, light2, light2, light, 1, 0, 1));
-            builder.Matrices.Pop();
-            builder.Matrices.Pop();
-        }
-        builder.Matrices.Pop();
-        builder.Upload(_triangle);
-        builder.Reset();
         _program.SetModel(Matrix4X4<float>.Identity);
         var cameraPos =
             new Vector3D<float>((float)Math.Sin(Window.Time * 0.75), (float)Math.Cos(Window.Time * 1.25) / 3,
@@ -117,6 +79,28 @@ public static class BlockFactoryClient
         Textures.Init();
         _uvTransformer = new TextureAtlasUvTransformer(Textures.Blocks);
         _meshBuilder = new MeshBuilder<BlockVertex>(_uvTransformer);
+        var builder = _meshBuilder;
+        var c = new Chunk(new Vector3D<int>(0, 0, 0));
+        c.Data = new ChunkData();
+        for (var i = -1; i <= 1; ++i)
+        {
+            for (var j = -1; j <= 1; ++j)
+            {
+                for (var k = -1; k <= 1; ++k)
+                {
+                    if(i == 0 && j == 0 && k == 0) continue;
+                    c.Neighbourhood.AddChunk(
+                        new Chunk(new Vector3D<int>(i, j, k)) {Data = new ChunkData()});
+                }
+            }
+        }
+        c.SetBlock(new Vector3D<int>(0, 0, 0), 1);
+        c.SetBlock(new Vector3D<int>(0, 1, 0), 1);
+        c.SetBlock(new Vector3D<int>(0, 2, 0), 2);
+        var cr = new ChunkRenderer(c);
+        cr.BuildChunkMesh(builder, _uvTransformer);
+        builder.Upload(_triangle);
+        builder.Reset();
     }
 
     private static void OnWindowClose()

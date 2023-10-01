@@ -19,7 +19,7 @@ public static class CubeFaceUtils
 
     public static int GetSign(this CubeFace face)
     {
-        return (((int)face & 1) << 1) - 1;
+        return 1 - (((int)face & 1) << 1);
     }
 
     public static Vector3D<int> GetDelta(this CubeFace face)

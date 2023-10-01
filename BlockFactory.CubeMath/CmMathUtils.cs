@@ -3,13 +3,16 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.CubeMath;
 
-public static class MathUtils
+public static class CmMathUtils
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void SetValue<T>(this ref Vector3D<T> vec, int index, T val) where T : unmanaged, IFormattable,
         IEquatable<T>, IComparable<T>
     {
         Unsafe.Add(ref vec.X, index) = val;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void SetValue<T>(this ref Matrix4X4<T> mat, int i, int j, T val) where T : unmanaged, IFormattable,
         IEquatable<T>, IComparable<T>
     {
