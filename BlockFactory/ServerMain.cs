@@ -6,6 +6,7 @@ namespace BlockFactory;
 public static class ServerMain
 {
     public static object x = 228;
+
     [EntryPoint(Side.Server)]
     public static void Main()
     {

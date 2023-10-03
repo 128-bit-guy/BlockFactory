@@ -8,35 +8,35 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="ENet.Managed" Version="5.0.4.18-alpha" />
-      <PackageReference Include="SharpNoise" Version="0.12.1.1" />
-      <PackageReference Include="Silk.NET.Input.Glfw" Version="2.17.1" />
-      <PackageReference Include="Silk.NET.Maths" Version="2.17.1" />
-      <PackageReference Include="Silk.NET.OpenAL" Version="2.17.1" />
-      <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
-      <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.17.1" />
-      <PackageReference Include="Silk.NET.Windowing" Version="2.17.1" />
-      <PackageReference Include="StbImageSharp" Version="2.27.13" />
-      <PackageReference Include="StbTrueTypeSharp" Version="1.26.11" />
+        <PackageReference Include="ENet.Managed" Version="5.0.4.18-alpha"/>
+        <PackageReference Include="SharpNoise" Version="0.12.1.1"/>
+        <PackageReference Include="Silk.NET.Input.Glfw" Version="2.17.1"/>
+        <PackageReference Include="Silk.NET.Maths" Version="2.17.1"/>
+        <PackageReference Include="Silk.NET.OpenAL" Version="2.17.1"/>
+        <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1"/>
+        <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.17.1"/>
+        <PackageReference Include="Silk.NET.Windowing" Version="2.17.1"/>
+        <PackageReference Include="StbImageSharp" Version="2.27.13"/>
+        <PackageReference Include="StbTrueTypeSharp" Version="1.26.11"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj" />
-      <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj" />
+        <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj"/>
+        <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Shaders\Terrain\Fragment.glsl" />
-      <EmbeddedResource Include="Shaders\Block\Fragment.glsl" />
-      <None Remove="Shaders\Terrain\Vertex.glsl" />
-      <EmbeddedResource Include="Shaders\Block\Vertex.glsl" />
-      <None Remove="Textures\Stone.png" />
-      <None Remove="Textures\Blocks.png" />
-      <EmbeddedResource Include="Textures\Blocks.png" />
+        <None Remove="Shaders\Terrain\Fragment.glsl"/>
+        <EmbeddedResource Include="Shaders\Block\Fragment.glsl"/>
+        <None Remove="Shaders\Terrain\Vertex.glsl"/>
+        <EmbeddedResource Include="Shaders\Block\Vertex.glsl"/>
+        <None Remove="Textures\Stone.png"/>
+        <None Remove="Textures\Blocks.png"/>
+        <EmbeddedResource Include="Textures\Blocks.png"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Textures\" />
+        <Folder Include="Textures\"/>
     </ItemGroup>
 
 </Project>

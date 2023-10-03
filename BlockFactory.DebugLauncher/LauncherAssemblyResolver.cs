@@ -20,13 +20,14 @@ public class LauncherAssemblyResolver : DefaultAssemblyResolver
         catch (AssemblyResolutionException)
         {
             Console.WriteLine($"Resolving {name}");
-            
+
             var dll = Path.Combine(_loadingDirectory, name.Name + ".dll");
             if (!File.Exists(dll))
             {
                 Console.WriteLine($"Unable to resolve: {name}");
                 throw;
             }
+
             return AssemblyDefinition.ReadAssembly(dll, new ReaderParameters());
         }
     }

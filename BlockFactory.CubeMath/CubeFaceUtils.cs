@@ -5,7 +5,7 @@ namespace BlockFactory.CubeMath;
 public static class CubeFaceUtils
 {
     private static readonly CubeFace[] AllValues = Enum.GetValues<CubeFace>();
-    
+
 
     public static CubeFace[] Values()
     {

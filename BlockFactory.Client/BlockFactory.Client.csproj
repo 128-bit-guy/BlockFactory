@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BlockFactory.DebugLauncher\BlockFactory.DebugLauncher.csproj" />
+        <ProjectReference Include="..\BlockFactory.DebugLauncher\BlockFactory.DebugLauncher.csproj"/>
     </ItemGroup>
 
 </Project>

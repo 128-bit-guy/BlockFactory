@@ -22,38 +22,35 @@ public class ChunkRenderer
     {
         var neighbourhood = Chunk.Neighbourhood;
         for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
         {
-            for (var j = 0; j < Constants.ChunkSize; ++j)
+            var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
+                         + new Vector3D<int>(i, j, k);
+            var block = neighbourhood.GetBlock(absPos);
+            if (block == 0) continue;
+            builder.Matrices.Push();
+            builder.Matrices.Translate(i, j, k);
+            transformer.Sprite = block - 1;
+            foreach (var face in CubeFaceUtils.Values())
             {
-                for (var k = 0; k < Constants.ChunkSize; ++k)
-                {
-                    var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
-                                 + new Vector3D<int>(i, j, k);
-                    var block = neighbourhood.GetBlock(absPos);
-                    if (block == 0) continue;
-                    builder.Matrices.Push();
-                    builder.Matrices.Translate(i, j, k);
-                    transformer.Sprite = block - 1;
-                    foreach (var face in CubeFaceUtils.Values())
-                    {
-                        var oPos = absPos + face.GetDelta();
-                        if (neighbourhood.GetBlock(oPos) != 0) continue;
-                        var light = (float)(face.GetAxis() + 8) / 10;
-                        builder.Matrices.Push();
-                        var s = face.GetAxis() == 1
-                            ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
-                            : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
-                        builder.Matrices.Multiply(s.AroundCenterMatrix4);
-                        builder.NewPolygon().Indices(QuadIndices)
-                            .Vertex(new BlockVertex(0, 0, 1, light, light, light, 1, 0, 0))
-                            .Vertex(new BlockVertex(1, 0, 1, light, light, light, 1, 1, 0))
-                            .Vertex(new BlockVertex(1, 1, 1, light, light, light, 1, 1, 1))
-                            .Vertex(new BlockVertex(0, 1, 1, light, light, light, 1, 0, 1));
-                        builder.Matrices.Pop();
-                    }
-                    builder.Matrices.Pop();
-                }
+                var oPos = absPos + face.GetDelta();
+                if (neighbourhood.GetBlock(oPos) != 0) continue;
+                var light = (float)(face.GetAxis() + 8) / 10;
+                builder.Matrices.Push();
+                var s = face.GetAxis() == 1
+                    ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
+                    : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
+                builder.Matrices.Multiply(s.AroundCenterMatrix4);
+                builder.NewPolygon().Indices(QuadIndices)
+                    .Vertex(new BlockVertex(0, 0, 1, light, light, light, 1, 0, 0))
+                    .Vertex(new BlockVertex(1, 0, 1, light, light, light, 1, 1, 0))
+                    .Vertex(new BlockVertex(1, 1, 1, light, light, light, 1, 1, 1))
+                    .Vertex(new BlockVertex(0, 1, 1, light, light, light, 1, 0, 1));
+                builder.Matrices.Pop();
             }
+
+            builder.Matrices.Pop();
         }
     }
 }

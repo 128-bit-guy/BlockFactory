@@ -1,13 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text;
 using BlockFactory.Base;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace BlockFactory.Client.Render;
-
 
 [ExclusiveTo(Side.Client)]
 [SuppressMessage("Usage", "CA2211")]
@@ -32,7 +30,8 @@ public static class BfRendering
         IntPtr message,
         IntPtr userParam)
     {
-        if (type != GLEnum.DebugTypeError && type != GLEnum.DebugTypeUndefinedBehavior && type != GLEnum.DebugTypeDeprecatedBehavior) return;
+        if (type != GLEnum.DebugTypeError && type != GLEnum.DebugTypeUndefinedBehavior &&
+            type != GLEnum.DebugTypeDeprecatedBehavior) return;
         var s = Marshal.PtrToStringAnsi(message, length);
         throw new GlException($"Error {(ErrorCode)id} from {source} with severity {severity} and message:\n{s}");
     }

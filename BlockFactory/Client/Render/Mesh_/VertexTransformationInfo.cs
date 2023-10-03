@@ -1,7 +1,5 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 using BlockFactory.Base;
-using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
 

@@ -14,13 +14,7 @@ public class ChunkNeighbourhood : IChunkStorage
         AddChunk(center);
         Center = center;
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetArrIndex(Vector3D<int> pos)
-    {
-        return (pos.X & 3) | (((pos.Y & 3) | ((pos.Z & 3) << 2)) << 2);
-    }
-    
+
     public short GetBlock(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
@@ -44,5 +38,11 @@ public class ChunkNeighbourhood : IChunkStorage
     public void RemoveChunk(Vector3D<int> pos)
     {
         _neighbours[GetArrIndex(pos)] = null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int GetArrIndex(Vector3D<int> pos)
+    {
+        return (pos.X & 3) | (((pos.Y & 3) | ((pos.Z & 3) << 2)) << 2);
     }
 }

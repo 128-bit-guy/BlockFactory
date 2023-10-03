@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using BlockFactory.Base;
 using StbImageSharp;
 
@@ -10,13 +9,11 @@ namespace BlockFactory.Client.Render.Texture_;
 public static class Textures
 {
     public static TextureAtlas Blocks = null!;
+
     public static void Init()
     {
         StbImage.stbi_set_flip_vertically_on_load(1);
-        foreach (var name in typeof(Textures).Assembly.GetManifestResourceNames())
-        {
-            Console.WriteLine(name);
-        }
+        foreach (var name in typeof(Textures).Assembly.GetManifestResourceNames()) Console.WriteLine(name);
         Blocks = LoadTextureAtlas("BlockFactory.Textures.Blocks.png", 1);
     }
 

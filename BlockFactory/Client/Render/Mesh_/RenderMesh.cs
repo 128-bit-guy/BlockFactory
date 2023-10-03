@@ -6,15 +6,21 @@ namespace BlockFactory.Client.Render.Mesh_;
 [ExclusiveTo(Side.Client)]
 public class RenderMesh : IDisposable
 {
+    public readonly VertexBufferObjectUsage Usage;
+    private uint _ibo;
     private uint _vao;
     private uint _vbo;
-    private uint _ibo;
-    public uint IndexCount { get; private set; }
-    public readonly VertexBufferObjectUsage Usage;
 
     public RenderMesh(VertexBufferObjectUsage usage = VertexBufferObjectUsage.StaticDraw)
     {
         Usage = usage;
+    }
+
+    public uint IndexCount { get; private set; }
+
+    public void Dispose()
+    {
+        Clear();
     }
 
     public void Clear()
@@ -47,11 +53,8 @@ public class RenderMesh : IDisposable
             return;
         }
 
-        if (IndexCount == 0)
-        {
-            Init<T>();
-        }
-        
+        if (IndexCount == 0) Init<T>();
+
         BfRendering.Gl.NamedBufferData(_vbo, vertices, Usage);
         BfRendering.Gl.NamedBufferData(_ibo, indices, Usage);
         IndexCount = (uint)indices.Length;
@@ -60,10 +63,5 @@ public class RenderMesh : IDisposable
     public void Bind()
     {
         BfRendering.Gl.BindVertexArray(_vao);
-    }
-    
-    public void Dispose()
-    {
-        Clear();
     }
 }

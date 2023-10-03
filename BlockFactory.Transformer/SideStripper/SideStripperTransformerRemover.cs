@@ -19,10 +19,7 @@ public partial class SideStripperTransformer
         foreach (var m in def.Modules)
         {
             m.Types.RemoveIf(t => ScanDataContains(scanDataGetter, t));
-            foreach (var type in m.Types)
-            {
-                RemoveExcludedThingsFromType(type, scanDataGetter);
-            }
+            foreach (var type in m.Types) RemoveExcludedThingsFromType(type, scanDataGetter);
         }
     }
 }

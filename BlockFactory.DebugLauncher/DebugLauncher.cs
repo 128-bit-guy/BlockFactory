@@ -2,7 +2,6 @@
 using BlockFactory.Base;
 using BlockFactory.Transformer;
 using BlockFactory.Transformer.SideStripper;
-using Silk.NET.Core.Loader;
 
 namespace BlockFactory.DebugLauncher;
 
@@ -19,10 +18,7 @@ public static class DebugLauncher
         var bfBuildPath = Path.GetFullPath(Path.Combine(bfProjPath, buildDeltaPath));
         var buildNativePath = Path.GetFullPath(Path.Combine(buildPath, "runtimes"));
         var bfNativePath = Path.GetFullPath(Path.Combine(bfBuildPath, "runtimes"));
-        if (Directory.Exists(buildNativePath))
-        {
-            Directory.Delete(buildNativePath, true);
-        }
+        if (Directory.Exists(buildNativePath)) Directory.Delete(buildNativePath, true);
 
         foreach (var name in Directory.EnumerateFiles(bfNativePath, "*", SearchOption.AllDirectories))
         {

@@ -18,7 +18,8 @@ public class LauncherLoadingContext : AssemblyLoadContext
         _loadingDirectory = loadingDirectory;
     }
 
-    public LauncherLoadingContext(string loadingDirectory, string? name, bool isCollectible = false) : base(name, isCollectible)
+    public LauncherLoadingContext(string loadingDirectory, string? name, bool isCollectible = false) : base(name,
+        isCollectible)
     {
         _loadingDirectory = loadingDirectory;
     }
@@ -54,12 +55,8 @@ public class LauncherLoadingContext : AssemblyLoadContext
     {
         var ext = ".so";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
             ext = ".dll";
-        } else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            ext = ".dylib";
-        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) ext = ".dylib";
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
             if (file.EndsWith(unmanagedDllName + ext))
                 return LoadUnmanagedDllFromPath(file);

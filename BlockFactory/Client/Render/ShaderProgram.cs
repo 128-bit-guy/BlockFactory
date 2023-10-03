@@ -7,8 +7,8 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class ShaderProgram : IDisposable
 {
-    private readonly uint _program;
     private readonly int _model, _view, _projection;
+    private readonly uint _program;
 
     public ShaderProgram(string vertText, string fragText)
     {
@@ -27,6 +27,11 @@ public class ShaderProgram : IDisposable
         _model = GetUniformLocation("model");
         _view = GetUniformLocation("view");
         _projection = GetUniformLocation("projection");
+    }
+
+    public void Dispose()
+    {
+        BfRendering.Gl.DeleteProgram(_program);
     }
 
     public void Use()
@@ -48,19 +53,14 @@ public class ShaderProgram : IDisposable
     {
         SetMatrix4(_model, model);
     }
-    
+
     public void SetView(Matrix4X4<float> view)
     {
         SetMatrix4(_view, view);
     }
-    
+
     public void SetProjection(Matrix4X4<float> projection)
     {
         SetMatrix4(_projection, projection);
-    }
-
-    public void Dispose()
-    {
-        BfRendering.Gl.DeleteProgram(_program);
     }
 }

@@ -8,8 +8,8 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class Image
 {
-    public readonly int Width, Height;
     public readonly byte[] Data;
+    public readonly int Width, Height;
 
     public Image(ImageResult result)
     {
@@ -24,17 +24,12 @@ public class Image
         Height = height;
         Data = new byte[4 * width * height];
         for (var x = 0; x < Width; ++x)
-        {
-            for (var y = 0; y < Height; ++y)
-            {
-                this[x, y] = color;
-            }
-        }
+        for (var y = 0; y < Height; ++y)
+            this[x, y] = color;
     }
 
     public Image(int width, int height) : this(width, height, Color.Black)
     {
-        
     }
 
     public Color this[int x, int y]

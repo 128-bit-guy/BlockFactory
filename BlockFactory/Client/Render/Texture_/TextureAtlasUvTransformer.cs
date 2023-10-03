@@ -14,6 +14,7 @@ public class TextureAtlasUvTransformer : IUvTransformer
     {
         _atlas = atlas;
     }
+
     public Vector2D<float> TransformUv(Vector2D<float> uv)
     {
         var box = _atlas.GetSpriteBox(Sprite);

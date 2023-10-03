@@ -58,6 +58,7 @@ public partial class SideStripperTransformer : AssemblyTransformer<SideStripperS
 
         return data;
     }
+
     private static bool ScanDataContains(Func<string, SideStripperScanData?> scanDataGetter, FieldReference definition)
     {
         var data = scanDataGetter(definition.Module.Assembly.FullName);

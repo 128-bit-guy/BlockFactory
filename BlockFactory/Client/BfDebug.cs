@@ -15,7 +15,7 @@ public static class BfDebug
     public static ImGuiController Controller = null!;
     private static readonly List<float> FrameDeltas = new();
     private static float _fps;
-    private static int _fpsUpdateTime = 0;
+    private static int _fpsUpdateTime;
 
     public static void Init()
     {
@@ -40,15 +40,11 @@ public static class BfDebug
 
             ImGui.Text($"FPS: {_fps}");
             FrameDeltas.Add((float)deltaTime);
-            if (FrameDeltas.Count > 60)
-            {
-                FrameDeltas.RemoveAt(0);
-            }
+            if (FrameDeltas.Count > 60) FrameDeltas.RemoveAt(0);
 
             var values = FrameDeltas.ToArray();
             ImGui.PlotHistogram(string.Empty, ref values[0], values.Length, 0,
                 string.Empty, 0, 1 / 60f, new Vector2(300, 100));
-            
         }
 
         ImGui.End();

@@ -4,7 +4,6 @@ using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
-using BlockFactory.CubeMath;
 using BlockFactory.Resource;
 using BlockFactory.World_;
 using Silk.NET.Maths;
@@ -41,6 +40,7 @@ public static class BlockFactoryClient
         };
         Window = Silk.NET.Windowing.Window.Create(options);
     }
+
     private static unsafe void UpdateAndRender(double deltaTime)
     {
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -52,7 +52,7 @@ public static class BlockFactoryClient
         var cameraPos =
             new Vector3D<float>((float)Math.Sin(Window.Time * 0.75), (float)Math.Cos(Window.Time * 1.25) / 3,
                 (float)Math.Cos(Window.Time * 0.75)) * 10;
-        _program.SetView(Matrix4X4.CreateLookAt(cameraPos, Vector3D<float>.Zero, 
+        _program.SetView(Matrix4X4.CreateLookAt(cameraPos, Vector3D<float>.Zero,
             Vector3D<float>.UnitY));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
         _program.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
@@ -83,20 +83,43 @@ public static class BlockFactoryClient
         var c = new Chunk(new Vector3D<int>(0, 0, 0));
         c.Data = new ChunkData();
         for (var i = -1; i <= 1; ++i)
+        for (var j = -1; j <= 1; ++j)
+        for (var k = -1; k <= 1; ++k)
         {
-            for (var j = -1; j <= 1; ++j)
-            {
-                for (var k = -1; k <= 1; ++k)
-                {
-                    if(i == 0 && j == 0 && k == 0) continue;
-                    c.Neighbourhood.AddChunk(
-                        new Chunk(new Vector3D<int>(i, j, k)) {Data = new ChunkData()});
-                }
-            }
+            if (i == 0 && j == 0 && k == 0) continue;
+            c.Neighbourhood.AddChunk(
+                new Chunk(new Vector3D<int>(i, j, k)) { Data = new ChunkData() });
         }
-        c.SetBlock(new Vector3D<int>(0, 0, 0), 1);
-        c.SetBlock(new Vector3D<int>(0, 1, 0), 1);
-        c.SetBlock(new Vector3D<int>(0, 2, 0), 2);
+
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+            c.SetBlock(new Vector3D<int>(i, 0, j), 1);
+
+        for (var j = 1; j < 4; ++j)
+        {
+            for (var i = 2; i < 14; ++i)
+            {
+                c.SetBlock(new Vector3D<int>(1, j, i), 3);
+                c.SetBlock(new Vector3D<int>(14, j, i), 3);
+                c.SetBlock(new Vector3D<int>(i, j, 1), 3);
+                c.SetBlock(new Vector3D<int>(i, j, 14), 3);
+            }
+
+            c.SetBlock(new Vector3D<int>(1, j, 1), 4);
+            c.SetBlock(new Vector3D<int>(14, j, 1), 4);
+            c.SetBlock(new Vector3D<int>(14, j, 14), 4);
+            c.SetBlock(new Vector3D<int>(1, j, 14), 4);
+        }
+
+        c.SetBlock(new Vector3D<int>(1, 1, 7), 0);
+        c.SetBlock(new Vector3D<int>(1, 2, 7), 0);
+        c.SetBlock(new Vector3D<int>(1, 1, 8), 0);
+        c.SetBlock(new Vector3D<int>(1, 2, 8), 0);
+
+        for (var i = 1; i < 15; ++i)
+        for (var j = 1; j < 15; ++j)
+            c.SetBlock(new Vector3D<int>(i, 4, j), 2);
+
         var cr = new ChunkRenderer(c);
         cr.BuildChunkMesh(builder, _uvTransformer);
         builder.Upload(_triangle);
@@ -127,5 +150,4 @@ public static class BlockFactoryClient
         AddEvents();
         Window.Run();
     }
-    
 }

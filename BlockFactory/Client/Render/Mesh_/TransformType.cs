@@ -5,5 +5,6 @@ namespace BlockFactory.Client.Render.Mesh_;
 [ExclusiveTo(Side.Client)]
 public enum TransformType
 {
-    Position, Uv
+    Position,
+    Uv
 }

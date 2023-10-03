@@ -7,7 +7,6 @@ namespace BlockFactory.Transformer.SideStripper;
 
 public partial class SideStripperTransformer
 {
-
     private Instruction BuildException(Instruction insn, ILProcessor processor)
     {
         var constructorRef = processor.Body.Method.DeclaringType.Module
@@ -47,7 +46,7 @@ public partial class SideStripperTransformer
                 $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
 
         if (!method.HasBody) return;
-        
+
         method.Body.SimplifyMacros();
 
         var replacedInstructions = new List<Instruction>();
@@ -88,14 +87,10 @@ public partial class SideStripperTransformer
             processor.Remove(insn);
 
             foreach (var insn1 in method.Body.Instructions)
-            {
                 if (insn1.Operand == insn)
-                {
                     insn1.Operand = insn2;
-                }
-            }
         }
-        
+
         method.Body.OptimizeMacros();
     }
 
@@ -133,10 +128,7 @@ public partial class SideStripperTransformer
                 break;
             }
 
-            if (shouldSkip)
-            {
-                continue;
-            }
+            if (shouldSkip) continue;
             FixType(type, scanDataGetter);
         }
     }

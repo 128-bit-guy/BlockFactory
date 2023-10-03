@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BlockFactory.Base;
@@ -13,8 +12,8 @@ namespace BlockFactory.Client.Render.Mesh_;
 [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
 public static class VertexFormatInfo<T> where T : unmanaged
 {
-    private static uint _size;
-    private static List<VertexAttributeInfo> _vertexAttributeInfos;
+    private static readonly uint _size;
+    private static readonly List<VertexAttributeInfo> _vertexAttributeInfos;
 
     static VertexFormatInfo()
     {
@@ -39,22 +38,14 @@ public static class VertexFormatInfo<T> where T : unmanaged
                     var generic = t.GetGenericTypeDefinition();
                     var type = attribTypes[t.GetGenericArguments()[0]];
                     if (generic == typeof(Vector3D<>))
-                    {
                         _vertexAttributeInfos.Add(new VertexAttributeInfo(layoutLocation.Location, offset, 3, type));
-                    }
                     else if (generic == typeof(Vector2D<>))
-                    {
                         _vertexAttributeInfos.Add(new VertexAttributeInfo(layoutLocation.Location, offset, 2, type));
-                    }
                     else if (generic == typeof(Vector4D<>))
-                    {
                         _vertexAttributeInfos.Add(new VertexAttributeInfo(layoutLocation.Location, offset, 4, type));
-                    }
                     else
-                    {
                         throw new ArgumentException(
                             $"{typeof(T)} has field {field.Name} of type {t.FullName} which is not supported");
-                    }
                 }
                 else if (t == typeof(Vector3))
                 {

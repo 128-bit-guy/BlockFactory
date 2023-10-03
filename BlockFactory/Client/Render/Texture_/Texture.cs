@@ -18,20 +18,20 @@ public class Texture : IDisposable
             (int)TextureWrapMode.Repeat);
         BfRendering.Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
             (int)TextureMinFilter.NearestMipmapLinear);
-        BfRendering.Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, 
+        BfRendering.Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
             (int)TextureMagFilter.Nearest);
         image.Upload(_id);
         BfRendering.Gl.GenerateMipmap(TextureTarget.Texture2D);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    public void Bind()
-    {
-        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, _id);
-    }
-
     public void Dispose()
     {
         BfRendering.Gl.DeleteTexture(_id);
+    }
+
+    public void Bind()
+    {
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, _id);
     }
 }

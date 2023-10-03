@@ -20,7 +20,7 @@ public class MatrixStack
 
     public void Multiply(Matrix4X4<float> mat)
     {
-        _stack.Push( mat * _stack.Pop());
+        _stack.Push(mat * _stack.Pop());
     }
 
     public void Translate(Vector3D<float> delta)

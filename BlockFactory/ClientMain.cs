@@ -1,7 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client;
 
-
 namespace BlockFactory;
 
 [ExclusiveTo(Side.Client)]

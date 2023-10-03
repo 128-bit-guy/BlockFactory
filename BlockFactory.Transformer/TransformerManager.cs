@@ -16,6 +16,12 @@ public class TransformerManager
         _transformers = transformers;
     }
 
+    public TransformerManager(string[] assemblyPaths, IAssemblyResolver resolver,
+        IAssemblyTransformer[] transformers) : this(
+        assemblyPaths.Select(p => LoadAssemblyDefinition(p, resolver)).ToArray(), transformers)
+    {
+    }
+
     private static AssemblyDefinition LoadAssemblyDefinition(string path, IAssemblyResolver resolver)
     {
         var readerParameters = new ReaderParameters
@@ -26,26 +32,15 @@ public class TransformerManager
         return AssemblyDefinition.ReadAssembly(path, readerParameters);
     }
 
-    public TransformerManager(string[] assemblyPaths, IAssemblyResolver resolver, IAssemblyTransformer[] transformers) : this(
-        assemblyPaths.Select(p => LoadAssemblyDefinition(p, resolver)).ToArray(), transformers)
-    {
-    }
-
     public void Process()
     {
         var assembliesByNames = new Dictionary<string, int>();
-        for (var i = 0; i < _definitions.Length; ++i)
-        {
-            assembliesByNames[_definitions[i].FullName] = i;
-        }
+        for (var i = 0; i < _definitions.Length; ++i) assembliesByNames[_definitions[i].FullName] = i;
         foreach (var transformer in _transformers)
         {
             var scanDatas = _definitions.Select(transformer.ScanAssembly).ToArray();
             Func<string, object> scanDataGetter = s => scanDatas[assembliesByNames[s]];
-            foreach (var assembly in _definitions)
-            {
-                transformer.TransformAssembly(assembly, scanDataGetter);
-            }
+            foreach (var assembly in _definitions) transformer.TransformAssembly(assembly, scanDataGetter);
         }
     }
 

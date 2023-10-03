@@ -4,9 +4,9 @@ namespace BlockFactory.World_;
 
 public class Chunk : IBlockStorage
 {
-    public ChunkData? Data;
-    public readonly Vector3D<int> Position;
     public readonly ChunkNeighbourhood Neighbourhood;
+    public readonly Vector3D<int> Position;
+    public ChunkData? Data;
 
     public Chunk(Vector3D<int> position)
     {

@@ -5,13 +5,13 @@ namespace BlockFactory.Client.Render.Mesh_;
 [ExclusiveTo(Side.Client)]
 public class MeshBuilder<T> where T : unmanaged
 {
-    private T[] _vertices;
-    private int _vertCnt;
-    private uint[] _indices;
-    private int _indCnt;
-    private uint _indBegin;
     public readonly MatrixStack Matrices;
     public readonly IUvTransformer UvTransformer;
+    private uint _indBegin;
+    private int _indCnt;
+    private uint[] _indices;
+    private int _vertCnt;
+    private T[] _vertices;
 
     public MeshBuilder(MatrixStack matrices, IUvTransformer transformer)
     {
@@ -23,12 +23,10 @@ public class MeshBuilder<T> where T : unmanaged
 
     public MeshBuilder(IUvTransformer transformer) : this(new MatrixStack(), transformer)
     {
-        
     }
 
     public MeshBuilder() : this(IdentityUvTransformer.Instance)
     {
-        
     }
 
     public MeshBuilder<T> NewPolygon()
@@ -66,10 +64,7 @@ public class MeshBuilder<T> where T : unmanaged
 
     public MeshBuilder<T> Indices(params uint[] indices)
     {
-        foreach (var index in indices)
-        {
-            Index(index);
-        }
+        foreach (var index in indices) Index(index);
 
         return this;
     }
