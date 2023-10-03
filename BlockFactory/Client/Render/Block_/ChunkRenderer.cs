@@ -13,7 +13,6 @@ public class ChunkRenderer
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
     public readonly Chunk Chunk;
-    private readonly bool[] _vertexAo = new bool[4];
     private readonly float[] _vertexLight = new float[4];
     private static readonly bool[] DifferentTriangles = new bool[1 << 4];
 
@@ -53,7 +52,8 @@ public class ChunkRenderer
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                     : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
-                Array.Fill(_vertexAo, false);
+
+                var aoMask = 0;
                 for (var u = 0; u < 2; ++u)
                 for (var v = 0; v < 2; ++v)
                 for (var dx = -1; dx < 1; ++dx)
@@ -63,22 +63,13 @@ public class ChunkRenderer
                     var oPos2Abs = absPos + oPos2Rel * s;
                     if (neighbourhood.GetBlock(oPos2Abs) != 0)
                     {
-                        _vertexAo[u | (v << 1)] = true;
-                    }
-                }
-
-                var aoMask = 0;
-                for (int l = 0; l < 4; ++l)
-                {
-                    if (_vertexAo[l])
-                    {
-                        aoMask |= (1 << l);
+                        aoMask |= 1 << (u | (v << 1));
                     }
                 }
 
                 for (var l = 0; l < 4; ++l)
                 {
-                    _vertexLight[l] = light - (_vertexAo[l] ? 0.4f : 0f);
+                    _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.4f : 0f);
                 }
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
