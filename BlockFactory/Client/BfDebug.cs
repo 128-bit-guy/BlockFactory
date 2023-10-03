@@ -19,13 +19,20 @@ public static class BfDebug
 
     public static void Init()
     {
-        Controller = new ImGuiController(BfRendering.Gl, BlockFactoryClient.Window,
-            BlockFactoryClient.Window.CreateInput());
+        Controller = new ImGuiController(BfRendering.Gl, BlockFactoryClient.Window, BlockFactoryClient.InputContext);
     }
 
     public static void UpdateAndRender(double deltaTime)
     {
         Controller.Update((float)deltaTime);
+        if (MouseInputManager.MouseIsEnabled)
+        {
+            ImGui.GetIO().ConfigFlags &= ~ImGuiConfigFlags.NoMouse;
+        }
+        else
+        {
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NoMouse;
+        }
         if (ImGui.Begin("Performance", ImGuiWindowFlags.NoResize))
         {
             if (_fpsUpdateTime == 0)

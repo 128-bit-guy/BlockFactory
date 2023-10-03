@@ -6,6 +6,8 @@ using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Resource;
 using BlockFactory.World_;
+using ImGuiNET;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -22,8 +24,10 @@ public static class BlockFactoryClient
     private static MeshBuilder<BlockVertex> _meshBuilder;
     private static TextureAtlasUvTransformer _uvTransformer;
     private static uint[] _quadIndices = { 0, 1, 2, 0, 2, 3 };
-
+    public static IInputContext InputContext = null!;
     private static RenderMesh _triangle;
+    private static Vector2D<float> _headRotation;
+    private static Vector3D<float> _cameraPos;
 
     private static void InitWindow()
     {
@@ -43,17 +47,46 @@ public static class BlockFactoryClient
 
     private static unsafe void UpdateAndRender(double deltaTime)
     {
+        MouseInputManager.Update();
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         BfRendering.Gl.Enable(EnableCap.CullFace);
         BfRendering.Gl.CullFace(TriangleFace.Back);
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
         _program.SetModel(Matrix4X4<float>.Identity);
-        var cameraPos =
-            new Vector3D<float>((float)Math.Sin(Window.Time * 0.75), (float)Math.Cos(Window.Time * 1.25) / 3,
-                (float)Math.Cos(Window.Time * 0.75)) * 10;
-        _program.SetView(Matrix4X4.CreateLookAt(cameraPos, Vector3D<float>.Zero,
-            Vector3D<float>.UnitY));
+        
+        if (!MouseInputManager.MouseIsEnabled)
+        {
+            _headRotation -= MouseInputManager.Delta / 100;
+        }
+
+        _headRotation.X %= 2 * MathF.PI;
+        _headRotation.Y = Math.Clamp(_headRotation.Y, -MathF.PI / 2, MathF.PI / 2);
+        var forward = new Vector3D<float>(MathF.Sin(_headRotation.X) * MathF.Cos(_headRotation.Y), MathF.Sin(_headRotation.Y),
+            MathF.Cos(_headRotation.X) * MathF.Cos(_headRotation.Y));
+        var up = new Vector3D<float>(MathF.Sin(_headRotation.X) * MathF.Cos(_headRotation.Y + MathF.PI / 2),
+            MathF.Sin(_headRotation.Y + MathF.PI / 2),
+            MathF.Cos(_headRotation.X) * MathF.Cos(_headRotation.Y + MathF.PI / 2));
+        Vector3D<float> moveDelta = new Vector3D<float>();
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.W))
+        {
+            moveDelta += forward;
+        }
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.S))
+        {
+            moveDelta -= forward;
+        }
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.Space))
+        {
+            moveDelta += Vector3D<float>.UnitY;
+        }
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft))
+        {
+            moveDelta -= Vector3D<float>.UnitY;
+        }
+
+        _cameraPos += moveDelta * (float)deltaTime * 5;
+        _program.SetView(Matrix4X4.CreateLookAt(_cameraPos, _cameraPos + forward, up));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
         _program.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
             100f));
@@ -70,6 +103,9 @@ public static class BlockFactoryClient
 
     private static void OnWindowLoad()
     {
+        InputContext = Window.CreateInput();
+        BfRendering.Init();
+        BfDebug.Init();
         var a = typeof(BlockFactoryClient).Assembly;
         ResourceLoader = new AssemblyResourceLoader(a);
         var vertText = ResourceLoader.GetResourceText("BlockFactory.Shaders.Block.Vertex.glsl")!;
@@ -136,8 +172,6 @@ public static class BlockFactoryClient
 
     private static void AddEvents()
     {
-        Window.Load += BfRendering.Init;
-        Window.Load += BfDebug.Init;
         Window.Load += OnWindowLoad;
         Window.Render += UpdateAndRender;
         Window.FramebufferResize += BfRendering.OnFramebufferResize;
