@@ -85,6 +85,11 @@ public static class BlockFactoryClient
             moveDelta -= Vector3D<float>.UnitY;
         }
 
+        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
+        if (wireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+        }
         _cameraPos += moveDelta * (float)deltaTime * 5;
         _program.SetView(Matrix4X4.CreateLookAt(_cameraPos, _cameraPos + forward, up));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
@@ -98,6 +103,10 @@ public static class BlockFactoryClient
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
+        if (wireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
+        }
         BfDebug.UpdateAndRender(deltaTime);
     }
 
