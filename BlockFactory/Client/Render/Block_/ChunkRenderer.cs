@@ -13,12 +13,12 @@ public class ChunkRenderer : IDisposable
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
     private static readonly bool[] DifferentTriangles = new bool[1 << 4];
-    private static TextureAtlasUvTransformer _transformer;
-    private static MeshBuilder<BlockVertex> _blockMeshBuilder;
     private readonly float[] _vertexLight = new float[4];
     public readonly Chunk Chunk;
     public readonly RenderMesh Mesh;
     public bool RequiresUpdate = true;
+    public Task? RebuildTask;
+    public BlockMeshBuilder? MeshBuilder;
 
     static ChunkRenderer()
     {
@@ -43,8 +43,10 @@ public class ChunkRenderer : IDisposable
         Mesh.Dispose();
     }
 
-    public void BuildChunkMesh(MeshBuilder<BlockVertex> builder, TextureAtlasUvTransformer transformer)
+    public void BuildChunkMesh(BlockMeshBuilder bmb)
     {
+        var builder = bmb.MeshBuilder;
+        var transformer = bmb.UvTransformer;
         var neighbourhood = Chunk.Neighbourhood;
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var j = 0; j < Constants.ChunkSize; ++j)
@@ -92,15 +94,10 @@ public class ChunkRenderer : IDisposable
         }
     }
 
-    public void RebuildChunkMesh()
+    public void StartRebuildTask(BlockMeshBuilder bmb)
     {
-        if (_transformer == null) _transformer = new TextureAtlasUvTransformer(Textures.Blocks);
-        var transformer = _transformer;
-        if (_blockMeshBuilder == null) _blockMeshBuilder = new MeshBuilder<BlockVertex>(transformer);
-        var builder = _blockMeshBuilder;
-        BuildChunkMesh(builder, transformer);
-        builder.Upload(Mesh);
-        builder.Reset();
+        MeshBuilder = bmb;
+        RebuildTask = Task.Run(() => BuildChunkMesh(bmb));
     }
 
     private void OnBlockUpdate(Vector3D<int> pos)

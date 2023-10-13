@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
+using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.World_;
 using Silk.NET.Maths;
@@ -12,12 +13,17 @@ public class WorldRenderer : IDisposable
 {
     public readonly World World;
     private readonly Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
+    private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
 
     public WorldRenderer(World world)
     {
         World = world;
         world.ChunkStatusManager.ChunkReadyForTick += OnChunkReadyForTick;
         world.ChunkStatusManager.ChunkNotReadyForTick += OnChunkNotReadyForTick;
+        for (var i = 0; i < 4; ++i)
+        {
+            _blockMeshBuilders.Push(new BlockMeshBuilder());
+        }
     }
 
     public void Dispose()
@@ -32,7 +38,6 @@ public class WorldRenderer : IDisposable
     private void OnChunkReadyForTick(Chunk c)
     {
         var cr = new ChunkRenderer(c);
-        // cr.RebuildChunkMesh();
         _renderers.Add(c.Position, cr);
     }
 
@@ -46,14 +51,26 @@ public class WorldRenderer : IDisposable
     {
         Textures.Blocks.Bind();
         Shaders.Block.Use();
-        var leftUpdates = 2;
         foreach (var (pos, renderer) in _renderers)
         {
-            if (renderer.RequiresUpdate && leftUpdates > 0)
+            if (renderer.RequiresUpdate && renderer.RebuildTask == null &&  _blockMeshBuilders.Count > 0)
             {
-                renderer.RebuildChunkMesh();
+                var bmb = _blockMeshBuilders.Pop();
+                renderer.StartRebuildTask(bmb);
                 renderer.RequiresUpdate = false;
-                --leftUpdates;
+            }
+
+            if (renderer.RebuildTask is { IsCompleted: true })
+            {
+                if (renderer.RebuildTask.IsCompletedSuccessfully)
+                {
+                    renderer.MeshBuilder!.MeshBuilder.Upload(renderer.Mesh);
+                }
+
+                renderer.MeshBuilder!.MeshBuilder.Reset();
+                _blockMeshBuilders.Push(renderer.MeshBuilder);
+                renderer.RebuildTask = null;
+                renderer.MeshBuilder = null;
             }
 
             if (renderer.Mesh.IndexCount == 0) continue;
