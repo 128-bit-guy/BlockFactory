@@ -19,10 +19,7 @@ public class WorldGenerator
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {
                 var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
-                if (val >= y / 10.0f)
-                {
-                    c.SetBlock(new Vector3D<int>(x, y, z), 1);
-                }
+                if (val >= y / 10.0f) c.SetBlock(new Vector3D<int>(x, y, z), 1);
             }
         }
     }

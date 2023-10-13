@@ -1,14 +1,12 @@
-﻿using System.Numerics;
-using BlockFactory.Client.Render;
-using Silk.NET.Input;
+﻿using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client;
 
 public static class MouseInputManager
 {
-    public static bool MouseIsEnabled { get; private set; } = true;
     private static Vector2D<float> _lastMousePos;
+    public static bool MouseIsEnabled { get; private set; } = true;
     public static Vector2D<float> Delta { get; private set; }
 
     private static bool MouseShouldBeEnabled()
@@ -23,7 +21,8 @@ public static class MouseInputManager
             if (MouseIsEnabled) return;
             MouseIsEnabled = true;
             BlockFactoryClient.InputContext.Mice[0].Cursor.CursorMode = CursorMode.Normal;
-        } else if (MouseIsEnabled)
+        }
+        else if (MouseIsEnabled)
         {
             MouseIsEnabled = false;
             BlockFactoryClient.InputContext.Mice[0].Cursor.CursorMode = CursorMode.Disabled;
@@ -36,7 +35,7 @@ public static class MouseInputManager
         Delta = nPos - _lastMousePos;
         _lastMousePos = nPos;
     }
-    
+
     public static void Update()
     {
         UpdateEnabled();

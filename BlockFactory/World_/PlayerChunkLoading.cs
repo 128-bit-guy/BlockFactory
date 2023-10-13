@@ -11,6 +11,21 @@ public class PlayerChunkLoading
     public const int ChunkKeepingDiameter = 2 * ChunkKeepingRadius + 1;
     public static readonly Vector3D<int>[] ChunkDeltas;
 
+    static PlayerChunkLoading()
+    {
+        var chunkDeltasList = new List<Vector3D<int>>();
+        for (var i = -LoadedChunkRadius; i <= LoadedChunkRadius; ++i)
+        for (var j = -LoadedChunkRadius; j <= LoadedChunkRadius; ++j)
+        for (var k = -LoadedChunkRadius; k <= LoadedChunkRadius; ++k)
+        {
+            var delta = new Vector3D<int>(i, j, k);
+            if (GetSortKey(delta) <= VisibleChunkRadius * VisibleChunkRadius) chunkDeltasList.Add(delta);
+        }
+
+        chunkDeltasList.Sort(CompareVectors);
+        ChunkDeltas = chunkDeltasList.ToArray();
+    }
+
     private static int GetSortKey(Vector3D<int> delta)
     {
         var min = delta.LengthSquared;
@@ -28,22 +43,5 @@ public class PlayerChunkLoading
     private static int CompareVectors(Vector3D<int> a, Vector3D<int> b)
     {
         return GetSortKey(a) - GetSortKey(b);
-    }
-
-    static PlayerChunkLoading()
-    {
-        var chunkDeltasList = new List<Vector3D<int>>();
-        for (var i = -LoadedChunkRadius; i <= LoadedChunkRadius; ++i)
-        for (var j = -LoadedChunkRadius; j <= LoadedChunkRadius; ++j)
-        for (var k = -LoadedChunkRadius; k <= LoadedChunkRadius; ++k)
-        {
-            var delta = new Vector3D<int>(i, j, k);
-            if (GetSortKey(delta) <= VisibleChunkRadius * VisibleChunkRadius)
-            {
-                chunkDeltasList.Add(delta);
-            }
-        }
-        chunkDeltasList.Sort(CompareVectors);
-        ChunkDeltas = chunkDeltasList.ToArray();
     }
 }

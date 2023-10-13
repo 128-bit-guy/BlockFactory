@@ -37,7 +37,6 @@ public class WorldChunkStorage : IChunkStorage
             oChunk.Neighbourhood.AddChunk(chunk);
             chunk.Neighbourhood.AddChunk(oChunk);
         }
-
     }
 
     public void RemoveChunk(Vector3D<int> pos)

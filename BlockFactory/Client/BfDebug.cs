@@ -3,7 +3,6 @@ using System.Numerics;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using ImGuiNET;
-using Silk.NET.Input;
 using Silk.NET.OpenGL.Extensions.ImGui;
 
 namespace BlockFactory.Client;
@@ -26,13 +25,9 @@ public static class BfDebug
     {
         Controller.Update((float)deltaTime);
         if (MouseInputManager.MouseIsEnabled)
-        {
             ImGui.GetIO().ConfigFlags &= ~ImGuiConfigFlags.NoMouse;
-        }
         else
-        {
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NoMouse;
-        }
         if (ImGui.Begin("Performance", ImGuiWindowFlags.NoResize))
         {
             if (_fpsUpdateTime == 0)

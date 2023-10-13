@@ -5,9 +5,9 @@ namespace BlockFactory.World_;
 
 public class World : IChunkStorage
 {
+    public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly WorldGenerator Generator = new();
-    public readonly ChunkStatusManager ChunkStatusManager;
 
     public World()
     {
@@ -28,8 +28,10 @@ public class World : IChunkStorage
     {
         var res = ChunkStorage.GetChunk(pos, false);
         if (res != null || !load) return res;
-        var nc = new Chunk(pos);
-        nc.Data = new ChunkData();
+        var nc = new Chunk(pos)
+        {
+            Data = new ChunkData()
+        };
         Generator.GenerateChunk(nc);
         AddChunk(nc);
         return nc;

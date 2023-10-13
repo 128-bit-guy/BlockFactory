@@ -4,6 +4,8 @@ namespace BlockFactory.World_;
 
 public class ChunkStatusManager
 {
+    public delegate void ChunkEventHandler(Chunk c);
+
     public readonly World World;
 
     public ChunkStatusManager(World world)
@@ -11,13 +13,11 @@ public class ChunkStatusManager
         World = world;
     }
 
-    public delegate void ChunkEventHandler(Chunk c);
-
     public event ChunkEventHandler ChunkReadyForUse = c => { };
     public event ChunkEventHandler ChunkNotReadyForUse = c => { };
     public event ChunkEventHandler ChunkReadyForTick = c => { };
     public event ChunkEventHandler ChunkNotReadyForTick = c => { };
-    
+
     public void OnChunkReadyForUse(Chunk c)
     {
         c.ReadyForUse = true;
@@ -38,10 +38,7 @@ public class ChunkStatusManager
                 ChunkReadyForTick(oChunk);
             }
 
-            if (oChunk.ReadyForUse)
-            {
-                ++c.ReadyForUseNeighbours;
-            }
+            if (oChunk.ReadyForUse) ++c.ReadyForUseNeighbours;
         }
 
         if (c.ReadyForUseNeighbours == 27)
@@ -50,7 +47,7 @@ public class ChunkStatusManager
             ChunkReadyForTick(c);
         }
     }
-    
+
     public void OnChunkNotReadyForUse(Chunk c)
     {
         if (c.ReadyForUseNeighbours == 27)
@@ -77,12 +74,9 @@ public class ChunkStatusManager
 
             --oChunk.ReadyForUseNeighbours;
 
-            if (oChunk.ReadyForUse)
-            {
-                --c.ReadyForUseNeighbours;
-            }
+            if (oChunk.ReadyForUse) --c.ReadyForUseNeighbours;
         }
-        
+
         ChunkNotReadyForUse(c);
         c.ReadyForUse = false;
     }

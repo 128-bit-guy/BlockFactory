@@ -4,16 +4,14 @@ namespace BlockFactory.World_;
 
 public class Chunk : IBlockStorage
 {
+    public delegate void BlockEventHandler(Vector3D<int> pos);
+
     public readonly ChunkNeighbourhood Neighbourhood;
     public readonly Vector3D<int> Position;
     public ChunkData? Data;
-    public int ReadyForUseNeighbours = 0;
-    public bool ReadyForUse = false;
     public bool ReadyForTick = false;
-
-    public delegate void BlockEventHandler(Vector3D<int> pos);
-
-    public event BlockEventHandler BlockUpdate = p => { };
+    public bool ReadyForUse = false;
+    public int ReadyForUseNeighbours = 0;
 
     public Chunk(Vector3D<int> position)
     {
@@ -31,4 +29,6 @@ public class Chunk : IBlockStorage
         Data!.SetBlock(pos, block);
         BlockUpdate(pos);
     }
+
+    public event BlockEventHandler BlockUpdate = p => { };
 }

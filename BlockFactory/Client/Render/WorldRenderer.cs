@@ -10,15 +10,23 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class WorldRenderer : IDisposable
 {
-    private Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
-
     public readonly World World;
+    private readonly Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
 
     public WorldRenderer(World world)
     {
         World = world;
         world.ChunkStatusManager.ChunkReadyForTick += OnChunkReadyForTick;
         world.ChunkStatusManager.ChunkNotReadyForTick += OnChunkNotReadyForTick;
+    }
+
+    public void Dispose()
+    {
+        foreach (var (pos, renderer) in _renderers) renderer.Dispose();
+
+        _renderers.Clear();
+        World.ChunkStatusManager.ChunkReadyForTick -= OnChunkReadyForTick;
+        World.ChunkStatusManager.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
     }
 
     private void OnChunkReadyForTick(Chunk c)
@@ -32,17 +40,6 @@ public class WorldRenderer : IDisposable
     {
         _renderers.Remove(c.Position, out var cr);
         cr!.Dispose();
-    }
-    public void Dispose()
-    {
-        foreach (var (pos, renderer) in _renderers)
-        {
-            renderer.Dispose();
-        }
-
-        _renderers.Clear();
-        World.ChunkStatusManager.ChunkReadyForTick -= OnChunkReadyForTick;
-        World.ChunkStatusManager.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
     }
 
     public unsafe void UpdateAndRender()
@@ -58,11 +55,14 @@ public class WorldRenderer : IDisposable
                 renderer.RequiresUpdate = false;
                 --leftUpdates;
             }
+
             if (renderer.Mesh.IndexCount == 0) continue;
             Shaders.Block.SetModel(Matrix4X4.CreateTranslation(pos.ShiftLeft(Constants.ChunkSizeLog2).As<float>()));
             renderer.Mesh.Bind();
-            BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt, null);
+            BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
+                null);
         }
+
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);

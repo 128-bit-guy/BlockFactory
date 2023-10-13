@@ -12,13 +12,13 @@ public class ChunkRenderer : IDisposable
 {
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
-    public readonly Chunk Chunk;
-    private readonly float[] _vertexLight = new float[4];
     private static readonly bool[] DifferentTriangles = new bool[1 << 4];
-    public readonly RenderMesh Mesh;
-    public bool RequiresUpdate = true;
     private static TextureAtlasUvTransformer _transformer;
     private static MeshBuilder<BlockVertex> _blockMeshBuilder;
+    private readonly float[] _vertexLight = new float[4];
+    public readonly Chunk Chunk;
+    public readonly RenderMesh Mesh;
+    public bool RequiresUpdate = true;
 
     static ChunkRenderer()
     {
@@ -29,11 +29,18 @@ public class ChunkRenderer : IDisposable
             DifferentTriangles[15 & ~(1 << order[i])] = (i & 1) == 0;
         }
     }
+
     public ChunkRenderer(Chunk chunk)
     {
         Chunk = chunk;
         Mesh = new RenderMesh();
         chunk.BlockUpdate += OnBlockUpdate;
+    }
+
+    public void Dispose()
+    {
+        Chunk.BlockUpdate -= OnBlockUpdate;
+        Mesh.Dispose();
     }
 
     public void BuildChunkMesh(MeshBuilder<BlockVertex> builder, TextureAtlasUvTransformer transformer)
@@ -67,19 +74,13 @@ public class ChunkRenderer : IDisposable
                 {
                     var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
                     var oPos2Abs = absPos + oPos2Rel * s;
-                    if (neighbourhood.GetBlock(oPos2Abs) != 0)
-                    {
-                        aoMask |= 1 << (u | (v << 1));
-                    }
+                    if (neighbourhood.GetBlock(oPos2Abs) != 0) aoMask |= 1 << (u | (v << 1));
                 }
-                
-                for (var l = 0; l < 4; ++l)
-                {
-                    _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.2f : 0f);
-                }
+
+                for (var l = 0; l < 4; ++l) _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.2f : 0f);
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
-                builder.NewPolygon().Indices(DifferentTriangles[aoMask]?  QuadIndices2 : QuadIndices)
+                builder.NewPolygon().Indices(DifferentTriangles[aoMask] ? QuadIndices2 : QuadIndices)
                     .Vertex(new BlockVertex(0, 0, 1, _vertexLight[0], _vertexLight[0], _vertexLight[0], 1, 0, 0))
                     .Vertex(new BlockVertex(1, 0, 1, _vertexLight[1], _vertexLight[1], _vertexLight[1], 1, 1, 0))
                     .Vertex(new BlockVertex(1, 1, 1, _vertexLight[3], _vertexLight[3], _vertexLight[3], 1, 1, 1))
@@ -93,25 +94,13 @@ public class ChunkRenderer : IDisposable
 
     public void RebuildChunkMesh()
     {
-        if (_transformer == null)
-        {
-            _transformer = new TextureAtlasUvTransformer(Textures.Blocks);
-        }
+        if (_transformer == null) _transformer = new TextureAtlasUvTransformer(Textures.Blocks);
         var transformer = _transformer;
-        if (_blockMeshBuilder == null)
-        {
-            _blockMeshBuilder = new MeshBuilder<BlockVertex>(transformer);
-        }
+        if (_blockMeshBuilder == null) _blockMeshBuilder = new MeshBuilder<BlockVertex>(transformer);
         var builder = _blockMeshBuilder;
         BuildChunkMesh(builder, transformer);
         builder.Upload(Mesh);
         builder.Reset();
-    }
-
-    public void Dispose()
-    {
-        Chunk.BlockUpdate -= OnBlockUpdate;
-        Mesh.Dispose();
     }
 
     private void OnBlockUpdate(Vector3D<int> pos)
