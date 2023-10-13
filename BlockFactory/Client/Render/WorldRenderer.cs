@@ -17,8 +17,8 @@ public class WorldRenderer : IDisposable
     public WorldRenderer(World world)
     {
         World = world;
-        world.ChunkReadyForTick += OnChunkReadyForTick;
-        world.ChunkNotReadyForTick += OnChunkNotReadyForTick;
+        world.ChunkStatusManager.ChunkReadyForTick += OnChunkReadyForTick;
+        world.ChunkStatusManager.ChunkNotReadyForTick += OnChunkNotReadyForTick;
     }
 
     private void OnChunkReadyForTick(Chunk c)
@@ -41,8 +41,8 @@ public class WorldRenderer : IDisposable
         }
 
         _renderers.Clear();
-        World.ChunkReadyForTick -= OnChunkReadyForTick;
-        World.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
+        World.ChunkStatusManager.ChunkReadyForTick -= OnChunkReadyForTick;
+        World.ChunkStatusManager.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
     }
 
     public unsafe void UpdateAndRender()
