@@ -29,7 +29,7 @@ public class ChunkStatusManager
         {
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
-            var oChunk = World.GetChunk(oPos, false);
+            var oChunk = c.Neighbourhood.GetChunk(oPos, false);
             if (oChunk == null) continue;
             ++oChunk.ReadyForUseNeighbours;
             if (oChunk.ReadyForUseNeighbours == 27)
@@ -64,7 +64,7 @@ public class ChunkStatusManager
         {
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
-            var oChunk = World.GetChunk(oPos, false);
+            var oChunk = c.Neighbourhood.GetChunk(oPos, false);
             if (oChunk == null) continue;
             if (oChunk.ReadyForUseNeighbours == 27)
             {
