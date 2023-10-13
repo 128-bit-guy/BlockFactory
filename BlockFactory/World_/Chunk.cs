@@ -7,6 +7,13 @@ public class Chunk : IBlockStorage
     public readonly ChunkNeighbourhood Neighbourhood;
     public readonly Vector3D<int> Position;
     public ChunkData? Data;
+    public int ReadyForUseNeighbours = 0;
+    public bool ReadyForUse = false;
+    public bool ReadyForTick = false;
+
+    public delegate void BlockEventHandler(Vector3D<int> pos);
+
+    public event BlockEventHandler BlockUpdate = p => { };
 
     public Chunk(Vector3D<int> position)
     {
@@ -22,5 +29,6 @@ public class Chunk : IBlockStorage
     public void SetBlock(Vector3D<int> pos, short block)
     {
         Data!.SetBlock(pos, block);
+        BlockUpdate(pos);
     }
 }

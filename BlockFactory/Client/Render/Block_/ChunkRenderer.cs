@@ -8,13 +8,17 @@ using Silk.NET.Maths;
 namespace BlockFactory.Client.Render.Block_;
 
 [ExclusiveTo(Side.Client)]
-public class ChunkRenderer
+public class ChunkRenderer : IDisposable
 {
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
     public readonly Chunk Chunk;
     private readonly float[] _vertexLight = new float[4];
     private static readonly bool[] DifferentTriangles = new bool[1 << 4];
+    public readonly RenderMesh Mesh;
+    public bool RequiresUpdate = true;
+    private static TextureAtlasUvTransformer _transformer;
+    private static MeshBuilder<BlockVertex> _blockMeshBuilder;
 
     static ChunkRenderer()
     {
@@ -28,6 +32,8 @@ public class ChunkRenderer
     public ChunkRenderer(Chunk chunk)
     {
         Chunk = chunk;
+        Mesh = new RenderMesh();
+        chunk.BlockUpdate += OnBlockUpdate;
     }
 
     public void BuildChunkMesh(MeshBuilder<BlockVertex> builder, TextureAtlasUvTransformer transformer)
@@ -66,10 +72,10 @@ public class ChunkRenderer
                         aoMask |= 1 << (u | (v << 1));
                     }
                 }
-
+                
                 for (var l = 0; l < 4; ++l)
                 {
-                    _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.4f : 0f);
+                    _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.2f : 0f);
                 }
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
@@ -83,5 +89,33 @@ public class ChunkRenderer
 
             builder.Matrices.Pop();
         }
+    }
+
+    public void RebuildChunkMesh()
+    {
+        if (_transformer == null)
+        {
+            _transformer = new TextureAtlasUvTransformer(Textures.Blocks);
+        }
+        var transformer = _transformer;
+        if (_blockMeshBuilder == null)
+        {
+            _blockMeshBuilder = new MeshBuilder<BlockVertex>(transformer);
+        }
+        var builder = _blockMeshBuilder;
+        BuildChunkMesh(builder, transformer);
+        builder.Upload(Mesh);
+        builder.Reset();
+    }
+
+    public void Dispose()
+    {
+        Chunk.BlockUpdate -= OnBlockUpdate;
+        Mesh.Dispose();
+    }
+
+    private void OnBlockUpdate(Vector3D<int> pos)
+    {
+        RequiresUpdate = true;
     }
 }

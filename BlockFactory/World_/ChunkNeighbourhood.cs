@@ -25,7 +25,7 @@ public class ChunkNeighbourhood : IChunkStorage
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block);
     }
 
-    public Chunk? GetChunk(Vector3D<int> pos)
+    public Chunk? GetChunk(Vector3D<int> pos, bool load = true)
     {
         return _neighbours[GetArrIndex(pos)];
     }
@@ -38,6 +38,11 @@ public class ChunkNeighbourhood : IChunkStorage
     public void RemoveChunk(Vector3D<int> pos)
     {
         _neighbours[GetArrIndex(pos)] = null;
+    }
+
+    public IEnumerable<Chunk> GetLoadedChunks()
+    {
+        return _neighbours.Where(c => c != null)!;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
