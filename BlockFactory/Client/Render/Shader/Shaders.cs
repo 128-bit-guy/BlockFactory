@@ -1,4 +1,5 @@
 using BlockFactory.Side_;
+using OpenTK.Graphics.OpenGL4;
 
 namespace BlockFactory.Client.Render.Shader;
 
@@ -9,6 +10,7 @@ public static class Shaders
     public static ShaderProgram Text { get; private set; } = null!;
     public static ShaderProgram Gui { get; private set; } = null!;
     public static ColorShaderProgram Color { get; private set; } = null!;
+    public static int PlayerPosUniform;
 
     internal static void Init()
     {
@@ -16,5 +18,6 @@ public static class Shaders
         Text = new ShaderProgram("BlockFactory.Assets.Shaders.text");
         Gui = new ShaderProgram("BlockFactory.Assets.Shaders.gui");
         Color = new ColorShaderProgram("BlockFactory.Assets.Shaders.color");
+        PlayerPosUniform = GL.GetUniformLocation(Block.Program, "playerPos");
     }
 }
