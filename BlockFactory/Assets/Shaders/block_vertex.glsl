@@ -9,20 +9,17 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 playerPos;
 
-const float planetRadius = 300f;
+const float planetRadius = 150f;
 
 out vec3 vertColor;
 out vec3 vertUv;
 
 vec3 spherify(vec3 mp) {
-    mp.xz -= playerPos.xz;
+    mp -= playerPos;
     float dist = length(mp.xz);
-    float angle = dist / planetRadius;
-    vec2 up = vec2(sin(angle), cos(angle));
-    mp.xz /= dist;
-    mp.xz *= up.x * (mp.y + planetRadius);
-    mp.y = (up.y * (mp.y + planetRadius)) - planetRadius;
-    mp.xz += playerPos.xz;
+    float delta = planetRadius - sqrt(planetRadius * planetRadius - dist * dist);
+    mp.y -= delta;
+    mp += playerPos;
     return mp;
 }
 
