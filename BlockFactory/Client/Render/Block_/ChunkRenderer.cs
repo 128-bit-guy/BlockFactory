@@ -2,6 +2,7 @@
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
+using BlockFactory.Math_;
 using BlockFactory.World_;
 using Silk.NET.Maths;
 

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 
-namespace BlockFactory;
+namespace BlockFactory.Math_;
 
 public static class BfMathUtils
 {

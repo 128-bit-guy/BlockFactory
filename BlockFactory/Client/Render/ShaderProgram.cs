@@ -1,4 +1,5 @@
-﻿using BlockFactory.Base;
+﻿using System.Numerics;
+using BlockFactory.Base;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -47,6 +48,12 @@ public class ShaderProgram : IDisposable
     protected void SetMatrix4(int uniform, Matrix4X4<float> mat)
     {
         BfRendering.Gl.ProgramUniformMatrix4(_program, uniform, 1, false, mat.Row1.X);
+    }
+
+    protected void SetVector3(int uniform, Vector3D<float> vec)
+    {
+        var vecs = vec.ToSystem(); 
+        BfRendering.Gl.ProgramUniform3(_program, uniform, ref vecs);
     }
 
     public void SetModel(Matrix4X4<float> model)

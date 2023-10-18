@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Math_;
 using BlockFactory.Resource;
 using BlockFactory.World_;
 using Silk.NET.Input;
@@ -87,9 +88,9 @@ public static class BlockFactoryClient
         Shaders.Block.SetView(Matrix4X4.CreateLookAt(_cameraPos, _cameraPos + forward, up));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
         Shaders.Block.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
-            100f));
+            300f));
+        Shaders.Block.SetPlayerPos(_cameraPos);
         _worldRenderer.UpdateAndRender();
-
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
