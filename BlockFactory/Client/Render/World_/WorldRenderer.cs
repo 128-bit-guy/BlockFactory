@@ -8,6 +8,7 @@ using BlockFactory.Entity_.Player;
 using BlockFactory.Side_;
 using BlockFactory.World_;
 using BlockFactory.World_.Chunk_;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -126,6 +127,7 @@ public class WorldRenderer : IDisposable
         //Shaders.Block.SetColor((1f, 1f, 1f, 1f));
         Shaders.Block.SetModel(Matrix4.Identity);
         BlockFactoryClient.Instance.VpMatrices.Set(Shaders.Block);
+        GL.Uniform3(Shaders.PlayerPosUniform, BlockFactoryClient.Instance.Player!.Pos.PosInChunk);
         //_mesh.Bind();
         var intersectionHelper = new FrustumIntersectionHelper(BlockFactoryClient.Instance.VpMatrices);
         var leftParallelRebuilds = 4;
