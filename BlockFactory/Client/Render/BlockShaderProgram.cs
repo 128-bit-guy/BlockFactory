@@ -1,7 +1,9 @@
-﻿using Silk.NET.Maths;
+﻿using BlockFactory.Base;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class BlockShaderProgram : ShaderProgram
 {
     private readonly int _playerPos;
