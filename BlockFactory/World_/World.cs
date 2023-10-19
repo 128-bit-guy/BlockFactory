@@ -66,7 +66,5 @@ public class World : IChunkStorage
                 RemoveChunk(chunk.Position);
             }
         }
-
-        int x = 5 + 5;
     }
 }

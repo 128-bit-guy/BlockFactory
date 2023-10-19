@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Drawing;
+using System.Runtime.CompilerServices;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Math_;
@@ -19,5 +20,12 @@ public static class BfMathUtils
     {
         return new Vector3D<T>(Scalar.ShiftLeft(vec.X, offset), Scalar.ShiftLeft(vec.Y, offset),
             Scalar.ShiftLeft(vec.Z, offset));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector4D<float> AsVector(this Color color)
+    {
+        return new Vector4D<float>((float)color.R / (float)byte.MaxValue, (float)color.G / (float)byte.MaxValue,
+            (float)color.B / (float)byte.MaxValue, (float)color.A / (float)byte.MaxValue);
     }
 }

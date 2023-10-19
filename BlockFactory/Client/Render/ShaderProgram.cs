@@ -1,5 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using BlockFactory.Base;
+using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -54,6 +56,26 @@ public class ShaderProgram : IDisposable
     {
         var vecs = vec.ToSystem(); 
         BfRendering.Gl.ProgramUniform3(_program, uniform, ref vecs);
+    }
+
+    protected unsafe void SetVector4(int uniform, Vector4D<float> vec)
+    {
+        Span<float> s = stackalloc float[4];
+        for (var i = 0; i < 4; ++i)
+        {
+            s[i] = vec[i];
+        }
+        BfRendering.Gl.ProgramUniform4(_program, uniform, s);
+    }
+
+    protected void SetColor(int uniform, Color color)
+    {
+        SetVector4(uniform, color.AsVector());
+    }
+
+    protected void SetFloat(int uniform, float f)
+    {
+        BfRendering.Gl.ProgramUniform1(_program, uniform, f);
     }
 
     public void SetModel(Matrix4X4<float> model)

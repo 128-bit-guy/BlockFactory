@@ -94,7 +94,7 @@ public static class BlockFactoryClient
         Shaders.Block.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
             300f));
         Shaders.Block.SetPlayerPos(Player.Pos.As<float>());
-        WorldRenderer.UpdateAndRender();
+        WorldRenderer.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);

@@ -17,10 +17,13 @@ public class ChunkRenderer : IDisposable
     private readonly float[] _vertexLight = new float[4];
     public readonly Chunk Chunk;
     public readonly RenderMesh Mesh;
-    public bool RequiresUpdate = true;
+    public bool RequiresRebuild = true;
     public Task? RebuildTask;
     public BlockMeshBuilder? MeshBuilder;
     public bool Valid = true;
+    public float LoadProgress;
+    public bool Unloading;
+    public bool Initialized = false;
 
     static ChunkRenderer()
     {
@@ -105,6 +108,20 @@ public class ChunkRenderer : IDisposable
 
     private void OnBlockUpdate(Vector3D<int> pos)
     {
-        RequiresUpdate = true;
+        RequiresRebuild = true;
+    }
+
+    public void Update(double deltaTime)
+    {
+        if (Unloading)
+        {
+            LoadProgress -= (float)deltaTime;
+        }
+        else if(Initialized)
+        {
+            LoadProgress += (float)deltaTime;
+        }
+
+        LoadProgress = Math.Clamp(LoadProgress, 0, 1);
     }
 }

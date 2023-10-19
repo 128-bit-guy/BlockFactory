@@ -15,6 +15,10 @@ public class WorldRenderer : IDisposable
     public readonly World World;
     private readonly Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
     private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
+    private readonly List<ChunkRenderer> _fadingOutRenderers = new();
+
+    public int RenderedChunks => _renderers.Count;
+    public int FadingOutChunks => _fadingOutRenderers.Count;
 
     public WorldRenderer(World world)
     {
@@ -62,20 +66,30 @@ public class WorldRenderer : IDisposable
             cr.RebuildTask = null;
             cr.MeshBuilder = null;
         }
-        cr.Dispose();
+
+        if (cr.Mesh.IndexCount > 0)
+        {
+            cr.Unloading = true;
+            _fadingOutRenderers.Add(cr);
+        }
+        else
+        {
+            cr.Dispose();
+        }
     }
 
-    public unsafe void UpdateAndRender()
+    public void UpdateAndRender(double deltaTime)
     {
         Textures.Blocks.Bind();
         Shaders.Block.Use();
+        Shaders.Block.SetSkyColor(BfRendering.SkyColor);
         foreach (var (pos, renderer) in _renderers)
         {
-            if (renderer.RequiresUpdate && renderer.RebuildTask == null &&  _blockMeshBuilders.Count > 0)
+            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
             {
                 var bmb = _blockMeshBuilders.Pop();
                 renderer.StartRebuildTask(bmb);
-                renderer.RequiresUpdate = false;
+                renderer.RequiresRebuild = false;
             }
 
             if (renderer.RebuildTask is { IsCompleted: true })
@@ -89,19 +103,34 @@ public class WorldRenderer : IDisposable
                 _blockMeshBuilders.Push(renderer.MeshBuilder);
                 renderer.RebuildTask = null;
                 renderer.MeshBuilder = null;
+                renderer.Initialized = true;
             }
-
-            if (renderer.Mesh.IndexCount == 0) continue;
-            Shaders.Block.SetModel(Matrix4X4.CreateTranslation(pos.ShiftLeft(Constants.ChunkSizeLog2).As<float>()));
-            renderer.Mesh.Bind();
-            BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
-                null);
+            
+            UpdateAndRenderChunk(renderer, deltaTime);
         }
 
+        foreach (var renderer in _fadingOutRenderers)
+        {
+            UpdateAndRenderChunk(renderer, deltaTime);
+        }
+
+        _fadingOutRenderers.RemoveAll(renderer => renderer.LoadProgress <= 0.01f);
+        
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    public int RenderedChunks => _renderers.Count;
+    private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)
+    {
+
+        renderer.Update(deltaTime);
+        if (renderer.Mesh.IndexCount == 0) return;
+        Shaders.Block.SetModel(Matrix4X4.CreateTranslation(renderer.Chunk.Position
+            .ShiftLeft(Constants.ChunkSizeLog2).As<float>()));
+        Shaders.Block.SetLoadProgress(renderer.LoadProgress);
+        renderer.Mesh.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
+            null);
+    }
 }

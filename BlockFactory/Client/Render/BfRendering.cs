@@ -12,11 +12,12 @@ namespace BlockFactory.Client.Render;
 public static class BfRendering
 {
     public static GL Gl = null!;
+    public static readonly Color SkyColor = Color.Aqua;
 
     public static unsafe void Init()
     {
         Gl = BlockFactoryClient.Window.CreateOpenGL();
-        Gl.ClearColor(Color.Aqua);
+        Gl.ClearColor(SkyColor);
         DebugProc d;
         Gl.DebugMessageCallback(OnDebugMessage, null);
         Gl.DebugMessageControl(DebugSource.DontCare, DebugType.DontCare, DebugSeverity.DontCare, 0, null, true);
