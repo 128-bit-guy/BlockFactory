@@ -45,7 +45,24 @@ public class WorldRenderer : IDisposable
     private void OnChunkNotReadyForTick(Chunk c)
     {
         _renderers.Remove(c.Position, out var cr);
-        cr!.Dispose();
+        cr!.Valid = false;
+        if (cr.RebuildTask != null)
+        {
+            try
+            {
+                cr.RebuildTask.Wait();
+            }
+            catch (Exception ex)
+            {
+                //
+            }
+
+            cr.MeshBuilder!.MeshBuilder.Reset();
+            _blockMeshBuilders.Push(cr.MeshBuilder);
+            cr.RebuildTask = null;
+            cr.MeshBuilder = null;
+        }
+        cr.Dispose();
     }
 
     public unsafe void UpdateAndRender()
@@ -85,4 +102,6 @@ public class WorldRenderer : IDisposable
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
+
+    public int RenderedChunks => _renderers.Count;
 }

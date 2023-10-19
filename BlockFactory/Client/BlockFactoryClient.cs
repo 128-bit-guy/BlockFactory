@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using BlockFactory.Resource;
 using BlockFactory.World_;
@@ -20,9 +21,9 @@ public static class BlockFactoryClient
     public static ResourceLoader ResourceLoader = null!;
     public static IInputContext InputContext = null!;
     private static Vector2D<float> _headRotation;
-    private static Vector3D<float> _cameraPos;
+    public static PlayerEntity Player;
     private static World _world;
-    private static WorldRenderer _worldRenderer;
+    public static WorldRenderer WorldRenderer;
 
     private static void InitWindow()
     {
@@ -66,31 +67,34 @@ public static class BlockFactoryClient
         if (InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft)) moveDelta -= Vector3D<float>.UnitY;
 
         var blockPos =
-            new Vector3D<float>(MathF.Floor(_cameraPos.X), MathF.Floor(_cameraPos.Y), MathF.Floor(_cameraPos.Z))
+            new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
                 .As<int>();
-        var chunkPos = blockPos.ShiftRight(Constants.ChunkSizeLog2);
-        var leftGenerations = 2;
-        foreach (var delta in PlayerChunkLoading.ChunkDeltas)
-        {
-            var abs = chunkPos + delta;
-            if (_world.GetChunk(abs, false) != null) continue;
-            --leftGenerations;
-            _world.GetChunk(abs);
-            if (leftGenerations == 0) break;
-        }
+        // var chunkPos = blockPos.ShiftRight(Constants.ChunkSizeLog2);
+        // var leftGenerations = 2;
+        // foreach (var delta in PlayerChunkLoading.ChunkDeltas)
+        // {
+        //     var abs = chunkPos + delta;
+        //     if (_world.GetChunk(abs, false) != null) continue;
+        //     --leftGenerations;
+        //     _world.GetChunk(abs);
+        //     if (leftGenerations == 0) break;
+        // }
 
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) _world.SetBlock(blockPos, 0);
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, 3);
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
-        _cameraPos += moveDelta * (float)deltaTime * 5;
-        Shaders.Block.SetView(Matrix4X4.CreateLookAt(_cameraPos, _cameraPos + forward, up));
+        Player.Pos += (moveDelta * (float)deltaTime * 5).As<double>();
+        Player.Update();
+        _world.Update();
+        Shaders.Block.SetView(Matrix4X4.CreateLookAt(Player.Pos.As<float>(),
+            Player.Pos.As<float>() + forward, up));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
         Shaders.Block.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
             300f));
-        Shaders.Block.SetPlayerPos(_cameraPos);
-        _worldRenderer.UpdateAndRender();
+        Shaders.Block.SetPlayerPos(Player.Pos.As<float>());
+        WorldRenderer.UpdateAndRender();
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -108,14 +112,16 @@ public static class BlockFactoryClient
         Textures.Init();
         Shaders.Init();
         _world = new World();
-        _worldRenderer = new WorldRenderer(_world);
+        WorldRenderer = new WorldRenderer(_world);
+        Player = new PlayerEntity();
+        Player.SetWorld(_world);
     }
 
     private static void OnWindowClose()
     {
         Textures.Destroy();
         Shaders.Destroy();
-        _worldRenderer.Dispose();
+        WorldRenderer.Dispose();
         BfDebug.Destroy();
     }
 

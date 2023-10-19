@@ -20,6 +20,7 @@ public class ChunkRenderer : IDisposable
     public bool RequiresUpdate = true;
     public Task? RebuildTask;
     public BlockMeshBuilder? MeshBuilder;
+    public bool Valid = true;
 
     static ChunkRenderer()
     {
@@ -53,6 +54,7 @@ public class ChunkRenderer : IDisposable
         for (var j = 0; j < Constants.ChunkSize; ++j)
         for (var k = 0; k < Constants.ChunkSize; ++k)
         {
+            if(!Valid) return;
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
             var block = neighbourhood.GetBlock(absPos);

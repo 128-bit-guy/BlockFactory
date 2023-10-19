@@ -50,6 +50,14 @@ public static class BfDebug
         }
 
         ImGui.End();
+
+        if (ImGui.Begin("Chunk loading"))
+        {
+            ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
+            ImGui.Text($"Rendered chunks: {BlockFactoryClient.WorldRenderer.RenderedChunks}");
+        }
+
+        ImGui.End();
         Controller.Render();
     }
 

@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using BlockFactory.Entity_;
+using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
@@ -12,6 +13,7 @@ public class Chunk : IBlockStorage
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
+    public HashSet<PlayerEntity> WatchingPlayers = new();
 
     public Chunk(Vector3D<int> position)
     {
@@ -31,4 +33,14 @@ public class Chunk : IBlockStorage
     }
 
     public event BlockEventHandler BlockUpdate = p => { };
+
+    public void AddWatchingPlayer(PlayerEntity player)
+    {
+        WatchingPlayers.Add(player);
+    }
+
+    public void RemoveWatchingPlayer(PlayerEntity player)
+    {
+        WatchingPlayers.Remove(player);
+    }
 }

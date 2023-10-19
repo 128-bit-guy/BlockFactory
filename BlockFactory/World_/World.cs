@@ -55,4 +55,18 @@ public class World : IChunkStorage
     {
         return ChunkStorage.GetLoadedChunks();
     }
+
+    public void Update()
+    {
+        var chunks = GetLoadedChunks().ToList();
+        foreach (var chunk in chunks)
+        {
+            if (chunk.WatchingPlayers.Count == 0)
+            {
+                RemoveChunk(chunk.Position);
+            }
+        }
+
+        int x = 5 + 5;
+    }
 }
