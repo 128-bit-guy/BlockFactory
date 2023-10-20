@@ -9,6 +9,8 @@ public class World : IChunkStorage, IBlockWorld
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly WorldGenerator Generator = new();
+    private List<Chunk> _chunksToRemove = new();
+    public readonly Random Random = new Random();
 
     public World()
     {
@@ -34,7 +36,7 @@ public class World : IChunkStorage, IBlockWorld
     {
         var res = ChunkStorage.GetChunk(pos, false);
         if (res != null || !load) return res;
-        var nc = new Chunk(pos)
+        var nc = new Chunk(this, pos)
         {
             Data = new ChunkData()
         };
@@ -63,9 +65,23 @@ public class World : IChunkStorage, IBlockWorld
 
     public void Update()
     {
-        var chunks = GetLoadedChunks().ToList();
-        foreach (var chunk in chunks)
+        // var chunks = GetLoadedChunks().ToList();
+        foreach (var chunk in GetLoadedChunks())
+        {
             if (chunk.WatchingPlayers.Count == 0)
-                RemoveChunk(chunk.Position);
+            {
+                _chunksToRemove.Add(chunk);
+            }
+            else if(chunk.ReadyForTick)
+            {
+                chunk.Update();
+            }
+        }
+
+        foreach (var chunk in _chunksToRemove)
+        {
+            RemoveChunk(chunk.Position);
+        }
+        _chunksToRemove.Clear();
     }
 }

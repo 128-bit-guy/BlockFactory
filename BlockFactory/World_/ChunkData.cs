@@ -7,6 +7,7 @@ namespace BlockFactory.World_;
 public class ChunkData : IBlockStorage
 {
     private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    public bool Decorated;
 
     public short GetBlock(Vector3D<int> pos)
     {

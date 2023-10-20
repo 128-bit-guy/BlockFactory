@@ -70,7 +70,7 @@ public static class BlockFactoryClient
                 .As<int>();
 
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) _world.SetBlock(blockPos, 0);
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, 3);
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, 17);
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
