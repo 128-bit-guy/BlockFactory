@@ -14,9 +14,9 @@ public class WorldChunkStorage : IChunkStorage
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
     }
 
-    public void SetBlock(Vector3D<int> pos, short block)
+    public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block);
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)

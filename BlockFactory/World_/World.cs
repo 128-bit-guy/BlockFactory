@@ -4,7 +4,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class World : IChunkStorage
+public class World : IChunkStorage, IBlockWorld
 {
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
@@ -20,9 +20,14 @@ public class World : IChunkStorage
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
     }
 
-    public void SetBlock(Vector3D<int> pos, short block)
+    public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block);
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
+    }
+
+    public void UpdateBlock(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)

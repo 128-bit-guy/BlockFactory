@@ -3,7 +3,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class Chunk : IBlockStorage
+public class Chunk : IBlockWorld
 {
     public delegate void BlockEventHandler(Vector3D<int> pos);
 
@@ -26,9 +26,22 @@ public class Chunk : IBlockStorage
         return Data!.GetBlock(pos);
     }
 
-    public void SetBlock(Vector3D<int> pos, short block)
+    public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
-        Data!.SetBlock(pos, block);
+        Data!.SetBlock(pos, block, update);
+        if(!update) return;
+        BlockUpdate(pos);
+        for (var i = -1; i <= 1; ++i)
+        for (var j = -1; j <= 1; ++j)
+        for (var k = -1; k <= 1; ++k)
+        {
+            var oPos = pos + new Vector3D<int>(i, j, k);
+            Neighbourhood.UpdateBlock(oPos);
+        }
+    }
+
+    public void UpdateBlock(Vector3D<int> pos)
+    {
         BlockUpdate(pos);
     }
 
