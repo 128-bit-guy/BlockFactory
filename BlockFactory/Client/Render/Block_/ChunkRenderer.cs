@@ -1,6 +1,5 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
-using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_;
@@ -17,13 +16,13 @@ public class ChunkRenderer : IDisposable
     private readonly float[] _vertexLight = new float[4];
     public readonly Chunk Chunk;
     public readonly RenderMesh Mesh;
-    public bool RequiresRebuild = true;
-    public Task? RebuildTask;
-    public BlockMeshBuilder? MeshBuilder;
-    public bool Valid = true;
-    public float LoadProgress;
-    public bool Unloading;
     public bool Initialized = false;
+    public float LoadProgress;
+    public BlockMeshBuilder? MeshBuilder;
+    public Task? RebuildTask;
+    public bool RequiresRebuild = true;
+    public bool Unloading;
+    public bool Valid = true;
 
     static ChunkRenderer()
     {
@@ -57,7 +56,7 @@ public class ChunkRenderer : IDisposable
         for (var j = 0; j < Constants.ChunkSize; ++j)
         for (var k = 0; k < Constants.ChunkSize; ++k)
         {
-            if(!Valid) return;
+            if (!Valid) return;
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
             var block = neighbourhood.GetBlock(absPos);
@@ -114,13 +113,8 @@ public class ChunkRenderer : IDisposable
     public void Update(double deltaTime)
     {
         if (Unloading)
-        {
             LoadProgress -= (float)deltaTime;
-        }
-        else if(Initialized)
-        {
-            LoadProgress += (float)deltaTime;
-        }
+        else if (Initialized) LoadProgress += (float)deltaTime;
 
         LoadProgress = Math.Clamp(LoadProgress, 0, 1);
     }

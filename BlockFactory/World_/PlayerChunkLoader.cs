@@ -8,18 +8,24 @@ namespace BlockFactory.World_;
 
 public class PlayerChunkLoader : IDisposable
 {
-    public readonly PlayerEntity Player;
-    private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
+    private readonly bool[] _chunkIsVisible = new bool[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     private readonly List<Chunk> _loadingChunks = new();
     private readonly List<Chunk> _tempLoadingChunks = new();
-    private readonly bool[] _chunkIsVisible = new bool[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
+    private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
+    public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
-    public int Progress { get; private set; }
     public int MaxLoadingChunks = 2;
 
     public PlayerChunkLoader(PlayerEntity player)
     {
         Player = player;
+    }
+
+    public int Progress { get; private set; }
+
+    public void Dispose()
+    {
+        Reset();
     }
 
     public void Update()
@@ -34,36 +40,28 @@ public class PlayerChunkLoader : IDisposable
 
             _lastChunkPos = chunkPos;
             var big = false;
-            for (int i = 0; i < 3; ++i)
-            {
+            for (var i = 0; i < 3; ++i)
                 if (Math.Abs(delta[i]) > 1)
                 {
                     big = true;
                     break;
                 }
-            }
 
             if (big)
-            {
                 Reset();
-            }
             else
-            {
                 Move(delta);
-            }
         }
+
         MakeChunksLoaded();
-        int leftProgressDelta = 8;
+        var leftProgressDelta = 8;
         while (Progress < PlayerChunkLoading.ChunkDeltas.Length)
         {
             var delta = PlayerChunkLoading.ChunkDeltas[Progress];
             var c = Player.World!.GetChunk(chunkPos + delta)!;
             if (!IsChunkWatched(c))
             {
-                if (_loadingChunks.Count >= MaxLoadingChunks)
-                {
-                    break;
-                }
+                if (_loadingChunks.Count >= MaxLoadingChunks) break;
 
                 WatchChunk(c);
                 _loadingChunks.Add(c);
@@ -71,10 +69,7 @@ public class PlayerChunkLoader : IDisposable
 
             ++Progress;
             --leftProgressDelta;
-            if (leftProgressDelta == 0)
-            {
-                break;
-            }
+            if (leftProgressDelta == 0) break;
         }
     }
 
@@ -86,6 +81,7 @@ public class PlayerChunkLoader : IDisposable
             MakeChunkVisible(c);
             _loadingChunks.Remove(c);
         }
+
         _tempLoadingChunks.Clear();
     }
 
@@ -101,13 +97,9 @@ public class PlayerChunkLoader : IDisposable
     private void UnWatchChunk(Chunk c)
     {
         if (IsChunkVisible(c))
-        {
             MakeChunkNotVisible(c);
-        }
         else
-        {
             _loadingChunks.Remove(c);
-        }
         c.RemoveWatchingPlayer(Player);
         _watchedChunks[GetArrIndex(c.Position)] = null;
     }
@@ -141,18 +133,9 @@ public class PlayerChunkLoader : IDisposable
     private void Reset()
     {
         foreach (var chunk in _watchedChunks)
-        {
             if (chunk != null)
-            {
                 UnWatchChunk(chunk);
-            }
-        }
         Progress = 0;
-    }
-
-    public void Dispose()
-    {
-        Reset();
     }
 
     private void Move(Vector3D<int> delta)
@@ -162,7 +145,7 @@ public class PlayerChunkLoader : IDisposable
         {
             var remAbs = remDelta + _lastChunkPos;
             var c = _watchedChunks[GetArrIndex(remAbs)];
-            if(c == null) continue;
+            if (c == null) continue;
             UnWatchChunk(c);
         }
 

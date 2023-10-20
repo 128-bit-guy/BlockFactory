@@ -3,7 +3,6 @@ using BlockFactory.Base;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
-using BlockFactory.Math_;
 using BlockFactory.Resource;
 using BlockFactory.World_;
 using Silk.NET.Input;
@@ -69,16 +68,6 @@ public static class BlockFactoryClient
         var blockPos =
             new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
                 .As<int>();
-        // var chunkPos = blockPos.ShiftRight(Constants.ChunkSizeLog2);
-        // var leftGenerations = 2;
-        // foreach (var delta in PlayerChunkLoading.ChunkDeltas)
-        // {
-        //     var abs = chunkPos + delta;
-        //     if (_world.GetChunk(abs, false) != null) continue;
-        //     --leftGenerations;
-        //     _world.GetChunk(abs);
-        //     if (leftGenerations == 0) break;
-        // }
 
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) _world.SetBlock(blockPos, 0);
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, 3);

@@ -1,6 +1,5 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
-using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Math_;
 using BlockFactory.World_;
@@ -12,24 +11,21 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class WorldRenderer : IDisposable
 {
-    public readonly World World;
-    private readonly Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
     private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
-
-    public int RenderedChunks => _renderers.Count;
-    public int FadingOutChunks => _fadingOutRenderers.Count;
+    private readonly Dictionary<Vector3D<int>, ChunkRenderer> _renderers = new();
+    public readonly World World;
 
     public WorldRenderer(World world)
     {
         World = world;
         world.ChunkStatusManager.ChunkReadyForTick += OnChunkReadyForTick;
         world.ChunkStatusManager.ChunkNotReadyForTick += OnChunkNotReadyForTick;
-        for (var i = 0; i < 4; ++i)
-        {
-            _blockMeshBuilders.Push(new BlockMeshBuilder());
-        }
+        for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder());
     }
+
+    public int RenderedChunks => _renderers.Count;
+    public int FadingOutChunks => _fadingOutRenderers.Count;
 
     public void Dispose()
     {
@@ -95,9 +91,7 @@ public class WorldRenderer : IDisposable
             if (renderer.RebuildTask is { IsCompleted: true })
             {
                 if (renderer.RebuildTask.IsCompletedSuccessfully)
-                {
                     renderer.MeshBuilder!.MeshBuilder.Upload(renderer.Mesh);
-                }
 
                 renderer.MeshBuilder!.MeshBuilder.Reset();
                 _blockMeshBuilders.Push(renderer.MeshBuilder);
@@ -105,17 +99,14 @@ public class WorldRenderer : IDisposable
                 renderer.MeshBuilder = null;
                 renderer.Initialized = true;
             }
-            
+
             UpdateAndRenderChunk(renderer, deltaTime);
         }
 
-        foreach (var renderer in _fadingOutRenderers)
-        {
-            UpdateAndRenderChunk(renderer, deltaTime);
-        }
+        foreach (var renderer in _fadingOutRenderers) UpdateAndRenderChunk(renderer, deltaTime);
 
         _fadingOutRenderers.RemoveAll(renderer => renderer.LoadProgress <= 0.01f);
-        
+
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -123,7 +114,6 @@ public class WorldRenderer : IDisposable
 
     private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)
     {
-
         renderer.Update(deltaTime);
         if (renderer.Mesh.IndexCount == 0) return;
         Shaders.Block.SetModel(Matrix4X4.CreateTranslation(renderer.Chunk.Position

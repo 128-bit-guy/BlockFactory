@@ -29,7 +29,7 @@ public class Chunk : IBlockWorld
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         Data!.SetBlock(pos, block, update);
-        if(!update) return;
+        if (!update) return;
         BlockUpdate(pos);
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)

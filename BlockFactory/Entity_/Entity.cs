@@ -25,16 +25,13 @@ public class Entity
 
     public virtual void Update()
     {
-        
     }
 
     protected virtual void OnRemovedFromWorld()
     {
-        
     }
 
     protected virtual void OnAddedToWorld()
     {
-        
     }
 }

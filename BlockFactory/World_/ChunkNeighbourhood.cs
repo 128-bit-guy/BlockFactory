@@ -16,6 +16,11 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
         Center = center;
     }
 
+    public void UpdateBlock(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
+    }
+
     public short GetBlock(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
@@ -24,11 +29,6 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
-    }
-
-    public void UpdateBlock(Vector3D<int> pos)
-    {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)

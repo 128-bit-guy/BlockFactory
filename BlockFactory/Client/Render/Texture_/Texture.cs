@@ -21,9 +21,7 @@ public class Texture : IDisposable
         BfRendering.Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
             (int)TextureMagFilter.Nearest);
         if (maxLevel != -1)
-        {
             BfRendering.Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, maxLevel);
-        }
         image.Upload(_id);
         BfRendering.Gl.GenerateMipmap(TextureTarget.Texture2D);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);

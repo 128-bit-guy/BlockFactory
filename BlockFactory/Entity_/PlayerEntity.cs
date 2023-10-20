@@ -5,6 +5,7 @@ namespace BlockFactory.Entity_;
 public class PlayerEntity : Entity
 {
     public PlayerChunkLoader? ChunkLoader { get; private set; }
+
     public override void Update()
     {
         base.Update();

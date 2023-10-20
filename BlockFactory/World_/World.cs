@@ -15,6 +15,11 @@ public class World : IChunkStorage, IBlockWorld
         ChunkStatusManager = new ChunkStatusManager(this);
     }
 
+    public void UpdateBlock(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
+    }
+
     public short GetBlock(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
@@ -23,11 +28,6 @@ public class World : IChunkStorage, IBlockWorld
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
-    }
-
-    public void UpdateBlock(Vector3D<int> pos)
-    {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)
@@ -65,11 +65,7 @@ public class World : IChunkStorage, IBlockWorld
     {
         var chunks = GetLoadedChunks().ToList();
         foreach (var chunk in chunks)
-        {
             if (chunk.WatchingPlayers.Count == 0)
-            {
                 RemoveChunk(chunk.Position);
-            }
-        }
     }
 }

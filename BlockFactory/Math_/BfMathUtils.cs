@@ -25,7 +25,7 @@ public static class BfMathUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static Vector4D<float> AsVector(this Color color)
     {
-        return new Vector4D<float>((float)color.R / (float)byte.MaxValue, (float)color.G / (float)byte.MaxValue,
-            (float)color.B / (float)byte.MaxValue, (float)color.A / (float)byte.MaxValue);
+        return new Vector4D<float>(color.R / (float)byte.MaxValue, color.G / (float)byte.MaxValue,
+            color.B / (float)byte.MaxValue, color.A / (float)byte.MaxValue);
     }
 }

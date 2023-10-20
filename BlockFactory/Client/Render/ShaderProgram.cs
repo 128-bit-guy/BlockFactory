@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Numerics;
 using BlockFactory.Base;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
@@ -54,17 +53,14 @@ public class ShaderProgram : IDisposable
 
     protected void SetVector3(int uniform, Vector3D<float> vec)
     {
-        var vecs = vec.ToSystem(); 
+        var vecs = vec.ToSystem();
         BfRendering.Gl.ProgramUniform3(_program, uniform, ref vecs);
     }
 
     protected unsafe void SetVector4(int uniform, Vector4D<float> vec)
     {
         Span<float> s = stackalloc float[4];
-        for (var i = 0; i < 4; ++i)
-        {
-            s[i] = vec[i];
-        }
+        for (var i = 0; i < 4; ++i) s[i] = vec[i];
         BfRendering.Gl.ProgramUniform4(_program, uniform, s);
     }
 

@@ -7,9 +7,10 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class BlockShaderProgram : ShaderProgram
 {
-    private readonly int _playerPos;
     private readonly int _loadProgress;
+    private readonly int _playerPos;
     private readonly int _skyColor;
+
     public BlockShaderProgram(string vertText, string fragText) : base(vertText, fragText)
     {
         _playerPos = GetUniformLocation("playerPos");
@@ -26,7 +27,7 @@ public class BlockShaderProgram : ShaderProgram
     {
         SetFloat(_loadProgress, progress);
     }
-    
+
     public void SetSkyColor(Color color)
     {
         SetColor(_skyColor, color);

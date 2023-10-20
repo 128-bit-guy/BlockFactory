@@ -17,7 +17,7 @@ public class TextureAtlas : IDisposable
         SizeLog2 = sizeLog2;
         var spriteW = image.Width >> sizeLog2;
         var spriteH = image.Height >> sizeLog2;
-        var nImage = new Image((image.Width << 1), (image.Height << 1));
+        var nImage = new Image(image.Width << 1, image.Height << 1);
         _spriteBoxes = new Box2D<float>[1 << (sizeLog2 << 1)];
         for (var i = 0; i < 1 << sizeLog2; ++i)
         for (var j = 0; j < 1 << sizeLog2; ++j)
