@@ -17,6 +17,7 @@ public class Chunk : IBlockWorld
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
     public HashSet<PlayerEntity> WatchingPlayers = new();
+    public Task? LoadTask = null;
 
     public Chunk(World world, Vector3D<int> position)
     {
@@ -27,11 +28,13 @@ public class Chunk : IBlockWorld
 
     public short GetBlock(Vector3D<int> pos)
     {
+        LoadTask?.Wait();
         return Data!.GetBlock(pos);
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
+        LoadTask?.Wait();
         Data!.SetBlock(pos, block, update);
         if (!update) return;
         UpdateBlock(pos);
@@ -92,4 +95,6 @@ public class Chunk : IBlockWorld
         }
         
     }
+
+    public bool IsLoaded => Data != null && LoadTask == null || LoadTask!.IsCompleted;
 }

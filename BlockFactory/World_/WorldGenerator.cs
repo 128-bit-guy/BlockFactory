@@ -11,6 +11,7 @@ public class WorldGenerator
 
     public void GenerateChunk(Chunk c)
     {
+        c.Data = new ChunkData();
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var k = 0; k < Constants.ChunkSize; ++k)
         {
@@ -20,7 +21,7 @@ public class WorldGenerator
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {
                 var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
-                if (val >= y / 2.0f) c.SetBlock(new Vector3D<int>(x, y, z), 1, false);
+                if (val >= y / 2.0f) c.Data!.SetBlock(new Vector3D<int>(x, y, z), 1, false);
             }
         }
     }

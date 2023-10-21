@@ -30,7 +30,7 @@ public class ChunkStatusManager
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
             var oChunk = c.Neighbourhood.GetChunk(oPos, false);
-            if (oChunk == null) continue;
+            if (oChunk is not { ReadyForUse: true }) continue;
             ++oChunk.ReadyForUseNeighbours;
             if (oChunk.ReadyForUseNeighbours == 27)
             {
@@ -65,7 +65,7 @@ public class ChunkStatusManager
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
             var oChunk = c.Neighbourhood.GetChunk(oPos, false);
-            if (oChunk == null) continue;
+            if (oChunk is not { ReadyForUse: true }) continue;
             if (oChunk.ReadyForUseNeighbours == 27)
             {
                 ChunkNotReadyForTick(oChunk);
