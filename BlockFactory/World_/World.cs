@@ -26,10 +26,20 @@ public class World : IChunkStorage, IBlockWorld
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
     }
+    
+    public byte GetBiome(Vector3D<int> pos)
+    {
+        return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBiome(pos);
+    }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
+    }
+
+    public void SetBiome(Vector3D<int> pos, byte biome)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBiome(pos, biome);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)

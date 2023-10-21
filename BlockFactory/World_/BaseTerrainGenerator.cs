@@ -20,7 +20,11 @@ public class BaseTerrainGenerator
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {
                 var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
-                if (val >= y / 2.0f) c.Data!.SetBlock(new Vector3D<int>(x, y, z), 1);
+                if (val >= y / 2.0f)
+                {
+                    c.Data!.SetBlock(new Vector3D<int>(x, y, z), 1);
+                    c.Data!.SetBiome(new Vector3D<int>(x, y, z), 1);
+                }
             }
         }
     }

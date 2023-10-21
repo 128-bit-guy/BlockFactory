@@ -33,7 +33,8 @@ public class WorldGenerator
             var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
             if (c.Neighbourhood.GetBlock(new Vector3D<int>(x, y, z)) == 1 &&
-                c.Neighbourhood.GetBlock(new Vector3D<int>(x, y + 1, z)) == 0)
+                c.Neighbourhood.GetBlock(new Vector3D<int>(x, y + 1, z)) == 0 &&
+                c.Neighbourhood.GetBiome(new Vector3D<int>(x, y + 1, z)) == 0)
             {
                 c.Neighbourhood.SetBlock(new Vector3D<int>(x, y, z), 4);
                 if (c.Neighbourhood.GetBlock(new Vector3D<int>(x, y - 1, z)) == 1)

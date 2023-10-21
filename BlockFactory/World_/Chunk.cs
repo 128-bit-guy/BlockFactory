@@ -35,6 +35,12 @@ public class Chunk : IBlockWorld
         return Data!.GetBlock(pos);
     }
 
+    public byte GetBiome(Vector3D<int> pos)
+    {
+        LoadTask?.Wait();
+        return Data!.GetBiome(pos);
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();
@@ -48,6 +54,12 @@ public class Chunk : IBlockWorld
             var oPos = pos + new Vector3D<int>(i, j, k);
             Neighbourhood.UpdateBlock(oPos);
         }
+    }
+
+    public void SetBiome(Vector3D<int> pos, byte biome)
+    {
+        LoadTask?.Wait();
+        Data!.SetBiome(pos, biome);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
