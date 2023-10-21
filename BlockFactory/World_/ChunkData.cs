@@ -14,7 +14,7 @@ public class ChunkData : IBlockStorage
         return _blocks[GetArrIndex(pos)];
     }
 
-    public void SetBlock(Vector3D<int> pos, short block, bool update)
+    public void SetBlock(Vector3D<int> pos, short block, bool update = false)
     {
         _blocks[GetArrIndex(pos)] = block;
     }
