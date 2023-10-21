@@ -2,16 +2,13 @@
 
 public class LinearCongruentialRandom : Random
 {
-    private long _seed;
-
     private const long Multiplier = 0x5DEECE66DL;
     private const long Addend = 0xBL;
     private const long Mask = (1L << 48) - 1;
-    private const double DoubleUnit = 1 / ((double)(1L << 53));
+    private const double DoubleUnit = 1 / (double)(1L << 53);
 
     [ThreadStatic] private static LinearCongruentialRandom? _randomInstance;
-
-    public static LinearCongruentialRandom ThreadLocalInstance => _randomInstance ??= new LinearCongruentialRandom();
+    private long _seed;
 
     public LinearCongruentialRandom(long seed)
     {
@@ -20,8 +17,9 @@ public class LinearCongruentialRandom : Random
 
     public LinearCongruentialRandom() : this(Environment.TickCount64)
     {
-
     }
+
+    public static LinearCongruentialRandom ThreadLocalInstance => _randomInstance ??= new LinearCongruentialRandom();
 
 
     private static long InitialScramble(long seed)
@@ -37,7 +35,7 @@ public class LinearCongruentialRandom : Random
     private ulong NextBits(int bits)
     {
         _seed = (_seed * Multiplier + Addend) & Mask;
-        return ((ulong)_seed) >> (48 - bits);
+        return (ulong)_seed >> (48 - bits);
     }
 
     public override int Next()
@@ -50,8 +48,8 @@ public class LinearCongruentialRandom : Random
         if (maxValue <= 0)
             throw new ArgumentException();
 
-        int r = (int)NextBits(31);
-        int m = maxValue - 1;
+        var r = (int)NextBits(31);
+        var m = maxValue - 1;
         //if ((maxValue & m) == 0)
         //{
         //    Console.WriteLine("R : {0}", r);
@@ -61,7 +59,7 @@ public class LinearCongruentialRandom : Random
         //}
         //else
         {
-            for (int u = r;
+            for (var u = r;
                  u - (r = u % maxValue) + m < 0;
                  u = (int)NextBits(31))
                 ;
@@ -82,18 +80,19 @@ public class LinearCongruentialRandom : Random
     public override void NextBytes(Span<byte> buffer)
     {
         for (int i = 0, len = buffer.Length; i < len;)
-            for (int rnd = Next(),
-                     n = Math.Min(len - i, sizeof(int));
-                 n-- > 0; rnd >>= 8)
-                buffer[i++] = (byte)rnd;
+        for (int rnd = Next(),
+             n = Math.Min(len - i, sizeof(int));
+             n-- > 0;
+             rnd >>= 8)
+            buffer[i++] = (byte)rnd;
     }
 
     public override double NextDouble()
     {
-        ulong a = NextBits(26);
-        ulong b = NextBits(27);
-        ulong l = (a << 27) + b;
-        double d = l * DoubleUnit;
+        var a = NextBits(26);
+        var b = NextBits(27);
+        var l = (a << 27) + b;
+        var d = l * DoubleUnit;
         return d;
     }
 

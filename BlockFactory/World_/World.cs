@@ -6,11 +6,11 @@ namespace BlockFactory.World_;
 
 public class World : IChunkStorage, IBlockWorld
 {
+    private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly WorldGenerator Generator = new();
-    private readonly List<Chunk> _chunksToRemove = new();
-    public readonly Random Random = new Random();
+    public readonly Random Random = new();
 
     public World()
     {
@@ -51,10 +51,7 @@ public class World : IChunkStorage, IBlockWorld
     {
         var c = ChunkStorage.GetChunk(pos)!;
         c.LoadTask?.Wait();
-        if (c.ReadyForUse)
-        {
-            ChunkStatusManager.OnChunkNotReadyForUse(c);
-        }
+        if (c.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
 
         ChunkStorage.RemoveChunk(pos);
     }
@@ -67,28 +64,22 @@ public class World : IChunkStorage, IBlockWorld
     public void Update()
     {
         foreach (var chunk in GetLoadedChunks())
-        {
             if (chunk.WatchingPlayers.Count == 0)
             {
                 _chunksToRemove.Add(chunk);
             }
-            else {
+            else
+            {
                 if (chunk is { IsLoaded: true, ReadyForUse: false })
                 {
                     chunk.LoadTask = null;
                     ChunkStatusManager.OnChunkReadyForUse(chunk);
                 }
-                if(chunk.ReadyForTick)
-                {
-                    chunk.Update();
-                }
-            }
-        }
 
-        foreach (var chunk in _chunksToRemove)
-        {
-            RemoveChunk(chunk.Position);
-        }
+                if (chunk.ReadyForTick) chunk.Update();
+            }
+
+        foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
         _chunksToRemove.Clear();
     }
 }

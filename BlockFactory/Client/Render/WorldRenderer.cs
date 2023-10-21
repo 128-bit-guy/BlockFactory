@@ -16,15 +16,6 @@ public class WorldRenderer : IDisposable
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
     private readonly ChunkRenderer?[] _renderers = new ChunkRenderer?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly World World;
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int GetArrIndex(Vector3D<int> pos)
-    {
-        return (pos.X & PlayerChunkLoading.CkdMask) |
-               (((pos.Y & PlayerChunkLoading.CkdMask) |
-                 ((pos.Z & PlayerChunkLoading.CkdMask) << PlayerChunkLoading.CkdPowerOf2)) <<
-                PlayerChunkLoading.CkdPowerOf2);
-    }
 
     public WorldRenderer(World world)
     {
@@ -41,12 +32,21 @@ public class WorldRenderer : IDisposable
     {
         World.ChunkStatusManager.ChunkReadyForTick -= OnChunkReadyForTick;
         World.ChunkStatusManager.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
-        for (int i = 0; i < _renderers.Length; ++i)
+        for (var i = 0; i < _renderers.Length; ++i)
         {
             if (_renderers[i] == null) continue;
             _renderers[i]!.Dispose();
             _renderers[i] = null;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int GetArrIndex(Vector3D<int> pos)
+    {
+        return (pos.X & PlayerChunkLoading.CkdMask) |
+               (((pos.Y & PlayerChunkLoading.CkdMask) |
+                 ((pos.Z & PlayerChunkLoading.CkdMask) << PlayerChunkLoading.CkdPowerOf2)) <<
+                PlayerChunkLoading.CkdPowerOf2);
     }
 
     private void OnChunkReadyForTick(Chunk c)
@@ -97,7 +97,7 @@ public class WorldRenderer : IDisposable
         {
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
             var renderer = _renderers[GetArrIndex(pos)];
-            if(renderer == null) continue;
+            if (renderer == null) continue;
             if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
             {
                 var bmb = _blockMeshBuilders.Pop();
@@ -128,8 +128,9 @@ public class WorldRenderer : IDisposable
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
-    
-    private Vector3D<float> GetChunkTranslation(ChunkRenderer renderer) {
+
+    private Vector3D<float> GetChunkTranslation(ChunkRenderer renderer)
+    {
         return (renderer.Chunk.Position
             .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - BlockFactoryClient.Player.Pos).As<float>();
     }

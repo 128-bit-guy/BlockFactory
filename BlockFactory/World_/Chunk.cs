@@ -9,15 +9,16 @@ public class Chunk : IBlockWorld
 {
     public delegate void BlockEventHandler(Vector3D<int> pos);
 
-    public readonly World World;
     public readonly ChunkNeighbourhood Neighbourhood;
     public readonly Vector3D<int> Position;
+
+    public readonly World World;
     public ChunkData? Data;
+    public Task? LoadTask = null;
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
     public HashSet<PlayerEntity> WatchingPlayers = new();
-    public Task? LoadTask = null;
 
     public Chunk(World world, Vector3D<int> position)
     {
@@ -25,6 +26,8 @@ public class Chunk : IBlockWorld
         World = world;
         Neighbourhood = new ChunkNeighbourhood(this);
     }
+
+    public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted;
 
     public short GetBlock(Vector3D<int> pos)
     {
@@ -49,10 +52,7 @@ public class Chunk : IBlockWorld
 
     public void UpdateBlock(Vector3D<int> pos)
     {
-        if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0)
-        {
-            SetBlock(pos, 3);
-        } 
+        if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
         BlockUpdate(pos);
     }
 
@@ -91,10 +91,8 @@ public class Chunk : IBlockWorld
                 SetBlock(absPos, 4);
                 goto EndLoop;
             }
+
             EndLoop: ;
         }
-        
     }
-
-    public bool IsLoaded => Data != null && LoadTask == null || LoadTask!.IsCompleted;
 }

@@ -67,14 +67,12 @@ public class ChunkRenderer : IDisposable
             foreach (var face in CubeFaceUtils.Values())
             {
                 if (block == 4)
-                {
                     transformer.Sprite = face switch
                     {
                         CubeFace.Top => 3,
                         CubeFace.Bottom => 2,
                         _ => 4
                     };
-                }
                 var oPos = absPos + face.GetDelta();
                 if (neighbourhood.GetBlock(oPos) != 0) continue;
                 var light = 1;
