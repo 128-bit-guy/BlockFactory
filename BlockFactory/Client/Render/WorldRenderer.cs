@@ -90,6 +90,7 @@ public class WorldRenderer : IDisposable
 
     public void UpdateAndRender(double deltaTime)
     {
+        var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
         Shaders.Block.Use();
         Shaders.Block.SetSkyColor(BfRendering.SkyColor);
@@ -98,12 +99,6 @@ public class WorldRenderer : IDisposable
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
             var renderer = _renderers[GetArrIndex(pos)];
             if (renderer == null) continue;
-            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
-            {
-                var bmb = _blockMeshBuilders.Pop();
-                renderer.StartRebuildTask(bmb);
-                renderer.RequiresRebuild = false;
-            }
 
             if (renderer.RebuildTask is { IsCompleted: true })
             {
@@ -115,6 +110,19 @@ public class WorldRenderer : IDisposable
                 renderer.RebuildTask = null;
                 renderer.MeshBuilder = null;
                 renderer.Initialized = true;
+            }
+            
+            var translation = GetChunkTranslation(renderer);
+
+            var b = new Box3D<float>(translation, translation + new Vector3D<float>(Constants.ChunkSize));
+            
+            if(!intersectionHelper.TestAab(b)) continue;
+            
+            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
+            {
+                var bmb = _blockMeshBuilders.Pop();
+                renderer.StartRebuildTask(bmb);
+                renderer.RequiresRebuild = false;
             }
 
             UpdateAndRenderChunk(renderer, deltaTime);

@@ -13,6 +13,8 @@ public static class BfRendering
 {
     public static GL Gl = null!;
     public static readonly Color SkyColor = Color.Aqua;
+    public static Matrix4X4<float> View { get; private set; }
+    public static Matrix4X4<float> Projection { get; private set; }
 
     public static unsafe void Init()
     {
@@ -40,5 +42,26 @@ public static class BfRendering
     public static void OnFramebufferResize(Vector2D<int> newSize)
     {
         Gl.Viewport(newSize);
+    }
+
+    public static void UseWorldMatrices()
+    {
+        var forward = BlockFactoryClient.CalcCameraForward();
+        var up = BlockFactoryClient.CalcCameraUp();
+        View = Matrix4X4.CreateLookAt(Vector3D<float>.Zero, forward, up);
+        var aspectRatio = (float)BlockFactoryClient.Window.Size.X / BlockFactoryClient.Window.Size.Y;
+        Projection = Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
+            300f);
+    }
+
+    public static FrustumIntersectionHelper CreateIntersectionHelper()
+    {
+        return new FrustumIntersectionHelper(View * Projection);
+    }
+
+    public static void SetMatrices(ShaderProgram program)
+    {
+        program.SetView(View);
+        program.SetProjection(Projection);
     }
 }
