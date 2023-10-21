@@ -77,12 +77,11 @@ public static class BlockFactoryClient
         Player.Pos += (moveDelta * (float)deltaTime * 5).As<double>();
         Player.Update();
         _world.Update();
-        Shaders.Block.SetView(Matrix4X4.CreateLookAt(Player.Pos.As<float>(),
-            Player.Pos.As<float>() + forward, up));
+        Shaders.Block.SetView(Matrix4X4.CreateLookAt(Vector3D<float>.Zero, forward, up));
         var aspectRatio = (float)Window.Size.X / Window.Size.Y;
         Shaders.Block.SetProjection(Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
             300f));
-        Shaders.Block.SetPlayerPos(Player.Pos.As<float>());
+        Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
         WorldRenderer.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
@@ -104,6 +103,7 @@ public static class BlockFactoryClient
         WorldRenderer = new WorldRenderer(_world);
         Player = new PlayerEntity();
         Player.SetWorld(_world);
+        Player.Pos = new Vector3D<double>(1e7, 0, 0);
     }
 
     private static void OnWindowClose()

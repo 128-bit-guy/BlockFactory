@@ -93,7 +93,7 @@ public class WorldRenderer : IDisposable
         Textures.Blocks.Bind();
         Shaders.Block.Use();
         Shaders.Block.SetSkyColor(BfRendering.SkyColor);
-        foreach (Vector3D<int> delta in PlayerChunkLoading.ChunkDeltas)
+        foreach (var delta in PlayerChunkLoading.ChunkDeltas)
         {
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
             var renderer = _renderers[GetArrIndex(pos)];
@@ -128,13 +128,17 @@ public class WorldRenderer : IDisposable
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
+    
+    private Vector3D<float> GetChunkTranslation(ChunkRenderer renderer) {
+        return (renderer.Chunk.Position
+            .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - BlockFactoryClient.Player.Pos).As<float>();
+    }
 
     private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)
     {
         renderer.Update(deltaTime);
         if (renderer.Mesh.IndexCount == 0) return;
-        Shaders.Block.SetModel(Matrix4X4.CreateTranslation(renderer.Chunk.Position
-            .ShiftLeft(Constants.ChunkSizeLog2).As<float>()));
+        Shaders.Block.SetModel(Matrix4X4.CreateTranslation(GetChunkTranslation(renderer)));
         Shaders.Block.SetLoadProgress(renderer.LoadProgress);
         renderer.Mesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
