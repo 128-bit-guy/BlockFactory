@@ -107,7 +107,7 @@ public static class BlockFactoryClient
         ResourceLoader = new AssemblyResourceLoader(a);
         Textures.Init();
         Shaders.Init();
-        _world = new World();
+        _world = new World("world");
         WorldRenderer = new WorldRenderer(_world);
         Player = new PlayerEntity();
         Player.SetWorld(_world);
@@ -116,9 +116,10 @@ public static class BlockFactoryClient
 
     private static void OnWindowClose()
     {
+        WorldRenderer.Dispose();
+        _world.Dispose();
         Textures.Destroy();
         Shaders.Destroy();
-        WorldRenderer.Dispose();
         BfDebug.Destroy();
     }
 

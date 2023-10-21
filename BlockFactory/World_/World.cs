@@ -4,16 +4,19 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class World : IChunkStorage, IBlockWorld
+public class World : IChunkStorage, IBlockWorld, IDisposable
 {
     private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly WorldGenerator Generator = new();
+    public readonly WorldSaveManager SaveManager;
     public readonly Random Random = new();
 
-    public World()
+    public World(string saveLocation)
     {
+        SaveManager = new WorldSaveManager(saveLocation);
+        SaveManager.CreateDirectory();
         ChunkStatusManager = new ChunkStatusManager(this);
     }
 
@@ -46,8 +49,15 @@ public class World : IChunkStorage, IBlockWorld
     {
         var res = ChunkStorage.GetChunk(pos, false);
         if (res != null || !load) return res;
-        var nc = new Chunk(this, pos);
-        nc.LoadTask = Task.Run(() => Generator.GenerateChunk(nc));
+        return BeginLoadingChunk(pos);
+    }
+
+    private Chunk BeginLoadingChunk(Vector3D<int> pos)
+    {
+        var region = SaveManager.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
+        var nc = new Chunk(this, pos, region);
+        ++region.DependencyCount;
+        nc.StartLoadTask();
         AddChunk(nc);
         return nc;
     }
@@ -62,8 +72,10 @@ public class World : IChunkStorage, IBlockWorld
         var c = ChunkStorage.GetChunk(pos)!;
         c.LoadTask?.Wait();
         if (c.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
-
+        
         ChunkStorage.RemoveChunk(pos);
+
+        --c.Region.DependencyCount;
     }
 
     public IEnumerable<Chunk> GetLoadedChunks()
@@ -91,5 +103,17 @@ public class World : IChunkStorage, IBlockWorld
 
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
         _chunksToRemove.Clear();
+        SaveManager.Update();
+    }
+
+    public void Dispose()
+    {
+        _chunksToRemove.AddRange(GetLoadedChunks());
+        
+        foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
+        
+        _chunksToRemove.Clear();
+        
+        SaveManager.Dispose();
     }
 }

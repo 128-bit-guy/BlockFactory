@@ -19,10 +19,12 @@ public class Chunk : IBlockWorld
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
     public HashSet<PlayerEntity> WatchingPlayers = new();
+    public readonly ChunkRegion Region;
 
-    public Chunk(World world, Vector3D<int> position)
+    public Chunk(World world, Vector3D<int> position, ChunkRegion region)
     {
         Position = position;
+        Region = region;
         World = world;
         Neighbourhood = new ChunkNeighbourhood(this);
     }
@@ -105,6 +107,32 @@ public class Chunk : IBlockWorld
             }
 
             EndLoop: ;
+        }
+    }
+
+    private void GenerateOrLoad()
+    {
+        var data = Region.GetChunk(Position);
+        if (data == null)
+        {
+            World.Generator.GenerateChunk(this);
+            Region.SetChunk(Position, Data!);
+        }
+        else
+        {
+            Data = data;
+        }
+    }
+
+    public void StartLoadTask()
+    {
+        if (Region.LoadTask == null)
+        {
+            LoadTask = Task.Run(GenerateOrLoad);
+        }
+        else
+        {
+            LoadTask = Task.Factory.ContinueWhenAll(new Task[] { Region.LoadTask }, _ => GenerateOrLoad());
         }
     }
 }

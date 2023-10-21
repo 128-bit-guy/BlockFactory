@@ -1,13 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Serialization;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class ChunkData : IBlockStorage
+public class ChunkData : IBlockStorage, ITagSerializable
 {
-    private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
-    private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     public bool Decorated;
 
     public short GetBlock(Vector3D<int> pos)
@@ -35,5 +36,21 @@ public class ChunkData : IBlockStorage
     {
         return (pos.X & Constants.ChunkMask) | (((pos.Y & Constants.ChunkMask) | ((pos.Z & Constants.ChunkMask)
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
+    }
+
+    public DictionaryTag SerializeToTag()
+    {
+        var res = new DictionaryTag();
+        res.SetValue("blocks", _blocks);
+        res.SetValue("biomes", _biomes);
+        res.SetValue("decorated", Decorated);
+        return res;
+    }
+
+    public void DeserializeFromTag(DictionaryTag tag)
+    {
+        _blocks = tag.GetValue<short[]>("blocks");
+        _biomes = tag.GetValue<byte[]>("biomes");
+        Decorated = tag.GetValue<bool>("decorated");
     }
 }
