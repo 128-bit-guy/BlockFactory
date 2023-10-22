@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 
@@ -36,9 +37,9 @@ public class WorldGenerator
                 c.Neighbourhood.GetBlock(new Vector3D<int>(x, y + 1, z)) == 0 &&
                 c.Neighbourhood.GetBiome(new Vector3D<int>(x, y + 1, z)) == 0)
             {
-                c.Neighbourhood.SetBlock(new Vector3D<int>(x, y, z), 4);
+                c.Neighbourhood.SetBlock(new Vector3D<int>(x, y, z), Blocks.Grass);
                 if (c.Neighbourhood.GetBlock(new Vector3D<int>(x, y - 1, z)) == 1)
-                    c.Neighbourhood.SetBlock(new Vector3D<int>(x, y - 1, z), 3);
+                    c.Neighbourhood.SetBlock(new Vector3D<int>(x, y - 1, z), Blocks.Dirt);
             }
         }
     }

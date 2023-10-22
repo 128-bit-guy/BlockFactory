@@ -60,4 +60,6 @@ public class DictionaryTag : ITag
     {
         _dictionary[s] = TagTypes.CreateValueBasedTag(value);
     }
+
+    public IEnumerable<string> Keys => _dictionary.Keys;
 }

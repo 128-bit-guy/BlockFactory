@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.CubeMath;
 using BlockFactory.Math_;
@@ -59,22 +60,15 @@ public class ChunkRenderer : IDisposable
             if (!Valid) return;
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
-            var block = neighbourhood.GetBlock(absPos);
-            if (block == 0) continue;
+            var block = neighbourhood.GetBlockObj(absPos);
+            if (block == Blocks.Air) continue;
             builder.Matrices.Push();
             builder.Matrices.Translate(i, j, k);
-            transformer.Sprite = block - 1;
             foreach (var face in CubeFaceUtils.Values())
             {
-                if (block == 4)
-                    transformer.Sprite = face switch
-                    {
-                        CubeFace.Top => 3,
-                        CubeFace.Bottom => 2,
-                        _ => 4
-                    };
+                transformer.Sprite = block.GetTexture(face);
                 var oPos = absPos + face.GetDelta();
-                if (neighbourhood.GetBlock(oPos) != 0) continue;
+                if (neighbourhood.GetBlockObj(oPos).BlockRendering(face.GetOpposite())) continue;
                 var light = 1;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]

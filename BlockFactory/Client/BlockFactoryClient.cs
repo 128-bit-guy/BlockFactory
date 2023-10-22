@@ -1,9 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
+using BlockFactory.Registry_;
 using BlockFactory.Resource;
+using BlockFactory.Serialization;
 using BlockFactory.World_;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -68,7 +71,6 @@ public static class BlockFactoryClient
         HeadRotation.X %= 2 * MathF.PI;
         HeadRotation.Y = Math.Clamp(HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
         var forward = CalcCameraForward();
-        var up = CalcCameraUp();
         var moveDelta = new Vector3D<float>();
         if (InputContext.Keyboards[0].IsKeyPressed(Key.W)) moveDelta += forward;
         if (InputContext.Keyboards[0].IsKeyPressed(Key.S)) moveDelta -= forward;
@@ -80,7 +82,7 @@ public static class BlockFactoryClient
                 .As<int>();
 
         if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) _world.SetBlock(blockPos, 0);
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, 17);
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, Blocks.Bricks);
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
@@ -103,10 +105,17 @@ public static class BlockFactoryClient
         InputContext = Window.CreateInput();
         BfRendering.Init();
         BfDebug.Init();
+        BfContent.Init();
         var a = typeof(BlockFactoryClient).Assembly;
         ResourceLoader = new AssemblyResourceLoader(a);
         Textures.Init();
         Shaders.Init();
+        var mapping = new RegistryMapping();
+        if (File.Exists("registry_mapping.dat"))
+        {
+            TagIO.Deserialize("registry_mapping.dat", mapping);
+        }
+        SynchronizedRegistries.LoadMapping(mapping);
         _world = new World("world");
         WorldRenderer = new WorldRenderer(_world);
         Player = new PlayerEntity();
@@ -118,6 +127,8 @@ public static class BlockFactoryClient
     {
         WorldRenderer.Dispose();
         _world.Dispose();
+        
+        TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         Textures.Destroy();
         Shaders.Destroy();
         BfDebug.Destroy();
