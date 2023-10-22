@@ -48,15 +48,15 @@ public class ChunkRegion : ITagSerializable
 
     private void Load()
     {
-        var saveFile = GetSaveFile();
-        if(!File.Exists(saveFile)) return;
-        TagIO.Deserialize(saveFile, this);
+        // var saveFile = GetSaveFile();
+        // if(!File.Exists(saveFile)) return;
+        // TagIO.Deserialize(saveFile, this);
     }
 
     private void Unload()
     {
-        var saveFile = GetSaveFile();
-        TagIO.Serialize(saveFile, this);
+        // var saveFile = GetSaveFile();
+        // TagIO.Serialize(saveFile, this);
     }
 
     public void StartLoadTask()

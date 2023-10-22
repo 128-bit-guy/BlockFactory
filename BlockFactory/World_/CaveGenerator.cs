@@ -22,6 +22,7 @@ public class CaveGenerator
         var initPos = pos;
         while (radius > 3f)
         {
+            ++carvedChunk.CaveIterations;
             if ((pos - initPos).LengthSquared >= 16 * 16 * 4 * 4) break;
             SetSphere(pos, (int)MathF.Round(radius), 0, carvedChunk);
             pos += new Vector3D<int>((int)MathF.Round(direction.X * radius), (int)MathF.Round(direction.Y * radius),

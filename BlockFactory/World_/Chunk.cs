@@ -20,6 +20,8 @@ public class Chunk : IBlockWorld
     public int ReadyForUseNeighbours = 0;
     public HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion Region;
+    public int CaveIterations = 0;
+    public double GenerationTime = 0;
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion region)
     {

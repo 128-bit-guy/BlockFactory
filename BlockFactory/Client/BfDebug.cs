@@ -2,6 +2,7 @@
 using System.Numerics;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
+using BlockFactory.World_;
 using ImGuiNET;
 using Silk.NET.OpenGL.Extensions.ImGui;
 
@@ -56,6 +57,21 @@ public static class BfDebug
             ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
             ImGui.Text($"Rendered chunks: {BlockFactoryClient.WorldRenderer.RenderedChunks}");
             ImGui.Text($"Fading out chunks: {BlockFactoryClient.WorldRenderer.FadingOutChunks}");
+        }
+
+        if (ImGui.Begin("Chunk generation"))
+        {
+            var caveIters = 0;
+            var chunkCnt = 0;
+            var genTime = 0.0d;
+            foreach (var c in BlockFactoryClient.Player.World!.GetLoadedChunks())
+            {
+                caveIters += c.CaveIterations;
+                ++chunkCnt;
+                genTime += c.GenerationTime;
+            }
+            ImGui.Text($"Cave iterations: {(float)caveIters / chunkCnt}");
+            ImGui.Text($"Generation time: {genTime / chunkCnt}");
         }
 
         ImGui.End();

@@ -1,4 +1,5 @@
-﻿using BlockFactory.Base;
+﻿using System.Diagnostics;
+using BlockFactory.Base;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 
@@ -18,9 +19,13 @@ public class WorldGenerator
 
     public void GenerateChunk(Chunk c)
     {
+        var sw = new Stopwatch();
+        sw.Start();
         c.Data = new ChunkData();
         _baseTerrainGenerator.GenerateBaseTerrain(c);
         _caveGenerator.GenerateCaves(c);
+        sw.Stop();
+        c.GenerationTime = sw.Elapsed.TotalMilliseconds;
     }
 
     public void DecorateChunk(Chunk c)
