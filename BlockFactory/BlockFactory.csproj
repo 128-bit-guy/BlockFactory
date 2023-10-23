@@ -9,7 +9,6 @@
 
     <ItemGroup>
         <PackageReference Include="ENet.Managed" Version="5.0.4.18-alpha"/>
-        <PackageReference Include="SharpNoise" Version="0.12.1.1"/>
         <PackageReference Include="Silk.NET.Input.Glfw" Version="2.17.1"/>
         <PackageReference Include="Silk.NET.Maths" Version="2.17.1"/>
         <PackageReference Include="Silk.NET.OpenAL" Version="2.17.1"/>
