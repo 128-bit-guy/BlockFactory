@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Math_;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_;

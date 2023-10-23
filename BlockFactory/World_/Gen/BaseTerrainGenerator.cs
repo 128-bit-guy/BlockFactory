@@ -3,7 +3,7 @@ using BlockFactory.Math_;
 using SharpNoise.Modules;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Gen;
 
 public class BaseTerrainGenerator
 {

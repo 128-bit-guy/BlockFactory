@@ -1,9 +1,11 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.Math_;
+using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Gen;
 
 public class WorldGenerator
 {

@@ -8,6 +8,7 @@ using BlockFactory.Registry_;
 using BlockFactory.Resource;
 using BlockFactory.Serialization;
 using BlockFactory.World_;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;

@@ -1,10 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using BlockFactory.Base;
-using BlockFactory.Math_;
 using BlockFactory.Serialization;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Serialization;
 
 public class ChunkRegion : ITagSerializable
 {

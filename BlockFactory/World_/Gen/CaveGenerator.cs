@@ -3,7 +3,7 @@ using BlockFactory.Math_;
 using BlockFactory.Random_;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Gen;
 
 public class CaveGenerator
 {

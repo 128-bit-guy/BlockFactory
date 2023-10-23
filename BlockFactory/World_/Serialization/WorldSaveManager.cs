@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Serialization;
 
 public class WorldSaveManager : IDisposable
 {

@@ -4,6 +4,7 @@ using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Block_;

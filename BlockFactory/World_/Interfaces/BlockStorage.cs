@@ -1,7 +1,7 @@
 ﻿using BlockFactory.Block_;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Interfaces;
 
 public static class BlockStorage
 {

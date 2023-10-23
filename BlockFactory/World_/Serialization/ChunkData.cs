@@ -1,9 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Serialization;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.Serialization;
 
 public class ChunkData : IBlockStorage, ITagSerializable
 {
