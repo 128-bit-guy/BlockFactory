@@ -5,15 +5,11 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Gen;
 
-public class CaveGenerator
+public class CaveGenerator : WorldGenElement
 {
-    private const long HalfMask = uint.MaxValue;
-    private const long UniqueNumber = -5564907199384973000;
-    private readonly WorldGenerator _generator;
 
-    public CaveGenerator(WorldGenerator generator)
+    public CaveGenerator(WorldGenerator generator) : base(generator, -5564907199384973000)
     {
-        _generator = generator;
     }
 
     private void GenerateBranch(Random random, Vector3D<int> pos, float radius, Vector3D<float> direction,
@@ -44,14 +40,7 @@ public class CaveGenerator
 
     private void GenerateCaveForOrigPos(Chunk c, Vector3D<int> origChunkPos)
     {
-        var resPart1 =
-            (((((origChunkPos.X + origChunkPos.Y * 1000000007) & HalfMask) +
-               ((((origChunkPos.Z * 1000000007) & HalfMask) * 1000000009) & HalfMask)) & HalfMask) +
-             (_generator.Seed ^ UniqueNumber) % (HalfMask + 2)) & HalfMask;
-        var resPart2 = (UniqueNumber >> 32) ^ (_generator.Seed >> 32);
-        var res = resPart1 | (resPart2 << 32);
-        var random = LinearCongruentialRandom.ThreadLocalInstance;
-        random.SetSeed(res);
+        var random = GetChunkRandom(origChunkPos);
         Vector3D<int> rel;
         if (random.Next(120) != 0) return;
         var chunkOriginPos = origChunkPos.ShiftLeft(Constants.ChunkSizeLog2);

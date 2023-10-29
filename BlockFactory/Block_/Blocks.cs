@@ -13,6 +13,12 @@ public static class Blocks
     public static SimpleBlock Bricks;
     public static SimpleBlock Dirt;
     public static GrassBlock Grass;
+    public static ColumnBlock Log;
+    public static SimpleBlock IronOre;
+    public static SimpleBlock CopperOre;
+    public static SimpleBlock TinOre;
+    public static SimpleBlock DiamondOre;
+    public static SimpleBlock CoalOre;
     
     public static void Init()
     {
@@ -22,6 +28,12 @@ public static class Blocks
         Bricks = Registry.Register("Bricks", new SimpleBlock(16));
         Dirt = Registry.Register("Dirt", new SimpleBlock(2));
         Grass = Registry.Register("Grass", new GrassBlock());
+        Log = Registry.Register("Log", new ColumnBlock(7, 6, 5));
+        IronOre = Registry.Register("IronOre", new SimpleBlock(18));
+        CopperOre = Registry.Register("CopperOre", new SimpleBlock(19));
+        TinOre = Registry.Register("TinOre", new SimpleBlock(20));
+        DiamondOre = Registry.Register("DiamondOre", new SimpleBlock(21));
+        CoalOre = Registry.Register("CoalOre", new SimpleBlock(22));
     }
 
     public static void Lock()
