@@ -29,11 +29,11 @@ public static class Blocks
         Dirt = Registry.Register("Dirt", new SimpleBlock(2));
         Grass = Registry.Register("Grass", new GrassBlock());
         Log = Registry.Register("Log", new ColumnBlock(7, 6, 5));
-        IronOre = Registry.Register("IronOre", new SimpleBlock(18));
-        CopperOre = Registry.Register("CopperOre", new SimpleBlock(19));
-        TinOre = Registry.Register("TinOre", new SimpleBlock(20));
-        DiamondOre = Registry.Register("DiamondOre", new SimpleBlock(21));
-        CoalOre = Registry.Register("CoalOre", new SimpleBlock(22));
+        IronOre = Registry.Register("IronOre", new SimpleBlock(18, Stone));
+        CopperOre = Registry.Register("CopperOre", new SimpleBlock(19, Stone));
+        TinOre = Registry.Register("TinOre", new SimpleBlock(20, Stone));
+        DiamondOre = Registry.Register("DiamondOre", new SimpleBlock(21, Stone));
+        CoalOre = Registry.Register("CoalOre", new SimpleBlock(22, Stone));
     }
 
     public static void Lock()

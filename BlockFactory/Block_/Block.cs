@@ -19,4 +19,9 @@ public class Block : IRegistryEntry
     {
         return 0;
     }
+
+    public virtual Block GetWorldGenBase()
+    {
+        return this;
+    }
 }

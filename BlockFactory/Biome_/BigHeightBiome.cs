@@ -10,7 +10,7 @@ public class BigHeightBiome : Biome
     public override void SetTopSoil(IBlockStorage world, Vector3D<int> pos)
     {
         world.SetBlock(pos, Blocks.Grass);
-        if (world.GetBlock(pos - Vector3D<int>.UnitY) == 1)
+        if (world.GetBlockObj(pos - Vector3D<int>.UnitY).GetWorldGenBase() == Blocks.Stone)
             world.SetBlock(pos - Vector3D<int>.UnitY, Blocks.Dirt);
     }
 }

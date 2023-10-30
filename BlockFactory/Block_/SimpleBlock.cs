@@ -5,16 +5,24 @@ namespace BlockFactory.Block_;
 
 public class SimpleBlock : Block
 {
-    private readonly int Texture;
+    private readonly int _texture;
+    private readonly Block _worldGenBase;
 
-    public SimpleBlock(int texture)
+    public SimpleBlock(int texture, Block? worldGenBase = null)
     {
-        Texture = texture;
+        _texture = texture;
+        worldGenBase ??= this;
+        _worldGenBase = worldGenBase;
     }
 
     [ExclusiveTo(Side.Client)]
     public override int GetTexture(CubeFace face)
     {
-        return Texture;
+        return _texture;
+    }
+
+    public override Block GetWorldGenBase()
+    {
+        return _worldGenBase;
     }
 }

@@ -16,7 +16,7 @@ public class WorldDecorator : WorldGenElement
         _oreGenerators.Add(new OreGenerator(Blocks.CopperOre, Blocks.Stone, 3, 9, 15, 1/2000f));
         _oreGenerators.Add(new OreGenerator(Blocks.TinOre, Blocks.Stone, 3, 9, 15, 1/2000f));
         _oreGenerators.Add(new OreGenerator(Blocks.DiamondOre, Blocks.Stone, 3, 9, 15, 1/20000f));
-        _oreGenerators.Add(new OreGenerator(Blocks.CoalOre, Blocks.Stone, 7, 18, 15, 1/2000f));
+        _oreGenerators.Add(new OreGenerator(Blocks.CoalOre, Blocks.Stone, 12, 28, 15, 1/2000f));
         
     }
 
@@ -30,7 +30,7 @@ public class WorldDecorator : WorldGenElement
             var x = i + c.Position.ShiftLeft(Constants.ChunkSizeLog2).X;
             var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
-            if (c.Neighbourhood.GetBlock(new Vector3D<int>(x, y - 1, z)) == 1 &&
+            if (c.Neighbourhood.GetBlockObj(new Vector3D<int>(x, y - 1, z)).GetWorldGenBase() == Blocks.Stone &&
                 c.Neighbourhood.GetBlock(new Vector3D<int>(x, y, z)) == 0)
             {
                 c.Neighbourhood.GetBiomeObj(new Vector3D<int>(x, y, z))
