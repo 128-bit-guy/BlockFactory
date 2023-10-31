@@ -2,14 +2,17 @@
 using BlockFactory.Base;
 using BlockFactory.Serialization;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
 
 public class ChunkData : IBlockStorage, ITagSerializable
 {
+    private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
     private short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     private byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private byte[] _light = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
     public bool Decorated;
 
     public short GetBlock(Vector3D<int> pos)
@@ -22,6 +25,11 @@ public class ChunkData : IBlockStorage, ITagSerializable
         return _biomes[GetArrIndex(pos)];
     }
 
+    public byte GetLight(Vector3D<int> pos, LightChannel channel)
+    {
+        return _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))];
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = false)
     {
         _blocks[GetArrIndex(pos)] = block;
@@ -30,6 +38,11 @@ public class ChunkData : IBlockStorage, ITagSerializable
     public void SetBiome(Vector3D<int> pos, byte biome)
     {
         _biomes[GetArrIndex(pos)] = biome;
+    }
+
+    public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
+    {
+        _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))] = light;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,6 +58,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
         res.SetValue("blocks", _blocks);
         res.SetValue("biomes", _biomes);
         res.SetValue("decorated", Decorated);
+        res.SetValue("light", _light);
         return res;
     }
 
@@ -53,5 +67,6 @@ public class ChunkData : IBlockStorage, ITagSerializable
         _blocks = tag.GetValue<short[]>("blocks");
         _biomes = tag.GetValue<byte[]>("biomes");
         Decorated = tag.GetValue<bool>("decorated");
+        _light = tag.GetArray<byte>("light", _light.Length);
     }
 }

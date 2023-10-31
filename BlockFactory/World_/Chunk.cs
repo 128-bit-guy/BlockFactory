@@ -2,6 +2,7 @@
 using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
@@ -45,6 +46,11 @@ public class Chunk : IBlockWorld
         return Data!.GetBiome(pos);
     }
 
+    public byte GetLight(Vector3D<int> pos, LightChannel channel)
+    {
+        return Data!.GetLight(pos, channel);
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();
@@ -64,6 +70,11 @@ public class Chunk : IBlockWorld
     {
         LoadTask?.Wait();
         Data!.SetBiome(pos, biome);
+    }
+
+    public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
+    {
+        Data!.SetLight(pos, channel, light);
     }
 
     public void UpdateBlock(Vector3D<int> pos)

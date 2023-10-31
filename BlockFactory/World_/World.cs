@@ -2,6 +2,7 @@
 using BlockFactory.Math_;
 using BlockFactory.World_.Gen;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
@@ -38,6 +39,11 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBiome(pos);
     }
 
+    public byte GetLight(Vector3D<int> pos, LightChannel channel)
+    {
+        return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLight(pos, channel);
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);
@@ -46,6 +52,11 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     public void SetBiome(Vector3D<int> pos, byte biome)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBiome(pos, biome);
+    }
+
+    public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetLight(pos, channel, light);
     }
 
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)
