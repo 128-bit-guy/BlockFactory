@@ -29,6 +29,11 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
+    public void ScheduleLightUpdate(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.ScheduleLightUpdate(pos);
+    }
+
     public short GetBlock(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);

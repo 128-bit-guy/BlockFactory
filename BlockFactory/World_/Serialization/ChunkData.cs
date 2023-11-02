@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Serialization;
 using BlockFactory.World_.Interfaces;
@@ -13,6 +14,8 @@ public class ChunkData : IBlockStorage, ITagSerializable
     private short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     private byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     private byte[] _light = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
+    private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
+
     public bool Decorated;
 
     public short GetBlock(Vector3D<int> pos)
@@ -45,6 +48,16 @@ public class ChunkData : IBlockStorage, ITagSerializable
         _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))] = light;
     }
 
+    public bool IsLightUpdateScheduled(Vector3D<int> pos)
+    {
+        return _lightUpdateScheduled[GetArrIndex(pos)];
+    }
+
+    public void SetLightUpdateScheduled(Vector3D<int> pos, bool update)
+    {
+        _lightUpdateScheduled[GetArrIndex(pos)] = update;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetArrIndex(Vector3D<int> pos)
     {
@@ -59,6 +72,9 @@ public class ChunkData : IBlockStorage, ITagSerializable
         res.SetValue("biomes", _biomes);
         res.SetValue("decorated", Decorated);
         res.SetValue("light", _light);
+        var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
+        _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
+        res.SetValue("light_update_scheduled", lightUpdateScheduled);
         return res;
     }
 
@@ -68,5 +84,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
         _biomes = tag.GetValue<byte[]>("biomes");
         Decorated = tag.GetValue<bool>("decorated");
         _light = tag.GetArray<byte>("light", _light.Length);
+        _lightUpdateScheduled =
+            new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
     }
 }

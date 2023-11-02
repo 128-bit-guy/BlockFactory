@@ -21,8 +21,9 @@ public class Chunk : IBlockWorld
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
-    public HashSet<PlayerEntity> WatchingPlayers = new();
+    public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion Region;
+    public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion region)
     {
@@ -56,7 +57,8 @@ public class Chunk : IBlockWorld
         LoadTask?.Wait();
         Data!.SetBlock(pos, block, update);
         if (!update) return;
-        UpdateBlock(pos);
+        ScheduleLightUpdate(pos);
+        Neighbourhood.UpdateBlock(pos);
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
@@ -81,6 +83,15 @@ public class Chunk : IBlockWorld
     {
         if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
         BlockUpdate(pos);
+    }
+
+    public void ScheduleLightUpdate(Vector3D<int> pos)
+    {
+        if (!Data!.IsLightUpdateScheduled(pos))
+        {
+            Data!.SetLightUpdateScheduled(pos, true);
+            ScheduledLightUpdates.Add(pos);
+        }
     }
 
     public event BlockEventHandler BlockUpdate = p => { };
@@ -123,6 +134,21 @@ public class Chunk : IBlockWorld
         }
     }
 
+    private void CopyLightUpdatesFromData()
+    {
+        ScheduledLightUpdates.Clear();
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
+        {
+            var absPos = new Vector3D<int>(i, j, k) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+            if (Data!.IsLightUpdateScheduled(absPos))
+            {
+                ScheduledLightUpdates.Add(absPos);
+            }
+        }
+    }
+
     private void GenerateOrLoad()
     {
         var data = Region.GetChunk(Position);
@@ -135,6 +161,8 @@ public class Chunk : IBlockWorld
         {
             Data = data;
         }
+
+        CopyLightUpdatesFromData();
     }
 
     public void StartLoadTask()
