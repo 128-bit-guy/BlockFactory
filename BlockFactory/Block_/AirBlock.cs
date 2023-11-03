@@ -10,4 +10,9 @@ public class AirBlock : Block
     {
         return false;
     }
+
+    public override bool CanLightEnter(CubeFace face)
+    {
+        return true;
+    }
 }

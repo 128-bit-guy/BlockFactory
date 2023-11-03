@@ -10,7 +10,7 @@ public static class Blocks
     public static Registry<Block> Registry;
     public static AirBlock Air;
     public static SimpleBlock Stone;
-    public static SimpleBlock Bricks;
+    public static BricksBlock Bricks;
     public static SimpleBlock Dirt;
     public static GrassBlock Grass;
     public static ColumnBlock Log;
@@ -25,7 +25,7 @@ public static class Blocks
         Registry = SynchronizedRegistries.NewSynchronizedRegistry<Block>("Block");
         Air = Registry.RegisterForced("Air", 0, new AirBlock());
         Stone = Registry.RegisterForced("Stone", 1, new SimpleBlock(0));
-        Bricks = Registry.Register("Bricks", new SimpleBlock(16));
+        Bricks = Registry.Register("Bricks", new BricksBlock());
         Dirt = Registry.Register("Dirt", new SimpleBlock(2));
         Grass = Registry.Register("Grass", new GrassBlock());
         Log = Registry.Register("Log", new ColumnBlock(7, 6, 5));

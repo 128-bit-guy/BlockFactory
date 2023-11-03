@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
 using BlockFactory.Registry_;
+using BlockFactory.World_.Light;
 
 namespace BlockFactory.Block_;
 
@@ -23,5 +24,20 @@ public class Block : IRegistryEntry
     public virtual Block GetWorldGenBase()
     {
         return this;
+    }
+
+    public virtual byte GetEmittedLight(LightChannel channel)
+    {
+        return 0;
+    }
+
+    public virtual bool CanLightEnter(CubeFace face)
+    {
+        return false;
+    }
+
+    public virtual bool CanLightLeave(CubeFace face)
+    {
+        return true;
     }
 }

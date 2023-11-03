@@ -5,6 +5,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Block_;
@@ -41,6 +42,7 @@ public class ChunkRenderer : IDisposable
         Chunk = chunk;
         Mesh = new RenderMesh();
         chunk.BlockUpdate += OnBlockUpdate;
+        chunk.LightUpdate += OnBlockUpdate;
     }
 
     public void Dispose()
@@ -70,7 +72,7 @@ public class ChunkRenderer : IDisposable
                 transformer.Sprite = block.GetTexture(face);
                 var oPos = absPos + face.GetDelta();
                 if (neighbourhood.GetBlockObj(oPos).BlockRendering(face.GetOpposite())) continue;
-                var light = 1;
+                var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                     : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;

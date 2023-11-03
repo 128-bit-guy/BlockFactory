@@ -23,6 +23,11 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
+    public void UpdateLight(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateLight(pos);
+    }
+
     public void ScheduleLightUpdate(Vector3D<int> pos)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.ScheduleLightUpdate(pos);

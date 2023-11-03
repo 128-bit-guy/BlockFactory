@@ -55,6 +55,7 @@ public class Chunk : IBlockWorld
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();
+        if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
         if (!update) return;
         ScheduleLightUpdate(pos);
@@ -76,13 +77,20 @@ public class Chunk : IBlockWorld
 
     public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
     {
+        if (Data!.GetLight(pos, channel) == light) return;
         Data!.SetLight(pos, channel, light);
+        Neighbourhood.UpdateLight(pos);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
     {
         if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
         BlockUpdate(pos);
+    }
+
+    public void UpdateLight(Vector3D<int> pos)
+    {
+        LightUpdate(pos);
     }
 
     public void ScheduleLightUpdate(Vector3D<int> pos)
@@ -95,6 +103,7 @@ public class Chunk : IBlockWorld
     }
 
     public event BlockEventHandler BlockUpdate = p => { };
+    public event BlockEventHandler LightUpdate = p => { };
 
     public void AddWatchingPlayer(PlayerEntity player)
     {
@@ -114,24 +123,26 @@ public class Chunk : IBlockWorld
             World.Generator.DecorateChunk(this);
         }
 
-        var x = World.Random.Next(Constants.ChunkSize);
-        var y = World.Random.Next(Constants.ChunkSize);
-        var z = World.Random.Next(Constants.ChunkSize);
-        var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
-        if (GetBlock(absPos) == 3 && GetBlock(absPos + Vector3D<int>.UnitY) == 0)
-        {
-            for (var i = -1; i <= 1; ++i)
-            for (var j = -1; j <= 1; ++j)
-            for (var k = -1; k <= 1; ++k)
-            {
-                var oPos = absPos + new Vector3D<int>(i, j, k);
-                if (Neighbourhood.GetBlock(oPos) != 4) continue;
-                SetBlock(absPos, 4);
-                goto EndLoop;
-            }
-
-            EndLoop: ;
-        }
+        // var x = World.Random.Next(Constants.ChunkSize);
+        // var y = World.Random.Next(Constants.ChunkSize);
+        // var z = World.Random.Next(Constants.ChunkSize);
+        // var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+        // if (GetBlock(absPos) == 3 && GetBlock(absPos + Vector3D<int>.UnitY) == 0)
+        // {
+        //     for (var i = -1; i <= 1; ++i)
+        //     for (var j = -1; j <= 1; ++j)
+        //     for (var k = -1; k <= 1; ++k)
+        //     {
+        //         var oPos = absPos + new Vector3D<int>(i, j, k);
+        //         if (Neighbourhood.GetBlock(oPos) != 4) continue;
+        //         SetBlock(absPos, 4);
+        //         goto EndLoop;
+        //     }
+        //
+        //     EndLoop: ;
+        // }
+        
+        LightPropagator.ProcessLightUpdates(this);
     }
 
     private void CopyLightUpdatesFromData()
