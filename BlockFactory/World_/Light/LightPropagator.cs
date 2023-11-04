@@ -13,9 +13,8 @@ public static class LightPropagator
 
     [ThreadStatic] private static List<Vector3D<int>>[]? _addLightQueue;
 
-    public static void ProcessLightUpdates(Chunk c)
+    private static void InitThreadStatics()
     {
-        var n = c.Neighbourhood;
         _removeLightQueue ??= new Queue<(Vector3D<int> pos, bool changed)>();
         _beginAddLightList ??= new List<Vector3D<int>>();
         if (_addLightQueue == null)
@@ -26,21 +25,49 @@ public static class LightPropagator
                 _addLightQueue[i] = new List<Vector3D<int>>();
             }
         }
+    }
+    
+    private static int GetSupposedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
+    {
+        int cLight = n.GetBlockObj(pos).GetEmittedLight(channel);
+        foreach (var face in CubeFaceUtils.Values())
+        {
+            var oPos = pos + face.GetDelta();
+            var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face) &&
+                               n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite());
+            if(!lightCanPass) continue;
+            var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
+            if (lightFromNeighbor > cLight)
+            {
+                cLight = lightFromNeighbor;
+            }
+        }
+
+        return cLight;
+    }
+
+    public static void ProcessLightUpdates(Chunk c)
+    {
+        var n = c.Neighbourhood;
+        InitThreadStatics();
 
         foreach (var channel in Channels)
         {
             foreach (var pos in c.ScheduledLightUpdates)
             {
-                _removeLightQueue.Enqueue((pos, true));
+                if (n.GetLight(pos, channel) != GetSupposedLight(n, pos, channel))
+                {
+                    _removeLightQueue!.Enqueue((pos, true));
+                }
             }
 
-            while (_removeLightQueue.Count > 0)
+            while (_removeLightQueue!.Count > 0)
             {
                 var (pos, changed) = _removeLightQueue.Dequeue();
                 var light = n.GetLight(pos, channel);
                 if (light != 0 || changed)
                 {
-                    _beginAddLightList.Add(pos);
+                    _beginAddLightList!.Add(pos);
                 }
 
                 if (light == 0) continue;
@@ -58,25 +85,12 @@ public static class LightPropagator
                 }
             }
 
-            foreach (var pos in _beginAddLightList)
+            foreach (var pos in _beginAddLightList!)
             {
-                int cLight = n.GetBlockObj(pos).GetEmittedLight(channel);
-                foreach (var face in CubeFaceUtils.Values())
-                {
-                    var oPos = pos + face.GetDelta();
-                    var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face) &&
-                                       n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite());
-                    if(!lightCanPass) continue;
-                    var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
-                    if (lightFromNeighbor > cLight)
-                    {
-                        cLight = lightFromNeighbor;
-                    }
-                }
-
+                var cLight = GetSupposedLight(n, pos, channel);
                 if (cLight > 0)
                 {
-                    _addLightQueue[cLight].Add(pos);
+                    _addLightQueue![cLight].Add(pos);
                 }
             }
             
@@ -84,7 +98,7 @@ public static class LightPropagator
 
             for (var cLight = 15; cLight > 0; --cLight)
             {
-                foreach (var pos in _addLightQueue[cLight])
+                foreach (var pos in _addLightQueue![cLight])
                 {
                     if(n.GetLight(pos, channel) >= cLight) continue;
                     n.SetLight(pos, channel, (byte)cLight);
