@@ -141,8 +141,6 @@ public class Chunk : IBlockWorld
         
             EndLoop: ;
         }
-        
-        LightPropagator.ProcessLightUpdates(this);
     }
 
     private void CopyLightUpdatesFromData()
@@ -186,5 +184,16 @@ public class Chunk : IBlockWorld
         {
             LoadTask = Task.Factory.ContinueWhenAll(new Task[] { Region.LoadTask }, _ => GenerateOrLoad());
         }
+    }
+
+    public int GetHeavyUpdateIndex()
+    {
+        var x = Position.X % 3;
+        if (x < 0) x += 3;
+        var y = Position.Y % 3;
+        if (y < 0) y += 3;
+        var z = Position.Z % 3;
+        if (z < 0) z += 3;
+        return x + y * 3 + z * 9;
     }
 }

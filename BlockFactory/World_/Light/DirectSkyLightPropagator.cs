@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Biome_;
 using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_.Interfaces;
@@ -30,7 +31,7 @@ public static class DirectSkyLightPropagator
             return n.GetLight(oPos, LightChannel.DirectSky);
         }
 
-        return n.GetBlock(oPos) == 0 ? 15 : 0;
+        return (n.GetBlock(oPos) == 0 && n.GetBiomeObj(oPos) != Biomes.Underground) ? 15 : 0;
     }
 
     public static void ProcessLightUpdates(Chunk chunk)
@@ -74,6 +75,6 @@ public static class DirectSkyLightPropagator
             }
         }
 
-        _updatePoses[0].Clear();
+        _updatePoses![0].Clear();
     }
 }

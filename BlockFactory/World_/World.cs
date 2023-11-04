@@ -16,6 +16,8 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     public readonly WorldGenerator Generator = new();
     public readonly WorldSaveManager SaveManager;
     public readonly Random Random = new();
+    private int _heavyUpdateIndex = 0;
+    private readonly List<Chunk> _chunksToDoHeavyUpdate = new();
 
     public World(string saveLocation)
     {
@@ -117,12 +119,28 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
                     ChunkStatusManager.OnChunkReadyForUse(chunk);
                 }
 
-                if (chunk.ReadyForTick) chunk.Update();
+                if (chunk.ReadyForTick)
+                {
+                    chunk.Update();
+                    if(chunk.GetHeavyUpdateIndex() == _heavyUpdateIndex) _chunksToDoHeavyUpdate.Add(chunk);
+                }
             }
+        
+        _chunksToDoHeavyUpdate.Shuffle(Random);
+
+        Parallel.ForEach(_chunksToDoHeavyUpdate, LightPropagator.ProcessLightUpdates);
+        
+        _chunksToDoHeavyUpdate.Clear();
 
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
         _chunksToRemove.Clear();
         SaveManager.Update();
+        
+        ++_heavyUpdateIndex;
+        if (_heavyUpdateIndex == 27)
+        {
+            _heavyUpdateIndex = 0;
+        }
     }
 
     public void Dispose()
