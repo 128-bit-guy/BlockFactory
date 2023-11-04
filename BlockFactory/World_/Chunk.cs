@@ -123,24 +123,24 @@ public class Chunk : IBlockWorld
             World.Generator.DecorateChunk(this);
         }
 
-        // var x = World.Random.Next(Constants.ChunkSize);
-        // var y = World.Random.Next(Constants.ChunkSize);
-        // var z = World.Random.Next(Constants.ChunkSize);
-        // var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
-        // if (GetBlock(absPos) == 3 && GetBlock(absPos + Vector3D<int>.UnitY) == 0)
-        // {
-        //     for (var i = -1; i <= 1; ++i)
-        //     for (var j = -1; j <= 1; ++j)
-        //     for (var k = -1; k <= 1; ++k)
-        //     {
-        //         var oPos = absPos + new Vector3D<int>(i, j, k);
-        //         if (Neighbourhood.GetBlock(oPos) != 4) continue;
-        //         SetBlock(absPos, 4);
-        //         goto EndLoop;
-        //     }
-        //
-        //     EndLoop: ;
-        // }
+        var x = World.Random.Next(Constants.ChunkSize);
+        var y = World.Random.Next(Constants.ChunkSize);
+        var z = World.Random.Next(Constants.ChunkSize);
+        var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+        if (GetBlock(absPos) == 3 && GetBlock(absPos + Vector3D<int>.UnitY) == 0)
+        {
+            for (var i = -1; i <= 1; ++i)
+            for (var j = -1; j <= 1; ++j)
+            for (var k = -1; k <= 1; ++k)
+            {
+                var oPos = absPos + new Vector3D<int>(i, j, k);
+                if (Neighbourhood.GetBlock(oPos) != 4) continue;
+                SetBlock(absPos, 4);
+                goto EndLoop;
+            }
+        
+            EndLoop: ;
+        }
         
         LightPropagator.ProcessLightUpdates(this);
     }
