@@ -8,8 +8,6 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 playerPos;
 
-const float planetRadius = 300f;
-
 out vec4 vertexColor; // specify a color output to the fragment shader
 out vec2 vertexUv;
 
