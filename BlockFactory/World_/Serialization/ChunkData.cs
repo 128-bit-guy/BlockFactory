@@ -17,6 +17,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     public bool Decorated;
+    public bool HasSkyLight;
 
     public short GetBlock(Vector3D<int> pos)
     {
@@ -75,6 +76,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
         var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
         _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
         res.SetValue("light_update_scheduled", lightUpdateScheduled);
+        res.SetValue("has_sky_light", HasSkyLight);
         return res;
     }
 
@@ -86,5 +88,6 @@ public class ChunkData : IBlockStorage, ITagSerializable
         _light = tag.GetArray<byte>("light", _light.Length);
         _lightUpdateScheduled =
             new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
+        HasSkyLight = tag.GetValue<bool>("has_sky_light");
     }
 }

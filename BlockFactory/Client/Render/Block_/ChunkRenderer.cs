@@ -110,7 +110,8 @@ public class ChunkRenderer : IDisposable
                     {
                         var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
                         var oPos2Abs = absPos + oPos2Rel * s;
-                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
+                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.DirectSky));
+                        // cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
                         if (neighbourhood.GetBlock(oPos2Abs) != 0) ao = true;
                     }
 
