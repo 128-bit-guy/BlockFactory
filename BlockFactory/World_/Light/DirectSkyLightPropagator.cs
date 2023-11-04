@@ -12,7 +12,7 @@ public static class DirectSkyLightPropagator
 
     private static void InitThreadStatics()
     {
-        if(_updatePoses != null) return;
+        if (_updatePoses != null) return;
         _updatePoses = new List<Vector3D<int>>[Constants.ChunkSize + 1];
         for (var i = 0; i < Constants.ChunkSize + 1; ++i)
         {
@@ -32,10 +32,12 @@ public static class DirectSkyLightPropagator
 
         return n.GetBlock(oPos) == 0 ? 15 : 0;
     }
+
     public static void ProcessLightUpdates(Chunk chunk)
     {
         InitThreadStatics();
-        chunk.Data!.HasSkyLight = true;
+        var initialSkyLighting = !chunk.Data!.HasSkyLight;
+        chunk.Data.HasSkyLight = true;
         foreach (var pos in chunk.ScheduledLightUpdates)
         {
             _updatePoses![(pos.Y & Constants.ChunkMask) + 1].Add(pos);
@@ -51,13 +53,27 @@ public static class DirectSkyLightPropagator
                 chunk.ScheduleLightUpdate(pos);
                 _updatePoses[pos.Y & Constants.ChunkMask].Add(pos - Vector3D<int>.UnitY);
             }
+
             _updatePoses[i].Clear();
         }
 
-        foreach (var pos in _updatePoses![0])
+        if (initialSkyLighting)
         {
-            chunk.Neighbourhood.ScheduleLightUpdate(pos);
+            for (var i = 0; i < Constants.ChunkSize; ++i)
+            for (var j = 0; j < Constants.ChunkSize; ++j)
+            {
+                chunk.Neighbourhood.ScheduleLightUpdate(chunk.Position.ShiftLeft(Constants.ChunkSizeLog2) +
+                                                        new Vector3D<int>(i, -1, j));
+            }
         }
+        else
+        {
+            foreach (var pos in _updatePoses![0])
+            {
+                chunk.Neighbourhood.ScheduleLightUpdate(pos);
+            }
+        }
+
         _updatePoses[0].Clear();
     }
 }
