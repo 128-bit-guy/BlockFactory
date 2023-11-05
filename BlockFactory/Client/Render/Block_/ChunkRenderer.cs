@@ -115,7 +115,7 @@ public class ChunkRenderer : IDisposable
                         if (neighbourhood.GetBlock(oPos2Abs) != 0) ao = true;
                     }
 
-                    if (ao && cLight > 0) --cLight;
+                    if (ao) cLight -= Math.Min(cLight, (byte)3);
                     lightVal[u | (v << 1)] = cLight;
                 }
 
