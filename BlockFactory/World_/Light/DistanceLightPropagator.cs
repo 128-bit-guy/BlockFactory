@@ -1,4 +1,6 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Base;
+using BlockFactory.CubeMath;
+using BlockFactory.Math_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -102,6 +104,11 @@ public static class DistanceLightPropagator
             {
                 foreach (var pos in _addLightQueue![cLight])
                 {
+                    if (!n.GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.Data!.HasSkyLight)
+                    {
+                        n.ScheduleLightUpdate(pos);
+                        continue;
+                    }
                     if(n.GetLight(pos, channel) >= cLight) continue;
                     n.SetLight(pos, channel, (byte)cLight);
                     if(cLight <= 1) continue;
