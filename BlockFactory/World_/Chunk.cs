@@ -2,6 +2,7 @@
 using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
@@ -20,8 +21,9 @@ public class Chunk : IBlockWorld
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
-    public HashSet<PlayerEntity> WatchingPlayers = new();
+    public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion Region;
+    public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion region)
     {
@@ -45,12 +47,19 @@ public class Chunk : IBlockWorld
         return Data!.GetBiome(pos);
     }
 
+    public byte GetLight(Vector3D<int> pos, LightChannel channel)
+    {
+        return Data!.GetLight(pos, channel);
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();
+        if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
         if (!update) return;
-        UpdateBlock(pos);
+        ScheduleLightUpdate(pos);
+        Neighbourhood.UpdateBlock(pos);
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
@@ -66,13 +75,35 @@ public class Chunk : IBlockWorld
         Data!.SetBiome(pos, biome);
     }
 
+    public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
+    {
+        if (Data!.GetLight(pos, channel) == light) return;
+        Data!.SetLight(pos, channel, light);
+        Neighbourhood.UpdateLight(pos);
+    }
+
     public void UpdateBlock(Vector3D<int> pos)
     {
         if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
         BlockUpdate(pos);
     }
 
+    public void UpdateLight(Vector3D<int> pos)
+    {
+        LightUpdate(pos);
+    }
+
+    public void ScheduleLightUpdate(Vector3D<int> pos)
+    {
+        if (!Data!.IsLightUpdateScheduled(pos))
+        {
+            Data!.SetLightUpdateScheduled(pos, true);
+            ScheduledLightUpdates.Add(pos);
+        }
+    }
+
     public event BlockEventHandler BlockUpdate = p => { };
+    public event BlockEventHandler LightUpdate = p => { };
 
     public void AddWatchingPlayer(PlayerEntity player)
     {
@@ -107,8 +138,23 @@ public class Chunk : IBlockWorld
                 SetBlock(absPos, 4);
                 goto EndLoop;
             }
-
+        
             EndLoop: ;
+        }
+    }
+
+    private void CopyLightUpdatesFromData()
+    {
+        ScheduledLightUpdates.Clear();
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
+        {
+            var absPos = new Vector3D<int>(i, j, k) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+            if (Data!.IsLightUpdateScheduled(absPos))
+            {
+                ScheduledLightUpdates.Add(absPos);
+            }
         }
     }
 
@@ -124,6 +170,8 @@ public class Chunk : IBlockWorld
         {
             Data = data;
         }
+
+        CopyLightUpdatesFromData();
     }
 
     public void StartLoadTask()
@@ -136,5 +184,16 @@ public class Chunk : IBlockWorld
         {
             LoadTask = Task.Factory.ContinueWhenAll(new Task[] { Region.LoadTask }, _ => GenerateOrLoad());
         }
+    }
+
+    public int GetHeavyUpdateIndex()
+    {
+        var x = Position.X % 3;
+        if (x < 0) x += 3;
+        var y = Position.Y % 3;
+        if (y < 0) y += 3;
+        var z = Position.Z % 3;
+        if (z < 0) z += 3;
+        return x + y * 3 + z * 9;
     }
 }

@@ -5,6 +5,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
+using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Block_;
@@ -14,7 +15,7 @@ public class ChunkRenderer : IDisposable
 {
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
-    private static readonly bool[] DifferentTriangles = new bool[1 << 4];
+    private static readonly bool[] DifferentTriangles = new bool[1 << 16];
     private readonly float[] _vertexLight = new float[4];
     public readonly Chunk Chunk;
     public readonly RenderMesh Mesh;
@@ -29,10 +30,31 @@ public class ChunkRenderer : IDisposable
     static ChunkRenderer()
     {
         int[] order = { 0, 1, 3, 2 };
+        var differentTriangles = new bool[1 << 4];
         for (var i = 0; i < 4; ++i)
         {
-            DifferentTriangles[1 << order[i]] = (i & 1) == 0;
-            DifferentTriangles[15 & ~(1 << order[i])] = (i & 1) == 0;
+            differentTriangles[1 << order[i]] = (i & 1) == 0;
+            differentTriangles[15 & ~(1 << order[i])] = (i & 1) == 0;
+        }
+        for (var mask = 0; mask < (1 << 16); ++mask)
+        {
+            var lights = new int[4];
+            for (var i = 0; i < 4; ++i)
+            {
+                lights[i] = (mask >> (i << 2)) & 15;
+            }
+
+            var mi = lights.Min();
+            var oMask = 0;
+            for (var i = 0; i < 4; ++i)
+            {
+                if (lights[i] == mi)
+                {
+                    oMask |= (1 << i);
+                }
+            }
+
+            DifferentTriangles[mask] = differentTriangles[oMask];
         }
     }
 
@@ -41,11 +63,13 @@ public class ChunkRenderer : IDisposable
         Chunk = chunk;
         Mesh = new RenderMesh();
         chunk.BlockUpdate += OnBlockUpdate;
+        chunk.LightUpdate += OnBlockUpdate;
     }
 
     public void Dispose()
     {
         Chunk.BlockUpdate -= OnBlockUpdate;
+        Chunk.LightUpdate -= OnBlockUpdate;
         Mesh.Dispose();
     }
 
@@ -54,6 +78,7 @@ public class ChunkRenderer : IDisposable
         var builder = bmb.MeshBuilder;
         var transformer = bmb.UvTransformer;
         var neighbourhood = Chunk.Neighbourhood;
+        Span<byte> lightVal = stackalloc byte[4];
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var j = 0; j < Constants.ChunkSize; ++j)
         for (var k = 0; k < Constants.ChunkSize; ++k)
@@ -70,26 +95,39 @@ public class ChunkRenderer : IDisposable
                 transformer.Sprite = block.GetTexture(face);
                 var oPos = absPos + face.GetDelta();
                 if (neighbourhood.GetBlockObj(oPos).BlockRendering(face.GetOpposite())) continue;
-                var light = 1;
+                // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                     : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
 
-                var aoMask = 0;
                 for (var u = 0; u < 2; ++u)
                 for (var v = 0; v < 2; ++v)
-                for (var dx = -1; dx < 1; ++dx)
-                for (var dy = -1; dy < 1; ++dy)
                 {
-                    var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
-                    var oPos2Abs = absPos + oPos2Rel * s;
-                    if (neighbourhood.GetBlock(oPos2Abs) != 0) aoMask |= 1 << (u | (v << 1));
+                    byte cLight = 0;
+                    var ao = false;
+                    for (var dx = -1; dx < 1; ++dx)
+                    for (var dy = -1; dy < 1; ++dy)
+                    {
+                        var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
+                        var oPos2Abs = absPos + oPos2Rel * s;
+                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
+                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
+                        if (neighbourhood.GetBlock(oPos2Abs) != 0) ao = true;
+                    }
+
+                    if (ao) cLight -= Math.Min(cLight, (byte)3);
+                    lightVal[u | (v << 1)] = cLight;
                 }
 
-                for (var l = 0; l < 4; ++l) _vertexLight[l] = light - ((aoMask & (1 << l)) != 0 ? 0.2f : 0f);
+                var dtMask = 0;
+                for (var l = 0; l < 4; ++l)
+                {
+                    _vertexLight[l] = (float)lightVal[l] / 15;
+                    dtMask |= (lightVal[l] << (l << 2));
+                }
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
-                builder.NewPolygon().Indices(DifferentTriangles[aoMask] ? QuadIndices2 : QuadIndices)
+                builder.NewPolygon().Indices(DifferentTriangles[dtMask] ? QuadIndices2 : QuadIndices)
                     .Vertex(new BlockVertex(0, 0, 1, _vertexLight[0], _vertexLight[0], _vertexLight[0], 1, 0, 0))
                     .Vertex(new BlockVertex(1, 0, 1, _vertexLight[1], _vertexLight[1], _vertexLight[1], 1, 1, 0))
                     .Vertex(new BlockVertex(1, 1, 1, _vertexLight[3], _vertexLight[3], _vertexLight[3], 1, 1, 1))

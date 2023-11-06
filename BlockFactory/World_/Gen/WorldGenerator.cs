@@ -27,6 +27,11 @@ public class WorldGenerator
         c.Data = new ChunkData();
         _baseTerrainGenerator.GenerateBaseTerrain(c);
         _caveGenerator.GenerateCaves(c);
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        {
+            c.Data.SetLightUpdateScheduled(new Vector3D<int>(i, Constants.ChunkSize - 1, j), true);
+        }
     }
 
     public void DecorateChunk(Chunk c)

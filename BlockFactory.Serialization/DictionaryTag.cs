@@ -51,6 +51,15 @@ public class DictionaryTag : ITag
         return TagTypes.CreateDefaultValueBasedTag<T>().Value;
     }
 
+    public T[] GetArray<T>(string s, int length)
+    {
+        var arr = GetValue<T[]>(s);
+        if (arr.Length == length) return arr;
+        var nArr = new T[length];
+        Array.Copy(arr, nArr, Math.Min(arr.Length, length));
+        return nArr;
+    }
+
     public void Set(string s, ITag tag)
     {
         _dictionary[s] = tag;
