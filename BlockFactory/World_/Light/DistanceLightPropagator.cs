@@ -59,7 +59,12 @@ public static class DistanceLightPropagator
             if(channel == LightChannel.DirectSky) continue;
             foreach (var pos in c.ScheduledLightUpdates)
             {
-                if (n.GetLight(pos, channel) != GetSupposedLight(n, pos, channel))
+                var sl = GetSupposedLight(n, pos, channel);
+                var l = n.GetLight(pos, channel);
+                if (sl > l)
+                {
+                    _beginAddLightList!.Add(pos);
+                } else if (sl < l)
                 {
                     _removeLightQueue!.Enqueue((pos, true));
                 }
