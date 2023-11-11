@@ -140,7 +140,7 @@ public class WorldRenderer : IDisposable
     private Vector3D<float> GetChunkTranslation(ChunkRenderer renderer)
     {
         return (renderer.Chunk.Position
-            .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - BlockFactoryClient.Player.Pos).As<float>();
+            .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - BlockFactoryClient.Player.GetSmoothPos()).As<float>();
     }
 
     private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)

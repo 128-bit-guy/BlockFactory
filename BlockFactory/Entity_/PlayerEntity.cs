@@ -1,4 +1,6 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Base;
+using BlockFactory.Block_;
+using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
@@ -56,6 +58,12 @@ public class PlayerEntity : Entity
         {
             World!.SetBlock(blockPos, Blocks.Bricks);
         }
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public Vector3D<double> GetSmoothPos()
+    {
+        return Pos + BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>();
     }
 
     public override void Update()

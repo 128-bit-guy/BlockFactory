@@ -30,6 +30,12 @@ public class LogicProcessor : IDisposable
         }
     }
 
+    [ExclusiveTo(Side.Client)]
+    public double GetPartialTicks()
+    {
+        return (DateTime.UtcNow - _lastTickTime).TotalMilliseconds / Constants.TickFrequencyMs;
+    }
+
     public void AddPlayer(PlayerEntity player)
     {
         _players.Add(player);
