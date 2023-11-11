@@ -25,7 +25,7 @@ public static class BlockFactoryClient
     public static IInputContext InputContext = null!;
     public static Vector2D<float> HeadRotation;
     public static PlayerEntity Player;
-    private static World _world;
+    public static LogicProcessor LogicProcessor;
     public static WorldRenderer WorldRenderer;
 
     private static void InitWindow()
@@ -82,14 +82,13 @@ public static class BlockFactoryClient
             new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
                 .As<int>();
 
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) _world.SetBlock(blockPos, 0);
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) _world.SetBlock(blockPos, Blocks.Bricks);
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) LogicProcessor.GetWorld().SetBlock(blockPos, 0);
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) LogicProcessor.GetWorld().SetBlock(blockPos, Blocks.Bricks);
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
         Player.Pos += (moveDelta * (float)deltaTime * 5).As<double>();
-        Player.Update();
-        _world.Update();
+        LogicProcessor.Update();
         BfRendering.UseWorldMatrices();
         BfRendering.SetMatrices(Shaders.Block);
         Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
@@ -117,17 +116,19 @@ public static class BlockFactoryClient
             TagIO.Deserialize("registry_mapping.dat", mapping);
         }
         SynchronizedRegistries.LoadMapping(mapping);
-        _world = new World("world");
-        WorldRenderer = new WorldRenderer(_world);
+        LogicProcessor = new LogicProcessor();
+        LogicProcessor.Start();
+        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
-        Player.SetWorld(_world);
+        LogicProcessor.AddPlayer(Player);
+        Player.SetWorld(LogicProcessor.GetWorld());
         Player.Pos = new Vector3D<double>(1e7, 0, 0);
     }
 
     private static void OnWindowClose()
     {
         WorldRenderer.Dispose();
-        _world.Dispose();
+        LogicProcessor.Dispose();
         
         TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         Textures.Destroy();
