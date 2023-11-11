@@ -9,6 +9,7 @@ namespace BlockFactory.Entity_;
 public class Entity
 {
     public Vector3D<double> Pos;
+    public Vector2D<float> HeadRotation;
     public World? World { get; private set; }
 
     public void SetWorld(World? world)
@@ -48,5 +49,29 @@ public class Entity
     public Vector3D<int> GetChunkPos()
     {
         return GetBlockPos().ShiftRight(Constants.ChunkSizeLog2);
+    }
+
+    public Vector3D<float> GetViewForward()
+    {
+        return new Vector3D<float>(MathF.Sin(HeadRotation.X) * MathF.Cos(HeadRotation.Y),
+            MathF.Sin(HeadRotation.Y),
+            MathF.Cos(HeadRotation.X) * MathF.Cos(HeadRotation.Y));
+    }
+
+    public Vector3D<float> GetViewUp()
+    {
+        return new Vector3D<float>(MathF.Sin(HeadRotation.X) * MathF.Cos(HeadRotation.Y + MathF.PI / 2),
+            MathF.Sin(HeadRotation.Y + MathF.PI / 2),
+            MathF.Cos(HeadRotation.X) * MathF.Cos(HeadRotation.Y + MathF.PI / 2));
+    }
+
+    public Vector3D<float> GetForward()
+    {
+        return new Vector3D<float>(MathF.Sin(HeadRotation.X), 0, MathF.Cos(HeadRotation.X));
+    }
+
+    public Vector3D<float> GetRight()
+    {
+        return new Vector3D<float>(-MathF.Cos(HeadRotation.X), 0, MathF.Sin(HeadRotation.X));
     }
 }

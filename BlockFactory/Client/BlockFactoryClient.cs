@@ -23,7 +23,6 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     public static IInputContext InputContext = null!;
-    public static Vector2D<float> HeadRotation;
     public static PlayerEntity Player;
     public static LogicProcessor LogicProcessor;
     public static WorldRenderer WorldRenderer;
@@ -44,20 +43,6 @@ public static class BlockFactoryClient
         Window = Silk.NET.Windowing.Window.Create(options);
     }
 
-    public static Vector3D<float> CalcCameraForward()
-    {
-        return new Vector3D<float>(MathF.Sin(HeadRotation.X) * MathF.Cos(HeadRotation.Y),
-            MathF.Sin(HeadRotation.Y),
-            MathF.Cos(HeadRotation.X) * MathF.Cos(HeadRotation.Y));
-    }
-
-    public static Vector3D<float> CalcCameraUp()
-    {
-        return new Vector3D<float>(MathF.Sin(HeadRotation.X) * MathF.Cos(HeadRotation.Y + MathF.PI / 2),
-            MathF.Sin(HeadRotation.Y + MathF.PI / 2),
-            MathF.Cos(HeadRotation.X) * MathF.Cos(HeadRotation.Y + MathF.PI / 2));
-    }
-
     private static void UpdateAndRender(double deltaTime)
     {
         MouseInputManager.Update();
@@ -67,27 +52,60 @@ public static class BlockFactoryClient
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
 
-        if (!MouseInputManager.MouseIsEnabled) HeadRotation -= MouseInputManager.Delta / 100;
+        if (!MouseInputManager.MouseIsEnabled) Player.HeadRotation -= MouseInputManager.Delta / 100;
 
-        HeadRotation.X %= 2 * MathF.PI;
-        HeadRotation.Y = Math.Clamp(HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
-        var forward = CalcCameraForward();
-        var moveDelta = new Vector3D<float>();
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.W)) moveDelta += forward;
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.S)) moveDelta -= forward;
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.Space)) moveDelta += Vector3D<float>.UnitY;
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft)) moveDelta -= Vector3D<float>.UnitY;
+        Player.HeadRotation.X %= 2 * MathF.PI;
+        Player.HeadRotation.Y = Math.Clamp(Player.HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
+        PlayerControlState nState = 0;
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.W))
+        {
+            nState |= PlayerControlState.MovingForward;
+        }
 
-        var blockPos =
-            new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
-                .As<int>();
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.S))
+        {
+            nState |= PlayerControlState.MovingBackwards;
+        }
 
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left)) LogicProcessor.GetWorld().SetBlock(blockPos, 0);
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right)) LogicProcessor.GetWorld().SetBlock(blockPos, Blocks.Bricks);
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.A))
+        {
+            nState |= PlayerControlState.MovingLeft;
+        }
 
-        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft);
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.D))
+        {
+            nState |= PlayerControlState.MovingRight;
+        }
+
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.Space))
+        {
+            nState |= PlayerControlState.MovingUp;
+        }
+
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft))
+        {
+            nState |= PlayerControlState.MovingDown;
+        }
+
+        if (InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft))
+        {
+            nState |= PlayerControlState.Sprinting;
+        }
+
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left))
+        {
+            nState |= PlayerControlState.Attacking;
+        }
+
+        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right))
+        {
+            nState |= PlayerControlState.Using;
+        }
+
+        Player.ControlState = nState;
+
+        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
-        Player.Pos += (moveDelta * (float)deltaTime * 5).As<double>();
         LogicProcessor.Update();
         BfRendering.UseWorldMatrices();
         BfRendering.SetMatrices(Shaders.Block);
@@ -115,6 +133,7 @@ public static class BlockFactoryClient
         {
             TagIO.Deserialize("registry_mapping.dat", mapping);
         }
+
         SynchronizedRegistries.LoadMapping(mapping);
         LogicProcessor = new LogicProcessor();
         LogicProcessor.Start();
@@ -129,7 +148,7 @@ public static class BlockFactoryClient
     {
         WorldRenderer.Dispose();
         LogicProcessor.Dispose();
-        
+
         TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         Textures.Destroy();
         Shaders.Destroy();

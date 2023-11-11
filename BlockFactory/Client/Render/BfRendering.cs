@@ -46,8 +46,8 @@ public static class BfRendering
 
     public static void UseWorldMatrices()
     {
-        var forward = BlockFactoryClient.CalcCameraForward();
-        var up = BlockFactoryClient.CalcCameraUp();
+        var forward = BlockFactoryClient.Player.GetViewForward();
+        var up = BlockFactoryClient.Player.GetViewUp();
         View = Matrix4X4.CreateLookAt(Vector3D<float>.Zero, forward, up);
         var aspectRatio = (float)BlockFactoryClient.Window.Size.X / BlockFactoryClient.Window.Size.Y;
         Projection = Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
