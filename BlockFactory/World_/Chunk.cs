@@ -115,13 +115,15 @@ public class Chunk : IBlockWorld
         WatchingPlayers.Remove(player);
     }
 
-    public void Update()
+    public void Update(bool heavy)
     {
-        if (!Data!.Decorated)
+        if (heavy && !Data!.Decorated)
         {
             Data!.Decorated = true;
             World.Generator.DecorateChunk(this);
         }
+        
+        if(!Data!.Decorated) return;
 
         var x = World.Random.Next(Constants.ChunkSize);
         var y = World.Random.Next(Constants.ChunkSize);
@@ -140,6 +142,11 @@ public class Chunk : IBlockWorld
             }
         
             EndLoop: ;
+        }
+
+        if (heavy || Data!.HasSkyLight)
+        {
+            LightPropagator.ProcessLightUpdates(this);
         }
     }
 
@@ -186,7 +193,7 @@ public class Chunk : IBlockWorld
         }
     }
 
-    public int GetHeavyUpdateIndex()
+    public int GetUpdateClass()
     {
         var x = Position.X % 3;
         if (x < 0) x += 3;

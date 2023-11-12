@@ -9,10 +9,15 @@ public class LogicProcessor : IDisposable
     private World _world = null!;
     private DateTime _lastTickTime;
     private readonly List<PlayerEntity> _players = new();
+    private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
+    private int _heavyUpdateClass = 0;
 
     public LogicProcessor()
     {
-        
+        for (var i = 0; i < 27; ++i)
+        {
+            _chunkUpdateClasses[i] = new List<Chunk>();
+        }
     }
 
     public void Start()
@@ -21,9 +26,32 @@ public class LogicProcessor : IDisposable
         _lastTickTime = DateTime.UtcNow;
     }
 
+    private void UpdateChunk(Chunk c)
+    {
+        c.Update(c.GetUpdateClass() == _heavyUpdateClass);
+    }
+
     private void Tick()
     {
         _world.Update();
+        foreach (var chunk in _world.GetLoadedChunks())
+        {
+            if (chunk.ReadyForTick)
+            {
+                _chunkUpdateClasses[chunk.GetUpdateClass()].Add(chunk);
+            }
+        }
+        for (var i = 0; i < 27; ++i)
+        {
+            _chunkUpdateClasses[i].Shuffle(Random.Shared);
+            Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
+            _chunkUpdateClasses[i].Clear();
+        }
+        ++_heavyUpdateClass;
+        if (_heavyUpdateClass == 27)
+        {
+            _heavyUpdateClass = 0;
+        }
         foreach (var player in _players)
         {
             player.Update();

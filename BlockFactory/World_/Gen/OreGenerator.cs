@@ -12,7 +12,7 @@ public class OreGenerator
     private int _maxRadius;
     private float _veinChance;
 
-    [ThreadStatic] private static readonly List<Vector3D<int>> PosQueue = new();
+    [ThreadStatic] private static List<Vector3D<int>>? _posQueue;
 
     public OreGenerator(short block, short replacedBlock, int minSize, int maxSize, int maxRadius, float veinChance)
     {
@@ -32,18 +32,19 @@ public class OreGenerator
 
     public void Generate(IBlockStorage world, Vector3D<int> pos, Random rng)
     {
+        _posQueue ??= new List<Vector3D<int>>();
         if(rng.NextDouble() >= _veinChance) return;
-
-        PosQueue.Add(pos);
+        
+        _posQueue.Add(pos);
 
         var currentSize = rng.Next(_minSize, _maxSize);
 
-        while (PosQueue.Count > 0 && currentSize > 0)
+        while (_posQueue.Count > 0 && currentSize > 0)
         {
-            var i = rng.Next(PosQueue.Count);
-            var cPos = PosQueue[i];
-            PosQueue[i] = PosQueue[^1];
-            PosQueue.RemoveAt(PosQueue.Count - 1);
+            var i = rng.Next(_posQueue.Count);
+            var cPos = _posQueue[i];
+            _posQueue[i] = _posQueue[^1];
+            _posQueue.RemoveAt(_posQueue.Count - 1);
             if(world.GetBlock(cPos) != _replacedBlock) continue;
             world.SetBlock(cPos, _block);
             --currentSize;
@@ -52,11 +53,11 @@ public class OreGenerator
                 var nPos = cPos + face.GetDelta();
                 if ((nPos - pos).LengthSquared <= _maxRadius * _maxRadius)
                 {
-                    PosQueue.Add(nPos);
+                    _posQueue.Add(nPos);
                 }
             }
         }
         
-        PosQueue.Clear();
+        _posQueue.Clear();
     }
 }

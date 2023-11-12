@@ -14,7 +14,7 @@ public class PlayerChunkLoader : IDisposable
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
-    public int MaxLoadingChunks = 2;
+    public int MaxLoadingChunks = 8;
 
     public PlayerChunkLoader(PlayerEntity player)
     {
@@ -54,7 +54,7 @@ public class PlayerChunkLoader : IDisposable
         }
 
         MakeChunksLoaded();
-        var leftProgressDelta = 8;
+        var leftProgressDelta = 64;
         while (Progress < PlayerChunkLoading.ChunkDeltas.Length)
         {
             var delta = PlayerChunkLoading.ChunkDeltas[Progress];

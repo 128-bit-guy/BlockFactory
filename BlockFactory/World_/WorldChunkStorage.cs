@@ -10,7 +10,6 @@ public class WorldChunkStorage : IChunkStorage
 {
     private readonly Dictionary<Vector3D<int>, Chunk> _chunks = new();
 
-
     public short GetBlock(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
