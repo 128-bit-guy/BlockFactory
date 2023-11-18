@@ -19,6 +19,7 @@ public static class Blocks
     public static SimpleBlock TinOre;
     public static SimpleBlock DiamondOre;
     public static SimpleBlock CoalOre;
+    public static LeavesBlock Leaves;
     
     public static void Init()
     {
@@ -34,6 +35,7 @@ public static class Blocks
         TinOre = Registry.Register("TinOre", new SimpleBlock(20, Stone));
         DiamondOre = Registry.Register("DiamondOre", new SimpleBlock(21, Stone));
         CoalOre = Registry.Register("CoalOre", new SimpleBlock(22, Stone));
+        Leaves = Registry.Register("Leaves", new LeavesBlock());
     }
 
     public static void Lock()

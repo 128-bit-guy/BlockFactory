@@ -36,8 +36,8 @@ public static class DistanceLightPropagator
         foreach (var face in CubeFaceUtils.Values())
         {
             var oPos = pos + face.GetDelta();
-            var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face) &&
-                               n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite());
+            var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face, channel) &&
+                               n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite(), channel);
             if(!lightCanPass) continue;
             var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
             if (lightFromNeighbor > cLight)
@@ -85,8 +85,8 @@ public static class DistanceLightPropagator
                 foreach (var face in CubeFaceUtils.Values())
                 {
                     var oPos = pos + face.GetDelta();
-                    var lightCanPass = (changed || n.GetBlockObj(pos).CanLightLeave(face)) &&
-                                       n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite());
+                    var lightCanPass = (changed || n.GetBlockObj(pos).CanLightLeave(face, channel)) &&
+                                       n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
                     if (lightCanPass && n.GetLight(oPos, channel) < light)
                     {
                         _removeLightQueue.Enqueue((oPos, false));
@@ -120,8 +120,8 @@ public static class DistanceLightPropagator
                     foreach (var face in CubeFaceUtils.Values())
                     {
                         var oPos = pos + face.GetDelta();
-                        var canLightPass = n.GetBlockObj(pos).CanLightLeave(face) &&
-                                           n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite());
+                        var canLightPass = n.GetBlockObj(pos).CanLightLeave(face, channel) &&
+                                           n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
                         if (canLightPass)
                         {
                             _addLightQueue[cLight - 1].Add(oPos);

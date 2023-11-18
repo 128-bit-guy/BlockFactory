@@ -56,7 +56,7 @@ public class PlayerEntity : Entity
         }
         if ((ControlState & PlayerControlState.Using) != 0)
         {
-            World!.SetBlock(blockPos, Blocks.Bricks);
+            World!.SetBlock(blockPos, Blocks.Leaves);
         }
     }
 

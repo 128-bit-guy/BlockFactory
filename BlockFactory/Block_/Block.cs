@@ -31,12 +31,18 @@ public class Block : IRegistryEntry
         return 0;
     }
 
-    public virtual bool CanLightEnter(CubeFace face)
+    public virtual bool CanLightEnter(CubeFace face, LightChannel channel)
     {
         return false;
     }
 
-    public virtual bool CanLightLeave(CubeFace face)
+    public virtual bool CanLightLeave(CubeFace face, LightChannel channel)
+    {
+        return true;
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public virtual bool HasAo()
     {
         return true;
     }

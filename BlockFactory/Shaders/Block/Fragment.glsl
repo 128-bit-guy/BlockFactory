@@ -13,4 +13,5 @@ void main()
 {
 
     FragColor = mix(skyColor, vertexColor * texture(tex, vertexUv), loadProgress);
+    if(FragColor.a < 0.1f) discard;
 } 

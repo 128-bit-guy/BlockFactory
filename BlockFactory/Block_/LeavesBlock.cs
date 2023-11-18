@@ -4,7 +4,7 @@ using BlockFactory.World_.Light;
 
 namespace BlockFactory.Block_;
 
-public class AirBlock : Block
+public class LeavesBlock : Block
 {
     [ExclusiveTo(Side.Client)]
     public override bool BlockRendering(CubeFace face)
@@ -12,9 +12,15 @@ public class AirBlock : Block
         return false;
     }
 
+    [ExclusiveTo(Side.Client)]
+    public override int GetTexture(CubeFace face)
+    {
+        return 8;
+    }
+
     public override bool CanLightEnter(CubeFace face, LightChannel channel)
     {
-        return true;
+        return channel != LightChannel.DirectSky;
     }
 
     [ExclusiveTo(Side.Client)]

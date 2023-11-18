@@ -112,7 +112,7 @@ public class ChunkRenderer : IDisposable
                         var oPos2Abs = absPos + oPos2Rel * s;
                         cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
                         cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
-                        if (neighbourhood.GetBlock(oPos2Abs) != 0) ao = true;
+                        if (neighbourhood.GetBlockObj(oPos2Abs).HasAo()) ao = true;
                     }
 
                     if (ao) cLight -= Math.Min(cLight, (byte)3);
