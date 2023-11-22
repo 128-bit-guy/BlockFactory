@@ -11,9 +11,9 @@ namespace BlockFactory.World_.Serialization;
 public class ChunkData : IBlockStorage, IBinarySerializable
 {
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
-    private short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
-    private byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
-    private byte[] _light = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
+    private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private readonly byte[] _light = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     public bool Decorated;
