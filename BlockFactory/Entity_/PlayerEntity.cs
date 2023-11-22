@@ -2,6 +2,7 @@
 using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
+using BlockFactory.Physics;
 using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
@@ -12,6 +13,7 @@ public class PlayerEntity : Entity
 {
     public PlayerChunkLoader? ChunkLoader { get; private set; }
     public PlayerControlState ControlState = 0;
+    private int BlockCooldown = 0;
 
     private Vector3D<float> CalculateTargetVelocity()
     {
@@ -30,7 +32,7 @@ public class PlayerEntity : Entity
         {
             return Vector3D<float>.Zero;
         }
-        
+
         res = Vector3D.Normalize(res);
 
         if ((ControlState & PlayerControlState.Sprinting) != 0)
@@ -47,16 +49,25 @@ public class PlayerEntity : Entity
 
     private void ProcessInteraction()
     {
-        var blockPos =
-            new Vector3D<double>(Math.Floor(Pos.X), Math.Floor(Pos.Y), Math.Floor(Pos.Z))
-                .As<int>();
+        if (BlockCooldown > 0)
+        {
+            --BlockCooldown;
+            return;
+        }
+        var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
+            .As<double>() * 10);
+        if (!hitOptional.HasValue) return;
+        var (pos, face) = hitOptional.Value;
         if ((ControlState & PlayerControlState.Attacking) != 0)
         {
-            World!.SetBlock(blockPos, 0);
+            World!.SetBlock(pos, 0);
+            BlockCooldown = 5;
         }
+
         if ((ControlState & PlayerControlState.Using) != 0)
         {
-            World!.SetBlock(blockPos, Blocks.Leaves);
+            World!.SetBlock(pos + face.GetDelta(), Blocks.Leaves);
+            BlockCooldown = 5;
         }
     }
 

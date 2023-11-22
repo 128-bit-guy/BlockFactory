@@ -18,4 +18,11 @@ public static class CmMathUtils
     {
         Unsafe.Add(ref Unsafe.Add(ref mat.Row1, i).X, j) = val;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector3D<int> Floor(this Vector3D<double> vec)
+    {
+        return new Vector3D<double>(Math.Floor(vec.X), Math.Floor(vec.Y), Math.Floor(vec.Z))
+            .As<int>();
+    }
 }

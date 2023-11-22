@@ -38,4 +38,12 @@ public static class CubeFaceUtils
     {
         return (CubeFace)((int)face ^ 1);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static CubeFace FromAxisAndSign(int axis, int sign)
+    {
+        var r = (CubeFace)(axis << 1);
+        if (sign < 0) r += 1;
+        return r;
+    }
 }
