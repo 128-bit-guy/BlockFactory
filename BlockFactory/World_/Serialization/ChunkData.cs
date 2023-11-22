@@ -66,7 +66,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
     }
 
-    public DictionaryTag SerializeToTag()
+    public DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var res = new DictionaryTag();
         res.SetValue("blocks", _blocks);
@@ -80,7 +80,7 @@ public class ChunkData : IBlockStorage, ITagSerializable
         return res;
     }
 
-    public void DeserializeFromTag(DictionaryTag tag)
+    public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
     {
         _blocks = tag.GetValue<short[]>("blocks");
         _biomes = tag.GetValue<byte[]>("biomes");

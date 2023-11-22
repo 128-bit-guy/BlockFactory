@@ -54,13 +54,13 @@ public static class TagIO
         var tag = Read(file);
         if (tag != null)
         {
-            s.DeserializeFromTag(tag);
+            s.DeserializeFromTag(tag, SerializationReason.Save);
         }
     }
 
     public static void Serialize(string file, ITagSerializable s)
     {
-        var tag = s.SerializeToTag();
+        var tag = s.SerializeToTag(SerializationReason.Save);
         Write(file, tag);
     }
 

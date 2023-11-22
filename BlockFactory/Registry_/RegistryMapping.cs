@@ -5,7 +5,7 @@ namespace BlockFactory.Registry_;
 public class RegistryMapping : ITagSerializable
 {
     public readonly Dictionary<string, Dictionary<string, int>> Mappings = new();
-    public DictionaryTag SerializeToTag()
+    public DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var result = new DictionaryTag();
         foreach (var (id, mapping) in Mappings)
@@ -21,7 +21,7 @@ public class RegistryMapping : ITagSerializable
         return result;
     }
 
-    public void DeserializeFromTag(DictionaryTag tag)
+    public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
     {
         Mappings.Clear();
         foreach (var id in tag.Keys)

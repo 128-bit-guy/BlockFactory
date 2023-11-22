@@ -67,14 +67,14 @@ public class ChunkRegion : ITagSerializable
         UnloadTask = Task.Run(Unload);
     }
 
-    public DictionaryTag SerializeToTag()
+    public DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var res = new DictionaryTag();
         var resList = new ListTag();
         for (var i = 0; i < _chunks.Length; ++i)
         {
             if (_chunks[i] == null) continue;
-            var tag = _chunks[i]!.SerializeToTag();
+            var tag = _chunks[i]!.SerializeToTag(reason);
             tag.SetValue("index", i);
             resList.Add(tag);
         }
@@ -82,7 +82,7 @@ public class ChunkRegion : ITagSerializable
         return res;
     }
 
-    public void DeserializeFromTag(DictionaryTag tag)
+    public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
     {
         Array.Fill(_chunks, null);
         var list = tag.Get<ListTag>("chunks");
@@ -91,7 +91,7 @@ public class ChunkRegion : ITagSerializable
         {
             var i = dict.GetValue<int>("index");
             var data = new ChunkData();
-            data.DeserializeFromTag(dict);
+            data.DeserializeFromTag(dict, reason);
             _chunks[i] = data;
         }
     }
