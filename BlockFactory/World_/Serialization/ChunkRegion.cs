@@ -4,7 +4,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
 
-public class ChunkRegion : ITagSerializable
+public class ChunkRegion : IBinarySerializable
 {
     public const int SizeLog2 = 4;
     public const int Size = 1 << SizeLog2;
@@ -48,13 +48,13 @@ public class ChunkRegion : ITagSerializable
     {
         var saveFile = GetSaveFile();
         if(!File.Exists(saveFile)) return;
-        TagIO.Deserialize(saveFile, this);
+        BinaryIO.Deserialize(saveFile, this);
     }
 
     private void Unload()
     {
         var saveFile = GetSaveFile();
-        TagIO.Serialize(saveFile, this);
+        BinaryIO.Serialize(saveFile, this);
     }
 
     public void StartLoadTask()
@@ -67,32 +67,63 @@ public class ChunkRegion : ITagSerializable
         UnloadTask = Task.Run(Unload);
     }
 
-    public DictionaryTag SerializeToTag(SerializationReason reason)
+    // public DictionaryTag SerializeToTag(SerializationReason reason)
+    // {
+    //     var res = new DictionaryTag();
+    //     var resList = new ListTag();
+    //     for (var i = 0; i < _chunks.Length; ++i)
+    //     {
+    //         if (_chunks[i] == null) continue;
+    //         var tag = _chunks[i]!.SerializeToTag(reason);
+    //         tag.SetValue("index", i);
+    //         resList.Add(tag);
+    //     }
+    //     res.Set("chunks", resList);
+    //     return res;
+    // }
+    //
+    // public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    // {
+    //     Array.Fill(_chunks, null);
+    //     var list = tag.Get<ListTag>("chunks");
+    //
+    //     foreach (var dict in list.GetEnumerable<DictionaryTag>())
+    //     {
+    //         var i = dict.GetValue<int>("index");
+    //         var data = new ChunkData();
+    //         data.DeserializeFromTag(dict, reason);
+    //         _chunks[i] = data;
+    //     }
+    // }
+
+    public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        var res = new DictionaryTag();
-        var resList = new ListTag();
+        var cnt = 0;
+        foreach (var data in _chunks)
+        {
+            if (data != null)
+            {
+                ++cnt;
+            }
+        }
+        writer.Write(cnt);
         for (var i = 0; i < _chunks.Length; ++i)
         {
-            if (_chunks[i] == null) continue;
-            var tag = _chunks[i]!.SerializeToTag(reason);
-            tag.SetValue("index", i);
-            resList.Add(tag);
+            if(_chunks[i] == null) continue;
+            writer.Write(i);
+            _chunks[i]!.SerializeBinary(writer, reason);
         }
-        res.Set("chunks", resList);
-        return res;
     }
 
-    public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
         Array.Fill(_chunks, null);
-        var list = tag.Get<ListTag>("chunks");
-
-        foreach (var dict in list.GetEnumerable<DictionaryTag>())
+        var cnt = reader.ReadInt32();
+        for (var i = 0; i < cnt; ++i)
         {
-            var i = dict.GetValue<int>("index");
-            var data = new ChunkData();
-            data.DeserializeFromTag(dict, reason);
-            _chunks[i] = data;
+            var ind = reader.ReadInt32();
+            _chunks[ind] = new ChunkData();
+            _chunks[ind]!.DeserializeBinary(reader, reason);
         }
     }
 }

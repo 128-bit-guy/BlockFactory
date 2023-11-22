@@ -8,7 +8,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
 
-public class ChunkData : IBlockStorage, ITagSerializable
+public class ChunkData : IBlockStorage, IBinarySerializable
 {
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
     private short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
@@ -66,28 +66,76 @@ public class ChunkData : IBlockStorage, ITagSerializable
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
     }
 
-    public DictionaryTag SerializeToTag(SerializationReason reason)
+    // public DictionaryTag SerializeToTag(SerializationReason reason)
+    // {
+    //     var res = new DictionaryTag();
+    //     res.SetValue("blocks", _blocks);
+    //     res.SetValue("biomes", _biomes);
+    //     res.SetValue("decorated", Decorated);
+    //     res.SetValue("light", _light);
+    //     var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
+    //     _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
+    //     res.SetValue("light_update_scheduled", lightUpdateScheduled);
+    //     res.SetValue("has_sky_light", HasSkyLight);
+    //     return res;
+    // }
+    //
+    // public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    // {
+    //     _blocks = tag.GetValue<short[]>("blocks");
+    //     _biomes = tag.GetValue<byte[]>("biomes");
+    //     Decorated = tag.GetValue<bool>("decorated");
+    //     _light = tag.GetArray<byte>("light", _light.Length);
+    //     _lightUpdateScheduled =
+    //         new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
+    //     HasSkyLight = tag.GetValue<bool>("has_sky_light");
+    // }
+
+    public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        var res = new DictionaryTag();
-        res.SetValue("blocks", _blocks);
-        res.SetValue("biomes", _biomes);
-        res.SetValue("decorated", Decorated);
-        res.SetValue("light", _light);
+        foreach (var block in _blocks)
+        {
+            writer.Write(block);
+        }
+
+        writer.Write(_biomes);
+        
+        writer.Write(_light);
+        
+        if(reason != SerializationReason.Save) return;
+        
         var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
         _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
-        res.SetValue("light_update_scheduled", lightUpdateScheduled);
-        res.SetValue("has_sky_light", HasSkyLight);
-        return res;
+        
+        writer.Write(lightUpdateScheduled);
+        
+        writer.Write(Decorated);
+        
+        writer.Write(HasSkyLight);
     }
 
-    public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
-        _blocks = tag.GetValue<short[]>("blocks");
-        _biomes = tag.GetValue<byte[]>("biomes");
-        Decorated = tag.GetValue<bool>("decorated");
-        _light = tag.GetArray<byte>("light", _light.Length);
-        _lightUpdateScheduled =
-            new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
-        HasSkyLight = tag.GetValue<bool>("has_sky_light");
+        for (var i = 0; i < _blocks.Length; ++i)
+        {
+            _blocks[i] = reader.ReadInt16();
+        }
+        for (var i = 0; i < _biomes.Length; ++i)
+        {
+            _biomes[i] = reader.ReadByte();
+        }
+
+        for (var i = 0; i < _light.Length; ++i)
+        {
+            _light[i] = reader.ReadByte();
+        }
+        
+        if(reason != SerializationReason.Save) return;
+
+        _lightUpdateScheduled = new BitArray(reader.ReadBytes(_lightUpdateScheduled.Length >> 3));
+
+        Decorated = reader.ReadBoolean();
+
+        HasSkyLight = reader.ReadBoolean();
     }
 }
