@@ -39,6 +39,7 @@ public static class BlockFactoryClient
                 Flags = ContextFlags.Debug | ContextFlags.ForwardCompatible
             },
             Samples = 4,
+            VSync = false,
             PreferredDepthBufferBits = 32
         };
         Window = Silk.NET.Windowing.Window.Create(options);
