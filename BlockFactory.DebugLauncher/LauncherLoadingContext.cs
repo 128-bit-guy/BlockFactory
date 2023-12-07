@@ -57,9 +57,25 @@ public class LauncherLoadingContext : AssemblyLoadContext
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             ext = ".dll";
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) ext = ".dylib";
+        var arch = RuntimeInformation.ProcessArchitecture.ToString().ToLower();
+        foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
+        {
+            var rel = Path.GetRelativePath(_loadingDirectory, file);
+            if (file.EndsWith(unmanagedDllName + ext) && rel.Contains(arch))
+            {
+                var dll = LoadUnmanagedDllFromPath(file);
+                Console.WriteLine($"Loaded unmanaged dll {file}");
+                return dll;
+            }
+        }
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
             if (file.EndsWith(unmanagedDllName + ext))
-                return LoadUnmanagedDllFromPath(file);
+            {
+                var dll = LoadUnmanagedDllFromPath(file);
+                Console.WriteLine($"Loaded unmanaged dll {file}");
+                return dll;
+            }
+
         // Console.WriteLine(unmanagedDllName);
         return base.LoadUnmanagedDll(unmanagedDllName);
     }

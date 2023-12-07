@@ -1,14 +1,18 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Sockets;
 using BlockFactory.Base;
 using BlockFactory.Block_;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
+using BlockFactory.Network;
 using BlockFactory.Registry_;
 using BlockFactory.Resource;
 using BlockFactory.Serialization;
 using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
+using ENet.Managed;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -47,6 +51,10 @@ public static class BlockFactoryClient
 
     private static void UpdateAndRender(double deltaTime)
     {
+        if (LogicProcessor.ShouldStop())
+        {
+            Window.Close();
+        }
         MouseInputManager.Update();
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         BfRendering.Gl.Enable(EnableCap.CullFace);
@@ -120,8 +128,32 @@ public static class BlockFactoryClient
         BfDebug.UpdateAndRender(deltaTime);
     }
 
+    private static IPEndPoint GetEndPoint(string serverAddressAndPort)
+    {
+        // if (serverAddressAndPort.Length == 0) serverAddressAndPort = Dns.GetHostName();
+        if (!serverAddressAndPort.Contains(':')) serverAddressAndPort += ":" + Constants.DefaultPort;
+        var a = serverAddressAndPort.Split(':');
+        var address = a[0];
+        var port = int.Parse(a[1]);
+        IPAddress ipAddress;
+        if (address == string.Empty)
+        {
+            ipAddress = IPAddress.Loopback;
+        }
+        else
+        {
+            if (!IPAddress.TryParse(address, out ipAddress))
+            {
+                var entry = Dns.GetHostEntry(address);
+                ipAddress = entry!.AddressList.First(a => a.AddressFamily == AddressFamily.InterNetwork);
+            }
+        }
+        return new IPEndPoint(ipAddress, port);
+    }
+
     private static void OnWindowLoad()
     {
+        ManagedENet.Startup();
         InputContext = Window.CreateInput();
         BfRendering.Init();
         BfDebug.Init();
@@ -137,8 +169,21 @@ public static class BlockFactoryClient
         }
 
         SynchronizedRegistries.LoadMapping(mapping);
-        LogicProcessor = new LogicProcessor();
-        LogicProcessor.Start();
+        var s = Console.ReadLine()!;
+        INetworkHandler netHandler;
+        string saveName;
+        if (s == "-")
+        {
+            netHandler = new SinglePlayerNetworkHandler();
+            saveName = "world";
+        }
+        else
+        {
+            var ep = GetEndPoint(s);
+            netHandler = new ClientNetworkHandler(ep);
+            saveName = "remote";
+        }
+        LogicProcessor = new LogicProcessor(netHandler, saveName);
         WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
         LogicProcessor.AddPlayer(Player);
@@ -155,6 +200,7 @@ public static class BlockFactoryClient
         Textures.Destroy();
         Shaders.Destroy();
         BfDebug.Destroy();
+        ManagedENet.Shutdown();
     }
 
     private static void AddEvents()

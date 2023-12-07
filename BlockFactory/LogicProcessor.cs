@@ -1,28 +1,28 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Entity_;
+using BlockFactory.Network;
 using BlockFactory.World_;
 
 namespace BlockFactory;
 
 public class LogicProcessor : IDisposable
 {
+    public readonly INetworkHandler NetworkHandler;
     private World _world = null!;
     private DateTime _lastTickTime;
+    private DateTime _lastUpdateTime;
     private readonly List<PlayerEntity> _players = new();
     private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
-    private int _heavyUpdateClass = 0;
+    private int _heavyUpdateClass;
 
-    public LogicProcessor()
+    public LogicProcessor(INetworkHandler networkHandler, string saveLocation)
     {
+        NetworkHandler = networkHandler;
         for (var i = 0; i < 27; ++i)
         {
             _chunkUpdateClasses[i] = new List<Chunk>();
         }
-    }
-
-    public void Start()
-    {
-        _world = new World("world");
+        _world = new World(saveLocation);
         _lastTickTime = DateTime.UtcNow;
     }
 
@@ -33,6 +33,7 @@ public class LogicProcessor : IDisposable
 
     private void Tick()
     {
+        NetworkHandler.Update();
         _world.Update();
         foreach (var chunk in _world.GetLoadedChunks())
         {
@@ -61,7 +62,7 @@ public class LogicProcessor : IDisposable
     [ExclusiveTo(Side.Client)]
     public double GetPartialTicks()
     {
-        return (DateTime.UtcNow - _lastTickTime).TotalMilliseconds / Constants.TickFrequencyMs;
+        return (_lastUpdateTime - _lastTickTime).TotalMilliseconds / Constants.TickFrequencyMs;
     }
 
     public void AddPlayer(PlayerEntity player)
@@ -82,6 +83,7 @@ public class LogicProcessor : IDisposable
     public void Update()
     {
         var now = DateTime.UtcNow;
+        _lastUpdateTime = now;
         if (_lastTickTime + TimeSpan.FromMilliseconds(Constants.TickFrequencyMs) < now)
         {
             Tick();
@@ -92,6 +94,11 @@ public class LogicProcessor : IDisposable
     public World GetWorld()
     {
         return _world;
+    }
+
+    public bool ShouldStop()
+    {
+        return NetworkHandler.ShouldStop();
     }
 
     public void Dispose()
