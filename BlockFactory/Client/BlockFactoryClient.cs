@@ -6,6 +6,7 @@ using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
 using BlockFactory.Network;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
 using BlockFactory.Resource;
 using BlockFactory.Serialization;
@@ -111,6 +112,9 @@ public static class BlockFactoryClient
         }
 
         Player.ControlState = nState;
+
+        LogicProcessor.NetworkHandler.SendPacket(null,
+            new PlayerControlPacket(Player.HeadRotation, Player.ControlState));
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);

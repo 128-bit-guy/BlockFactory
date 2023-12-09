@@ -9,6 +9,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
+[CompressedPacket]
 public class ChunkDataPacket : IPacket
 {
     private Vector3D<int> _pos;

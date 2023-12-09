@@ -24,11 +24,15 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 
     public override void SendPacket<T>(PlayerEntity? player, T packet)
     {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream);
-        writer.Write7BitEncodedInt(NetworkRegistry.GetPacketTypeId<T>());
-        packet.SerializeBinary(writer, SerializationReason.NetworkUpdate);
-        _peer.Send(0, stream.ToArray(), NetworkRegistry.GetPacketFlags<T>());
+        var arr = SerializePacket(packet);
+        try
+        {
+            _peer.Send(0, arr, NetworkRegistry.GetPacketFlags<T>());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     protected override void Connect(ENetEvent evt)
@@ -49,11 +53,7 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 
     protected override void Receive(ENetEvent evt)
     {
-        using var stream = new MemoryStream(evt.Packet.Data.ToArray());
-        using var reader = new BinaryReader(stream);
-        var id = reader.Read7BitEncodedInt();
-        var p = NetworkRegistry.CreatePacket(id);
-        p.DeserializeBinary(reader, SerializationReason.NetworkUpdate);
+        var p = DeserializePacket(evt.Packet.Data.ToArray());
         if (p.SupportsLogicalSide(LogicalSide.Client))
         {
             p.Handle(null);
