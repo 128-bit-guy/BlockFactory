@@ -22,10 +22,10 @@ public class Chunk : IBlockWorld
     public bool ReadyForUse = false;
     public int ReadyForUseNeighbours = 0;
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
-    public readonly ChunkRegion Region;
+    public readonly ChunkRegion? Region;
     public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
 
-    public Chunk(World world, Vector3D<int> position, ChunkRegion region)
+    public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
     {
         Position = position;
         Region = region;
@@ -117,6 +117,7 @@ public class Chunk : IBlockWorld
 
     public void Update(bool heavy)
     {
+        if(World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         if (heavy && !Data!.Decorated)
         {
             Data!.Decorated = true;
@@ -167,7 +168,7 @@ public class Chunk : IBlockWorld
 
     private void GenerateOrLoad()
     {
-        var data = Region.GetChunk(Position);
+        var data = Region!.GetChunk(Position);
         if (data == null)
         {
             World.Generator.GenerateChunk(this);
@@ -183,7 +184,7 @@ public class Chunk : IBlockWorld
 
     public void StartLoadTask()
     {
-        if (Region.LoadTask == null)
+        if (Region!.LoadTask == null)
         {
             LoadTask = Task.Run(GenerateOrLoad);
         }

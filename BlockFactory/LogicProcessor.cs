@@ -7,6 +7,7 @@ namespace BlockFactory;
 
 public class LogicProcessor : IDisposable
 {
+    public readonly LogicalSide LogicalSide;
     public readonly INetworkHandler NetworkHandler;
     private World _world = null!;
     private DateTime _lastTickTime;
@@ -15,14 +16,15 @@ public class LogicProcessor : IDisposable
     private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
     private int _heavyUpdateClass;
 
-    public LogicProcessor(INetworkHandler networkHandler, string saveLocation)
+    public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation)
     {
         NetworkHandler = networkHandler;
+        LogicalSide = logicalSide;
         for (var i = 0; i < 27; ++i)
         {
             _chunkUpdateClasses[i] = new List<Chunk>();
         }
-        _world = new World(saveLocation);
+        _world = new World(this, saveLocation);
         _lastTickTime = DateTime.UtcNow;
     }
 
@@ -104,5 +106,6 @@ public class LogicProcessor : IDisposable
     public void Dispose()
     {
         _world.Dispose();
+        NetworkHandler.Dispose();
     }
 }

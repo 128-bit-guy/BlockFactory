@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Sockets;
 using BlockFactory.Base;
-using BlockFactory.Block_;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
@@ -10,8 +9,6 @@ using BlockFactory.Network;
 using BlockFactory.Registry_;
 using BlockFactory.Resource;
 using BlockFactory.Serialization;
-using BlockFactory.World_;
-using BlockFactory.World_.Interfaces;
 using ENet.Managed;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -27,9 +24,9 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     public static IInputContext InputContext = null!;
-    public static PlayerEntity Player;
-    public static LogicProcessor LogicProcessor;
-    public static WorldRenderer WorldRenderer;
+    public static PlayerEntity Player = null!;
+    public static LogicProcessor LogicProcessor = null!;
+    public static WorldRenderer WorldRenderer = null!;
 
     private static void InitWindow()
     {
@@ -55,6 +52,7 @@ public static class BlockFactoryClient
         {
             Window.Close();
         }
+
         MouseInputManager.Update();
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         BfRendering.Gl.Enable(EnableCap.CullFace);
@@ -142,12 +140,13 @@ public static class BlockFactoryClient
         }
         else
         {
-            if (!IPAddress.TryParse(address, out ipAddress))
+            if (!IPAddress.TryParse(address, out ipAddress!))
             {
                 var entry = Dns.GetHostEntry(address);
-                ipAddress = entry!.AddressList.First(a => a.AddressFamily == AddressFamily.InterNetwork);
+                ipAddress = entry.AddressList.First(addr => addr.AddressFamily == AddressFamily.InterNetwork);
             }
         }
+
         return new IPEndPoint(ipAddress, port);
     }
 
@@ -172,23 +171,27 @@ public static class BlockFactoryClient
         var s = Console.ReadLine()!;
         INetworkHandler netHandler;
         string saveName;
+        LogicalSide logicalSide;
         if (s == "-")
         {
             netHandler = new SinglePlayerNetworkHandler();
             saveName = "world";
+            logicalSide = LogicalSide.SinglePlayer;
         }
         else
         {
             var ep = GetEndPoint(s);
             netHandler = new ClientNetworkHandler(ep);
             saveName = "remote";
+            logicalSide = LogicalSide.Client;
         }
-        LogicProcessor = new LogicProcessor(netHandler, saveName);
+
+        LogicProcessor = new LogicProcessor(logicalSide, netHandler, saveName);
         WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
         LogicProcessor.AddPlayer(Player);
         Player.SetWorld(LogicProcessor.GetWorld());
-        Player.Pos = new Vector3D<double>(1e7, 0, 0);
+        Player.Pos = new Vector3D<double>(0, 0, 0);
     }
 
     private static void OnWindowClose()

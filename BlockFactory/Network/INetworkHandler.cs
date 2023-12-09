@@ -1,7 +1,10 @@
-﻿namespace BlockFactory.Network;
+﻿using BlockFactory.Entity_;
 
-public interface INetworkHandler
+namespace BlockFactory.Network;
+
+public interface INetworkHandler : IDisposable
 {
     void Update();
     bool ShouldStop();
+    void SendPacket<T>(PlayerEntity? player, T packet) where T : class, IPacket;
 }

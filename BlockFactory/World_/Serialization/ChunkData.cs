@@ -129,8 +129,12 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         {
             _light[i] = reader.ReadByte();
         }
-        
-        if(reason != SerializationReason.Save) return;
+
+        if (reason != SerializationReason.Save)
+        {
+            Decorated = HasSkyLight = true;
+            return;
+        }
 
         _lightUpdateScheduled = new BitArray(reader.ReadBytes(_lightUpdateScheduled.Length >> 3));
 

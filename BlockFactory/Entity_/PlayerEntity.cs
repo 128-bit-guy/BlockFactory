@@ -54,20 +54,24 @@ public class PlayerEntity : Entity
             --BlockCooldown;
             return;
         }
-        var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
-            .As<double>() * 10);
-        if (!hitOptional.HasValue) return;
-        var (pos, face) = hitOptional.Value;
-        if ((ControlState & PlayerControlState.Attacking) != 0)
-        {
-            World!.SetBlock(pos, 0);
-            BlockCooldown = 5;
-        }
 
-        if ((ControlState & PlayerControlState.Using) != 0)
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
-            World!.SetBlock(pos + face.GetDelta(), Blocks.Leaves);
-            BlockCooldown = 5;
+            var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
+                .As<double>() * 10);
+            if (!hitOptional.HasValue) return;
+            var (pos, face) = hitOptional.Value;
+            if ((ControlState & PlayerControlState.Attacking) != 0)
+            {
+                World!.SetBlock(pos, 0);
+                BlockCooldown = 5;
+            }
+
+            if ((ControlState & PlayerControlState.Using) != 0)
+            {
+                World!.SetBlock(pos + face.GetDelta(), Blocks.Leaves);
+                BlockCooldown = 5;
+            }
         }
     }
 
@@ -98,4 +102,7 @@ public class PlayerEntity : Entity
         base.OnAddedToWorld();
         ChunkLoader = new PlayerChunkLoader(this);
     }
+    
+    public virtual void OnChunkBecameVisible(Chunk c) {}
+    public virtual void OnChunkBecameInvisible(Chunk c) {}
 }

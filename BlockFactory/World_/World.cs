@@ -10,19 +10,23 @@ namespace BlockFactory.World_;
 
 public class World : IChunkStorage, IBlockWorld, IDisposable
 {
+    public readonly LogicProcessor LogicProcessor;
     private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly WorldGenerator Generator = new();
-    public readonly WorldSaveManager SaveManager;
+    public readonly WorldSaveManager? SaveManager;
     public readonly Random Random = new();
-    private int _heavyUpdateIndex = 0;
-    private readonly List<Chunk> _chunksToDoHeavyUpdate = new();
 
-    public World(string saveLocation)
+    public World(LogicProcessor logicProcessor, string saveLocation)
     {
-        SaveManager = new WorldSaveManager(saveLocation);
-        SaveManager.CreateDirectory();
+        LogicProcessor = logicProcessor;
+        if (logicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            SaveManager = new WorldSaveManager(saveLocation);
+            SaveManager.CreateDirectory();
+        }
+
         ChunkStatusManager = new ChunkStatusManager(this);
     }
 
@@ -40,7 +44,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlock(pos);
     }
-    
+
     public byte GetBiome(Vector3D<int> pos)
     {
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBiome(pos);
@@ -75,7 +79,9 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
 
     private Chunk BeginLoadingChunk(Vector3D<int> pos)
     {
-        var region = SaveManager.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
+        if (LogicProcessor.LogicalSide == LogicalSide.Client)
+            throw new InvalidOperationException("Can't load chunks on client");
+        var region = SaveManager!.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
         var nc = new Chunk(this, pos, region);
         ++region.DependencyCount;
         nc.StartLoadTask();
@@ -93,10 +99,12 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         var c = ChunkStorage.GetChunk(pos)!;
         c.LoadTask?.Wait();
         if (c.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
-        
-        ChunkStorage.RemoveChunk(pos);
 
-        --c.Region.DependencyCount;
+        ChunkStorage.RemoveChunk(pos);
+        if (c.Region != null)
+        {
+            --c.Region.DependencyCount;
+        }
     }
 
     public IEnumerable<Chunk> GetLoadedChunks()
@@ -122,17 +130,22 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
 
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
         _chunksToRemove.Clear();
-        SaveManager.Update();
+        if (LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            SaveManager!.Update();
+        }
     }
 
     public void Dispose()
     {
         _chunksToRemove.AddRange(GetLoadedChunks());
-        
+
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
-        
+
         _chunksToRemove.Clear();
-        
-        SaveManager.Dispose();
+        if (LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            SaveManager!.Dispose();
+        }
     }
 }

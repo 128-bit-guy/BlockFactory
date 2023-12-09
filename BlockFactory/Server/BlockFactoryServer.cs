@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using BlockFactory.Base;
 using BlockFactory.Network;
+using BlockFactory.Registry_;
 using ENet.Managed;
 
 namespace BlockFactory.Server;
@@ -23,9 +24,10 @@ public static class BlockFactoryServer
     {
         ManagedENet.Startup();
         BfContent.Init();
+        SynchronizedRegistries.LoadMapping(new RegistryMapping());
         var port = GetPort();
         NetworkHandler = new ServerNetworkHandler(port);
-        LogicProcessor = new LogicProcessor(NetworkHandler, "world_server");
+        LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
     }
 
     private static void Update()
@@ -46,20 +48,6 @@ public static class BlockFactoryServer
             Update();
         }
         Shutdown();
-        // var listenEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-        // var host = new ENetHost(listenEndPoint, 16, 1, 0, 0);
-        // SpinWait wait = default;
-        // while (true)
-        // {
-        //     var evt = host.Service(TimeSpan.Zero);
-        //     if (evt.Type == ENetEventType.Connect)
-        //     {
-        //         Console.WriteLine($"New connection: {evt.Peer.GetRemoteEndPoint()}");
-        //         evt.Peer.Disconnect(123);
-        //         
-        //     }
-        //     wait.SpinOnce();
-        // }
         ManagedENet.Shutdown();
     }
 }

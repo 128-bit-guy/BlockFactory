@@ -30,6 +30,7 @@ public class PlayerChunkLoader : IDisposable
 
     public void Update()
     {
+        if(Player.World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         var blockPos =
             new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
                 .As<int>();
@@ -78,6 +79,7 @@ public class PlayerChunkLoader : IDisposable
         _tempLoadingChunks.AddRange(_loadingChunks);
         foreach (var c in _tempLoadingChunks)
         {
+            if(c.Data == null) continue;
             MakeChunkVisible(c);
             _loadingChunks.Remove(c);
         }
@@ -113,10 +115,12 @@ public class PlayerChunkLoader : IDisposable
     private void MakeChunkVisible(Chunk c)
     {
         _chunkIsVisible[GetArrIndex(c.Position)] = true;
+        Player.OnChunkBecameVisible(c);
     }
 
     private void MakeChunkNotVisible(Chunk c)
     {
+        Player.OnChunkBecameInvisible(c);
         _chunkIsVisible[GetArrIndex(c.Position)] = false;
     }
 
@@ -150,5 +154,18 @@ public class PlayerChunkLoader : IDisposable
         }
 
         Progress = PlayerChunkLoading.ProgressChanges[delta.X + 1, delta.Y + 1, delta.Z + 1, Progress];
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public void AddVisibleChunk(Chunk c)
+    {
+        WatchChunk(c);
+        MakeChunkVisible(c);
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public void RemoveVisibleChunk(Chunk c)
+    {
+        UnWatchChunk(c);
     }
 }
