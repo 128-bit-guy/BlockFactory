@@ -25,6 +25,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
     {
         var arr = SerializePacket(packet);
         var serverPlayer = (ServerPlayerEntity)player!;
+        if(!_players.ContainsKey(serverPlayer.Peer))  return;
         try
         {
             serverPlayer.Peer.Send(0, arr, NetworkRegistry.GetPacketFlags<T>());
