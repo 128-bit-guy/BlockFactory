@@ -21,6 +21,11 @@ public class SinglePlayerNetworkHandler : INetworkHandler
         packet.Handle(player);
     }
 
+    public void Start()
+    {
+        
+    }
+
     public void Dispose()
     {
         

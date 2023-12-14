@@ -191,6 +191,7 @@ public static class BlockFactoryClient
         }
 
         LogicProcessor = new LogicProcessor(logicalSide, netHandler, saveName);
+        LogicProcessor.Start();
         WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
         LogicProcessor.AddPlayer(Player);

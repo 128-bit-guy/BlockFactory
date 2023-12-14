@@ -11,10 +11,40 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 {
     private readonly ENetPeer _peer;
     private bool _connected;
-    public ClientNetworkHandler(IPEndPoint remote) : base(new ENetHost(null, 1, 1))
+
+    public ClientNetworkHandler(IPEndPoint remote) : base(LogicalSide.Client,
+        new ENetHost(null, 1, 1))
     {
         _peer = Host.Connect(remote, 1, 0);
         _connected = true;
+    }
+
+    protected override void OnPeerConnected(ENetPeer peer)
+    {
+        if (peer != _peer)
+        {
+            peer.Disconnect(0);
+        }
+    }
+
+    protected override void OnPeerDisconnected(ENetPeer peer)
+    {
+        if (peer == _peer)
+        {
+            _connected = false;
+        }
+    }
+
+    protected override void OnPacketReceived(IPacket packet, ENetPeer peer)
+    {
+        try
+        {
+            packet.Handle(null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     public override bool ShouldStop()
@@ -24,39 +54,6 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 
     public override void SendPacket<T>(PlayerEntity? player, T packet)
     {
-        var arr = SerializePacket(packet);
-        try
-        {
-            _peer.Send(0, arr, NetworkRegistry.GetPacketFlags<T>());
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-    }
-
-    protected override void Connect(ENetEvent evt)
-    {
-        if (evt.Peer != _peer)
-        {
-            evt.Peer.Disconnect(0);
-        }
-    }
-
-    protected override void Disconnect(ENetEvent evt)
-    {
-        if (evt.Peer == _peer)
-        {
-            _connected = false;
-        }
-    }
-
-    protected override void Receive(ENetEvent evt)
-    {
-        var p = DeserializePacket(evt.Packet.Data.ToArray());
-        if (p.SupportsLogicalSide(LogicalSide.Client))
-        {
-            p.Handle(null);
-        }
+        EnqueueSendPacketInternal(packet, _peer);
     }
 }

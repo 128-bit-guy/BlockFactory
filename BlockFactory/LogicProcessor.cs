@@ -15,17 +15,24 @@ public class LogicProcessor : IDisposable
     private readonly List<PlayerEntity> _players = new();
     private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
     private int _heavyUpdateClass;
+    public readonly string SaveLocation;
 
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation)
     {
         NetworkHandler = networkHandler;
         LogicalSide = logicalSide;
+        SaveLocation = saveLocation;
         for (var i = 0; i < 27; ++i)
         {
             _chunkUpdateClasses[i] = new List<Chunk>();
         }
-        _world = new World(this, saveLocation);
+    }
+
+    public void Start()
+    {
+        _world = new World(this, SaveLocation);
         _lastTickTime = DateTime.UtcNow;
+        NetworkHandler.Start();
     }
 
     private void UpdateChunk(Chunk c)

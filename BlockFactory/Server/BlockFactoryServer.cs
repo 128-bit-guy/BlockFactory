@@ -28,6 +28,7 @@ public static class BlockFactoryServer
         var port = GetPort();
         NetworkHandler = new ServerNetworkHandler(port);
         LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
+        LogicProcessor.Start();
     }
 
     private static void Update()

@@ -1,4 +1,5 @@
-﻿using BlockFactory.Entity_;
+﻿using System.Collections.Concurrent;
+using BlockFactory.Entity_;
 using BlockFactory.Serialization;
 using ENet.Managed;
 using ZstdSharp;
@@ -8,34 +9,123 @@ namespace BlockFactory.Network;
 public abstract class MultiPlayerNetworkHandler : INetworkHandler
 {
     public readonly ENetHost Host;
+    private readonly ConcurrentQueue<PacketSendQueueEntry> _sendQueue;
+    private readonly ConcurrentQueue<PacketReceiveQueueEntry> _receiveQueue;
+    private bool _shouldRun;
+    private readonly Thread _networkThread;
+    private readonly LogicalSide _logicalSide;
+    private readonly HashSet<ENetPeer> _peers;
 
-    public MultiPlayerNetworkHandler(ENetHost host)
+    public MultiPlayerNetworkHandler(LogicalSide side, ENetHost host)
     {
         Host = host;
+        _sendQueue = new ConcurrentQueue<PacketSendQueueEntry>();
+        _receiveQueue = new ConcurrentQueue<PacketReceiveQueueEntry>();
+        _shouldRun = true;
+        _networkThread = new Thread(ProcessNetwork);
+        _logicalSide = side;
+        _peers = new HashSet<ENetPeer>();
     }
 
     public void Update()
     {
-        var first = false;
-        while (true)
+        var cnt = _receiveQueue.Count;
+        for (var i = 0; i < cnt; ++i)
         {
-            var evt = Host.Service(TimeSpan.FromMilliseconds(first ? 1 : 0));
-            first = false;
-            if (evt.Type == ENetEventType.None) break;
-            // Console.WriteLine($"Network event of type: {evt.Type}");
-            ProcessEvent(evt);
+            if (!_receiveQueue.TryDequeue(out var entry)) break;
+            switch (entry.Type)
+            {
+                case 0:
+                    OnPeerConnected(entry.Peer);
+                    break;
+                case 1:
+                    OnPacketReceived(entry.Packet!, entry.Peer);
+                    break;
+                case 2:
+                    OnPeerDisconnected(entry.Peer);
+                    break;
+            }
         }
     }
+
+    protected void EnqueueSendPacketInternal<T>(T packet, ENetPeer peer) where T : class, IPacket
+    {
+        _sendQueue.Enqueue(new PacketSendQueueEntry(packet, peer, NetworkRegistry.GetPacketFlags<T>(),
+            NetworkRegistry.IsPacketCompressed<T>(), NetworkRegistry.GetPacketTypeId<T>()));
+    }
+
+    private void ProcessNetwork()
+    {
+        while (_shouldRun)
+        {
+            var first = false;
+            while (true)
+            {
+                var evt = Host.Service(TimeSpan.FromMilliseconds(first ? 1 : 0));
+                first = false;
+                if (evt.Type == ENetEventType.None) break;
+                // Console.WriteLine($"Network event of type: {evt.Type}");
+                ProcessEvent(evt);
+            }
+
+            var cnt = _sendQueue.Count;
+            for (int i = 0; i < cnt; ++i)
+            {
+                if(!_sendQueue.TryDequeue(out var entry)) break;
+                if(!_peers.Contains(entry.Peer)) continue;
+                try
+                {
+                    var data = SerializePacket(entry.Packet, entry.Compressed, entry.Id);
+                    entry.Peer.Send(0, data, entry.Flags);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+    }
+
+    protected abstract void OnPeerConnected(ENetPeer peer);
+    protected abstract void OnPeerDisconnected(ENetPeer peer);
+    protected abstract void OnPacketReceived(IPacket packet, ENetPeer peer);
 
     public abstract bool ShouldStop();
     public abstract void SendPacket<T>(PlayerEntity? player, T packet) where T : class, IPacket;
 
+    public void Start()
+    {
+        _networkThread.Start();
+    }
 
-    protected abstract void Connect(ENetEvent evt);
 
-    protected abstract void Disconnect(ENetEvent evt);
+    private void Connect(ENetEvent evt)
+    {
+        _peers.Add(evt.Peer);
+        _receiveQueue.Enqueue(new PacketReceiveQueueEntry(null, evt.Peer, 0));
+    }
 
-    protected abstract void Receive(ENetEvent evt);
+    private void Disconnect(ENetEvent evt)
+    {
+        _peers.Remove(evt.Peer);
+        _receiveQueue.Enqueue(new PacketReceiveQueueEntry(null, evt.Peer, 2));
+    }
+
+    private void Receive(ENetEvent evt)
+    {
+        try
+        {
+            var packet = DeserializePacket(evt.Packet.Data.ToArray());
+            if (packet.SupportsLogicalSide(_logicalSide))
+            {
+                _receiveQueue.Enqueue(new PacketReceiveQueueEntry(packet, evt.Peer, 1));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
 
 
     private void ProcessEvent(ENetEvent evt)
@@ -55,7 +145,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         }
     }
 
-    protected static IPacket DeserializePacket(byte[] b)
+    private static IPacket DeserializePacket(byte[] b)
     {
         if (BitConverter.IsLittleEndian)
         {
@@ -87,14 +177,14 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         return p;
     }
 
-    protected static byte[] SerializePacket<T>(T packet) where T : class, IPacket
+    private static byte[] SerializePacket(IPacket packet, bool shouldBeCompressed, int id)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
         packet.SerializeBinary(writer, SerializationReason.NetworkUpdate);
         var uncompressed = stream.ToArray();
         byte[] res;
-        if (NetworkRegistry.IsPacketCompressed<T>())
+        if (shouldBeCompressed)
         {
             var compressed = Zstd.Compress(uncompressed);
             res = new byte[compressed.Length + 2 * sizeof(int)];
@@ -108,7 +198,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
             Array.Copy(uncompressed, 0, res, sizeof(int), uncompressed.Length);
         }
 
-        BitConverter.TryWriteBytes(res, NetworkRegistry.GetPacketTypeId<T>());
+        BitConverter.TryWriteBytes(res, id);
         if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
 
         return res;
@@ -116,6 +206,8 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
 
     public void Dispose()
     {
+        _shouldRun = false;
+        _networkThread.Join();
         Host.Dispose();
     }
 }
