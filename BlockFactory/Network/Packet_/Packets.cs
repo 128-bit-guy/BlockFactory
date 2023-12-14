@@ -8,6 +8,8 @@ public static class Packets
         NetworkRegistry.RegisterPacket<ChunkUnloadPacket>("");
         NetworkRegistry.RegisterPacket<PlayerPosPacket>("");
         NetworkRegistry.RegisterPacket<PlayerControlPacket>("");
+        NetworkRegistry.RegisterPacket<BlockChangePacket>("");
+        NetworkRegistry.RegisterPacket<LightChangePacket>("");
     }
 
     public static void Lock()

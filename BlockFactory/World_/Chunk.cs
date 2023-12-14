@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Entity_;
 using BlockFactory.Math_;
+using BlockFactory.Network.Packet_;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using BlockFactory.World_.Serialization;
@@ -57,6 +58,14 @@ public class Chunk : IBlockWorld
         LoadTask?.Wait();
         if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            foreach (var player in WatchingPlayers)
+            {
+                World.LogicProcessor.NetworkHandler.SendPacket(player, new BlockChangePacket(pos, block));
+            }
+        }
+
         if (!update) return;
         ScheduleLightUpdate(pos);
         Neighbourhood.UpdateBlock(pos);
@@ -79,6 +88,13 @@ public class Chunk : IBlockWorld
     {
         if (Data!.GetLight(pos, channel) == light) return;
         Data!.SetLight(pos, channel, light);
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            foreach (var player in WatchingPlayers)
+            {
+                World.LogicProcessor.NetworkHandler.SendPacket(player, new LightChangePacket(pos, channel, light));
+            }
+        }
         Neighbourhood.UpdateLight(pos);
     }
 
