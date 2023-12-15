@@ -62,11 +62,12 @@ public class Chunk : IBlockWorld
         {
             foreach (var player in WatchingPlayers)
             {
+                if(!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new BlockChangePacket(pos, block));
             }
         }
 
-        if (!update) return;
+        if (!update || World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         ScheduleLightUpdate(pos);
         Neighbourhood.UpdateBlock(pos);
         for (var i = -1; i <= 1; ++i)
@@ -92,6 +93,7 @@ public class Chunk : IBlockWorld
         {
             foreach (var player in WatchingPlayers)
             {
+                if(!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new LightChangePacket(pos, channel, light));
             }
         }

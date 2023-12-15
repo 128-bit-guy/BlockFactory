@@ -10,6 +10,7 @@ public class PlayerChunkLoader : IDisposable
 {
     private readonly bool[] _chunkIsVisible = new bool[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     private readonly List<Chunk> _loadingChunks = new();
+    private readonly List<Chunk> _notReadyLoadedChunks = new();
     private readonly List<Chunk> _tempLoadingChunks = new();
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly PlayerEntity Player;
@@ -80,10 +81,18 @@ public class PlayerChunkLoader : IDisposable
         foreach (var c in _tempLoadingChunks)
         {
             if(c.Data == null) continue;
-            MakeChunkVisible(c);
+            _notReadyLoadedChunks.Add(c);
             _loadingChunks.Remove(c);
         }
 
+        _tempLoadingChunks.Clear();
+        _tempLoadingChunks.AddRange(_notReadyLoadedChunks);
+        foreach (var c in _tempLoadingChunks)
+        {
+            if(!c.Data!.HasSkyLight || !c.Data!.Decorated) continue;
+            MakeChunkVisible(c);
+            _notReadyLoadedChunks.Remove(c);
+        }
         _tempLoadingChunks.Clear();
     }
 
@@ -101,7 +110,11 @@ public class PlayerChunkLoader : IDisposable
         if (IsChunkVisible(c))
             MakeChunkNotVisible(c);
         else
+        {
             _loadingChunks.Remove(c);
+            _notReadyLoadedChunks.Remove(c);
+        }
+
         c.RemoveWatchingPlayer(Player);
         _watchedChunks[GetArrIndex(c.Position)] = null;
     }
