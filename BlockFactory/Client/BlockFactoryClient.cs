@@ -114,8 +114,11 @@ public static class BlockFactoryClient
 
         Player.ControlState = nState;
 
-        LogicProcessor.NetworkHandler.SendPacket(null,
-            new PlayerControlPacket(Player.HeadRotation, Player.ControlState));
+        if (LogicProcessor.LogicalSide == LogicalSide.Client)
+        {
+            LogicProcessor.NetworkHandler.SendPacket(null,
+                new PlayerControlPacket(Player.HeadRotation, Player.ControlState));
+        }
 
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
