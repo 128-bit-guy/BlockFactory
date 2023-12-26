@@ -144,6 +144,21 @@ public class Chunk : IBlockWorld
         
         if(!Data!.Decorated) return;
 
+        if (!Data!.FullyDecorated)
+        {
+            for (var i = -1; i <= 1; ++i)
+            for (var j = -1; j <= 1; ++j)
+            for (var k = -1; k <= 1; ++k)
+            {
+                var oc = Neighbourhood.GetChunk(Position + new Vector3D<int>(i, j, k))!;
+                if(!oc.Data!.HasSkyLight || !oc.Data.Decorated) goto ExitFullyDecoratedCheck;
+            }
+
+            Data!.FullyDecorated = true;
+            
+            ExitFullyDecoratedCheck: ;
+        }
+
         var x = World.Random.Next(Constants.ChunkSize);
         var y = World.Random.Next(Constants.ChunkSize);
         var z = World.Random.Next(Constants.ChunkSize);

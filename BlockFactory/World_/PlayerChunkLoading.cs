@@ -5,7 +5,7 @@ namespace BlockFactory.World_;
 public static class PlayerChunkLoading
 {
     public const int VisibleChunkRadius = 12;
-    public const int ExtensionChunkRadius = 2;
+    public const int ExtensionChunkRadius = 3;
     public const int LoadedChunkRadius = VisibleChunkRadius + ExtensionChunkRadius;
     public const int ChunkKeepingRadius = LoadedChunkRadius + 3;
     public const int ChunkKeepingDiameter = 2 * ChunkKeepingRadius + 1;

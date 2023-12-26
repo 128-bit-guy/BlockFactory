@@ -15,7 +15,7 @@ public class PlayerChunkLoader : IDisposable
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
-    public int MaxLoadingChunks = 8;
+    public int MaxLoadingChunks = 16;
 
     public PlayerChunkLoader(PlayerEntity player)
     {
@@ -89,7 +89,7 @@ public class PlayerChunkLoader : IDisposable
         _tempLoadingChunks.AddRange(_notReadyLoadedChunks);
         foreach (var c in _tempLoadingChunks)
         {
-            if(!c.Data!.HasSkyLight || !c.Data!.Decorated) continue;
+            if(!c.Data!.FullyDecorated) continue;
             MakeChunkVisible(c);
             _notReadyLoadedChunks.Remove(c);
         }
