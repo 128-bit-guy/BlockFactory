@@ -52,6 +52,7 @@ public static class BlockFactoryClient
         if (LogicProcessor.ShouldStop())
         {
             Window.Close();
+            return;
         }
 
         MouseInputManager.Update();
