@@ -62,19 +62,26 @@ public class Chunk : IBlockWorld
         {
             foreach (var player in WatchingPlayers)
             {
-                if(!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new BlockChangePacket(pos, block));
             }
         }
 
-        if (!update || World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        if (!update) return;
+        // if (World.LogicProcessor.LogicalSide == LogicalSide.Client)
+        // {
+        //     
+        //     return;
+        // }
         ScheduleLightUpdate(pos);
-        Neighbourhood.UpdateBlock(pos);
+        UpdateBlock(pos);
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
         {
             var oPos = pos + new Vector3D<int>(i, j, k);
+            var oc = Neighbourhood.GetChunk(oPos.ShiftRight(Constants.ChunkSizeLog2), false);
+            if (World.LogicProcessor.LogicalSide == LogicalSide.Client && oc == null) continue;
             Neighbourhood.UpdateBlock(oPos);
         }
     }
@@ -93,16 +100,18 @@ public class Chunk : IBlockWorld
         {
             foreach (var player in WatchingPlayers)
             {
-                if(!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new LightChangePacket(pos, channel, light));
             }
         }
+
         Neighbourhood.UpdateLight(pos);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
     {
-        if (GetBlock(pos) == 4 && Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
+        if (World.LogicProcessor.LogicalSide != LogicalSide.Client && GetBlock(pos) == 4 &&
+            Neighbourhood.GetBlock(pos + Vector3D<int>.UnitY) != 0) SetBlock(pos, 3);
         BlockUpdate(pos);
     }
 
@@ -135,14 +144,14 @@ public class Chunk : IBlockWorld
 
     public void Update(bool heavy)
     {
-        if(World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         if (heavy && !Data!.Decorated)
         {
             Data!.Decorated = true;
             World.Generator.DecorateChunk(this);
         }
-        
-        if(!Data!.Decorated) return;
+
+        if (!Data!.Decorated) return;
 
         if (!Data!.FullyDecorated)
         {
@@ -151,11 +160,11 @@ public class Chunk : IBlockWorld
             for (var k = -1; k <= 1; ++k)
             {
                 var oc = Neighbourhood.GetChunk(Position + new Vector3D<int>(i, j, k))!;
-                if(!oc.Data!.HasSkyLight || !oc.Data.Decorated) goto ExitFullyDecoratedCheck;
+                if (!oc.Data!.HasSkyLight || !oc.Data.Decorated) goto ExitFullyDecoratedCheck;
             }
 
             Data!.FullyDecorated = true;
-            
+
             ExitFullyDecoratedCheck: ;
         }
 
@@ -174,7 +183,7 @@ public class Chunk : IBlockWorld
                 SetBlock(absPos, 4);
                 goto EndLoop;
             }
-        
+
             EndLoop: ;
         }
 
