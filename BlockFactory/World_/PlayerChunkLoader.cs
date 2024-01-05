@@ -15,7 +15,11 @@ public class PlayerChunkLoader : IDisposable
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
+    #if DEBUG
+    public int MaxLoadingChunks = 8;
+    #else
     public int MaxLoadingChunks = 16;
+    #endif
 
     public PlayerChunkLoader(PlayerEntity player)
     {
