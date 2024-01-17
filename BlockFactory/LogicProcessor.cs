@@ -11,7 +11,7 @@ public class LogicProcessor : IDisposable
     public readonly INetworkHandler NetworkHandler;
     private World _world = null!;
     private DateTime _lastTickTime;
-    private DateTime _lastUpdateTime;
+    public DateTime LastUpdateTime;
     private readonly List<PlayerEntity> _players = new();
     private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
     private int _heavyUpdateClass;
@@ -71,7 +71,7 @@ public class LogicProcessor : IDisposable
     [ExclusiveTo(Side.Client)]
     public double GetPartialTicks()
     {
-        return (_lastUpdateTime - _lastTickTime).TotalMilliseconds / Constants.TickFrequencyMs;
+        return (LastUpdateTime - _lastTickTime).TotalMilliseconds / Constants.TickFrequencyMs;
     }
 
     public void AddPlayer(PlayerEntity player)
@@ -92,7 +92,7 @@ public class LogicProcessor : IDisposable
     public void Update()
     {
         var now = DateTime.UtcNow;
-        _lastUpdateTime = now;
+        LastUpdateTime = now;
         if (_lastTickTime + TimeSpan.FromMilliseconds(Constants.TickFrequencyMs) < now)
         {
             Tick();

@@ -24,10 +24,4 @@ public class ServerPlayerEntity : PlayerEntity
         base.OnChunkBecameInvisible(c);
         World!.LogicProcessor.NetworkHandler.SendPacket(this, new ChunkUnloadPacket(c.Position));
     }
-
-    public override void Update()
-    {
-        base.Update();
-        World!.LogicProcessor.NetworkHandler.SendPacket(this, new PlayerPosPacket(Pos));
-    }
 }

@@ -12,8 +12,13 @@ namespace BlockFactory.Entity_;
 public class PlayerEntity : Entity
 {
     public PlayerChunkLoader? ChunkLoader { get; private set; }
-    public PlayerControlState ControlState = 0;
-    private int BlockCooldown = 0;
+    public readonly PlayerMotionController MotionController;
+    private int _blockCooldown = 0;
+
+    public PlayerEntity()
+    {
+        MotionController = new PlayerMotionController(this);
+    }
 
     private Vector3D<float> CalculateTargetVelocity()
     {
@@ -24,7 +29,7 @@ public class PlayerEntity : Entity
         s[2] = GetForward();
         foreach (var face in CubeFaceUtils.Values())
         {
-            if (((int)ControlState & (1 << ((int)face))) == 0) continue;
+            if (((int)MotionController.ClientState.ControlState & (1 << ((int)face))) == 0) continue;
             res += s[face.GetAxis()] * face.GetSign();
         }
 
@@ -35,7 +40,7 @@ public class PlayerEntity : Entity
 
         res = Vector3D.Normalize(res);
 
-        if ((ControlState & PlayerControlState.Sprinting) != 0)
+        if ((MotionController.ClientState.ControlState & PlayerControlState.Sprinting) != 0)
         {
             res *= 0.8f;
         }
@@ -49,9 +54,9 @@ public class PlayerEntity : Entity
 
     private void ProcessInteraction()
     {
-        if (BlockCooldown > 0)
+        if (_blockCooldown > 0)
         {
-            --BlockCooldown;
+            --_blockCooldown;
             return;
         }
 
@@ -61,16 +66,16 @@ public class PlayerEntity : Entity
                 .As<double>() * 10);
             if (!hitOptional.HasValue) return;
             var (pos, face) = hitOptional.Value;
-            if ((ControlState & PlayerControlState.Attacking) != 0)
+            if ((MotionController.ClientState.ControlState & PlayerControlState.Attacking) != 0)
             {
                 World!.SetBlock(pos, 0);
-                BlockCooldown = 5;
+                _blockCooldown = 5;
             }
 
-            if ((ControlState & PlayerControlState.Using) != 0)
+            if ((MotionController.ClientState.ControlState & PlayerControlState.Using) != 0)
             {
                 World!.SetBlock(pos + face.GetDelta(), Blocks.Leaves);
-                BlockCooldown = 5;
+                _blockCooldown = 5;
             }
         }
     }
@@ -78,14 +83,24 @@ public class PlayerEntity : Entity
     [ExclusiveTo(Side.Client)]
     public Vector3D<double> GetSmoothPos()
     {
-        return Pos + BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>();
+        var state = MotionController.PredictServerStateForTick(MotionController.ClientState.MotionTick);
+        return state.Pos + BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>();
+    }
+
+    public void UpdateMotion()
+    {
+        var motion = CalculateTargetVelocity();
+        Pos += motion.As<double>();
     }
 
     public override void Update()
     {
+        MotionController.Update();
         base.Update();
-        var motion = CalculateTargetVelocity();
-        Pos += motion.As<double>();
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            UpdateMotion();
+        }
         ProcessInteraction();
         ChunkLoader!.Update();
     }

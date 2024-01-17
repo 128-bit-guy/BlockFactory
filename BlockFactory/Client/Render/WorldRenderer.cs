@@ -16,6 +16,7 @@ public class WorldRenderer : IDisposable
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
     private readonly ChunkRenderer?[] _renderers = new ChunkRenderer?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly World World;
+    private Vector3D<double> _playerSmoothPos;
 
     public WorldRenderer(World world)
     {
@@ -90,6 +91,7 @@ public class WorldRenderer : IDisposable
 
     public void UpdateAndRender(double deltaTime)
     {
+        _playerSmoothPos = BlockFactoryClient.Player.GetSmoothPos();
         var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
         Shaders.Block.Use();
@@ -140,7 +142,7 @@ public class WorldRenderer : IDisposable
     private Vector3D<float> GetChunkTranslation(ChunkRenderer renderer)
     {
         return (renderer.Chunk.Position
-            .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - BlockFactoryClient.Player.GetSmoothPos()).As<float>();
+            .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - _playerSmoothPos).As<float>();
     }
 
     private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)

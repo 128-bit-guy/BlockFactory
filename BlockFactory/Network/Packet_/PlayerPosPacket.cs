@@ -8,31 +8,31 @@ namespace BlockFactory.Network.Packet_;
 [PacketFlags(0)]
 public class PlayerPosPacket : IPacket
 {
-    private Vector3D<double> _pos;
+    private ServerControlledPlayerState _state;
 
-    public PlayerPosPacket(Vector3D<double> pos)
+    public PlayerPosPacket(ServerControlledPlayerState state)
     {
-        _pos = pos;
+        _state = state;
     }
 
-    public PlayerPosPacket() : this(Vector3D<double>.Zero)
+    public PlayerPosPacket() : this(default)
     {
         
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        _pos.SerializeBinary(writer);
+        _state.SerializeBinary(writer, reason);
     }
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
-        _pos.DeserializeBinary(reader);
+        _state.DeserializeBinary(reader, reason);
     }
 
     public void Handle(PlayerEntity? sender)
     {
-        BlockFactoryClient.Player.Pos = _pos;
+        BlockFactoryClient.Player.MotionController.SetServerState(_state);
     }
 
     public bool SupportsLogicalSide(LogicalSide side)

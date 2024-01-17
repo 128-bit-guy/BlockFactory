@@ -7,36 +7,31 @@ namespace BlockFactory.Network.Packet_;
 [PacketFlags(0)]
 public class PlayerControlPacket : IPacket
 {
-    private Vector2D<float> _headRotation;
-    private PlayerControlState _controlState;
+    private ClientControlledPlayerState _state;
 
-    public PlayerControlPacket(Vector2D<float> headRotation, PlayerControlState controlState)
+    public PlayerControlPacket(ClientControlledPlayerState state)
     {
-        _headRotation = headRotation;
-        _controlState = controlState;
+        _state = state;
     }
 
-    public PlayerControlPacket() : this(Vector2D<float>.Zero, 0)
+    public PlayerControlPacket() : this(default)
     {
         
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        _headRotation.SerializeBinary(writer);
-        writer.Write7BitEncodedInt((int)_controlState);
+        _state.SerializeBinary(writer, reason);
     }
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
-        _headRotation.DeserializeBinary(reader);
-        _controlState = (PlayerControlState)reader.Read7BitEncodedInt();
+        _state.DeserializeBinary(reader, reason);
     }
 
     public void Handle(PlayerEntity? sender)
     {
-        sender!.HeadRotation = _headRotation;
-        sender.ControlState = _controlState;
+        sender!.MotionController.ClientState = _state;
     }
 
     public bool SupportsLogicalSide(LogicalSide side)
