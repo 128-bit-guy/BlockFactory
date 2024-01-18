@@ -59,6 +59,22 @@ public static class BfDebug
         }
 
         ImGui.End();
+
+        if (ImGui.Begin("Profiling"))
+        {
+            var collector = new ProfileCollector();
+            foreach(var c in BlockFactoryClient.Player.World!.GetLoadedChunks())
+            {
+                if(!c.IsLoaded) continue;
+                collector.AddHelper(c.ProfileHelper);
+            }
+
+            foreach (var (key, data) in collector.ProfilingResults)
+            {
+                ImGui.Text($"{key}: {data.MeanTime.TotalMilliseconds}ms");
+            }
+        }
+        ImGui.End();
         Controller.Render();
     }
 

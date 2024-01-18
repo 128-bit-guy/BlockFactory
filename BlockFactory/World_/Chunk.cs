@@ -25,6 +25,7 @@ public class Chunk : IBlockWorld
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion? Region;
     public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
+    public readonly ProfileHelper ProfileHelper;
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
     {
@@ -32,6 +33,7 @@ public class Chunk : IBlockWorld
         Region = region;
         World = world;
         Neighbourhood = new ChunkNeighbourhood(this);
+        ProfileHelper = new ProfileHelper();
     }
 
     public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted;

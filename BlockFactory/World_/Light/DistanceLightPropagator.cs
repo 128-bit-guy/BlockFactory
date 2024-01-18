@@ -120,6 +120,7 @@ public static class DistanceLightPropagator
                     foreach (var face in CubeFaceUtils.Values())
                     {
                         var oPos = pos + face.GetDelta();
+                        if(n.GetLight(oPos, channel) >= cLight - 1) continue;
                         var canLightPass = n.GetBlockObj(pos).CanLightLeave(face, channel) &&
                                            n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
                         if (canLightPass)

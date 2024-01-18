@@ -36,6 +36,8 @@ public class WorldGenerator
 
     public void DecorateChunk(Chunk c)
     {
+        c.ProfileHelper.Start("Decoration");
         _decorator.DecorateChunk(c);
+        c.ProfileHelper.Stop();
     }
 }
