@@ -10,8 +10,8 @@ public class BricksBlock : Block
         return 16;
     }
 
-    public override byte GetEmittedLight(LightChannel channel)
+    public override byte GetEmittedLight()
     {
-        return (byte)(channel == LightChannel.Block ?15 : 0);
+        return 15;
     }
 }

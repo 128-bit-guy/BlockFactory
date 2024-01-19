@@ -26,7 +26,7 @@ public class Block : IRegistryEntry
         return this;
     }
 
-    public virtual byte GetEmittedLight(LightChannel channel)
+    public virtual byte GetEmittedLight()
     {
         return 0;
     }

@@ -28,11 +28,22 @@ public static class DistanceLightPropagator
             }
         }
     }
+
+    private static int GetEmittedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
+    {
+        if (channel == LightChannel.Block)
+        {
+            return n.GetBlockObj(pos).GetEmittedLight();
+        }
+        else
+        {
+            return n.GetLight(pos, LightChannel.DirectSky);
+        }
+    }
     
     private static int GetSupposedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
     {
-        int cLight = n.GetBlockObj(pos).GetEmittedLight(channel);
-        if (channel == LightChannel.Sky) cLight = Math.Max(cLight, n.GetLight(pos, LightChannel.DirectSky));
+        int cLight = GetEmittedLight(n, pos, channel);
         foreach (var face in CubeFaceUtils.Values())
         {
             var oPos = pos + face.GetDelta();
@@ -63,7 +74,25 @@ public static class DistanceLightPropagator
                 var l = n.GetLight(pos, channel);
                 if (sl > l)
                 {
-                    _beginAddLightList!.Add(pos);
+                    bool shouldBfs = false;
+                    foreach (CubeFace face in CubeFaceUtils.Values())
+                    {
+                        var ol = GetEmittedLight(n, pos + face.GetDelta(), channel);
+                        if (ol < sl - 1)
+                        {
+                            shouldBfs = true;
+                            break;
+                        }
+                    }
+
+                    if (shouldBfs)
+                    {
+                        _beginAddLightList!.Add(pos);
+                    }
+                    else
+                    {
+                        n.SetLight(pos, channel, (byte)sl);
+                    }
                 } else if (sl < l)
                 {
                     _removeLightQueue!.Enqueue((pos, true));
