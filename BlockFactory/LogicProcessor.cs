@@ -1,4 +1,5 @@
-﻿using BlockFactory.Base;
+﻿using System.Diagnostics;
+using BlockFactory.Base;
 using BlockFactory.Entity_;
 using BlockFactory.Network;
 using BlockFactory.World_;
@@ -16,6 +17,7 @@ public class LogicProcessor : IDisposable
     private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
     private int _heavyUpdateClass;
     public readonly string SaveLocation;
+    private readonly Stopwatch _stopwatch = new();
 
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation)
     {
@@ -95,7 +97,13 @@ public class LogicProcessor : IDisposable
         LastUpdateTime = now;
         if (_lastTickTime + TimeSpan.FromMilliseconds(Constants.TickFrequencyMs) < now)
         {
+            _stopwatch.Restart();
             Tick();
+            _stopwatch.Stop();
+            if (_heavyUpdateClass == 0 && LogicalSide != LogicalSide.Client)
+            {
+                Console.WriteLine($"Tick time: {_stopwatch.Elapsed.TotalMilliseconds}ms");
+            }
             _lastTickTime += TimeSpan.FromMilliseconds(Constants.TickFrequencyMs);
         }
     }
