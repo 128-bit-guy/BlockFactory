@@ -15,6 +15,7 @@ public static class BfDebug
     private static readonly List<float> FrameDeltas = new();
     private static float _fps;
     private static int _fpsUpdateTime;
+    private static readonly List<float> TickTimes = new();
 
     public static void Init()
     {
@@ -28,7 +29,7 @@ public static class BfDebug
             ImGui.GetIO().ConfigFlags &= ~ImGuiConfigFlags.NoMouse;
         else
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NoMouse;
-        if (ImGui.Begin("Performance", ImGuiWindowFlags.NoResize))
+        if (ImGui.Begin("Client Performance", ImGuiWindowFlags.NoResize))
         {
             if (_fpsUpdateTime == 0)
             {
@@ -51,6 +52,19 @@ public static class BfDebug
 
         ImGui.End();
 
+        if (TickTimes.Count > 0)
+        {
+            if (ImGui.Begin("Server Performance", ImGuiWindowFlags.NoResize))
+            {
+                var values = TickTimes.ToArray();
+                ImGui.Text($"Mean tick time: {values.Average()}ms");
+                ImGui.PlotHistogram(string.Empty, ref values[0], values.Length, 0,
+                    string.Empty, 0, Constants.TickFrequencyMs, new Vector2(300, 100));
+            }
+
+            ImGui.End();
+        }
+
         if (ImGui.Begin("Chunk loading"))
         {
             ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
@@ -60,6 +74,15 @@ public static class BfDebug
 
         ImGui.End();
         Controller.Render();
+    }
+
+    public static void HandleTickTime(float time)
+    {
+        TickTimes.Add(time);
+        if (TickTimes.Count > 60)
+        {
+            TickTimes.RemoveAt(0);
+        }
     }
 
     public static void Destroy()

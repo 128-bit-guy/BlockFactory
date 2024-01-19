@@ -10,6 +10,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<PlayerControlPacket>("");
         NetworkRegistry.RegisterPacket<BlockChangePacket>("");
         NetworkRegistry.RegisterPacket<LightChangePacket>("");
+        NetworkRegistry.RegisterPacket<ServerTickTimePacket>("");
     }
 
     public static void Lock()

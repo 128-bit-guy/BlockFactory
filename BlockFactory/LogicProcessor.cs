@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using BlockFactory.Base;
+using BlockFactory.Client;
 using BlockFactory.Entity_;
 using BlockFactory.Network;
+using BlockFactory.Network.Packet_;
 using BlockFactory.World_;
 
 namespace BlockFactory;
@@ -91,6 +93,21 @@ public class LogicProcessor : IDisposable
         return _players;
     }
 
+    private void HandleTickTime(float delta)
+    {
+        if (LogicalSide == LogicalSide.SinglePlayer)
+        {
+            BfDebug.HandleTickTime(delta);
+        } else if (LogicalSide == LogicalSide.Server)
+        {
+            var packet = new ServerTickTimePacket(delta);
+            foreach (var player in _players)
+            {
+                NetworkHandler.SendPacket(player, packet);
+            }
+        }
+    }
+
     public void Update()
     {
         var now = DateTime.UtcNow;
@@ -100,10 +117,7 @@ public class LogicProcessor : IDisposable
             _stopwatch.Restart();
             Tick();
             _stopwatch.Stop();
-            if (_heavyUpdateClass == 0 && LogicalSide != LogicalSide.Client)
-            {
-                Console.WriteLine($"Tick time: {_stopwatch.Elapsed.TotalMilliseconds}ms");
-            }
+            HandleTickTime((float)_stopwatch.Elapsed.TotalMilliseconds);
             _lastTickTime += TimeSpan.FromMilliseconds(Constants.TickFrequencyMs);
         }
     }
