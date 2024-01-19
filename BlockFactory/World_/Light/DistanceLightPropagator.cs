@@ -47,14 +47,12 @@ public static class DistanceLightPropagator
         foreach (var face in CubeFaceUtils.Values())
         {
             var oPos = pos + face.GetDelta();
+            var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
+            if(lightFromNeighbor <= cLight) continue;
             var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face, channel) &&
                                n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite(), channel);
             if(!lightCanPass) continue;
-            var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
-            if (lightFromNeighbor > cLight)
-            {
-                cLight = lightFromNeighbor;
-            }
+            cLight = lightFromNeighbor;
         }
 
         return cLight;
