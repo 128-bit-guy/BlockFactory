@@ -83,7 +83,7 @@ public class PlayerEntity : Entity
     [ExclusiveTo(Side.Client)]
     public Vector3D<double> GetSmoothPos()
     {
-        var state = MotionController.PredictServerStateForTick(MotionController.ClientState.MotionTick);
+        var state = MotionController.PredictServerStateForTick(MotionController.ClientState.MotionTick + 1);
         return state.Pos + BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>();
     }
 
