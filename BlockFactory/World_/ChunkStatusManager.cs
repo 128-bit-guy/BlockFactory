@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using System.Collections.Concurrent;
+using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
@@ -7,6 +8,7 @@ public class ChunkStatusManager
     public delegate void ChunkEventHandler(Chunk c);
 
     public readonly World World;
+    private readonly ConcurrentQueue<Chunk> _statusUpdateQueue = new();
 
     public ChunkStatusManager(World world)
     {
@@ -79,5 +81,37 @@ public class ChunkStatusManager
 
         ChunkNotReadyForUse(c);
         c.ReadyForUse = false;
+    }
+
+    private void UpdateStatus(Chunk chunk)
+    {
+        if (chunk.WatchingPlayers.Count == 0)
+        {
+            World.RemoveChunk(chunk.Position);
+        }
+        else
+        {
+            if (chunk is { IsLoaded: true, ReadyForUse: false })
+            {
+                chunk.LoadTask = null;
+                OnChunkReadyForUse(chunk);
+            }
+        }
+    }
+
+    public void ScheduleStatusUpdate(Chunk c)
+    {
+        _statusUpdateQueue.Enqueue(c);
+    }
+
+    public void Update()
+    {
+        var cnt = _statusUpdateQueue.Count;
+        for (var i = 0; i < cnt; ++i)
+        {
+            if (!_statusUpdateQueue.TryDequeue(out var c)) continue;
+            if(!c.IsValid) continue;
+            UpdateStatus(c);
+        }
     }
 }

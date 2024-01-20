@@ -47,6 +47,7 @@ public class ChunkDataPacket : IPacket
         };
         player.World!.AddChunk(c);
         player.ChunkLoader!.AddVisibleChunk(c);
+        player.World.ChunkStatusManager.ScheduleStatusUpdate(c);
     }
 
     public bool SupportsLogicalSide(LogicalSide side)

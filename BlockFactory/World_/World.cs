@@ -114,21 +114,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
 
     public void Update()
     {
-        foreach (var chunk in GetLoadedChunks())
-            if (chunk.WatchingPlayers.Count == 0)
-            {
-                _chunksToRemove.Add(chunk);
-            }
-            else
-            {
-                if (chunk is { IsLoaded: true, ReadyForUse: false })
-                {
-                    chunk.LoadTask = null;
-                    ChunkStatusManager.OnChunkReadyForUse(chunk);
-                }
-            }
-
-        foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
+        ChunkStatusManager.Update();
         _chunksToRemove.Clear();
         if (LogicProcessor.LogicalSide != LogicalSide.Client)
         {

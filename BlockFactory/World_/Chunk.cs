@@ -19,8 +19,10 @@ public class Chunk : IBlockWorld
     public readonly World World;
     public ChunkData? Data;
     public Task? LoadTask = null;
+    private bool _loadingCompleted;
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
+    public bool IsValid = false;
     public int ReadyForUseNeighbours = 0;
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion? Region;
@@ -34,7 +36,7 @@ public class Chunk : IBlockWorld
         Neighbourhood = new ChunkNeighbourhood(this);
     }
 
-    public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted;
+    public bool IsLoaded => (Data != null && LoadTask == null) || (LoadTask!.IsCompleted || _loadingCompleted);
 
     public short GetBlock(Vector3D<int> pos)
     {
@@ -140,6 +142,7 @@ public class Chunk : IBlockWorld
     public void RemoveWatchingPlayer(PlayerEntity player)
     {
         WatchingPlayers.Remove(player);
+        World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 
     public void Update(bool heavy)
@@ -222,6 +225,10 @@ public class Chunk : IBlockWorld
         }
 
         CopyLightUpdatesFromData();
+
+        _loadingCompleted = true;
+        
+        World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 
     public void StartLoadTask()
