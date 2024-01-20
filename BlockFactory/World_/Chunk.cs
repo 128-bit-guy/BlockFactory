@@ -23,6 +23,7 @@ public class Chunk : IBlockWorld
     public bool ReadyForTick = false;
     public bool ReadyForUse = false;
     public bool IsValid = false;
+    public bool IsTicking = false;
     public int ReadyForUseNeighbours = 0;
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion? Region;
@@ -252,5 +253,13 @@ public class Chunk : IBlockWorld
         var z = Position.Z % 3;
         if (z < 0) z += 3;
         return x + y * 3 + z * 9;
+    }
+
+    public bool ShouldTick()
+    {
+        if (!IsValid || !ReadyForTick) return false;
+        if (!Data!.FullyDecorated) return true;
+        //TODO tick if player is close
+        return false;
     }
 }

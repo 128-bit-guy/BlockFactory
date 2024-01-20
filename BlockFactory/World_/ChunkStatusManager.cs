@@ -9,6 +9,7 @@ public class ChunkStatusManager
 
     public readonly World World;
     private readonly ConcurrentQueue<Chunk> _statusUpdateQueue = new();
+    private readonly ConcurrentQueue<Chunk> _tickingUpdateQueue = new();
 
     public ChunkStatusManager(World world)
     {
@@ -37,7 +38,7 @@ public class ChunkStatusManager
             if (oChunk.ReadyForUseNeighbours == 27)
             {
                 oChunk.ReadyForTick = true;
-                ChunkReadyForTick(oChunk);
+                OnChunkReadyForTick(oChunk);
             }
 
             if (oChunk.ReadyForUse) ++c.ReadyForUseNeighbours;
@@ -46,8 +47,14 @@ public class ChunkStatusManager
         if (c.ReadyForUseNeighbours == 27)
         {
             c.ReadyForTick = true;
-            ChunkReadyForTick(c);
+            OnChunkReadyForTick(c);
         }
+    }
+
+    private void OnChunkReadyForTick(Chunk c)
+    {
+        ChunkReadyForTick(c);
+        ScheduleTickingUpdate(c);
     }
 
     public void OnChunkNotReadyForUse(Chunk c)
@@ -99,19 +106,43 @@ public class ChunkStatusManager
         }
     }
 
+    private void UpdateTicking(Chunk chunk)
+    {
+        if(chunk.IsTicking) return;
+        if(!chunk.ShouldTick()) return;
+        World.LogicProcessor.AddTickingChunk(chunk);
+        chunk.IsTicking = true;
+    }
+
     public void ScheduleStatusUpdate(Chunk c)
     {
         _statusUpdateQueue.Enqueue(c);
     }
 
+    public void ScheduleTickingUpdate(Chunk c)
+    {
+        _tickingUpdateQueue.Enqueue(c);
+    }
+
     public void Update()
     {
-        var cnt = _statusUpdateQueue.Count;
-        for (var i = 0; i < cnt; ++i)
         {
-            if (!_statusUpdateQueue.TryDequeue(out var c)) continue;
-            if(!c.IsValid) continue;
-            UpdateStatus(c);
+            var cnt = _statusUpdateQueue.Count;
+            for (var i = 0; i < cnt; ++i)
+            {
+                if (!_statusUpdateQueue.TryDequeue(out var c)) continue;
+                if (!c.IsValid) continue;
+                UpdateStatus(c);
+            }
+        }
+        {
+            var cnt = _tickingUpdateQueue.Count;
+            for (var i = 0; i < cnt; ++i)
+            {
+                if (!_tickingUpdateQueue.TryDequeue(out var c)) continue;
+                if (!c.IsValid) continue;
+                UpdateTicking(c);
+            }
         }
     }
 }
