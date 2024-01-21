@@ -4,6 +4,7 @@ using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Math_;
 using BlockFactory.World_;
+using BlockFactory.World_.ChunkLoading;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 

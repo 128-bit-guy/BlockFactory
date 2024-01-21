@@ -4,6 +4,7 @@ using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Physics;
 using BlockFactory.World_;
+using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -12,6 +13,7 @@ namespace BlockFactory.Entity_;
 public class PlayerEntity : Entity
 {
     public PlayerChunkLoader? ChunkLoader { get; private set; }
+    public PlayerChunkTicker? ChunkTicker { get; private set; }
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown = 0;
 
@@ -103,10 +105,13 @@ public class PlayerEntity : Entity
         }
         ProcessInteraction();
         ChunkLoader!.Update();
+        ChunkTicker!.Update();
     }
 
     protected override void OnRemovedFromWorld()
     {
+        ChunkTicker!.Dispose();
+        ChunkTicker = null;
         ChunkLoader!.Dispose();
         ChunkLoader = null;
         base.OnRemovedFromWorld();
@@ -116,6 +121,7 @@ public class PlayerEntity : Entity
     {
         base.OnAddedToWorld();
         ChunkLoader = new PlayerChunkLoader(this);
+        ChunkTicker = new PlayerChunkTicker(this);
     }
     
     public virtual void OnChunkBecameVisible(Chunk c) {}

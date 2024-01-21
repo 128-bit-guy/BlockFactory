@@ -4,7 +4,7 @@ using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.ChunkLoading;
 
 public class PlayerChunkLoader : IDisposable
 {

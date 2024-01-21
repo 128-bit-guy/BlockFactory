@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Maths;
 
-namespace BlockFactory.World_;
+namespace BlockFactory.World_.ChunkLoading;
 
 public static class PlayerChunkLoading
 {
