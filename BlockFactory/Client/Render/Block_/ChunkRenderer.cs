@@ -36,6 +36,7 @@ public class ChunkRenderer : IDisposable
             differentTriangles[1 << order[i]] = (i & 1) == 0;
             differentTriangles[15 & ~(1 << order[i])] = (i & 1) == 0;
         }
+
         for (var mask = 0; mask < (1 << 16); ++mask)
         {
             var lights = new int[4];
@@ -125,6 +126,7 @@ public class ChunkRenderer : IDisposable
                     _vertexLight[l] = (float)lightVal[l] / 15;
                     dtMask |= (lightVal[l] << (l << 2));
                 }
+
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
                 builder.NewPolygon().Indices(DifferentTriangles[dtMask] ? QuadIndices2 : QuadIndices)

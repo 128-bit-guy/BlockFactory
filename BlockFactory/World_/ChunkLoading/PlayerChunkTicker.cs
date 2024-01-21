@@ -52,6 +52,7 @@ public class PlayerChunkTicker : IDisposable
             {
                 break;
             }
+
             if (!IsChunkWatched(c))
             {
                 WatchChunk(c);
@@ -74,7 +75,6 @@ public class PlayerChunkTicker : IDisposable
 
     private void UnWatchChunk(Chunk c)
     {
-
         c.RemoveTickingDependency();
         _watchedChunks[GetArrIndex(c.Position)] = null;
     }

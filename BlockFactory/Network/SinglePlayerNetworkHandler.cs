@@ -8,7 +8,6 @@ public class SinglePlayerNetworkHandler : INetworkHandler
 {
     public void Update()
     {
-        
     }
 
     public bool ShouldStop()
@@ -23,11 +22,9 @@ public class SinglePlayerNetworkHandler : INetworkHandler
 
     public void Start()
     {
-        
     }
 
     public void Dispose()
     {
-        
     }
 }

@@ -183,10 +183,10 @@ public class Chunk : IBlockWorld
             LightPropagator.ProcessLightUpdates(this);
         }
 
-        if(wasInitialized) return;
+        if (wasInitialized) return;
         var isInitialized = Data!.Decorated && Data!.HasSkyLight;
-        if(!isInitialized) return;
-        
+        if (!isInitialized) return;
+
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
@@ -226,7 +226,7 @@ public class Chunk : IBlockWorld
         CopyLightUpdatesFromData();
 
         _loadingCompleted = true;
-        
+
         World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 

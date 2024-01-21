@@ -103,6 +103,7 @@ public class PlayerEntity : Entity
         {
             UpdateMotion();
         }
+
         ProcessInteraction();
         ChunkLoader!.Update();
         ChunkTicker!.Update();
@@ -123,7 +124,12 @@ public class PlayerEntity : Entity
         ChunkLoader = new PlayerChunkLoader(this);
         ChunkTicker = new PlayerChunkTicker(this);
     }
-    
-    public virtual void OnChunkBecameVisible(Chunk c) {}
-    public virtual void OnChunkBecameInvisible(Chunk c) {}
+
+    public virtual void OnChunkBecameVisible(Chunk c)
+    {
+    }
+
+    public virtual void OnChunkBecameInvisible(Chunk c)
+    {
+    }
 }

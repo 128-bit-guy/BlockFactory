@@ -11,6 +11,7 @@ public static class BlockFactoryServer
 {
     public static ServerNetworkHandler NetworkHandler;
     public static LogicProcessor LogicProcessor;
+
     private static int GetPort()
     {
         var x = Console.ReadLine()!;
@@ -41,6 +42,7 @@ public static class BlockFactoryServer
     {
         LogicProcessor.Dispose();
     }
+
     public static void Run()
     {
         Init();
@@ -48,6 +50,7 @@ public static class BlockFactoryServer
         {
             Update();
         }
+
         Shutdown();
         ManagedENet.Shutdown();
     }

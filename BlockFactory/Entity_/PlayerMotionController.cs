@@ -10,10 +10,8 @@ public class PlayerMotionController
     public ClientControlledPlayerState ClientState;
     private readonly PlayerEntity _player;
     private readonly LinkedList<ClientControlledPlayerState> _states;
-    [ExclusiveTo(Side.Client)]
-    private ServerControlledPlayerState _serverState;
-    [ExclusiveTo(Side.Client)]
-    private ServerControlledPlayerState _predictedServerState;
+    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _serverState;
+    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _predictedServerState;
 
     [ExclusiveTo(Side.Client)] private DateTime _serverStateSetTime;
     public bool PredictingState = false;
@@ -40,7 +38,7 @@ public class PlayerMotionController
     [ExclusiveTo(Side.Client)]
     public void SetServerState(ServerControlledPlayerState newServerState)
     {
-        if(_serverState.MotionTick == newServerState.MotionTick) return;
+        if (_serverState.MotionTick == newServerState.MotionTick) return;
         var predictedState = PredictServerStateForTick(newServerState.MotionTick);
         while (_states.Count > 0 && _states.First!.Value.MotionTick < newServerState.MotionTick)
         {
@@ -71,7 +69,7 @@ public class PlayerMotionController
         PredictingState = true;
         foreach (var cState in _states)
         {
-            if(cState.MotionTick >= motionTick) break;
+            if (cState.MotionTick >= motionTick) break;
             _player.HeadRotation = cState.HeadRotation;
             ClientState = cState;
             _player.UpdateMotion();
@@ -82,7 +80,7 @@ public class PlayerMotionController
         resState.MotionTick = motionTick;
         resState.Pos = _player.Pos;
         //TODO set velocity
-        
+
         PredictingState = false;
         ClientState = oldCState;
         _player.HeadRotation = oldHeadRotation;
@@ -115,12 +113,13 @@ public class PlayerMotionController
 
     public void Update()
     {
-        if(PredictingState) return;
+        if (PredictingState) return;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Server)
         {
             UpdateClient();
         }
-        if(_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
+
+        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
             PreUpdateServer();
         }

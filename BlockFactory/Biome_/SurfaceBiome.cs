@@ -27,13 +27,13 @@ public class SurfaceBiome : Biome
             var center = pos + Vector3D<int>.UnitY * (height - 1);
 
             var radius = rng.Next(3, height - 1);
-            
-            for(var i = -radius; i <= radius; ++i)
-            for(var j = -radius; j <= radius; ++j)
-            for(var k = -radius; k <= radius; ++k)
+
+            for (var i = -radius; i <= radius; ++i)
+            for (var j = -radius; j <= radius; ++j)
+            for (var k = -radius; k <= radius; ++k)
             {
                 var delta = new Vector3D<int>(i, j, k);
-                if(delta.LengthSquared > radius * radius) continue;
+                if (delta.LengthSquared > radius * radius) continue;
                 var leafPos = center + delta;
                 if (world.GetBlock(leafPos) == 0)
                 {

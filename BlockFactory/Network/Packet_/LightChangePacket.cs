@@ -23,7 +23,6 @@ public class LightChangePacket : IPacket
 
     public LightChangePacket() : this(Vector3D<int>.Zero, LightChannel.Block, 0)
     {
-        
     }
 
 

@@ -23,7 +23,6 @@ public class ChunkDataPacket : IPacket
 
     public ChunkDataPacket() : this(Vector3D<int>.Zero, new ChunkData())
     {
-        
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)

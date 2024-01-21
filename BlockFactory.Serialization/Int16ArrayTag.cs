@@ -13,6 +13,7 @@ public class Int16ArrayTag : IValueBasedTag<short[]>
     }
 
     public TagType Type => TagType.Int16Array;
+
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Value.Length);

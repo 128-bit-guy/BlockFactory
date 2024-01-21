@@ -46,6 +46,7 @@ public class LogicProcessor : IDisposable
             c.IsTicking = false;
             return;
         }
+
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
     }
 
@@ -72,11 +73,13 @@ public class LogicProcessor : IDisposable
             _chunkUpdateClasses[i].RemoveAll(c => !c.IsTicking);
             // _chunkUpdateClasses[i].Clear();
         }
+
         ++_heavyUpdateClass;
         if (_heavyUpdateClass == 27)
         {
             _heavyUpdateClass = 0;
         }
+
         foreach (var player in _players)
         {
             player.Update();
@@ -109,7 +112,8 @@ public class LogicProcessor : IDisposable
         if (LogicalSide == LogicalSide.SinglePlayer)
         {
             BfDebug.HandleTickTime(delta);
-        } else if (LogicalSide == LogicalSide.Server)
+        }
+        else if (LogicalSide == LogicalSide.Server)
         {
             var packet = new ServerTickTimePacket(delta);
             foreach (var player in _players)

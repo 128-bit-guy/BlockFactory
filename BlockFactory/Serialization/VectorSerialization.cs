@@ -20,6 +20,7 @@ public static class VectorSerialization
             v.SetValue(i, reader.ReadInt32());
         }
     }
+
     public static void SerializeBinary(this Vector3D<double> v, BinaryWriter w)
     {
         for (int i = 0; i < 3; ++i)
@@ -35,6 +36,7 @@ public static class VectorSerialization
             v.SetValue(i, reader.ReadDouble());
         }
     }
+
     public static void SerializeBinary(this Vector2D<float> v, BinaryWriter w)
     {
         for (int i = 0; i < 2; ++i)

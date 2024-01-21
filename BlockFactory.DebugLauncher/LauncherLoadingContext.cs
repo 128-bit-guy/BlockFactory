@@ -68,6 +68,7 @@ public class LauncherLoadingContext : AssemblyLoadContext
                 return dll;
             }
         }
+
         foreach (var file in Directory.EnumerateFiles(_loadingDirectory, "*", SearchOption.AllDirectories))
             if (file.EndsWith(unmanagedDllName + ext))
             {

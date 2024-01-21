@@ -27,14 +27,13 @@ public class OreGenerator
     public OreGenerator(Block block, Block replacedBlock, int minSize, int maxSize, int maxRadius, float veinChance) :
         this((short)block.Id, (short)replacedBlock.Id, minSize, maxSize, maxRadius, veinChance)
     {
-        
     }
 
     public void Generate(IBlockStorage world, Vector3D<int> pos, Random rng)
     {
         _posQueue ??= new List<Vector3D<int>>();
-        if(rng.NextDouble() >= _veinChance) return;
-        
+        if (rng.NextDouble() >= _veinChance) return;
+
         _posQueue.Add(pos);
 
         var currentSize = rng.Next(_minSize, _maxSize);
@@ -45,7 +44,7 @@ public class OreGenerator
             var cPos = _posQueue[i];
             _posQueue[i] = _posQueue[^1];
             _posQueue.RemoveAt(_posQueue.Count - 1);
-            if(world.GetBlock(cPos) != _replacedBlock) continue;
+            if (world.GetBlock(cPos) != _replacedBlock) continue;
             world.SetBlock(cPos, _block);
             --currentSize;
             foreach (var face in CubeFaceUtils.Values())
@@ -57,7 +56,7 @@ public class OreGenerator
                 }
             }
         }
-        
+
         _posQueue.Clear();
     }
 }

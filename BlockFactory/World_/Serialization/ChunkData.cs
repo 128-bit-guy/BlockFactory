@@ -13,7 +13,10 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
     private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
-    private readonly byte[] _light = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
+
+    private readonly byte[] _light =
+        new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
+
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     public bool Decorated;
@@ -101,20 +104,20 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         }
 
         writer.Write(_biomes);
-        
+
         writer.Write(_light);
-        
-        if(reason != SerializationReason.Save) return;
-        
+
+        if (reason != SerializationReason.Save) return;
+
         var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
         _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
-        
+
         writer.Write(lightUpdateScheduled);
-        
+
         writer.Write(Decorated);
-        
+
         writer.Write(HasSkyLight);
-        
+
         writer.Write7BitEncodedInt(DecoratedNeighbours);
     }
 
@@ -124,6 +127,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         {
             _blocks[i] = reader.ReadInt16();
         }
+
         for (var i = 0; i < _biomes.Length; ++i)
         {
             _biomes[i] = reader.ReadByte();

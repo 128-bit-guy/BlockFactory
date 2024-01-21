@@ -7,7 +7,6 @@ namespace BlockFactory.World_.Gen;
 
 public class CaveGenerator : WorldGenElement
 {
-
     public CaveGenerator(WorldGenerator generator) : base(generator, -5564907199384973000)
     {
     }

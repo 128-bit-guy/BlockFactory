@@ -5,6 +5,7 @@ namespace BlockFactory.Registry_;
 public class RegistryMapping : ITagSerializable
 {
     public readonly Dictionary<string, Dictionary<string, int>> Mappings = new();
+
     public DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var result = new DictionaryTag();
@@ -15,6 +16,7 @@ public class RegistryMapping : ITagSerializable
             {
                 tag.SetValue(entryStrId, entryNumId);
             }
+
             result.Set(id, tag);
         }
 
@@ -33,6 +35,7 @@ public class RegistryMapping : ITagSerializable
                 var entryNumId = mapping.GetValue<int>(entryStrId);
                 mappingDict.Add(entryStrId, entryNumId);
             }
+
             Mappings.Add(id, mappingDict);
         }
     }

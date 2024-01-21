@@ -20,8 +20,8 @@ public class BlockChangePacket : IPacket
 
     public BlockChangePacket() : this(Vector3D<int>.Zero, 0)
     {
-        
     }
+
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
         _pos.SerializeBinary(writer);

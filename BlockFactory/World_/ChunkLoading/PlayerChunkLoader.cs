@@ -15,11 +15,11 @@ public class PlayerChunkLoader : IDisposable
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
     public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
-    #if DEBUG
+#if DEBUG
     public int MaxLoadingChunks = 8;
-    #else
+#else
     public int MaxLoadingChunks = 16;
-    #endif
+#endif
 
     public PlayerChunkLoader(PlayerEntity player)
     {
@@ -35,7 +35,7 @@ public class PlayerChunkLoader : IDisposable
 
     public void Update()
     {
-        if(Player.World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        if (Player.World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         var blockPos =
             new Vector3D<double>(Math.Floor(Player.Pos.X), Math.Floor(Player.Pos.Y), Math.Floor(Player.Pos.Z))
                 .As<int>();
@@ -84,7 +84,7 @@ public class PlayerChunkLoader : IDisposable
         _tempLoadingChunks.AddRange(_loadingChunks);
         foreach (var c in _tempLoadingChunks)
         {
-            if(c.Data == null) continue;
+            if (c.Data == null) continue;
             _notReadyLoadedChunks.Add(c);
             _loadingChunks.Remove(c);
         }
@@ -93,10 +93,11 @@ public class PlayerChunkLoader : IDisposable
         _tempLoadingChunks.AddRange(_notReadyLoadedChunks);
         foreach (var c in _tempLoadingChunks)
         {
-            if(!c.Data!.FullyDecorated) continue;
+            if (!c.Data!.FullyDecorated) continue;
             MakeChunkVisible(c);
             _notReadyLoadedChunks.Remove(c);
         }
+
         _tempLoadingChunks.Clear();
     }
 

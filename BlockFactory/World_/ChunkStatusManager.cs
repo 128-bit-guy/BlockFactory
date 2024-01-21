@@ -108,8 +108,8 @@ public class ChunkStatusManager
 
     private void UpdateTicking(Chunk chunk)
     {
-        if(chunk.IsTicking) return;
-        if(!chunk.ShouldTick()) return;
+        if (chunk.IsTicking) return;
+        if (!chunk.ShouldTick()) return;
         World.LogicProcessor.AddTickingChunk(chunk);
         chunk.IsTicking = true;
     }

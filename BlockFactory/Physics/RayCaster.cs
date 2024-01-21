@@ -6,7 +6,8 @@ namespace BlockFactory.Physics;
 
 public static class RayCaster
 {
-    public static (double, CubeFace)? GetIntersectionTime(Vector3D<double> rayOrigin, Vector3D<double> ray, Box3D<double> box)
+    public static (double, CubeFace)? GetIntersectionTime(Vector3D<double> rayOrigin, Vector3D<double> ray,
+        Box3D<double> box)
     {
         double entryTime = -1e9f, exitTime = 1e9f;
         var entryCubeFace = CubeFace.Bottom;
@@ -50,29 +51,31 @@ public static class RayCaster
             foreach (var neighborFace in CubeFaceUtils.Values())
             {
                 var pos = curBlockPos + neighborFace.GetDelta();
-                if(world.GetBlock(pos) == 0) continue;
+                if (world.GetBlock(pos) == 0) continue;
                 var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
                 var intersection = GetIntersectionTime(rayOrigin, ray, box);
-                if(!intersection.HasValue) continue;
+                if (!intersection.HasValue) continue;
                 var (time, face) = intersection.Value;
-                if(time >= minTime) continue;
+                if (time >= minTime) continue;
                 minTime = time;
                 minPos = pos;
                 minFace = face;
                 found = true;
             }
+
             {
                 var pos = curBlockPos;
-                if(world.GetBlock(pos) == 0) continue;
+                if (world.GetBlock(pos) == 0) continue;
                 var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
                 var intersection = GetIntersectionTime(rayOrigin, ray, box);
-                if(!intersection.HasValue) continue;
+                if (!intersection.HasValue) continue;
                 var (time, face) = intersection.Value;
-                if(time >= minTime) continue;
+                if (time >= minTime) continue;
                 minTime = time;
                 minPos = pos;
                 minFace = face;
-                found = true;}
+                found = true;
+            }
         }
 
         if (found)

@@ -40,7 +40,7 @@ public static class DistanceLightPropagator
             return n.GetLight(pos, LightChannel.DirectSky);
         }
     }
-    
+
     private static int GetSupposedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
     {
         int cLight = GetEmittedLight(n, pos, channel);
@@ -48,10 +48,10 @@ public static class DistanceLightPropagator
         {
             var oPos = pos + face.GetDelta();
             var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
-            if(lightFromNeighbor <= cLight) continue;
+            if (lightFromNeighbor <= cLight) continue;
             var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face, channel) &&
                                n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite(), channel);
-            if(!lightCanPass) continue;
+            if (!lightCanPass) continue;
             cLight = lightFromNeighbor;
         }
 
@@ -65,7 +65,7 @@ public static class DistanceLightPropagator
 
         foreach (var channel in Channels)
         {
-            if(channel == LightChannel.DirectSky) continue;
+            if (channel == LightChannel.DirectSky) continue;
             foreach (var pos in c.ScheduledLightUpdates)
             {
                 var sl = GetSupposedLight(n, pos, channel);
@@ -91,7 +91,8 @@ public static class DistanceLightPropagator
                     {
                         n.SetLight(pos, channel, (byte)sl);
                     }
-                } else if (sl < l)
+                }
+                else if (sl < l)
                 {
                     _removeLightQueue!.Enqueue((pos, true));
                 }
@@ -129,7 +130,7 @@ public static class DistanceLightPropagator
                     _addLightQueue![cLight].Add(pos);
                 }
             }
-            
+
             _beginAddLightList.Clear();
 
             for (var cLight = 15; cLight > 0; --cLight)
@@ -141,13 +142,14 @@ public static class DistanceLightPropagator
                         n.ScheduleLightUpdate(pos);
                         continue;
                     }
-                    if(n.GetLight(pos, channel) >= cLight) continue;
+
+                    if (n.GetLight(pos, channel) >= cLight) continue;
                     n.SetLight(pos, channel, (byte)cLight);
-                    if(cLight <= 1) continue;
+                    if (cLight <= 1) continue;
                     foreach (var face in CubeFaceUtils.Values())
                     {
                         var oPos = pos + face.GetDelta();
-                        if(n.GetLight(oPos, channel) >= cLight - 1) continue;
+                        if (n.GetLight(oPos, channel) >= cLight - 1) continue;
                         var canLightPass = n.GetBlockObj(pos).CanLightLeave(face, channel) &&
                                            n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
                         if (canLightPass)
@@ -156,6 +158,7 @@ public static class DistanceLightPropagator
                         }
                     }
                 }
+
                 _addLightQueue[cLight].Clear();
             }
         }

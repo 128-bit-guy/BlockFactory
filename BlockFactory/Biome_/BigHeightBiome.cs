@@ -6,7 +6,6 @@ namespace BlockFactory.Biome_;
 
 public class BigHeightBiome : Biome
 {
-    
     public override void SetTopSoil(IBlockStorage world, Vector3D<int> pos)
     {
         world.SetBlock(pos, Blocks.Grass);

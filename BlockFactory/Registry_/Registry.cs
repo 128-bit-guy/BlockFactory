@@ -19,14 +19,14 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
         {
             throw new InvalidOperationException(
                 $"Registry is locked when trying to register object with id {id}"
-                );
+            );
         }
 
         if (_entries.ContainsKey(id))
         {
             throw new ArgumentException($"Registry already contains object with id {id}");
         }
-        
+
         _entries.Add(id, entry);
 
         return entry;
@@ -60,13 +60,14 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
         {
             throw new InvalidOperationException("Registry must be locked before assigning numerical ids");
         }
+
         foreach (var (s, i) in _forcedIds)
         {
             if (mapping.TryGetValue(s, out var oi) && oi != i)
             {
                 throw new ArgumentException(
                     $"Object with id {s} with forced id {i} has different id {oi} in mapping"
-                    );
+                );
             }
         }
 
@@ -91,10 +92,10 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
             _stringIdsByNumId[i] = s;
             _entries[s].Id = i;
         }
-        
+
         foreach (var (s, i) in _forcedIds)
         {
-            if(mapping.ContainsKey(s)) continue;
+            if (mapping.ContainsKey(s)) continue;
             _entriesByNumId[i] = _entries[s];
             _stringIdsByNumId[i] = s;
             _entries[s].Id = i;
@@ -103,7 +104,7 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
         var pos = 0;
         foreach (var (s, t) in _entries)
         {
-            if(mapping.ContainsKey(s) || _forcedIds.ContainsKey(s)) continue;
+            if (mapping.ContainsKey(s) || _forcedIds.ContainsKey(s)) continue;
 
             while (_entriesByNumId[pos] != null)
             {

@@ -2,5 +2,7 @@
 
 public enum SerializationReason
 {
-    Save, NetworkInit, NetworkUpdate
+    Save,
+    NetworkInit,
+    NetworkUpdate
 }

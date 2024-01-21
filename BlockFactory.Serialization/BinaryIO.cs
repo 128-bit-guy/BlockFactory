@@ -4,7 +4,6 @@ namespace BlockFactory.Serialization;
 
 public static class BinaryIO
 {
-
     public static void Deserialize(string file, IBinarySerializable serializable)
     {
         if (!File.Exists(file)) return;

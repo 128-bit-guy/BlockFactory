@@ -17,7 +17,6 @@ public class PlayerPosPacket : IPacket
 
     public PlayerPosPacket() : this(default)
     {
-        
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)

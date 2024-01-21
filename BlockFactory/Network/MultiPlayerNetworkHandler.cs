@@ -71,8 +71,8 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
             var cnt = _sendQueue.Count;
             for (int i = 0; i < cnt; ++i)
             {
-                if(!_sendQueue.TryDequeue(out var entry)) break;
-                if(!_peers.Contains(entry.Peer)) continue;
+                if (!_sendQueue.TryDequeue(out var entry)) break;
+                if (!_peers.Contains(entry.Peer)) continue;
                 try
                 {
                     var data = SerializePacket(entry.Packet, entry.Compressed, entry.Id);

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BlockFactory.Registry_;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 namespace BlockFactory.Block_;
@@ -20,7 +21,7 @@ public static class Blocks
     public static SimpleBlock DiamondOre;
     public static SimpleBlock CoalOre;
     public static LeavesBlock Leaves;
-    
+
     public static void Init()
     {
         Registry = SynchronizedRegistries.NewSynchronizedRegistry<Block>("Block");

@@ -11,6 +11,7 @@ public static class CmMathUtils
     {
         Unsafe.Add(ref vec.X, index) = val;
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static void SetValue<T>(this ref Vector2D<T> vec, int index, T val) where T : unmanaged, IFormattable,
         IEquatable<T>, IComparable<T>

@@ -13,6 +13,7 @@ public class ByteArrayTag : IValueBasedTag<byte[]>
     }
 
     public TagType Type => TagType.ByteArray;
+
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Value.Length);

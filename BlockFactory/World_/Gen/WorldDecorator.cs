@@ -9,15 +9,15 @@ namespace BlockFactory.World_.Gen;
 public class WorldDecorator : WorldGenElement
 {
     private readonly List<OreGenerator> _oreGenerators;
+
     public WorldDecorator(WorldGenerator generator) : base(generator, -1320159947507007282)
     {
         _oreGenerators = new List<OreGenerator>();
-        _oreGenerators.Add(new OreGenerator(Blocks.IronOre, Blocks.Stone, 3, 9, 15, 1/2000f));
-        _oreGenerators.Add(new OreGenerator(Blocks.CopperOre, Blocks.Stone, 3, 9, 15, 1/2000f));
-        _oreGenerators.Add(new OreGenerator(Blocks.TinOre, Blocks.Stone, 3, 9, 15, 1/2000f));
-        _oreGenerators.Add(new OreGenerator(Blocks.DiamondOre, Blocks.Stone, 3, 9, 15, 1/20000f));
-        _oreGenerators.Add(new OreGenerator(Blocks.CoalOre, Blocks.Stone, 12, 28, 15, 1/2000f));
-        
+        _oreGenerators.Add(new OreGenerator(Blocks.IronOre, Blocks.Stone, 3, 9, 15, 1 / 2000f));
+        _oreGenerators.Add(new OreGenerator(Blocks.CopperOre, Blocks.Stone, 3, 9, 15, 1 / 2000f));
+        _oreGenerators.Add(new OreGenerator(Blocks.TinOre, Blocks.Stone, 3, 9, 15, 1 / 2000f));
+        _oreGenerators.Add(new OreGenerator(Blocks.DiamondOre, Blocks.Stone, 3, 9, 15, 1 / 20000f));
+        _oreGenerators.Add(new OreGenerator(Blocks.CoalOre, Blocks.Stone, 12, 28, 15, 1 / 2000f));
     }
 
     public void DecorateChunk(Chunk c)

@@ -10,11 +10,9 @@ public class Biome : IRegistryEntry
 
     public virtual void SetTopSoil(IBlockStorage world, Vector3D<int> pos)
     {
-        
     }
 
     public virtual void Decorate(IBlockStorage world, Vector3D<int> pos, Random rng)
     {
-        
     }
 }

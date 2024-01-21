@@ -32,7 +32,7 @@ public class ChunkRegion : IBinarySerializable
     {
         _chunks[GetArrIndex(pos)] = chunk;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetArrIndex(Vector3D<int> pos)
     {
@@ -47,7 +47,7 @@ public class ChunkRegion : IBinarySerializable
     private void Load()
     {
         var saveFile = GetSaveFile();
-        if(!File.Exists(saveFile)) return;
+        if (!File.Exists(saveFile)) return;
         BinaryIO.Deserialize(saveFile, this);
     }
 
@@ -106,10 +106,11 @@ public class ChunkRegion : IBinarySerializable
                 ++cnt;
             }
         }
+
         writer.Write(cnt);
         for (var i = 0; i < _chunks.Length; ++i)
         {
-            if(_chunks[i] == null) continue;
+            if (_chunks[i] == null) continue;
             writer.Write(i);
             _chunks[i]!.SerializeBinary(writer, reason);
         }

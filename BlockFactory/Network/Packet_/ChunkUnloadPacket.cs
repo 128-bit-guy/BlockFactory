@@ -18,13 +18,11 @@ public class ChunkUnloadPacket : IPacket
 
     public ChunkUnloadPacket() : this(Vector3D<int>.Zero)
     {
-        
     }
 
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        
         _pos.SerializeBinary(writer);
     }
 
@@ -37,7 +35,7 @@ public class ChunkUnloadPacket : IPacket
     {
         var player = BlockFactoryClient.Player;
         var c = player.World!.GetChunk(_pos, false);
-        if(c == null) return;
+        if (c == null) return;
         player.World!.RemoveChunk(_pos);
         player.ChunkLoader!.RemoveVisibleChunk(c);
     }

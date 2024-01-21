@@ -35,12 +35,14 @@ public class WorldSaveManager : IDisposable
             {
                 region.LoadTask = null;
             }
+
             if (region.DependencyCount != 0) continue;
-            if(region.LoadTask != null) continue;
+            if (region.LoadTask != null) continue;
             if (region.UnloadTask == null)
             {
                 region.StartUnloadTask();
-            } else if (region.UnloadTask.IsCompleted)
+            }
+            else if (region.UnloadTask.IsCompleted)
             {
                 _regionsToRemove.Add(region.Position);
             }
@@ -50,7 +52,7 @@ public class WorldSaveManager : IDisposable
         {
             _regions.Remove(pos);
         }
-        
+
         _regionsToRemove.Clear();
     }
 
@@ -75,8 +77,7 @@ public class WorldSaveManager : IDisposable
         {
             region.UnloadTask!.Wait();
         }
-        
+
         _regions.Clear();
-        
     }
 }

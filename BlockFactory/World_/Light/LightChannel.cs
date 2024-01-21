@@ -2,5 +2,7 @@
 
 public enum LightChannel
 {
-    Block, Sky, DirectSky
+    Block,
+    Sky,
+    DirectSky
 }

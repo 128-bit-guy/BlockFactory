@@ -16,7 +16,6 @@ public class PlayerControlPacket : IPacket
 
     public PlayerControlPacket() : this(default)
     {
-        
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)

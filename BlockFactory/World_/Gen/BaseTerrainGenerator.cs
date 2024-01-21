@@ -24,7 +24,8 @@ public class BaseTerrainGenerator
         {
             var x = i + c.Position.ShiftLeft(Constants.ChunkSizeLog2).X;
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
-            var val = _noise.GetNoise(x * 3.0d, z * 3.0d) + Math.Max(0, _mountainNoise.GetNoise(x / 10.0d, z / 10.0d) - 2.0f/7) * 70;
+            var val = _noise.GetNoise(x * 3.0d, z * 3.0d) +
+                      Math.Max(0, _mountainNoise.GetNoise(x / 10.0d, z / 10.0d) - 2.0f / 7) * 70;
             var biomeVal = _biomeHeightNoise.GetNoise(x * 3.0d, z * 3.0d);
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {

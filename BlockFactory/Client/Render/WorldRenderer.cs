@@ -114,13 +114,13 @@ public class WorldRenderer : IDisposable
                 renderer.MeshBuilder = null;
                 renderer.Initialized = true;
             }
-            
+
             var translation = GetChunkTranslation(renderer);
 
             var b = new Box3D<float>(translation, translation + new Vector3D<float>(Constants.ChunkSize));
-            
-            if(!intersectionHelper.TestAab(b)) continue;
-            
+
+            if (!intersectionHelper.TestAab(b)) continue;
+
             if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
             {
                 var bmb = _blockMeshBuilders.Pop();
