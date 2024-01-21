@@ -150,6 +150,7 @@ public class Chunk : IBlockWorld
     public void Update(bool heavy)
     {
         if (World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        bool wasInitialized = Data!.Decorated && Data!.HasSkyLight;
         if (heavy && !Data!.Decorated)
         {
             Data!.Decorated = true;
@@ -157,21 +158,6 @@ public class Chunk : IBlockWorld
         }
 
         if (!Data!.Decorated) return;
-
-        if (!Data!.FullyDecorated)
-        {
-            for (var i = -1; i <= 1; ++i)
-            for (var j = -1; j <= 1; ++j)
-            for (var k = -1; k <= 1; ++k)
-            {
-                var oc = Neighbourhood.GetChunk(Position + new Vector3D<int>(i, j, k))!;
-                if (!oc.Data!.HasSkyLight || !oc.Data.Decorated) goto ExitFullyDecoratedCheck;
-            }
-
-            Data!.FullyDecorated = true;
-
-            ExitFullyDecoratedCheck: ;
-        }
 
         var x = World.Random.Next(Constants.ChunkSize);
         var y = World.Random.Next(Constants.ChunkSize);
@@ -195,6 +181,17 @@ public class Chunk : IBlockWorld
         if (heavy || Data!.HasSkyLight)
         {
             LightPropagator.ProcessLightUpdates(this);
+        }
+
+        if(wasInitialized) return;
+        var isInitialized = Data!.Decorated && Data!.HasSkyLight;
+        if(!isInitialized) return;
+        
+        for (var i = -1; i <= 1; ++i)
+        for (var j = -1; j <= 1; ++j)
+        for (var k = -1; k <= 1; ++k)
+        {
+            ++Neighbourhood.GetChunk(Position + new Vector3D<int>(i, j, k))!.Data!.DecoratedNeighbours;
         }
     }
 
@@ -270,11 +267,6 @@ public class Chunk : IBlockWorld
     public bool ShouldTick()
     {
         if (!IsValid || !ReadyForTick) return false;
-        if (!Data!.FullyDecorated) return true;
-        if (_tickingDependencies > 0)
-        {
-            return true;
-        }
-        return false;
+        return !Data!.Decorated || !Data!.HasSkyLight || _tickingDependencies > 0;
     }
 }

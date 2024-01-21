@@ -18,7 +18,8 @@ public class ChunkData : IBlockStorage, IBinarySerializable
 
     public bool Decorated;
     public bool HasSkyLight;
-    public bool FullyDecorated;
+    public int DecoratedNeighbours;
+    public bool FullyDecorated => DecoratedNeighbours == 27;
 
     public short GetBlock(Vector3D<int> pos)
     {
@@ -114,7 +115,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         
         writer.Write(HasSkyLight);
         
-        writer.Write(FullyDecorated);
+        writer.Write7BitEncodedInt(DecoratedNeighbours);
     }
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
@@ -145,6 +146,6 @@ public class ChunkData : IBlockStorage, IBinarySerializable
 
         HasSkyLight = reader.ReadBoolean();
 
-        FullyDecorated = reader.ReadBoolean();
+        DecoratedNeighbours = reader.Read7BitEncodedInt();
     }
 }
