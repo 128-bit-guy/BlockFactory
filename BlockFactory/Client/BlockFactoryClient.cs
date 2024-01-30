@@ -3,10 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
-using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Client.Render.Gui;
 using BlockFactory.Entity_;
 using BlockFactory.Network;
-using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
 using BlockFactory.Resource;
 using BlockFactory.Serialization;
@@ -118,12 +117,19 @@ public static class BlockFactoryClient
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
         LogicProcessor.Update();
         BfRendering.UseWorldMatrices();
-        BfRendering.SetMatrices(Shaders.Block);
+        BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
         WorldRenderer.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
+        BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
+        var size = BlockFactoryClient.Window.FramebufferSize;
+        BfRendering.UseGuiMatrices();
+        BfRendering.Matrices.Push();
+        BfRendering.Matrices.Translate(size.X / 2, size.Y / 2 - BfClientContent.TextRenderer.GetStringHeight("X") / 2, 0);
+        GuiRenderHelper.RenderText("X", 0);
+        BfRendering.Matrices.Pop();
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
         BfDebug.UpdateAndRender(deltaTime);
     }
@@ -161,8 +167,7 @@ public static class BlockFactoryClient
         BfContent.Init();
         var a = typeof(BlockFactoryClient).Assembly;
         ResourceLoader = new AssemblyResourceLoader(a);
-        Textures.Init();
-        Shaders.Init();
+        BfClientContent.Init();
         var mapping = new RegistryMapping();
         if (File.Exists("registry_mapping.dat"))
         {
@@ -203,8 +208,7 @@ public static class BlockFactoryClient
         LogicProcessor.Dispose();
 
         TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
-        Textures.Destroy();
-        Shaders.Destroy();
+        BfClientContent.Destroy();
         BfDebug.Destroy();
         ManagedENet.Shutdown();
     }

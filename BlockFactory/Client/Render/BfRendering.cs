@@ -15,6 +15,7 @@ public static class BfRendering
     public static readonly Color SkyColor = Color.Aqua;
     public static Matrix4X4<float> View { get; private set; }
     public static Matrix4X4<float> Projection { get; private set; }
+    public static MatrixStack Matrices = new();
 
     public static unsafe void Init()
     {
@@ -54,12 +55,20 @@ public static class BfRendering
             300f);
     }
 
+    public static void UseGuiMatrices()
+    {
+        var size = BlockFactoryClient.Window.FramebufferSize;
+        View = Matrix4X4<float>.Identity;
+        Projection = Matrix4X4.CreateOrthographicOffCenter<float>(0, size.X, size.Y, 0, -100,
+            100);
+    }
+
     public static FrustumIntersectionHelper CreateIntersectionHelper()
     {
         return new FrustumIntersectionHelper(View * Projection);
     }
 
-    public static void SetMatrices(ShaderProgram program)
+    public static void SetVpMatrices(ShaderProgram program)
     {
         program.SetView(View);
         program.SetProjection(Projection);

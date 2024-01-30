@@ -33,9 +33,16 @@
         <None Remove="Textures\Stone.png"/>
         <None Remove="Textures\Blocks.png"/>
         <EmbeddedResource Include="Textures\Blocks.png"/>
+        <None Remove="Fonts\LiberationSerif-Regular.ttf" />
+        <EmbeddedResource Include="Fonts\LiberationSerif-Regular.ttf" />
+        <None Remove="Shaders\Text\Fragment.glsl" />
+        <EmbeddedResource Include="Shaders\Text\Fragment.glsl" />
+        <None Remove="Shaders\Text\Vertex.glsl" />
+        <EmbeddedResource Include="Shaders\Text\Vertex.glsl" />
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Fonts\" />
         <Folder Include="Textures\"/>
     </ItemGroup>
 

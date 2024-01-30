@@ -150,10 +150,13 @@ public class WorldRenderer : IDisposable
     {
         renderer.Update(deltaTime);
         if (renderer.Mesh.IndexCount == 0) return;
-        Shaders.Block.SetModel(Matrix4X4.CreateTranslation(GetChunkTranslation(renderer)));
+        BfRendering.Matrices.Push();
+        BfRendering.Matrices.Translate(GetChunkTranslation(renderer));
+        Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(renderer.LoadProgress);
         renderer.Mesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
             null);
+        BfRendering.Matrices.Pop();
     }
 }
