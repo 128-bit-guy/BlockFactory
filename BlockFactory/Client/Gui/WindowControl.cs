@@ -5,14 +5,14 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
 
-public abstract class WindowControl : IMenuControl
+public abstract class WindowControl : MenuControl
 {
     private const float Padding = 16f;
     private Box2D<float> _controlBox;
 
     protected abstract Vector2D<float> GetSize();
 
-    public void SetWorkingArea(Box2D<float> box)
+    public override void SetWorkingArea(Box2D<float> box)
     {
         var size = GetSize();
         var min = box.Center - (size / 2);
@@ -24,8 +24,9 @@ public abstract class WindowControl : IMenuControl
 
     protected abstract void SetChildrenAreas(Box2D<float> contentBox);
 
-    public void UpdateAndRender(float z)
+    public override void UpdateAndRender(float z)
     {
+        base.UpdateAndRender(z);
         RenderWindow(z);
         UpdateAndRenderChildren(z + 1);
     }
@@ -40,7 +41,7 @@ public abstract class WindowControl : IMenuControl
     }
 
     protected abstract void UpdateAndRenderChildren(float z);
-    public Box2D<float> GetControlBox()
+    public override Box2D<float> GetControlBox()
     {
         return _controlBox;
     }

@@ -9,7 +9,8 @@ public struct GuiVertex
     [LayoutLocation(0)] [TransformationType(TransformType.Position)]
     public Vector3D<float> Pos;
 
-    [LayoutLocation(1)] public Vector4D<float> Color;
+    [LayoutLocation(1)] [TransformationType(TransformType.Color)]
+    public Vector4D<float> Color;
 
     [LayoutLocation(2)] [TransformationType(TransformType.Uv)]
     public Vector2D<float> Uv;

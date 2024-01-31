@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Math_;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
@@ -14,5 +15,10 @@ public static class VertexFieldTransformers<T> where T : unmanaged
     public static Vector2D<float> TransformUv(Vector2D<float> pos, MeshBuilder<T> builder)
     {
         return builder.UvTransformer.TransformUv(pos);
+    }
+    
+    public static Vector4D<float> TransformColor(Vector4D<float> color, MeshBuilder<T> builder)
+    {
+        return color * builder.Color.AsVector();
     }
 }

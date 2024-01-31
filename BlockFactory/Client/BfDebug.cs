@@ -25,7 +25,7 @@ public static class BfDebug
     public static void UpdateAndRender(double deltaTime)
     {
         Controller.Update((float)deltaTime);
-        if (MouseInputManager.MouseIsEnabled)
+        if (MouseInputManager.ImGuiShouldBeFocused())
             ImGui.GetIO().ConfigFlags &= ~ImGuiConfigFlags.NoMouse;
         else
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.NoMouse;

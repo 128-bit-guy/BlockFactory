@@ -1,4 +1,5 @@
-﻿using BlockFactory.Client.Render.Mesh_;
+﻿using System.Drawing;
+using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -12,8 +13,9 @@ public static class GuiRenderHelper
     public static readonly RenderMesh GuiMesh = new(VertexBufferObjectUsage.StreamDraw);
     public static readonly MeshBuilder<GuiVertex> GuiBuilder = new();
 
-    public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align)
+    public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align, Color color)
     {
+        GuiBuilder.Color = color;
         renderer.Render(s, GuiBuilder, align);
         GuiBuilder.Upload(GuiMesh);
         GuiBuilder.Reset();
@@ -26,9 +28,14 @@ public static class GuiRenderHelper
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, GuiMesh.IndexCount, DrawElementsType.UnsignedInt, null);
     }
 
+    public static void RenderText(ReadOnlySpan<char> s, int align, Color color)
+    {
+        RenderText(BfClientContent.TextRenderer, s, align, color);
+    }
+
     public static void RenderText(ReadOnlySpan<char> s, int align)
     {
-        RenderText(BfClientContent.TextRenderer, s, align);
+        RenderText(BfClientContent.TextRenderer, s, align, Color.White);
     }
 
     private static void BuildTexturedQuad(Box2D<float> box, Box2D<float> texBox)

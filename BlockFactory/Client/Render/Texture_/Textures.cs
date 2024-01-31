@@ -11,6 +11,8 @@ public static class Textures
     public static TextureAtlas Blocks = null!;
     public static Texture Window = null!;
     public static Texture Button = null!;
+    public static Texture HoveredButton = null!;
+    public static Texture DisabledButton = null!;
 
     public static void Init()
     {
@@ -19,6 +21,8 @@ public static class Textures
         Blocks = LoadTextureAtlas("BlockFactory.Textures.Blocks.png", 4);
         Window = LoadTexture("BlockFactory.Textures.Window.png");
         Button = LoadTexture("BlockFactory.Textures.Button.png");
+        HoveredButton = LoadTexture("BlockFactory.Textures.HoveredButton.png");
+        DisabledButton = LoadTexture("BlockFactory.Textures.DisabledButton.png");
     }
 
     public static Texture LoadTexture(string location)

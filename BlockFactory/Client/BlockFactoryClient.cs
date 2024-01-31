@@ -194,6 +194,7 @@ public static class BlockFactoryClient
         ResourceLoader = new AssemblyResourceLoader(a);
         BfClientContent.Init();
         MenuManager = new MenuManager();
+        InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
     }
 
     private static void OnWindowClose()

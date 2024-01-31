@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
 
-public class LabelControl : IMenuControl
+public class LabelControl : MenuControl
 {
     public string Text;
     private Box2D<float> _controlBox;
@@ -15,7 +15,7 @@ public class LabelControl : IMenuControl
         Text = text;
     }
 
-    public void SetWorkingArea(Box2D<float> box)
+    public override void SetWorkingArea(Box2D<float> box)
     {
         var size = new Vector2D<float>(BfClientContent.TextRenderer.GetStringWidth(Text),
             BfClientContent.TextRenderer.GetStringHeight(Text));
@@ -23,8 +23,9 @@ public class LabelControl : IMenuControl
         _controlBox = new Box2D<float>(min, min + size);
     }
 
-    public void UpdateAndRender(float z)
+    public override void UpdateAndRender(float z)
     {
+        base.UpdateAndRender(z);
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(_controlBox.Center.X,
             _controlBox.Center.Y - BfClientContent.TextRenderer.GetStringHeight(Text) / 2, z);
@@ -32,7 +33,7 @@ public class LabelControl : IMenuControl
         BfRendering.Matrices.Pop();
     }
 
-    public Box2D<float> GetControlBox()
+    public override Box2D<float> GetControlBox()
     {
         return _controlBox;
     }

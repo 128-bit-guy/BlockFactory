@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using Silk.NET.Input;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
 
@@ -11,7 +12,7 @@ public class SlottedWindowControl : WindowControl
     private readonly int[] _divisionsX;
     private readonly int[] _divisionsY;
 
-    private readonly List<(IMenuControl control, Box2D<int> slots)> _children = new();
+    private readonly List<(MenuControl control, Box2D<int> slots)> _children = new();
 
     public SlottedWindowControl(Vector2D<int> slotCounts, int[] divisionsX, int[] divisionsY)
     {
@@ -44,10 +45,26 @@ public class SlottedWindowControl : WindowControl
         return GetMinPosForSlot(contentBox, slot) + new Vector2D<float>(SlotSize);
     }
 
-    public SlottedWindowControl With(Box2D<int> slots, IMenuControl control)
+    public SlottedWindowControl With(Box2D<int> slots, MenuControl control)
     {
         _children.Add((control, slots));
+        control.Parent = this;
         return this;
+    }
+
+    public SlottedWindowControl With(Vector2D<int> pos, MenuControl control)
+    {
+        return With(new Box2D<int>(pos, pos), control);
+    }
+
+    public SlottedWindowControl With(int minX, int minY, int maxX, int maxY, MenuControl control)
+    {
+        return With(new Box2D<int>(minX, minY, maxX, maxY), control);
+    }
+
+    public SlottedWindowControl With(int x, int y, MenuControl control)
+    {
+        return With(new Vector2D<int>(x, y), control);
     }
 
     protected override Vector2D<float> GetSize()
@@ -72,6 +89,15 @@ public class SlottedWindowControl : WindowControl
         foreach (var (control, _) in _children)
         {
             control.UpdateAndRender(z);
+        }
+    }
+
+    public override void MouseDown(MouseButton button)
+    {
+        base.MouseDown(button);
+        foreach (var (control, _) in _children)
+        {
+            control.MouseDown(button);
         }
     }
 }

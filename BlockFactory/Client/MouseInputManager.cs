@@ -9,9 +9,14 @@ public static class MouseInputManager
     public static bool MouseIsEnabled { get; private set; } = true;
     public static Vector2D<float> Delta { get; private set; }
 
-    private static bool MouseShouldBeEnabled()
+    public static bool ImGuiShouldBeFocused()
     {
         return BlockFactoryClient.InputContext.Keyboards[0].IsKeyPressed(Key.AltLeft);
+    }
+
+    private static bool MouseShouldBeEnabled()
+    {
+        return ImGuiShouldBeFocused() || !BlockFactoryClient.MenuManager.Empty;
     }
 
     private static void UpdateEnabled()
@@ -34,6 +39,14 @@ public static class MouseInputManager
         var nPos = BlockFactoryClient.InputContext.Mice[0].Position.ToGeneric();
         Delta = nPos - _lastMousePos;
         _lastMousePos = nPos;
+    }
+
+    public static void MouseDown(IMouse mouse, MouseButton button)
+    {
+        if (MouseShouldBeEnabled() && !ImGuiShouldBeFocused() && !BlockFactoryClient.MenuManager.Empty)
+        {
+            BlockFactoryClient.MenuManager.Top!.MouseDown(button);
+        }
     }
 
     public static void Update()

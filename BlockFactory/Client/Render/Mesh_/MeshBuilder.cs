@@ -1,4 +1,5 @@
-﻿using BlockFactory.Base;
+﻿using System.Drawing;
+using BlockFactory.Base;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
@@ -7,6 +8,7 @@ public class MeshBuilder<T> where T : unmanaged
 {
     public readonly MatrixStack Matrices;
     public readonly IUvTransformer UvTransformer;
+    public Color Color = Color.White;
     private uint _indBegin;
     private int _indCnt;
     private uint[] _indices;
@@ -79,6 +81,7 @@ public class MeshBuilder<T> where T : unmanaged
     {
         _vertCnt = _indCnt = 0;
         _indBegin = 0;
+        Color = Color.White;
         return this;
     }
 }
