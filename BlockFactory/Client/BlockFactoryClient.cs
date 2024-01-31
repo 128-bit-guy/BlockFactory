@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using BlockFactory.Base;
+using BlockFactory.Client.Gui;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Entity_;
@@ -24,9 +25,10 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     public static IInputContext InputContext = null!;
-    public static PlayerEntity Player = null!;
-    public static LogicProcessor LogicProcessor = null!;
-    public static WorldRenderer WorldRenderer = null!;
+    public static PlayerEntity? Player = null;
+    public static LogicProcessor? LogicProcessor = null;
+    public static WorldRenderer? WorldRenderer = null;
+    public static MenuManager MenuManager = null!;
 
     private static void InitWindow()
     {
@@ -46,24 +48,11 @@ public static class BlockFactoryClient
         Window = Silk.NET.Windowing.Window.Create(options);
     }
 
-    private static void UpdateAndRender(double deltaTime)
+    private static void UpdateAndRenderInGame(double deltaTime)
     {
-        if (LogicProcessor.ShouldStop())
-        {
-            Window.Close();
-            return;
-        }
+        if (!MouseInputManager.MouseIsEnabled) Player!.HeadRotation -= MouseInputManager.Delta / 100;
 
-        MouseInputManager.Update();
-        BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        BfRendering.Gl.Enable(EnableCap.CullFace);
-        BfRendering.Gl.CullFace(TriangleFace.Back);
-        BfRendering.Gl.Enable(EnableCap.DepthTest);
-        BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
-
-        if (!MouseInputManager.MouseIsEnabled) Player.HeadRotation -= MouseInputManager.Delta / 100;
-
-        Player.HeadRotation.X %= 2 * MathF.PI;
+        Player!.HeadRotation.X %= 2 * MathF.PI;
         Player.HeadRotation.Y = Math.Clamp(Player.HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
         PlayerControlState nState = 0;
         if (InputContext.Keyboards[0].IsKeyPressed(Key.W))
@@ -112,24 +101,60 @@ public static class BlockFactoryClient
         }
 
         Player.MotionController.ClientState.ControlState = nState;
-
-        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
-        if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
-        LogicProcessor.Update();
+        
+        LogicProcessor!.Update();
         BfRendering.UseWorldMatrices();
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
-        WorldRenderer.UpdateAndRender(deltaTime);
+        WorldRenderer!.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
-        BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
-        var size = BlockFactoryClient.Window.FramebufferSize;
-        BfRendering.UseGuiMatrices();
+    }
+
+    private static void UpdateAndRenderHud()
+    {
+        var size = Window.FramebufferSize;
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(size.X / 2, size.Y / 2 - BfClientContent.TextRenderer.GetStringHeight("X") / 2, 0);
         GuiRenderHelper.RenderText("X", 0);
         BfRendering.Matrices.Pop();
+    }
+
+    private static void UpdateAndRender(double deltaTime)
+    {
+        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
+        if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+
+        MouseInputManager.Update();
+        BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        BfRendering.Gl.Enable(EnableCap.CullFace);
+        BfRendering.Gl.CullFace(TriangleFace.Back);
+        BfRendering.Gl.Enable(EnableCap.DepthTest);
+        BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
+
+        if (LogicProcessor != null)
+        {
+            UpdateAndRenderInGame(deltaTime);
+        }
+
+        BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
+        BfRendering.UseGuiMatrices();
+
+        if (MenuManager.Empty && LogicProcessor == null)
+        {
+            MenuManager.Push(new MainMenu());
+        }
+        
+        if (MenuManager.Empty && LogicProcessor != null)
+        {
+            UpdateAndRenderHud();
+        }
+        else
+        {
+            MenuManager.UpdateAndRender();
+        }
+        
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
         BfDebug.UpdateAndRender(deltaTime);
     }
@@ -168,46 +193,18 @@ public static class BlockFactoryClient
         var a = typeof(BlockFactoryClient).Assembly;
         ResourceLoader = new AssemblyResourceLoader(a);
         BfClientContent.Init();
-        var mapping = new RegistryMapping();
-        if (File.Exists("registry_mapping.dat"))
-        {
-            TagIO.Deserialize("registry_mapping.dat", mapping);
-        }
-
-        SynchronizedRegistries.LoadMapping(mapping);
-        var s = Console.ReadLine()!;
-        INetworkHandler netHandler;
-        string saveName;
-        LogicalSide logicalSide;
-        if (s == "-")
-        {
-            netHandler = new SinglePlayerNetworkHandler();
-            saveName = "world";
-            logicalSide = LogicalSide.SinglePlayer;
-        }
-        else
-        {
-            var ep = GetEndPoint(s);
-            netHandler = new ClientNetworkHandler(ep);
-            saveName = "remote";
-            logicalSide = LogicalSide.Client;
-        }
-
-        LogicProcessor = new LogicProcessor(logicalSide, netHandler, saveName);
-        LogicProcessor.Start();
-        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
-        Player = new PlayerEntity();
-        LogicProcessor.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld());
-        Player.Pos = new Vector3D<double>(0, 0, 0);
+        MenuManager = new MenuManager();
     }
 
     private static void OnWindowClose()
     {
-        WorldRenderer.Dispose();
-        LogicProcessor.Dispose();
+        if (LogicProcessor != null)
+        {
+            WorldRenderer?.Dispose();
+            LogicProcessor?.Dispose();
+            TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
+        }
 
-        TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         BfClientContent.Destroy();
         BfDebug.Destroy();
         ManagedENet.Shutdown();

@@ -7,6 +7,7 @@ public static class Shaders
 {
     public static BlockShaderProgram Block = null!;
     public static ShaderProgram Text = null!;
+    public static ShaderProgram Gui = null!;
 
     public static void Init()
     {
@@ -21,6 +22,12 @@ public static class Shaders
             var fragText =
                 BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Text.Fragment.glsl")!;
             Text = new ShaderProgram(vertText, fragText);
+        }
+        {
+            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Gui.Vertex.glsl")!;
+            var fragText =
+                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Gui.Fragment.glsl")!;
+            Gui = new ShaderProgram(vertText, fragText);
         }
     }
 

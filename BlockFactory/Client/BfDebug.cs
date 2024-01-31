@@ -65,14 +65,18 @@ public static class BfDebug
             ImGui.End();
         }
 
-        if (ImGui.Begin("Chunk loading"))
+        if (BlockFactoryClient.Player != null)
         {
-            ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
-            ImGui.Text($"Rendered chunks: {BlockFactoryClient.WorldRenderer.RenderedChunks}");
-            ImGui.Text($"Fading out chunks: {BlockFactoryClient.WorldRenderer.FadingOutChunks}");
+            if (ImGui.Begin("Chunk loading"))
+            {
+                ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
+                ImGui.Text($"Rendered chunks: {BlockFactoryClient.WorldRenderer!.RenderedChunks}");
+                ImGui.Text($"Fading out chunks: {BlockFactoryClient.WorldRenderer.FadingOutChunks}");
+            }
+
+            ImGui.End();
         }
 
-        ImGui.End();
         Controller.Render();
     }
 
