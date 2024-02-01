@@ -20,6 +20,7 @@ public class MainMenu : Menu
             .With(0, 4, 2, 4, Mods = new ButtonControl("Mods"))
             .With(3, 4, 5, 4, Textures = new ButtonControl("Textures"));
         SinglePlayer.Pressed += OnSinglePlayerPressed;
+        Multiplayer.Pressed += OnMultiplayerPressed;
         Options.Enabled = false;
         Mods.Enabled = false;
         Textures.Enabled = false;
@@ -27,6 +28,15 @@ public class MainMenu : Menu
 
     private void OnSinglePlayerPressed()
     {
-        Console.WriteLine("Singleplayer pressed");
+        BlockFactoryClient.MenuManager.Pop();
+        BlockFactoryClient.StartSinglePlayer("world");
+    }
+
+    private void OnMultiplayerPressed()
+    {
+        Console.WriteLine("Enter server address and port");
+        var serverAddressAndPort = Console.ReadLine()!;
+        BlockFactoryClient.MenuManager.Pop();
+        BlockFactoryClient.StartMultiplayer(serverAddressAndPort);
     }
 }

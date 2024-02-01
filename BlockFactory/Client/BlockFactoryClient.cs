@@ -183,6 +183,39 @@ public static class BlockFactoryClient
         return new IPEndPoint(ipAddress, port);
     }
 
+    public static void StartSinglePlayer(string saveName)
+    {
+        var mapping = new RegistryMapping();
+        if (File.Exists("registry_mapping.dat"))
+        {
+            TagIO.Deserialize("registry_mapping.dat", mapping);
+        }
+
+        SynchronizedRegistries.LoadMapping(mapping);
+        LogicProcessor = new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName);
+        LogicProcessor.Start();
+        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
+        Player = new PlayerEntity();
+        LogicProcessor.AddPlayer(Player);
+        Player.SetWorld(LogicProcessor.GetWorld());
+        Player.Pos = new Vector3D<double>(0, 0, 0);
+    }
+
+    public static void StartMultiplayer(string serverAddressAndPort)
+    {
+        var mapping = new RegistryMapping();
+        //TODO receive mapping from server
+        SynchronizedRegistries.LoadMapping(mapping);
+        var ep = GetEndPoint(serverAddressAndPort);
+        LogicProcessor = new LogicProcessor(LogicalSide.Client, new ClientNetworkHandler(ep), "remote");
+        LogicProcessor.Start();
+        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
+        Player = new PlayerEntity();
+        LogicProcessor.AddPlayer(Player);
+        Player.SetWorld(LogicProcessor.GetWorld());
+        Player.Pos = new Vector3D<double>(0, 0, 0);
+    }
+
     private static void OnWindowLoad()
     {
         ManagedENet.Startup();

@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
+using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
+using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -7,6 +9,7 @@ using Texture = BlockFactory.Client.Render.Texture_.Texture;
 
 namespace BlockFactory.Client.Render.Gui;
 
+[ExclusiveTo(Side.Client)]
 public static class GuiRenderHelper
 {
     private static readonly uint[] QuadIndices = { 0, 2, 1, 0, 3, 2 };
