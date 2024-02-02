@@ -54,53 +54,8 @@ public static class BlockFactoryClient
 
         Player!.HeadRotation.X %= 2 * MathF.PI;
         Player.HeadRotation.Y = Math.Clamp(Player.HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
-        PlayerControlState nState = 0;
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.W))
-        {
-            nState |= PlayerControlState.MovingForward;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.S))
-        {
-            nState |= PlayerControlState.MovingBackwards;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.A))
-        {
-            nState |= PlayerControlState.MovingLeft;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.D))
-        {
-            nState |= PlayerControlState.MovingRight;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.Space))
-        {
-            nState |= PlayerControlState.MovingUp;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft))
-        {
-            nState |= PlayerControlState.MovingDown;
-        }
-
-        if (InputContext.Keyboards[0].IsKeyPressed(Key.ControlLeft))
-        {
-            nState |= PlayerControlState.Sprinting;
-        }
-
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Left))
-        {
-            nState |= PlayerControlState.Attacking;
-        }
-
-        if (InputContext.Mice[0].IsButtonPressed(MouseButton.Right))
-        {
-            nState |= PlayerControlState.Using;
-        }
-
-        Player.MotionController.ClientState.ControlState = nState;
+        PlayerControlManager.Update(deltaTime);
+        Player.MotionController.ClientState.ControlState = PlayerControlManager.ControlState;
         
         LogicProcessor!.Update();
         BfRendering.UseWorldMatrices();
