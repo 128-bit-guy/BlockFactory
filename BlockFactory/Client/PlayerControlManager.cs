@@ -1,8 +1,10 @@
-﻿using BlockFactory.Entity_;
+﻿using BlockFactory.Base;
+using BlockFactory.Entity_;
 using Silk.NET.Input;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public static class PlayerControlManager
 {
     public static PlayerControlState ControlState { get; private set; }

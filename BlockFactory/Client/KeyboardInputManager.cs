@@ -1,8 +1,10 @@
-﻿using BlockFactory.Client.Gui;
+﻿using BlockFactory.Base;
+using BlockFactory.Client.Gui;
 using Silk.NET.Input;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public static class KeyboardInputManager
 {
     public static void KeyDown(IKeyboard keyboard, Key key, int a)

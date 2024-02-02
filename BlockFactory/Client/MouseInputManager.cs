@@ -1,8 +1,10 @@
-﻿using Silk.NET.Input;
+﻿using BlockFactory.Base;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client;
 
+[ExclusiveTo(Side.Client)]
 public static class MouseInputManager
 {
     private static Vector2D<float> _lastMousePos;
