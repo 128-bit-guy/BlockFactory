@@ -4,6 +4,8 @@ using BlockFactory.Client;
 using BlockFactory.Entity_;
 using BlockFactory.Network;
 using BlockFactory.Network.Packet_;
+using BlockFactory.Registry_;
+using BlockFactory.Serialization;
 using BlockFactory.World_;
 
 namespace BlockFactory;
@@ -151,5 +153,28 @@ public class LogicProcessor : IDisposable
     {
         _world.Dispose();
         NetworkHandler.Dispose();
+    }
+
+    private string GetMappingSaveLocation()
+    {
+        return Path.Combine(SaveLocation, "registry_mapping.dat");
+    }
+
+    public void LoadMapping()
+    {
+        var mappingSaveLocation = GetMappingSaveLocation();
+        var mapping = new RegistryMapping();
+        if (File.Exists(mappingSaveLocation))
+        {
+            TagIO.Deserialize(mappingSaveLocation, mapping);
+        }
+
+        SynchronizedRegistries.LoadMapping(mapping);
+    }
+
+    public void SaveMapping()
+    {
+        var mappingSaveLocation = GetMappingSaveLocation();
+        TagIO.Serialize(mappingSaveLocation, SynchronizedRegistries.WriteMapping());
     }
 }

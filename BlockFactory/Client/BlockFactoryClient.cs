@@ -141,14 +141,8 @@ public static class BlockFactoryClient
 
     public static void StartSinglePlayer(string saveName)
     {
-        var mapping = new RegistryMapping();
-        if (File.Exists("registry_mapping.dat"))
-        {
-            TagIO.Deserialize("registry_mapping.dat", mapping);
-        }
-
-        SynchronizedRegistries.LoadMapping(mapping);
         LogicProcessor = new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName);
+        LogicProcessor.LoadMapping();
         LogicProcessor.Start();
         WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
@@ -193,10 +187,13 @@ public static class BlockFactoryClient
         {
             WorldRenderer?.Dispose();
             WorldRenderer = null;
-            LogicProcessor?.Dispose();
+            if (LogicProcessor.LogicalSide != LogicalSide.Client)
+            {
+                LogicProcessor.SaveMapping();
+            }
+            LogicProcessor.Dispose();
             LogicProcessor = null;
             Player = null;
-            TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         }
     }
 

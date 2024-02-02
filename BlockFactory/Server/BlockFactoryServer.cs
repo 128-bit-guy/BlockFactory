@@ -25,10 +25,10 @@ public static class BlockFactoryServer
     {
         ManagedENet.Startup();
         BfContent.Init();
-        SynchronizedRegistries.LoadMapping(new RegistryMapping());
         var port = GetPort();
         NetworkHandler = new ServerNetworkHandler(port);
         LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
+        LogicProcessor.LoadMapping();
         LogicProcessor.Start();
     }
 
@@ -40,6 +40,7 @@ public static class BlockFactoryServer
 
     private static void Shutdown()
     {
+        LogicProcessor.SaveMapping();
         LogicProcessor.Dispose();
     }
 
