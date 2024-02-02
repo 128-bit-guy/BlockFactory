@@ -17,4 +17,9 @@ public class Menu
     {
         Root?.MouseDown(button);
     }
+
+    public virtual void EscapePressed()
+    {
+        BlockFactoryClient.MenuManager.Pop();
+    }
 }

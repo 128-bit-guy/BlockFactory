@@ -77,6 +77,16 @@ public static class BfDebug
             ImGui.End();
         }
 
+        if (ImGui.Begin("Debug functions"))
+        {
+            if (ImGui.Button("Garbage collection"))
+            {
+                GC.Collect();
+            }
+        }
+        
+        ImGui.End();
+
         Controller.Render();
     }
 

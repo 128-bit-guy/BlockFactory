@@ -228,17 +228,25 @@ public static class BlockFactoryClient
         BfClientContent.Init();
         MenuManager = new MenuManager();
         InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
+        InputContext.Keyboards[0].KeyDown += KeyboardInputManager.KeyDown;
     }
 
-    private static void OnWindowClose()
+    public static void ExitWorld()
     {
         if (LogicProcessor != null)
         {
             WorldRenderer?.Dispose();
+            WorldRenderer = null;
             LogicProcessor?.Dispose();
+            LogicProcessor = null;
+            Player = null;
             TagIO.Serialize("registry_mapping.dat", SynchronizedRegistries.WriteMapping());
         }
+    }
 
+    private static void OnWindowClose()
+    {
+        ExitWorld();
         BfClientContent.Destroy();
         BfDebug.Destroy();
         ManagedENet.Shutdown();
