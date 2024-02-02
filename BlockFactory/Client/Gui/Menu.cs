@@ -6,7 +6,7 @@ namespace BlockFactory.Client.Gui;
 public class Menu
 {
     public MenuControl? Root;
-    
+
     public void UpdateAndRender(Box2D<float> workingArea)
     {
         Root?.SetWorkingArea(workingArea);

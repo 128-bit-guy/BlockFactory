@@ -30,6 +30,7 @@ public class SlottedWindowControl : WindowControl
         {
             ++divCntX;
         }
+
         var divCntY = 0;
         while (divCntY < _divisionsY.Length && _divisionsY[divCntX] < slot.Y)
         {

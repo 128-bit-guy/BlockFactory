@@ -9,10 +9,11 @@ public class MainMenu : Menu
     private readonly ButtonControl _options;
     private readonly ButtonControl _mods;
     private readonly ButtonControl _textures;
+
     public MainMenu()
     {
         Root = new SlottedWindowControl(new Vector2D<int>(6, 5),
-            Array.Empty<int>(), new[]{3})
+                Array.Empty<int>(), new[] { 3 })
             .With(0, 0, 5, 0, new LabelControl("Block Factory"))
             .With(0, 1, 5, 1, _singlePlayer = new ButtonControl("Singleplayer"))
             .With(0, 2, 5, 2, _multiplayer = new ButtonControl("Multiplayer"))
@@ -42,6 +43,5 @@ public class MainMenu : Menu
 
     public override void EscapePressed()
     {
-        
     }
 }

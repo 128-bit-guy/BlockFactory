@@ -56,7 +56,7 @@ public static class BlockFactoryClient
         Player.HeadRotation.Y = Math.Clamp(Player.HeadRotation.Y, -MathF.PI / 2, MathF.PI / 2);
         PlayerControlManager.Update(deltaTime);
         Player.MotionController.ClientState.ControlState = PlayerControlManager.ControlState;
-        
+
         LogicProcessor!.Update();
         BfRendering.UseWorldMatrices();
         BfRendering.SetVpMatrices(Shaders.Block);
@@ -71,7 +71,8 @@ public static class BlockFactoryClient
     {
         var size = Window.FramebufferSize;
         BfRendering.Matrices.Push();
-        BfRendering.Matrices.Translate(size.X / 2, size.Y / 2 - BfClientContent.TextRenderer.GetStringHeight("X") / 2, 0);
+        BfRendering.Matrices.Translate(size.X / 2, size.Y / 2 - BfClientContent.TextRenderer.GetStringHeight("X") / 2,
+            0);
         GuiRenderHelper.RenderText("X", 0);
         BfRendering.Matrices.Pop();
     }
@@ -100,7 +101,7 @@ public static class BlockFactoryClient
         {
             MenuManager.Push(new MainMenu());
         }
-        
+
         if (MenuManager.Empty && LogicProcessor != null)
         {
             UpdateAndRenderHud();
@@ -109,7 +110,7 @@ public static class BlockFactoryClient
         {
             MenuManager.UpdateAndRender();
         }
-        
+
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
         BfDebug.UpdateAndRender(deltaTime);
     }

@@ -103,7 +103,7 @@ public class TextRenderer : IDisposable
                 {
                     fixed (StbTrueType.stbtt_bakedchar* chars = _chars)
                     {
-                        StbTrueType.stbtt_GetBakedQuad(chars, (int)_width, (int)_height, c1 - 32, 
+                        StbTrueType.stbtt_GetBakedQuad(chars, (int)_width, (int)_height, c1 - 32,
                             &x, &y, &quad, 1);
                     }
                 }

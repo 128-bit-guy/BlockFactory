@@ -10,11 +10,13 @@ namespace BlockFactory.Client;
 public static class BfClientContent
 {
     public static TextRenderer TextRenderer = null!;
+
     public static void Init()
     {
         Textures.Init();
         Shaders.Init();
-        using var stream = BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Fonts.LiberationSerif-Regular.ttf")!;
+        using var stream =
+            BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Fonts.LiberationSerif-Regular.ttf")!;
         TextRenderer = new TextRenderer(stream, 64);
     }
 

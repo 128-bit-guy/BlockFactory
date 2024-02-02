@@ -6,19 +6,19 @@ namespace BlockFactory.Client;
 public static class PlayerControlManager
 {
     public static PlayerControlState ControlState { get; private set; }
-    private static double NoWorldInteractionTime = 1;
+    private static double _noWorldInteractionTime = 1;
 
     public static void Update(double deltaTime)
     {
         if (!BlockFactoryClient.MenuManager.Empty)
         {
             ControlState = 0;
-            NoWorldInteractionTime = 1;
+            _noWorldInteractionTime = 1;
             return;
         }
 
-        NoWorldInteractionTime -= deltaTime;
-        NoWorldInteractionTime = Math.Max(NoWorldInteractionTime, -1);
+        _noWorldInteractionTime -= deltaTime;
+        _noWorldInteractionTime = Math.Max(_noWorldInteractionTime, -1);
         PlayerControlState nState = 0;
         if (BlockFactoryClient.InputContext.Keyboards[0].IsKeyPressed(Key.W))
         {
@@ -55,12 +55,12 @@ public static class PlayerControlManager
             nState |= PlayerControlState.Sprinting;
         }
 
-        if (BlockFactoryClient.InputContext.Mice[0].IsButtonPressed(MouseButton.Left) && NoWorldInteractionTime <= 0)
+        if (BlockFactoryClient.InputContext.Mice[0].IsButtonPressed(MouseButton.Left) && _noWorldInteractionTime <= 0)
         {
             nState |= PlayerControlState.Attacking;
         }
 
-        if (BlockFactoryClient.InputContext.Mice[0].IsButtonPressed(MouseButton.Right) && NoWorldInteractionTime <= 0)
+        if (BlockFactoryClient.InputContext.Mice[0].IsButtonPressed(MouseButton.Right) && _noWorldInteractionTime <= 0)
         {
             nState |= PlayerControlState.Using;
         }

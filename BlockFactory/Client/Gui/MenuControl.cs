@@ -25,10 +25,10 @@ public abstract class MenuControl
     {
         UpdateMouse();
     }
+
     public abstract Box2D<float> GetControlBox();
 
     public virtual void MouseDown(MouseButton button)
     {
-        
     }
-} 
+}

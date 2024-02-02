@@ -140,6 +140,7 @@ public static class GuiRenderHelper
 
             BuildTexturedQuad(renderBox, texBox);
         }
+
         RenderBufferContent(texture);
     }
 }

@@ -22,7 +22,7 @@ public class MenuManager
 
     public void UpdateAndRender()
     {
-        if(Empty) return;
+        if (Empty) return;
         var size = BlockFactoryClient.Window.FramebufferSize;
         Top!.UpdateAndRender(new Box2D<float>(0, 0, size.X, size.Y));
     }

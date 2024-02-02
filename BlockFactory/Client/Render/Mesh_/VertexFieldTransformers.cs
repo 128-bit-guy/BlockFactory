@@ -16,7 +16,7 @@ public static class VertexFieldTransformers<T> where T : unmanaged
     {
         return builder.UvTransformer.TransformUv(pos);
     }
-    
+
     public static Vector4D<float> TransformColor(Vector4D<float> color, MeshBuilder<T> builder)
     {
         return color * builder.Color.AsVector();

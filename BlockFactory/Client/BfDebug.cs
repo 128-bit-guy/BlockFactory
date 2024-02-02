@@ -84,7 +84,7 @@ public static class BfDebug
                 GC.Collect();
             }
         }
-        
+
         ImGui.End();
 
         Controller.Render();

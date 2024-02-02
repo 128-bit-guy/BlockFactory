@@ -41,6 +41,7 @@ public abstract class WindowControl : MenuControl
     }
 
     protected abstract void UpdateAndRenderChildren(float z);
+
     public override Box2D<float> GetControlBox()
     {
         return _controlBox;
