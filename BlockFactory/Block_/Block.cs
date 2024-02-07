@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
 using BlockFactory.Registry_;
+using BlockFactory.World_;
 using BlockFactory.World_.Light;
 
 namespace BlockFactory.Block_;
@@ -45,5 +46,20 @@ public class Block : IRegistryEntry
     public virtual bool HasAo()
     {
         return true;
+    }
+
+    public virtual void UpdateBlock(BlockPointer pointer)
+    {
+        
+    }
+
+    public virtual bool IsFaceSolid(CubeFace face)
+    {
+        return true;
+    }
+
+    public virtual void RandomUpdateBlock(BlockPointer pointer)
+    {
+        
     }
 }

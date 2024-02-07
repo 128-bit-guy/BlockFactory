@@ -28,4 +28,9 @@ public class LeavesBlock : Block
     {
         return false;
     }
+
+    public override bool IsFaceSolid(CubeFace face)
+    {
+        return false;
+    }
 }

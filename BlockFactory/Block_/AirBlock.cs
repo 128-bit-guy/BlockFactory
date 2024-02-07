@@ -22,4 +22,9 @@ public class AirBlock : Block
     {
         return false;
     }
+
+    public override bool IsFaceSolid(CubeFace face)
+    {
+        return false;
+    }
 }
