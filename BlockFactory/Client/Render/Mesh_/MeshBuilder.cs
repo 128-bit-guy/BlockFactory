@@ -10,7 +10,7 @@ public class MeshBuilder<T> where T : unmanaged
     public readonly IUvTransformer UvTransformer;
     public Color Color = Color.White;
     private uint _indBegin;
-    private int _indCnt;
+    public int IndexCount { get; private set; }
     private uint[] _indices;
     private int _vertCnt;
     private T[] _vertices;
@@ -53,14 +53,14 @@ public class MeshBuilder<T> where T : unmanaged
 
     public MeshBuilder<T> Index(uint index)
     {
-        if (_indCnt == _indices.Length)
+        if (IndexCount == _indices.Length)
         {
             var inds = _indices;
             _indices = new uint[2 * inds.Length];
             Array.Copy(inds, _indices, inds.Length);
         }
 
-        _indices[_indCnt++] = _indBegin + index;
+        _indices[IndexCount++] = _indBegin + index;
         return this;
     }
 
@@ -73,13 +73,13 @@ public class MeshBuilder<T> where T : unmanaged
 
     public MeshBuilder<T> Upload(RenderMesh mesh)
     {
-        mesh.Upload<T>(_vertices.AsSpan()[.._vertCnt], _indices.AsSpan()[.._indCnt]);
+        mesh.Upload<T>(_vertices.AsSpan()[.._vertCnt], _indices.AsSpan()[..IndexCount]);
         return this;
     }
 
     public MeshBuilder<T> Reset()
     {
-        _vertCnt = _indCnt = 0;
+        _vertCnt = IndexCount = 0;
         _indBegin = 0;
         Color = Color.White;
         return this;

@@ -26,6 +26,7 @@ public class ChunkRenderer : IDisposable
     public bool RequiresRebuild = true;
     public bool Unloading;
     public bool Valid = true;
+    public uint TransparentStart = 0;
 
     static ChunkRenderer()
     {
@@ -89,6 +90,10 @@ public class ChunkRenderer : IDisposable
                          + new Vector3D<int>(i, j, k);
             var block = neighbourhood.GetBlockObj(absPos);
             if (block == Blocks.Air) continue;
+            if (block == Blocks.Water)
+            {
+                continue;
+            }
             builder.Matrices.Push();
             builder.Matrices.Translate(i, j, k);
             foreach (var face in CubeFaceUtils.Values())
@@ -96,6 +101,69 @@ public class ChunkRenderer : IDisposable
                 transformer.Sprite = block.GetTexture(face);
                 var oPos = absPos + face.GetDelta();
                 if (neighbourhood.GetBlockObj(oPos).BlockRendering(face.GetOpposite())) continue;
+                // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
+                var s = face.GetAxis() == 1
+                    ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
+                    : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
+
+                for (var u = 0; u < 2; ++u)
+                for (var v = 0; v < 2; ++v)
+                {
+                    byte cLight = 0;
+                    var ao = false;
+                    for (var dx = -1; dx < 1; ++dx)
+                    for (var dy = -1; dy < 1; ++dy)
+                    {
+                        var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
+                        var oPos2Abs = absPos + oPos2Rel * s;
+                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
+                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
+                        if (neighbourhood.GetBlockObj(oPos2Abs).HasAo()) ao = true;
+                    }
+
+                    if (ao) cLight -= Math.Min(cLight, (byte)3);
+                    lightVal[u | (v << 1)] = cLight;
+                }
+
+                var dtMask = 0;
+                for (var l = 0; l < 4; ++l)
+                {
+                    _vertexLight[l] = (float)lightVal[l] / 15;
+                    dtMask |= (lightVal[l] << (l << 2));
+                }
+
+                builder.Matrices.Push();
+                builder.Matrices.Multiply(s.AroundCenterMatrix4);
+                builder.NewPolygon().Indices(DifferentTriangles[dtMask] ? QuadIndices2 : QuadIndices)
+                    .Vertex(new BlockVertex(0, 0, 1, _vertexLight[0], _vertexLight[0], _vertexLight[0], 1, 0, 0))
+                    .Vertex(new BlockVertex(1, 0, 1, _vertexLight[1], _vertexLight[1], _vertexLight[1], 1, 1, 0))
+                    .Vertex(new BlockVertex(1, 1, 1, _vertexLight[3], _vertexLight[3], _vertexLight[3], 1, 1, 1))
+                    .Vertex(new BlockVertex(0, 1, 1, _vertexLight[2], _vertexLight[2], _vertexLight[2], 1, 0, 1));
+                builder.Matrices.Pop();
+            }
+
+            builder.Matrices.Pop();
+        }
+
+        bmb.TransparentStart = (uint)builder.IndexCount;
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        for (var j = 0; j < Constants.ChunkSize; ++j)
+        for (var k = 0; k < Constants.ChunkSize; ++k)
+        {
+            if (!Valid) return;
+            var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
+                         + new Vector3D<int>(i, j, k);
+            var block = neighbourhood.GetBlockObj(absPos);
+            if(block != Blocks.Water) continue;
+            builder.Matrices.Push();
+            builder.Matrices.Translate(i, j, k);
+            foreach (var face in CubeFaceUtils.Values())
+            {
+                transformer.Sprite = block.GetTexture(face);
+                var oPos = absPos + face.GetDelta();
+                var neighbour = neighbourhood.GetBlockObj(oPos);
+                if (neighbour.BlockRendering(face.GetOpposite())) continue;
+                if(neighbour == block) continue;
                 // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]

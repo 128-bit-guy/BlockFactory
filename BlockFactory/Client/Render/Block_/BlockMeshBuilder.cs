@@ -9,10 +9,18 @@ public class BlockMeshBuilder
 {
     public readonly MeshBuilder<BlockVertex> MeshBuilder;
     public readonly TextureAtlasUvTransformer UvTransformer;
+    public uint TransparentStart;
 
     public BlockMeshBuilder()
     {
         UvTransformer = new TextureAtlasUvTransformer(Textures.Blocks);
         MeshBuilder = new MeshBuilder<BlockVertex>(UvTransformer);
+        TransparentStart = 0;
+    }
+
+    public void Reset()
+    {
+        MeshBuilder.Reset();
+        TransparentStart = 0;
     }
 }

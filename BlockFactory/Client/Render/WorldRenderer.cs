@@ -13,6 +13,7 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class WorldRenderer : IDisposable
 {
+    private readonly List<ChunkRenderer> _transparentRenderers = new();
     private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
     private readonly ChunkRenderer?[] _renderers = new ChunkRenderer?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
@@ -73,7 +74,7 @@ public class WorldRenderer : IDisposable
                 //
             }
 
-            cr.MeshBuilder!.MeshBuilder.Reset();
+            cr.MeshBuilder!.Reset();
             _blockMeshBuilders.Push(cr.MeshBuilder);
             cr.RebuildTask = null;
             cr.MeshBuilder = null;
@@ -97,6 +98,7 @@ public class WorldRenderer : IDisposable
         Textures.Blocks.Bind();
         Shaders.Block.Use();
         Shaders.Block.SetSkyColor(BfRendering.SkyColor);
+        List<ChunkRenderer> transparentRenderers = _transparentRenderers;
         foreach (var delta in PlayerChunkLoading.ChunkDeltas)
         {
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
@@ -106,9 +108,12 @@ public class WorldRenderer : IDisposable
             if (renderer.RebuildTask is { IsCompleted: true })
             {
                 if (renderer.RebuildTask.IsCompletedSuccessfully)
+                {
                     renderer.MeshBuilder!.MeshBuilder.Upload(renderer.Mesh);
+                    renderer.TransparentStart = renderer.MeshBuilder.TransparentStart;
+                }
 
-                renderer.MeshBuilder!.MeshBuilder.Reset();
+                renderer.MeshBuilder!.Reset();
                 _blockMeshBuilders.Push(renderer.MeshBuilder);
                 renderer.RebuildTask = null;
                 renderer.MeshBuilder = null;
@@ -128,13 +133,31 @@ public class WorldRenderer : IDisposable
                 renderer.RequiresRebuild = false;
             }
 
-            UpdateAndRenderChunk(renderer, deltaTime);
+            renderer.Update(deltaTime);
+            RenderChunk(renderer, false);
+            if (renderer.TransparentStart != renderer.Mesh.IndexCount)
+            {
+                transparentRenderers.Add(renderer);
+            }
         }
 
-        foreach (var renderer in _fadingOutRenderers) UpdateAndRenderChunk(renderer, deltaTime);
+        foreach (var renderer in _fadingOutRenderers)
+        {
+            renderer.Update(deltaTime);
+            RenderChunk(renderer, false);
+        }
 
         _fadingOutRenderers.RemoveAll(renderer => renderer.LoadProgress <= 0.01f);
-
+        
+        BfRendering.Gl.Enable(EnableCap.Blend);
+        BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        foreach (var renderer in transparentRenderers)
+        {
+            RenderChunk(renderer, true);
+        }
+        transparentRenderers.Clear();
+        BfRendering.Gl.Disable(EnableCap.Blend);
+        
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -146,17 +169,28 @@ public class WorldRenderer : IDisposable
             .ShiftLeft(Constants.ChunkSizeLog2).As<double>() - _playerSmoothPos).As<float>();
     }
 
-    private unsafe void UpdateAndRenderChunk(ChunkRenderer renderer, double deltaTime)
+    private unsafe void RenderChunk(ChunkRenderer renderer, bool transparent)
     {
-        renderer.Update(deltaTime);
-        if (renderer.Mesh.IndexCount == 0) return;
+        uint begin, end;
+        if (transparent)
+        {
+            begin = renderer.TransparentStart;
+            end = renderer.Mesh.IndexCount;
+        }
+        else
+        {
+            begin = 0;
+            end = renderer.TransparentStart;
+        }
+
+        if (begin == end) return;
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(GetChunkTranslation(renderer));
         Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(renderer.LoadProgress);
         renderer.Mesh.Bind();
-        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, renderer.Mesh.IndexCount, DrawElementsType.UnsignedInt,
-            null);
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, end - begin,
+            DrawElementsType.UnsignedInt, (void*)(begin * sizeof(uint)));
         BfRendering.Matrices.Pop();
     }
 }
