@@ -31,7 +31,14 @@ public static class DirectSkyLightPropagator
             return n.GetLight(oPos, LightChannel.DirectSky);
         }
 
-        return (n.GetBlock(oPos) == 0 && n.GetBiomeObj(oPos) != Biomes.Underground) ? 15 : 0;
+        if (n.GetBlock(oPos) != 0) return 0;
+        if (n.GetBiome(oPos) == Biomes.Underground.Id) return 0;
+        if (n.GetBiome(oPos) == Biomes.Ocean.Id)
+        {
+            return oPos.Y < 0 ? 0 : 15;
+        }
+
+        return 15;
     }
 
     public static void ProcessLightUpdates(Chunk chunk)

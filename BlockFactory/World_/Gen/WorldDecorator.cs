@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Block_;
+using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
@@ -31,7 +32,7 @@ public class WorldDecorator : WorldGenElement
             var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
             if (c.Neighbourhood.GetBlockObj(new Vector3D<int>(x, y - 1, z)).GetWorldGenBase() == Blocks.Stone &&
-                c.Neighbourhood.GetBlock(new Vector3D<int>(x, y, z)) == 0)
+                !c.Neighbourhood.GetBlockObj(new Vector3D<int>(x, y, z)).IsFaceSolid(CubeFace.Bottom))
             {
                 c.Neighbourhood.GetBiomeObj(new Vector3D<int>(x, y, z))
                     .SetTopSoil(c.Neighbourhood, new Vector3D<int>(x, y - 1, z));

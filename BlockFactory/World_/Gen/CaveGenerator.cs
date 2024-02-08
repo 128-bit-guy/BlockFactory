@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Block_;
 using BlockFactory.Math_;
 using BlockFactory.Random_;
 using Silk.NET.Maths;
@@ -70,7 +71,13 @@ public class CaveGenerator : WorldGenElement
         for (var k = Math.Max(center.Z - radius, mi.Z); k <= Math.Min(center.Z + radius, ma.Z); ++k)
         {
             var pos = new Vector3D<int>(i, j, k);
-            if ((pos - center).LengthSquared <= radius * radius) carvedChunk.Data!.SetBlock(pos, block);
+            if ((pos - center).LengthSquared <= radius * radius)
+            {
+                if (carvedChunk.Data!.GetBlock(pos) != Blocks.Water.Id)
+                {
+                    carvedChunk.Data!.SetBlock(pos, block);
+                }
+            }
         }
     }
 }
