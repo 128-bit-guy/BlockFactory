@@ -9,16 +9,32 @@ namespace BlockFactory.World_.Gen;
 
 public class BaseTerrainGenerator
 {
+    private const long HalfMask = uint.MaxValue;
+    private readonly WorldGenerator _worldGenerator;
     private readonly FastNoiseLite _noise = new();
     private readonly FastNoiseLite _mountainNoise = new();
     private readonly FastNoiseLite _biomeHeightNoise = new();
     private readonly FastNoiseLite _oceanNoise = new();
     [ThreadStatic] private static int[,]? _oceanMap;
-    private const int OceanSmoothRadius = 5;
+    private const int OceanSmoothRadius = 8;
 
-    public BaseTerrainGenerator()
+    public BaseTerrainGenerator(WorldGenerator worldGenerator)
     {
+        _worldGenerator = worldGenerator;
         _mountainNoise.SetFractalType(FastNoiseLite.FractalType.Ridged);
+        _noise.SetSeed(GetNoiseSeed(1388148653, 1767345779));
+        _mountainNoise.SetSeed(GetNoiseSeed(1878018581, 1115628257));
+        _biomeHeightNoise.SetSeed(GetNoiseSeed(1960908821, 1458846821));
+        _oceanNoise.SetSeed(GetNoiseSeed(1277495113, 1048827289));
+    }
+
+    public int GetNoiseSeed(int number1, int number2)
+    {
+        var res = _worldGenerator.Seed & HalfMask;
+        res ^= ((_worldGenerator.Seed >> 32) * 1000000007) & HalfMask;
+        res *= number1;
+        res += number2;
+        return (int)(res & HalfMask);
     }
 
     private static void InitThreadStatics()
@@ -35,8 +51,8 @@ public class BaseTerrainGenerator
         {
             var x = i + cBegin.X;
             var z = j + cBegin.Z;
-            var val = _oceanNoise.GetNoise(x / 10.0d, z / 10.0d);
-            _oceanMap![i + OceanSmoothRadius, j + OceanSmoothRadius] = val < 0.3 ? val < 0.2f? val < 0.1f? val < -0.5f ? 4 : 3 : 2 : 1 : 0;
+            var val = _oceanNoise.GetNoise(x / 20.0d, z / 20.0d);
+            _oceanMap![i + OceanSmoothRadius, j + OceanSmoothRadius] = val < 0.65 ? val < 0.6f? val < 0.5f? val < -0.0f ? 4 : 3 : 2 : 1 : 0;
         }
 
         Span<float> heights = stackalloc float[5];
@@ -87,7 +103,10 @@ public class BaseTerrainGenerator
                 if (underground) continue;
                 if (_oceanMap![i + OceanSmoothRadius, k + OceanSmoothRadius] is >= 1 and <= 2)
                 {
-                    c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Beach);
+                    if (val + biomeVal <= 7)
+                    {
+                        c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Beach);
+                    }
                 } else if (_oceanMap[i + OceanSmoothRadius, k + OceanSmoothRadius] > 2)
                 {
                     c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Ocean);

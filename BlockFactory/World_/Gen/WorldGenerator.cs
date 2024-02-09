@@ -10,12 +10,13 @@ namespace BlockFactory.World_.Gen;
 
 public class WorldGenerator
 {
-    private readonly BaseTerrainGenerator _baseTerrainGenerator = new();
+    private readonly BaseTerrainGenerator _baseTerrainGenerator;
     private readonly CaveGenerator _caveGenerator;
     private readonly WorldDecorator _decorator;
 
     public WorldGenerator()
     {
+        _baseTerrainGenerator = new BaseTerrainGenerator(this);
         _caveGenerator = new CaveGenerator(this);
         _decorator = new WorldDecorator(this);
     }
