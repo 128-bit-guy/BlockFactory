@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Registry_;
+using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -12,7 +13,7 @@ public class Biome : IRegistryEntry
     {
     }
 
-    public virtual void Decorate(IBlockStorage world, Vector3D<int> pos, Random rng)
+    public virtual void Decorate(BlockPointer pointer, Random rng)
     {
     }
 }

@@ -65,7 +65,7 @@ public class WorldDecorator : WorldGenElement
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
 
             c.Neighbourhood.GetBiomeObj(new Vector3D<int>(x, y, z))
-                .Decorate(c.Neighbourhood, new Vector3D<int>(x, y, z), rng);
+                .Decorate(new BlockPointer(c.Neighbourhood, new Vector3D<int>(x, y, z)), rng);
             foreach (var generator in _oreGenerators)
             {
                 generator.Generate(c.Neighbourhood, new Vector3D<int>(x, y, z), rng);

@@ -10,4 +10,13 @@ public static class Algorithms
             if (i != j) (l[i], l[j]) = (l[j], l[i]);
         }
     }
+    
+    public static void Shuffle<T>(this Span<T> l, Random rng)
+    {
+        for (var i = 0; i < l.Length; ++i)
+        {
+            var j = rng.Next(l.Length);
+            if (i != j) (l[i], l[j]) = (l[j], l[i]);
+        }
+    }
 }
