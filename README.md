@@ -3,12 +3,12 @@ Voxel game written in C#
 # Screenshots
 
 <p>
-<img src="/Screenshots/Forest.png?raw=true" width="200px" alt="Forest"/>
-<img src="/Screenshots/Ocean.png?raw=true" width="200px" alt="Ocean"/>
-<img src="/Screenshots/Beach.png?raw=true" width="200px" alt="Beach"/>
-<img src="/Screenshots/Mountain.png?raw=true" width="200px" alt="Mountain"/>
-<img src="/Screenshots/CaveEntrance.png?raw=true" width="200px" alt="CaveEntrance"/>
-<img src="/Screenshots/Underground.png?raw=true" width="200px" alt="Underground"/>
+<img src="/Screenshots/Forest.png?raw=true" width="400px" alt="Forest"/>
+<img src="/Screenshots/Ocean.png?raw=true" width="400px" alt="Ocean"/>
+<img src="/Screenshots/Beach.png?raw=true" width="400px" alt="Beach"/>
+<img src="/Screenshots/Mountain.png?raw=true" width="400px" alt="Mountain"/>
+<img src="/Screenshots/CaveEntrance.png?raw=true" width="400px" alt="CaveEntrance"/>
+<img src="/Screenshots/Underground.png?raw=true" width="400px" alt="Underground"/>
 </p>
 
 # Running
