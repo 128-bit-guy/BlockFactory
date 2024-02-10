@@ -2,12 +2,14 @@
 Voxel game written in C#
 # Screenshots
 
+<p>
 <img src="/Screenshots/Forest.png?raw=true" width="200px" alt="Forest"/>
 <img src="/Screenshots/Ocean.png?raw=true" width="200px" alt="Ocean"/>
 <img src="/Screenshots/Beach.png?raw=true" width="200px" alt="Beach"/>
 <img src="/Screenshots/Mountain.png?raw=true" width="200px" alt="Mountain"/>
 <img src="/Screenshots/CaveEntrance.png?raw=true" width="200px" alt="CaveEntrance"/>
 <img src="/Screenshots/Underground.png?raw=true" width="200px" alt="Underground"/>
+</p>
 
 # Running
 Currently to start singleplayer, you should start BlockFactory.Client project and enter "-" into command line
