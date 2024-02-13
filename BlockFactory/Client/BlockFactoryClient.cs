@@ -144,8 +144,8 @@ public static class BlockFactoryClient
         LogicProcessor = new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName);
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
-        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
+        WorldRenderer = new WorldRenderer(Player);
         LogicProcessor.AddPlayer(Player);
         Player.SetWorld(LogicProcessor.GetWorld());
         Player.Pos = new Vector3D<double>(0, 0, 0);
@@ -159,8 +159,8 @@ public static class BlockFactoryClient
         var ep = GetEndPoint(serverAddressAndPort);
         LogicProcessor = new LogicProcessor(LogicalSide.Client, new ClientNetworkHandler(ep), "remote");
         LogicProcessor.Start();
-        WorldRenderer = new WorldRenderer(LogicProcessor.GetWorld());
         Player = new PlayerEntity();
+        WorldRenderer = new WorldRenderer(Player);
         LogicProcessor.AddPlayer(Player);
         Player.SetWorld(LogicProcessor.GetWorld());
         Player.Pos = new Vector3D<double>(0, 0, 0);

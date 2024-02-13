@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
@@ -17,14 +18,16 @@ public class WorldRenderer : IDisposable
     private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
     private readonly ChunkRenderer?[] _renderers = new ChunkRenderer?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
-    public readonly World World;
+    // public readonly World World;
+    public readonly PlayerEntity Player;
     private Vector3D<double> _playerSmoothPos;
 
-    public WorldRenderer(World world)
+    public WorldRenderer(PlayerEntity player)
     {
-        World = world;
-        world.ChunkStatusManager.ChunkReadyForTick += OnChunkReadyForTick;
-        world.ChunkStatusManager.ChunkNotReadyForTick += OnChunkNotReadyForTick;
+        Player = player;
+        // World = world;
+        player.ChunkBecameVisible += OnChunkReadyForTick;
+        player.ChunkBecameInvisible += OnChunkNotReadyForTick;
         for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder());
     }
 
@@ -33,8 +36,8 @@ public class WorldRenderer : IDisposable
 
     public void Dispose()
     {
-        World.ChunkStatusManager.ChunkReadyForTick -= OnChunkReadyForTick;
-        World.ChunkStatusManager.ChunkNotReadyForTick -= OnChunkNotReadyForTick;
+        Player.ChunkBecameVisible -= OnChunkReadyForTick;
+        Player.ChunkBecameInvisible -= OnChunkNotReadyForTick;
         for (var i = 0; i < _renderers.Length; ++i)
         {
             if (_renderers[i] == null) continue;
@@ -126,7 +129,7 @@ public class WorldRenderer : IDisposable
 
             if (!intersectionHelper.TestAab(b)) continue;
 
-            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0)
+            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 && renderer.Chunk.ReadyForTick)
             {
                 var bmb = _blockMeshBuilders.Pop();
                 renderer.StartRebuildTask(bmb);

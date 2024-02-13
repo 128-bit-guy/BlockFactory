@@ -16,6 +16,8 @@ public class PlayerEntity : Entity
     public PlayerChunkTicker? ChunkTicker { get; private set; }
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown = 0;
+    public event Action<Chunk> ChunkBecameVisible = (_) => { };
+    public event Action<Chunk> ChunkBecameInvisible = (_) => { };
 
     public PlayerEntity()
     {
@@ -127,9 +129,11 @@ public class PlayerEntity : Entity
 
     public virtual void OnChunkBecameVisible(Chunk c)
     {
+        ChunkBecameVisible(c);
     }
 
     public virtual void OnChunkBecameInvisible(Chunk c)
     {
+        ChunkBecameInvisible(c);
     }
 }
