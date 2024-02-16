@@ -18,6 +18,16 @@ public class Menu
         Root?.MouseDown(button);
     }
 
+    public void KeyDown(Key key, int a)
+    {
+        Root?.KeyDown(key, a);
+    }
+
+    public void KeyChar(char c)
+    {
+        Root?.KeyChar(c);
+    }
+
     public virtual void EscapePressed()
     {
         BlockFactoryClient.MenuManager.Pop();

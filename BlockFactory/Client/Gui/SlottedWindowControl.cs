@@ -101,4 +101,20 @@ public class SlottedWindowControl : WindowControl
             control.MouseDown(button);
         }
     }
+    public override void KeyDown(Key key, int a)
+    {
+        base.KeyDown(key, a);
+        foreach (var (control, _) in _children)
+        {
+            control.KeyDown(key, a);
+        }
+    }
+    public override void KeyChar(char c)
+    {
+        base.KeyChar(c);
+        foreach (var (control, _) in _children)
+        {
+            control.KeyChar(c);
+        }
+    }
 }

@@ -23,5 +23,20 @@ public static class KeyboardInputManager
                 BlockFactoryClient.MenuManager.Top!.EscapePressed();
             }
         }
+        else
+        {
+            if (!BlockFactoryClient.MenuManager.Empty)
+            {
+                BlockFactoryClient.MenuManager.Top!.KeyDown(key, a);
+            }
+        }
+    }
+
+    public static void KeyChar(IKeyboard keyboard, char c)
+    {
+        if (!BlockFactoryClient.MenuManager.Empty)
+        {
+            BlockFactoryClient.MenuManager.Top!.KeyChar(c);
+        }
     }
 }

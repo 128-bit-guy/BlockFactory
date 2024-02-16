@@ -179,6 +179,7 @@ public static class BlockFactoryClient
         MenuManager = new MenuManager();
         InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
         InputContext.Keyboards[0].KeyDown += KeyboardInputManager.KeyDown;
+        InputContext.Keyboards[0].KeyChar += KeyboardInputManager.KeyChar;
     }
 
     public static void ExitWorld()

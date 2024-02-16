@@ -27,6 +27,7 @@ public static class GuiRenderHelper
 
     public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align, Color color)
     {
+        if(s.IsEmpty) return;
         GuiBuilder.Color = color;
         renderer.Render(s, GuiBuilder, align);
         GuiBuilder.Upload(GuiMesh);

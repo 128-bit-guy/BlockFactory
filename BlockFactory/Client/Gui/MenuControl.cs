@@ -7,6 +7,7 @@ public abstract class MenuControl
 {
     public MenuControl? Parent;
     public bool IsMouseOver { get; private set; }
+    public static MenuControl? ActiveControl;
 
     private void UpdateMouse()
     {
@@ -29,6 +30,13 @@ public abstract class MenuControl
     public abstract Box2D<float> GetControlBox();
 
     public virtual void MouseDown(MouseButton button)
+    {
+    }
+    
+    public virtual void KeyDown(Key key, int a)
+    {
+    }
+    public virtual void KeyChar(char c)
     {
     }
 }

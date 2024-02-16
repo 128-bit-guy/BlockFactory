@@ -35,10 +35,11 @@ public class MainMenu : Menu
 
     private void OnMultiplayerPressed()
     {
-        Console.WriteLine("Enter server address and port");
-        var serverAddressAndPort = Console.ReadLine()!;
-        BlockFactoryClient.MenuManager.Pop();
-        BlockFactoryClient.StartMultiplayer(serverAddressAndPort);
+        BlockFactoryClient.MenuManager.Push(new MultiplayerMenu());
+        // Console.WriteLine("Enter server address and port");
+        // var serverAddressAndPort = Console.ReadLine()!;
+        // BlockFactoryClient.MenuManager.Pop();
+        // BlockFactoryClient.StartMultiplayer(serverAddressAndPort);
     }
 
     public override void EscapePressed()
