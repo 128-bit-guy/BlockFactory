@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
+using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
@@ -15,6 +16,14 @@ public static class GuiRenderHelper
     private static readonly uint[] QuadIndices = { 0, 2, 1, 0, 3, 2 };
     public static readonly RenderMesh GuiMesh = new(VertexBufferObjectUsage.StreamDraw);
     public static readonly MeshBuilder<GuiVertex> GuiBuilder = new();
+    public static MeshBuilder<GuiVertex> TexturedGuiBuilder;
+    public static TextureAtlasUvTransformer Transformer;
+
+    public static void Init()
+    {
+        Transformer = new TextureAtlasUvTransformer(Textures.Gui);
+        TexturedGuiBuilder = new MeshBuilder<GuiVertex>(Transformer);
+    }
 
     public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align, Color color)
     {
@@ -43,21 +52,21 @@ public static class GuiRenderHelper
 
     private static void BuildTexturedQuad(Box2D<float> box, Box2D<float> texBox)
     {
-        GuiBuilder.Matrices.Push();
-        GuiBuilder.NewPolygon();
-        GuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Min.Y));
-        GuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Min.Y));
-        GuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Max.Y));
-        GuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Max.Y));
-        GuiBuilder.Indices(QuadIndices);
-        GuiBuilder.Matrices.Pop();
+        TexturedGuiBuilder.Matrices.Push();
+        TexturedGuiBuilder.NewPolygon();
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Min.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Min.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Max.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Max.Y));
+        TexturedGuiBuilder.Indices(QuadIndices);
+        TexturedGuiBuilder.Matrices.Pop();
     }
 
-    private static unsafe void RenderBufferContent(Texture texture)
+    private static unsafe void RenderBufferContent()
     {
-        GuiBuilder.Upload(GuiMesh);
-        GuiBuilder.Reset();
-        texture.Bind();
+        TexturedGuiBuilder.Upload(GuiMesh);
+        TexturedGuiBuilder.Reset();
+        Textures.Gui.Bind();
         Shaders.Gui.Use();
         BfRendering.SetVpMatrices(Shaders.Gui);
         Shaders.Gui.SetModel(BfRendering.Matrices);
@@ -66,19 +75,21 @@ public static class GuiRenderHelper
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, GuiMesh.IndexCount, DrawElementsType.UnsignedInt, null);
     }
 
-    public static void RenderTexturedQuad(Texture texture, Box2D<float> box, Box2D<float> texBox)
+    public static void RenderTexturedQuad(int texture, Box2D<float> box, Box2D<float> texBox)
     {
+        Transformer.Sprite = texture;
         BuildTexturedQuad(box, texBox);
-        RenderBufferContent(texture);
+        RenderBufferContent();
     }
 
-    public static void RenderTexturedQuad(Texture texture, Box2D<float> box)
+    public static void RenderTexturedQuad(int texture, Box2D<float> box)
     {
         RenderTexturedQuad(texture, box, new Box2D<float>(0, 0, 1, 1));
     }
 
-    public static void RenderQuadWithBorder(Texture texture, Box2D<float> box, float padding, float texPadding)
+    public static void RenderQuadWithBorder(int texture, Box2D<float> box, float padding, float texPadding)
     {
+        Transformer.Sprite = texture;
         var intBox =
             new Box2D<float>(box.Min + new Vector2D<float>(padding), box.Max - new Vector2D<float>(padding));
         var repeatsX = Math.Max((int)MathF.Ceiling(intBox.Size.X / padding * (2 * texPadding)), 1);
@@ -141,6 +152,6 @@ public static class GuiRenderHelper
             BuildTexturedQuad(renderBox, texBox);
         }
 
-        RenderBufferContent(texture);
+        RenderBufferContent();
     }
 }

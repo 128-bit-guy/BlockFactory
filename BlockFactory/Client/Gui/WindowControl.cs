@@ -36,7 +36,7 @@ public abstract class WindowControl : MenuControl
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(0, 0, z);
         var box = GetControlBox();
-        GuiRenderHelper.RenderQuadWithBorder(Textures.Window, box, Padding, 0.25f);
+        GuiRenderHelper.RenderQuadWithBorder(3, box, Padding, 0.25f);
         BfRendering.Matrices.Pop();
     }
 

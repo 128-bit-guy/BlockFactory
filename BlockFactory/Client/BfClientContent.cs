@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using BlockFactory.Base;
 using BlockFactory.Client.Render;
+using BlockFactory.Client.Render.Gui;
 using BlockFactory.Client.Render.Texture_;
 
 namespace BlockFactory.Client;
@@ -18,6 +19,7 @@ public static class BfClientContent
         using var stream =
             BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Fonts.LiberationSerif-Regular.ttf")!;
         TextRenderer = new TextRenderer(stream, 64);
+        GuiRenderHelper.Init();
     }
 
     public static void Destroy()

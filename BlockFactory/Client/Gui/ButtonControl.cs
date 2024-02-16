@@ -32,7 +32,7 @@ public class ButtonControl : MenuControl
         BfRendering.Matrices.Translate(0, 0, z);
         var mouseOver = IsMouseOver;
         GuiRenderHelper.RenderQuadWithBorder(
-            Enabled ? (mouseOver ? Textures.HoveredButton : Textures.Button) : Textures.DisabledButton, _controlBox,
+            Enabled ? (mouseOver ? 2 : 0) : 1, _controlBox,
             Padding, 1 / 8.0f);
         BfRendering.Matrices.Translate(_controlBox.Center.X,
             _controlBox.Center.Y - BfClientContent.TextRenderer.GetStringHeight(Text) * 0.4f, 1);
