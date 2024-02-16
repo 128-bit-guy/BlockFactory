@@ -12,9 +12,7 @@ Voxel game written in C#
 </p>
 
 # Running
-Currently to start singleplayer, you should start BlockFactory.Client project and enter "-" into command line
+To start client, you should start BlockFactory.Client project
 
-To start multiplayer you should start both BlockFactory.Client and BlockFactory.Server projects. Then you should enter
-port on which the server will run (leave line empty for default port). Also you should enter ip address and port into
-client command line, separated by ":" (enter only ip for default port, leave blank line to connect to server on the same
-PC).
+To start server, you should start BlockFactory.Server project, then write port on which the server will run in the
+command line (leave line empty for default port)
