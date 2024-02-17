@@ -26,7 +26,7 @@ public class Chunk : IBlockWorld
     public bool ReadyForUse = false;
     public bool IsValid = false;
     public bool IsTicking = false;
-    private int _tickingDependencies = 0;
+    public int TickingDependencies = 0;
     public int ReadyForUseNeighbours = 0;
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion? Region;
@@ -297,13 +297,13 @@ public class Chunk : IBlockWorld
 
     public void AddTickingDependency()
     {
-        ++_tickingDependencies;
+        ++TickingDependencies;
         World.ChunkStatusManager.ScheduleTickingUpdate(this);
     }
 
     public void RemoveTickingDependency()
     {
-        --_tickingDependencies;
+        --TickingDependencies;
     }
 
     public int GetUpdateClass()
@@ -320,6 +320,6 @@ public class Chunk : IBlockWorld
     public bool ShouldTick()
     {
         if (!IsValid || !ReadyForTick) return false;
-        return !Data!.Decorated || !Data!.HasSkyLight || _tickingDependencies > 0;
+        return !Data!.Decorated || !Data!.HasSkyLight || TickingDependencies > 0;
     }
 }

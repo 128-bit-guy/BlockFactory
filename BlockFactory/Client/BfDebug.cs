@@ -70,6 +70,7 @@ public static class BfDebug
             if (ImGui.Begin("Chunk loading"))
             {
                 ImGui.Text($"Chunk loading progress: {BlockFactoryClient.Player.ChunkLoader!.Progress}");
+                ImGui.Text($"Loaded chunks in world: {BlockFactoryClient.Player.World!.GetLoadedChunks().Count()}");
                 ImGui.Text($"Rendered chunks: {BlockFactoryClient.WorldRenderer!.RenderedChunks}");
                 ImGui.Text($"Fading out chunks: {BlockFactoryClient.WorldRenderer.FadingOutChunks}");
             }

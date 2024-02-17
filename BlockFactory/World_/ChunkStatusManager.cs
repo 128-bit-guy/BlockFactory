@@ -92,7 +92,7 @@ public class ChunkStatusManager
 
     private void UpdateStatus(Chunk chunk)
     {
-        if (chunk.WatchingPlayers.Count == 0)
+        if (chunk.WatchingPlayers.Count == 0 && chunk.TickingDependencies == 0)
         {
             World.RemoveChunk(chunk.Position);
         }
