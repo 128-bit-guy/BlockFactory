@@ -18,6 +18,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
 
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
+    private BitArray _blockUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     public bool Decorated;
     public bool HasSkyLight;
@@ -60,9 +61,19 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         return _lightUpdateScheduled[GetArrIndex(pos)];
     }
 
+    public bool IsBlockUpdateScheduled(Vector3D<int> pos)
+    {
+        return _blockUpdateScheduled[GetArrIndex(pos)];
+    }
+
     public void SetLightUpdateScheduled(Vector3D<int> pos, bool update)
     {
         _lightUpdateScheduled[GetArrIndex(pos)] = update;
+    }
+    
+    public void SetBlockUpdateScheduled(Vector3D<int> pos, bool update)
+    {
+        _blockUpdateScheduled[GetArrIndex(pos)] = update;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,6 +126,11 @@ public class ChunkData : IBlockStorage, IBinarySerializable
 
         writer.Write(lightUpdateScheduled);
 
+        var blockUpdateScheduled = new byte[_blockUpdateScheduled.Length >> 3];
+        _blockUpdateScheduled.CopyTo(blockUpdateScheduled, 0);
+
+        writer.Write(blockUpdateScheduled);
+
         writer.Write(Decorated);
 
         writer.Write(HasSkyLight);
@@ -148,6 +164,8 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         }
 
         _lightUpdateScheduled = new BitArray(reader.ReadBytes(_lightUpdateScheduled.Length >> 3));
+
+        _blockUpdateScheduled = new BitArray(reader.ReadBytes(_blockUpdateScheduled.Length >> 3));
 
         Decorated = reader.ReadBoolean();
 

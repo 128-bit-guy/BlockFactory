@@ -43,13 +43,23 @@ public class LogicProcessor : IDisposable
 
     private void UpdateChunk(Chunk c)
     {
+        if (!c.IsTicking)
+        {
+            return;
+        }
+
+        c.Update(c.GetUpdateClass() == _heavyUpdateClass);
+    }
+
+    private void PreUpdateChunk(Chunk c)
+    {
         if (!c.ShouldTick())
         {
             c.IsTicking = false;
             return;
         }
 
-        c.Update(c.GetUpdateClass() == _heavyUpdateClass);
+        c.PreUpdate();
     }
 
     public void AddTickingChunk(Chunk c)
@@ -71,6 +81,12 @@ public class LogicProcessor : IDisposable
         for (var i = 0; i < 27; ++i)
         {
             _chunkUpdateClasses[i].Shuffle(Random.Shared);
+            Parallel.ForEach(_chunkUpdateClasses[i], PreUpdateChunk);
+            // _chunkUpdateClasses[i].Clear();
+        }
+        
+        for (var i = 0; i < 27; ++i)
+        {
             Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
             _chunkUpdateClasses[i].RemoveAll(c => !c.IsTicking);
             // _chunkUpdateClasses[i].Clear();

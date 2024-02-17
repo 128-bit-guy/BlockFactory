@@ -1,4 +1,6 @@
-﻿using BlockFactory.Base;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
+using BlockFactory.Base;
 using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using BlockFactory.Network.Packet_;
@@ -29,6 +31,11 @@ public class Chunk : IBlockWorld
     public readonly HashSet<PlayerEntity> WatchingPlayers = new();
     public readonly ChunkRegion? Region;
     public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
+    private readonly List<Vector3D<int>> _scheduledBlockUpdates = new();
+    private readonly List<Vector3D<int>> _blockUpdateBuffer = new();
+
+    private readonly BitArray _bufferedUpdateScheduled =
+        new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
     {
@@ -57,11 +64,19 @@ public class Chunk : IBlockWorld
         return Data!.GetLight(pos, channel);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int GetArrIndex(Vector3D<int> pos)
+    {
+        return (pos.X & Constants.ChunkMask) | (((pos.Y & Constants.ChunkMask) | ((pos.Z & Constants.ChunkMask)
+            << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();
         if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
+        _bufferedUpdateScheduled[GetArrIndex(pos)] = false;
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
         {
             foreach (var player in WatchingPlayers)
@@ -116,10 +131,36 @@ public class Chunk : IBlockWorld
     {
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
-            this.GetBlockObj(pos).UpdateBlock(new BlockPointer(Neighbourhood, pos));
+            if (!Data!.IsBlockUpdateScheduled(pos))
+            {
+                Data!.SetBlockUpdateScheduled(pos, true);
+                _scheduledBlockUpdates.Add(pos);
+            }
         }
 
         BlockUpdate(pos);
+    }
+
+    private void MoveBlockUpdatesToBuffer()
+    {
+        _blockUpdateBuffer.AddRange(_scheduledBlockUpdates);
+        foreach (var pos in _scheduledBlockUpdates)
+        {
+            _bufferedUpdateScheduled[GetArrIndex(pos)] = true;
+            Data!.SetBlockUpdateScheduled(pos, false);
+        }
+        _scheduledBlockUpdates.Clear();
+    }
+
+    private void UpdateBlocksInBuffer()
+    {
+        foreach (var pos in _blockUpdateBuffer)
+        {
+            if(!_bufferedUpdateScheduled[GetArrIndex(pos)]) continue;
+            this.GetBlockObj(pos).UpdateBlock(new BlockPointer(Neighbourhood, pos));
+            _bufferedUpdateScheduled[GetArrIndex(pos)] = false;
+        }
+        _blockUpdateBuffer.Clear();
     }
 
     public void UpdateLight(Vector3D<int> pos)
@@ -150,6 +191,24 @@ public class Chunk : IBlockWorld
         World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 
+    private void FullyDecoratedUpdate()
+    {
+        var x = World.Random.Next(Constants.ChunkSize);
+        var y = World.Random.Next(Constants.ChunkSize);
+        var z = World.Random.Next(Constants.ChunkSize);
+        var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+        this.GetBlockObj(absPos).RandomUpdateBlock(new BlockPointer(Neighbourhood, absPos));
+        UpdateBlocksInBuffer();
+    }
+
+    public void PreUpdate()
+    {
+        if (Data!.FullyDecorated)
+        {
+            MoveBlockUpdatesToBuffer();
+        }
+    }
+
     public void Update(bool heavy)
     {
         if (World.LogicProcessor.LogicalSide == LogicalSide.Client) return;
@@ -162,11 +221,10 @@ public class Chunk : IBlockWorld
 
         if (!Data!.Decorated) return;
 
-        var x = World.Random.Next(Constants.ChunkSize);
-        var y = World.Random.Next(Constants.ChunkSize);
-        var z = World.Random.Next(Constants.ChunkSize);
-        var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
-        this.GetBlockObj(absPos).RandomUpdateBlock(new BlockPointer(Neighbourhood, absPos));
+        if (Data!.FullyDecorated)
+        {
+            FullyDecoratedUpdate();
+        }
 
         if (heavy || Data!.HasSkyLight)
         {
@@ -185,7 +243,7 @@ public class Chunk : IBlockWorld
         }
     }
 
-    private void CopyLightUpdatesFromData()
+    private void CopyUpdatesFromData()
     {
         ScheduledLightUpdates.Clear();
         for (var i = 0; i < Constants.ChunkSize; ++i)
@@ -196,6 +254,11 @@ public class Chunk : IBlockWorld
             if (Data!.IsLightUpdateScheduled(absPos))
             {
                 ScheduledLightUpdates.Add(absPos);
+            }
+
+            if (Data!.IsBlockUpdateScheduled(absPos))
+            {
+                _scheduledBlockUpdates.Add(absPos);
             }
         }
     }
@@ -213,7 +276,7 @@ public class Chunk : IBlockWorld
             Data = data;
         }
 
-        CopyLightUpdatesFromData();
+        CopyUpdatesFromData();
 
         _loadingCompleted = true;
 
