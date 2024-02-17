@@ -78,7 +78,7 @@ public class PlayerEntity : Entity
 
             if ((MotionController.ClientState.ControlState & PlayerControlState.Using) != 0)
             {
-                World!.SetBlock(pos + face.GetDelta(), Blocks.Water);
+                World!.SetBlock(pos + face.GetDelta(), Blocks.Sand);
                 _blockCooldown = 5;
             }
         }

@@ -22,7 +22,7 @@ public static class Blocks
     public static SimpleBlock CoalOre;
     public static LeavesBlock Leaves;
     public static WaterBlock Water;
-    public static SimpleBlock Sand;
+    public static SandBlock Sand;
 
     public static void Init()
     {
@@ -40,7 +40,7 @@ public static class Blocks
         CoalOre = Registry.Register("CoalOre", new SimpleBlock(22, Stone));
         Leaves = Registry.Register("Leaves", new LeavesBlock());
         Water = Registry.Register("Water", new WaterBlock());
-        Sand = Registry.Register("Sand", new SimpleBlock(10));
+        Sand = Registry.Register("Sand", new SandBlock());
     }
 
     public static void Lock()
