@@ -22,6 +22,7 @@ public class LogicProcessor : IDisposable
     private int _heavyUpdateClass;
     public readonly string SaveLocation;
     private readonly Stopwatch _stopwatch = new();
+    private bool _stopRequested = false;
 
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation)
     {
@@ -162,7 +163,12 @@ public class LogicProcessor : IDisposable
 
     public bool ShouldStop()
     {
-        return NetworkHandler.ShouldStop();
+        return _stopRequested || NetworkHandler.ShouldStop();
+    }
+
+    public void RequestStop()
+    {
+        _stopRequested = true;
     }
 
     public void Dispose()

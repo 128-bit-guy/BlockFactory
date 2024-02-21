@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net;
 using BlockFactory.Base;
 using BlockFactory.Network;
 using BlockFactory.Registry_;
@@ -11,6 +13,8 @@ public static class BlockFactoryServer
 {
     public static ServerNetworkHandler NetworkHandler;
     public static LogicProcessor LogicProcessor;
+    private static ConcurrentQueue<string> ConsoleCommandQueue = new();
+    private static Thread ConsoleCommandReaderThread;
 
     private static int GetPort()
     {
@@ -19,6 +23,18 @@ public static class BlockFactoryServer
 
         var port = int.Parse(x);
         return port;
+    }
+    
+    private static void ReadConsoleCommands()
+    {
+        while (true)
+        {
+            var s = Console.ReadLine();
+            if (s != null)
+            {
+                ConsoleCommandQueue.Enqueue(s);
+            }
+        }
     }
 
     private static void Init()
@@ -30,10 +46,37 @@ public static class BlockFactoryServer
         LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
+        ConsoleCommandReaderThread = new Thread(ReadConsoleCommands);
+        ConsoleCommandReaderThread.IsBackground = true;
+        ConsoleCommandReaderThread.Start();
+    }
+
+    private static void ExecuteConsoleCommands()
+    {
+        var cnt = ConsoleCommandQueue.Count;
+        for (var i = 0; i < cnt; ++i)
+        {
+            if (ConsoleCommandQueue.TryDequeue(out var res))
+            {
+                if (res == "/stop")
+                {
+                    LogicProcessor.RequestStop();
+                }
+                else
+                {
+                    Console.WriteLine($"Unknown command: {res}");
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 
     private static void Update()
     {
+        ExecuteConsoleCommands();
         LogicProcessor.Update();
         Thread.Sleep(1);
     }
