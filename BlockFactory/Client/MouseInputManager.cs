@@ -18,7 +18,7 @@ public static class MouseInputManager
 
     private static bool MouseShouldBeEnabled()
     {
-        return ImGuiShouldBeFocused() || !BlockFactoryClient.MenuManager.Empty;
+        return ImGuiShouldBeFocused() || BlockFactoryClient.MenuManager.HasAnythingToRender();
     }
 
     private static void UpdateEnabled()

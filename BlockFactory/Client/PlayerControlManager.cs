@@ -12,7 +12,7 @@ public static class PlayerControlManager
 
     public static void Update(double deltaTime)
     {
-        if (!BlockFactoryClient.MenuManager.Empty)
+        if (BlockFactoryClient.MenuManager.HasAnythingToRender())
         {
             ControlState = 0;
             _noWorldInteractionTime = 1;

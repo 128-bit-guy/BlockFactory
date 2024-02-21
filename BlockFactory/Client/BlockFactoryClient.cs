@@ -103,13 +103,13 @@ public static class BlockFactoryClient
             MenuManager.Push(new MainMenu());
         }
 
-        if (MenuManager.Empty && LogicProcessor != null)
+        if (!MenuManager.HasAnythingToRender() && LogicProcessor != null)
         {
             UpdateAndRenderHud();
         }
         else
         {
-            MenuManager.UpdateAndRender();
+            MenuManager.UpdateAndRender(deltaTime);
         }
 
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
