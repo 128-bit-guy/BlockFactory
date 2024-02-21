@@ -33,6 +33,10 @@ public abstract class MenuControl
     {
     }
     
+    public virtual void MouseUp(MouseButton button)
+    {
+    }
+    
     public virtual void KeyDown(Key key, int a)
     {
     }

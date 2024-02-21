@@ -29,8 +29,9 @@ public class MainMenu : Menu
 
     private void OnSinglePlayerPressed()
     {
-        BlockFactoryClient.MenuManager.Pop();
-        BlockFactoryClient.StartSinglePlayer("world");
+        BlockFactoryClient.MenuManager.Push(new SinglePlayerMenu());
+        // BlockFactoryClient.MenuManager.Pop();
+        // BlockFactoryClient.StartSinglePlayer("world");
     }
 
     private void OnMultiplayerPressed()

@@ -51,6 +51,14 @@ public static class MouseInputManager
         }
     }
 
+    public static void MouseUp(IMouse mouse, MouseButton button)
+    {
+        if (MouseShouldBeEnabled() && !ImGuiShouldBeFocused() && !BlockFactoryClient.MenuManager.Empty)
+        {
+            BlockFactoryClient.MenuManager.Top!.MouseUp(button);
+        }
+    }
+
     public static void Update()
     {
         UpdateEnabled();

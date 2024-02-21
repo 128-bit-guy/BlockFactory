@@ -29,6 +29,7 @@ public static class BlockFactoryClient
     public static LogicProcessor? LogicProcessor = null;
     public static WorldRenderer? WorldRenderer = null;
     public static MenuManager MenuManager = null!;
+    public static string WorldsDirectory = null!;
 
     private static void InitWindow()
     {
@@ -168,6 +169,11 @@ public static class BlockFactoryClient
 
     private static void OnWindowLoad()
     {
+        WorldsDirectory = Path.GetFullPath("worlds");
+        if (!Directory.Exists(WorldsDirectory))
+        {
+            Directory.CreateDirectory(WorldsDirectory);
+        }
         ManagedENet.Startup();
         InputContext = Window.CreateInput();
         BfRendering.Init();
@@ -178,6 +184,7 @@ public static class BlockFactoryClient
         BfClientContent.Init();
         MenuManager = new MenuManager();
         InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
+        InputContext.Mice[0].MouseUp += MouseInputManager.MouseUp;
         InputContext.Keyboards[0].KeyDown += KeyboardInputManager.KeyDown;
         InputContext.Keyboards[0].KeyChar += KeyboardInputManager.KeyChar;
     }

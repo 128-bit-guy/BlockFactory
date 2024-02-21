@@ -18,6 +18,11 @@ public class Menu
         Root?.MouseDown(button);
     }
 
+    public void MouseUp(MouseButton button)
+    {
+        Root?.MouseUp(button);
+    }
+
     public void KeyDown(Key key, int a)
     {
         Root?.KeyDown(key, a);

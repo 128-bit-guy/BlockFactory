@@ -55,10 +55,10 @@ public static class GuiRenderHelper
     {
         TexturedGuiBuilder.Matrices.Push();
         TexturedGuiBuilder.NewPolygon();
-        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Min.Y));
-        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Min.Y));
-        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Max.Y));
-        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Max.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Max.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Min.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Max.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Max.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Max.X, texBox.Min.Y));
+        TexturedGuiBuilder.Vertex(new GuiVertex(box.Min.X, box.Max.Y, 0f, 1f, 1f, 1f, 1f, texBox.Min.X, texBox.Min.Y));
         TexturedGuiBuilder.Indices(QuadIndices);
         TexturedGuiBuilder.Matrices.Pop();
     }
@@ -129,15 +129,15 @@ public static class GuiRenderHelper
             {
                 renderBox.Min.Y = box.Min.Y;
                 renderBox.Max.Y = intBox.Min.Y;
-                texBox.Min.Y = 1;
-                texBox.Max.Y = 1 - texPadding;
+                texBox.Min.Y = 1 - texPadding;
+                texBox.Max.Y = 1;
             }
             else if (j == repeatsY + 1)
             {
                 renderBox.Min.Y = intBox.Max.Y;
                 renderBox.Max.Y = box.Max.Y;
-                texBox.Min.Y = texPadding;
-                texBox.Max.Y = 0;
+                texBox.Min.Y = 0;
+                texBox.Max.Y = texPadding;
             }
             else
             {

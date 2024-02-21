@@ -32,7 +32,7 @@ public class SlottedWindowControl : WindowControl
         }
 
         var divCntY = 0;
-        while (divCntY < _divisionsY.Length && _divisionsY[divCntX] < slot.Y)
+        while (divCntY < _divisionsY.Length && _divisionsY[divCntY] < slot.Y)
         {
             ++divCntY;
         }
@@ -101,6 +101,16 @@ public class SlottedWindowControl : WindowControl
             control.MouseDown(button);
         }
     }
+
+    public override void MouseUp(MouseButton button)
+    {
+        base.MouseUp(button);
+        foreach (var (control, _) in _children)
+        {
+            control.MouseUp(button);
+        }
+    }
+
     public override void KeyDown(Key key, int a)
     {
         base.KeyDown(key, a);
