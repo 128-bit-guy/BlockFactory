@@ -3,6 +3,7 @@ using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Physics;
+using BlockFactory.Serialization;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;

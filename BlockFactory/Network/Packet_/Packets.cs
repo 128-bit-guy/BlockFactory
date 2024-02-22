@@ -11,6 +11,8 @@ public static class Packets
         NetworkRegistry.RegisterPacket<BlockChangePacket>("");
         NetworkRegistry.RegisterPacket<LightChangePacket>("");
         NetworkRegistry.RegisterPacket<ServerTickTimePacket>("");
+        NetworkRegistry.RegisterPacket<PlayerDataPacket>("");
+        NetworkRegistry.RegisterPacket<RegistryMappingPacket>("");
     }
 
     public static void Lock()

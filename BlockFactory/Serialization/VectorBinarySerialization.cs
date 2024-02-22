@@ -3,7 +3,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Serialization;
 
-public static class VectorSerialization
+public static class VectorBinarySerialization
 {
     public static void SerializeBinary(this Vector3D<int> v, BinaryWriter w)
     {

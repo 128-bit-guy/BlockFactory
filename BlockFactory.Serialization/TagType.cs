@@ -12,5 +12,7 @@ public enum TagType
     Int16,
     Boolean,
     Int16Array,
-    ByteArray
+    ByteArray,
+    DoubleArray,
+    SingleArray
 }

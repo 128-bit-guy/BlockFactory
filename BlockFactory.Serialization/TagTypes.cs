@@ -18,6 +18,8 @@ public static class TagTypes
         RegisterTag<Int16Tag>();
         RegisterTag<Int16ArrayTag>();
         RegisterTag<ByteArrayTag>();
+        RegisterTag<DoubleArrayTag>();
+        RegisterTag<SingleArrayTag>();
         BuildTags();
     }
 

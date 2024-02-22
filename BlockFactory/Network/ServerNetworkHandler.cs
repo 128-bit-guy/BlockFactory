@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using BlockFactory.Base;
 using BlockFactory.Entity_;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Server;
 using ENet.Managed;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Network;
 
@@ -21,9 +23,13 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
     {
         Console.WriteLine($"Client with address {peer.GetRemoteEndPoint()} connected");
         var player = new ServerPlayerEntity(peer);
+        player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
+            (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
         BlockFactoryServer.LogicProcessor.AddPlayer(player);
         player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld());
         _players.Add(peer, player);
+        SendPacket(player, new RegistryMappingPacket(BlockFactoryServer.Mapping));
+        SendPacket(player, new PlayerDataPacket(player));
     }
 
     protected override void OnPeerDisconnected(ENetPeer peer)

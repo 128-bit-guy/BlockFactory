@@ -80,6 +80,15 @@ public static class BlockFactoryClient
 
     private static void UpdateAndRender(double deltaTime)
     {
+        if (Player == null)
+        {
+            LogicProcessor?.Update();
+        }
+        if (LogicProcessor?.ShouldStop() ?? false)
+        {
+            ExitWorld();
+        }
+        
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
@@ -90,7 +99,7 @@ public static class BlockFactoryClient
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
 
-        if (LogicProcessor != null)
+        if (Player != null)
         {
             UpdateAndRenderInGame(deltaTime);
         }
@@ -146,10 +155,7 @@ public static class BlockFactoryClient
             new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
-        Player = new PlayerEntity();
-        WorldRenderer = new WorldRenderer(Player);
-        LogicProcessor.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld());
+        SetPlayer(new PlayerEntity());
         Player.Pos = new Vector3D<double>(0, 0, 0);
     }
 
@@ -161,11 +167,14 @@ public static class BlockFactoryClient
         var ep = GetEndPoint(serverAddressAndPort);
         LogicProcessor = new LogicProcessor(LogicalSide.Client, new ClientNetworkHandler(ep), "remote");
         LogicProcessor.Start();
-        Player = new PlayerEntity();
+    }
+
+    public static void SetPlayer(PlayerEntity player)
+    {
+        Player = player;
         WorldRenderer = new WorldRenderer(Player);
-        LogicProcessor.AddPlayer(Player);
+        LogicProcessor!.AddPlayer(Player);
         Player.SetWorld(LogicProcessor.GetWorld());
-        Player.Pos = new Vector3D<double>(0, 0, 0);
     }
 
     private static void OnWindowLoad()
@@ -191,12 +200,21 @@ public static class BlockFactoryClient
         InputContext.Keyboards[0].KeyChar += KeyboardInputManager.KeyChar;
     }
 
+    public static void RemovePlayer()
+    {
+        WorldRenderer?.Dispose();
+        WorldRenderer = null;
+        Player = null;
+    }
+
     public static void ExitWorld()
     {
         if (LogicProcessor != null)
         {
-            WorldRenderer?.Dispose();
-            WorldRenderer = null;
+            if (Player != null)
+            {
+                RemovePlayer();
+            }
             if (LogicProcessor.LogicalSide != LogicalSide.Client)
             {
                 LogicProcessor.SaveMapping();
@@ -204,7 +222,6 @@ public static class BlockFactoryClient
 
             LogicProcessor.Dispose();
             LogicProcessor = null;
-            Player = null;
         }
     }
 

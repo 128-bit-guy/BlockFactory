@@ -15,6 +15,7 @@ public static class BlockFactoryServer
     public static LogicProcessor LogicProcessor;
     private static ConcurrentQueue<string> ConsoleCommandQueue = new();
     private static Thread ConsoleCommandReaderThread;
+    public static RegistryMapping Mapping;
 
     private static int GetPort()
     {
@@ -46,6 +47,7 @@ public static class BlockFactoryServer
         LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
+        Mapping = SynchronizedRegistries.WriteMapping();
         ConsoleCommandReaderThread = new Thread(ReadConsoleCommands);
         ConsoleCommandReaderThread.IsBackground = true;
         ConsoleCommandReaderThread.Start();
