@@ -140,9 +140,10 @@ public static class BlockFactoryClient
         return new IPEndPoint(ipAddress, port);
     }
 
-    public static void StartSinglePlayer(string saveName)
+    public static void StartSinglePlayer(string saveName, WorldSettings? settings = null)
     {
-        LogicProcessor = new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName);
+        LogicProcessor =
+            new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
         Player = new PlayerEntity();
@@ -174,6 +175,7 @@ public static class BlockFactoryClient
         {
             Directory.CreateDirectory(WorldsDirectory);
         }
+
         ManagedENet.Startup();
         InputContext = Window.CreateInput();
         BfRendering.Init();
@@ -199,6 +201,7 @@ public static class BlockFactoryClient
             {
                 LogicProcessor.SaveMapping();
             }
+
             LogicProcessor.Dispose();
             LogicProcessor = null;
             Player = null;

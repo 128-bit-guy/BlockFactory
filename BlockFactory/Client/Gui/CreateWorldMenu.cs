@@ -1,4 +1,5 @@
-﻿using Silk.NET.Maths;
+﻿using System.Security.Cryptography;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
 
@@ -7,21 +8,39 @@ public class CreateWorldMenu : Menu
     private readonly TextInputControl _textInput;
     private readonly ButtonControl _createButton;
     private readonly ButtonControl _cancelButton;
+    private readonly ButtonControl _typeButton;
+    private readonly WorldSettings _settings;
 
     public CreateWorldMenu()
     {
-        Root = new SlottedWindowControl(new Vector2D<int>(8, 4),
+        Root = new SlottedWindowControl(new Vector2D<int>(8, 5),
                 Array.Empty<int>(), Array.Empty<int>())
             .With(0, 0, 7, 0, new LabelControl("Create world"))
             .With(0, 1, 7, 1, _textInput = new TextInputControl())
-            .With(0, 2, 7, 2, _createButton = new ButtonControl("Create"))
-            .With(0, 3, 7, 3, _cancelButton = new ButtonControl("Cancel"));
+            .With(0, 2, 7, 2, _typeButton = new ButtonControl("World Type"))
+            .With(0, 3, 7, 3, _createButton = new ButtonControl("Create"))
+            .With(0, 4, 7, 4, _cancelButton = new ButtonControl("Cancel"));
         _createButton.Pressed += OnCreatePressed;
         _cancelButton.Pressed += OnCancelPressed;
         _textInput.Text = GetInitialWorldName();
         _textInput.EnterPressed += OnEnterPressed;
         _textInput.TextChanged += OnTextChanged;
+        _typeButton.Pressed += OnTypePressed;
+        _settings = new WorldSettings(DateTime.UtcNow.Ticks, false);
+        UpdateTypeButtonText();
         UpdateRenameEnabled();
+    }
+
+    private void OnTypePressed()
+    {
+        _settings.Flat = !_settings.Flat;
+        UpdateTypeButtonText();
+    }
+
+    private void UpdateTypeButtonText()
+    {
+        var type = _settings.Flat ? "Flat" : "Terrain";
+        _typeButton.Text = $"World type: {type}";
     }
 
     private static string GetInitialWorldName()
@@ -66,7 +85,7 @@ public class CreateWorldMenu : Menu
         BlockFactoryClient.MenuManager.Pop();
         BlockFactoryClient.MenuManager.Pop();
         BlockFactoryClient.StartSinglePlayer(
-            Path.Combine(BlockFactoryClient.WorldsDirectory, _textInput.Text)
+            Path.Combine(BlockFactoryClient.WorldsDirectory, _textInput.Text), _settings
             );
     }
 

@@ -14,12 +14,21 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
-    public readonly WorldGenerator Generator = new();
+    public readonly IWorldGenerator Generator;
     public readonly WorldSaveManager? SaveManager;
     public readonly Random Random = new();
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
+        if (logicProcessor.WorldData.WorldSettings.Flat)
+        {
+            Generator = new FlatWorldGenerator();
+        }
+        else
+        {
+            Generator = new WorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
+        }
+
         LogicProcessor = logicProcessor;
         if (logicProcessor.LogicalSide != LogicalSide.Client)
         {

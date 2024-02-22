@@ -23,8 +23,10 @@ public class LogicProcessor : IDisposable
     public readonly string SaveLocation;
     private readonly Stopwatch _stopwatch = new();
     private bool _stopRequested = false;
-
-    public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation)
+    public readonly WorldData WorldData;
+    
+    public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation,
+        WorldSettings? worldSettings = null)
     {
         NetworkHandler = networkHandler;
         LogicalSide = logicalSide;
@@ -33,6 +35,20 @@ public class LogicProcessor : IDisposable
         {
             _chunkUpdateClasses[i] = new List<Chunk>();
         }
+
+        if (logicalSide == LogicalSide.Client)
+        {
+            WorldData = new WorldData();
+        }
+        else if(worldSettings == null)
+        {
+            WorldData = new WorldData();
+            TagIO.Deserialize(GetWorldDataLocation(), WorldData);
+        }
+        else
+        {
+            WorldData = new WorldData(worldSettings);
+        }
     }
 
     public void Start()
@@ -40,6 +56,11 @@ public class LogicProcessor : IDisposable
         _world = new World(this, SaveLocation);
         _lastTickTime = DateTime.UtcNow;
         NetworkHandler.Start();
+    }
+
+    private string GetWorldDataLocation()
+    {
+        return Path.Combine(SaveLocation, "world.dat");
     }
 
     private void UpdateChunk(Chunk c)
@@ -175,6 +196,10 @@ public class LogicProcessor : IDisposable
     {
         _world.Dispose();
         NetworkHandler.Dispose();
+        if (LogicalSide != LogicalSide.Client)
+        {
+            TagIO.Serialize(GetWorldDataLocation(), WorldData);
+        }
     }
 
     private string GetMappingSaveLocation()
