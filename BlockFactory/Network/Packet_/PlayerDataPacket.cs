@@ -6,7 +6,7 @@ using ENet.Managed;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
-public class PlayerDataPacket : IPacket
+public class PlayerDataPacket : IInGamePacket
 {
     private byte[]? _data;
 

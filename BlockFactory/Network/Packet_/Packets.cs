@@ -13,6 +13,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<ServerTickTimePacket>("");
         NetworkRegistry.RegisterPacket<PlayerDataPacket>("");
         NetworkRegistry.RegisterPacket<RegistryMappingPacket>("");
+        NetworkRegistry.RegisterPacket<CredentialsPacket>("");
     }
 
     public static void Lock()

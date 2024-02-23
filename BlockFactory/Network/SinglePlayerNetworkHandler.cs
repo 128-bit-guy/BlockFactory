@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Entity_;
+using BlockFactory.Network.Packet_;
 
 namespace BlockFactory.Network;
 
@@ -17,7 +18,7 @@ public class SinglePlayerNetworkHandler : INetworkHandler
 
     public void SendPacket<T>(PlayerEntity? player, T packet) where T : class, IPacket
     {
-        packet.Handle(player);
+        ((IInGamePacket)packet).Handle(player);
     }
 
     public void Start()

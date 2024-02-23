@@ -7,7 +7,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
-public class ChunkUnloadPacket : IPacket
+public class ChunkUnloadPacket : IInGamePacket
 {
     private Vector3D<int> _pos;
 

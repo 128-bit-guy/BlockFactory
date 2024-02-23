@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(0)]
-public class PlayerControlPacket : IPacket
+public class PlayerControlPacket : IInGamePacket
 {
     private ClientControlledPlayerState _state;
 

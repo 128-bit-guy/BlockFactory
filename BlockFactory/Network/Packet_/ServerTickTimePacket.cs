@@ -5,7 +5,7 @@ using BlockFactory.Serialization;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(0)]
-public class ServerTickTimePacket : IPacket
+public class ServerTickTimePacket : IInGamePacket
 {
     private float _tickTime;
 

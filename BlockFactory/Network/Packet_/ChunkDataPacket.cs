@@ -10,7 +10,7 @@ namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
 [CompressedPacket]
-public class ChunkDataPacket : IPacket
+public class ChunkDataPacket : IInGamePacket
 {
     private Vector3D<int> _pos;
     private ChunkData _data;

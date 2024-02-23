@@ -30,6 +30,7 @@ public static class BlockFactoryClient
     public static WorldRenderer? WorldRenderer = null;
     public static MenuManager MenuManager = null!;
     public static string WorldsDirectory = null!;
+    public static Settings Settings = new();
 
     private static void InitWindow()
     {
@@ -47,6 +48,16 @@ public static class BlockFactoryClient
             PreferredDepthBufferBits = 32
         };
         Window = Silk.NET.Windowing.Window.Create(options);
+    }
+
+    public static void LoadSettings()
+    {
+        TagIO.Deserialize("settings.dat", Settings);
+    }
+
+    public static void SaveSettings()
+    {
+        TagIO.Serialize("settings.dat", Settings);
     }
 
     private static void UpdateAndRenderInGame(double deltaTime)
@@ -198,6 +209,7 @@ public static class BlockFactoryClient
         InputContext.Mice[0].MouseUp += MouseInputManager.MouseUp;
         InputContext.Keyboards[0].KeyDown += KeyboardInputManager.KeyDown;
         InputContext.Keyboards[0].KeyChar += KeyboardInputManager.KeyChar;
+        LoadSettings();
     }
 
     public static void RemovePlayer()
@@ -228,6 +240,7 @@ public static class BlockFactoryClient
     private static void OnWindowClose()
     {
         ExitWorld();
+        SaveSettings();
         BfClientContent.Destroy();
         BfDebug.Destroy();
         ManagedENet.Shutdown();

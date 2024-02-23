@@ -6,7 +6,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(0)]
-public class PlayerPosPacket : IPacket
+public class PlayerPosPacket : IInGamePacket
 {
     private ServerControlledPlayerState _state;
 

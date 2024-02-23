@@ -7,7 +7,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
-public class BlockChangePacket : IPacket
+public class BlockChangePacket : IInGamePacket
 {
     private Vector3D<int> _pos;
     private short _block;

@@ -8,7 +8,7 @@ using Silk.NET.Maths;
 namespace BlockFactory.Network.Packet_;
 
 [PacketFlags(ENetPacketFlags.Reliable)]
-public class LightChangePacket : IPacket
+public class LightChangePacket : IInGamePacket
 {
     private Vector3D<int> _pos;
     private LightChannel _channel;

@@ -8,11 +8,11 @@ namespace BlockFactory.Network.Packet_;
 [PacketFlags(ENetPacketFlags.Reliable)]
 public class RegistryMappingPacket : IPacket
 {
-    private readonly RegistryMapping _mapping;
+    public readonly RegistryMapping Mapping;
 
     public RegistryMappingPacket(RegistryMapping mapping)
     {
-        _mapping = mapping;
+        Mapping = mapping;
     }
 
     public RegistryMappingPacket() : this(new RegistryMapping())
@@ -22,19 +22,14 @@ public class RegistryMappingPacket : IPacket
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        _mapping.SerializeToTag(SerializationReason.NetworkInit).Write(writer);
+        Mapping.SerializeToTag(SerializationReason.NetworkInit).Write(writer);
     }
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
         var tag = new DictionaryTag();
         tag.Read(reader);
-        _mapping.DeserializeFromTag(tag, SerializationReason.NetworkInit);
-    }
-
-    public void Handle(PlayerEntity? sender)
-    {
-        SynchronizedRegistries.LoadMapping(_mapping);
+        Mapping.DeserializeFromTag(tag, SerializationReason.NetworkInit);
     }
 
     public bool SupportsLogicalSide(LogicalSide side)
