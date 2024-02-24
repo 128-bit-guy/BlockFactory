@@ -24,6 +24,7 @@ public class LogicProcessor : IDisposable
     private readonly Stopwatch _stopwatch = new();
     private bool _stopRequested = false;
     public readonly WorldData WorldData;
+    public readonly PlayerData PlayerData;
     
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation,
         WorldSettings? worldSettings = null)
@@ -49,6 +50,12 @@ public class LogicProcessor : IDisposable
         {
             WorldData = new WorldData(worldSettings);
         }
+
+        PlayerData = new PlayerData(this);
+        if (logicalSide != LogicalSide.Client)
+        {
+            TagIO.Deserialize(GetPlayerDataLocation(), PlayerData);
+        }
     }
 
     public void Start()
@@ -61,6 +68,11 @@ public class LogicProcessor : IDisposable
     private string GetWorldDataLocation()
     {
         return Path.Combine(SaveLocation, "world.dat");
+    }
+    
+    private string GetPlayerDataLocation()
+    {
+        return Path.Combine(SaveLocation, "players.dat");
     }
 
     private void UpdateChunk(Chunk c)
@@ -199,6 +211,7 @@ public class LogicProcessor : IDisposable
         if (LogicalSide != LogicalSide.Client)
         {
             TagIO.Serialize(GetWorldDataLocation(), WorldData);
+            TagIO.Serialize(GetPlayerDataLocation(), PlayerData);
         }
     }
 

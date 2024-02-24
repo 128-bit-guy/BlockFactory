@@ -29,11 +29,22 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         peerState.PreGameEnumerator.MoveNext();
     }
 
-    private ServerPlayerEntity CreatePlayer(ENetPeer peer)
+    private ServerPlayerEntity LoadOrCreatePlayer(string name, ENetPeer peer)
     {
-        var player = new ServerPlayerEntity(peer);
-        player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
-            (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
+        ServerPlayerEntity player;
+        if (BlockFactoryServer.LogicProcessor.PlayerData.Players.TryGetValue(name, out var p))
+        {
+            player = (ServerPlayerEntity)p;
+        }
+        else
+        {
+            player = new ServerPlayerEntity();
+            player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
+                (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
+            BlockFactoryServer.LogicProcessor.PlayerData.Players.Add(name, player);
+        }
+
+        player.Peer = peer;
         BlockFactoryServer.LogicProcessor.AddPlayer(player);
         player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld());
         SendPacket(player, new PlayerDataPacket(player));
@@ -48,6 +59,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         {
             peerState.Player!.SetWorld(null);
             BlockFactoryServer.LogicProcessor.RemovePlayer(peerState.Player);
+            peerState.Player!.Peer = default;
         }
     }
 
@@ -79,9 +91,26 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
     {
         foreach (var _ in peerState.WaitForPreGamePacket<CredentialsPacket>()) yield return null;
         var p = (CredentialsPacket)peerState.PreGameQueue.Dequeue();
-        Console.WriteLine($"Player {p.Credentials.Name} logged in with password {p.Credentials.Password}");
+        if (!BlockFactoryServer.LogicProcessor.PlayerData.AttemptLogin(p.Credentials))
+        {
+            Console.WriteLine($"Player {p.Credentials.Name} attempted to log in with incorrect password");
+            peer.Disconnect(0);
+            yield break;
+        }
+
+        if (BlockFactoryServer.LogicProcessor.PlayerData.Players.TryGetValue(p.Credentials.Name, out var pl))
+        {
+            if (pl.World != null)
+            {
+                
+                Console.WriteLine($"Player {p.Credentials.Name} attempted to log in from two clients at once");
+                peer.Disconnect(0);
+                yield break;
+            }
+        }
+        Console.WriteLine($"Player {p.Credentials.Name} logged in");
         EnqueueSendPacketInternal(new RegistryMappingPacket(BlockFactoryServer.Mapping), peer);
-        var player = CreatePlayer(peer);
+        var player = LoadOrCreatePlayer(p.Credentials.Name, peer);
         peerState.Player = player;
         SendPacket(player, new PlayerDataPacket(player));
         yield break;

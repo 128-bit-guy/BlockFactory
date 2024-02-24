@@ -6,12 +6,7 @@ namespace BlockFactory.Entity_;
 
 public class ServerPlayerEntity : PlayerEntity
 {
-    public readonly ENetPeer Peer;
-
-    public ServerPlayerEntity(ENetPeer peer)
-    {
-        Peer = peer;
-    }
+    public ENetPeer Peer = default;
 
     public override void OnChunkBecameVisible(Chunk c)
     {
