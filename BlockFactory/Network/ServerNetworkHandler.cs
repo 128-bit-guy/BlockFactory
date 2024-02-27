@@ -94,7 +94,8 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         if (!BlockFactoryServer.LogicProcessor.PlayerData.AttemptLogin(p.Credentials))
         {
             Console.WriteLine($"Player {p.Credentials.Name} attempted to log in with incorrect password");
-            peer.Disconnect(0);
+            EnqueueSendPacketInternal(new KickPacket("Tried to log in with incorrect password"), peer);
+            // peer.Disconnect(0);
             yield break;
         }
 
@@ -104,7 +105,8 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
             {
                 
                 Console.WriteLine($"Player {p.Credentials.Name} attempted to log in from two clients at once");
-                peer.Disconnect(0);
+                EnqueueSendPacketInternal(new KickPacket("Attempted to log in from two clients at once"), peer);
+                // peer.Disconnect(0);
                 yield break;
             }
         }

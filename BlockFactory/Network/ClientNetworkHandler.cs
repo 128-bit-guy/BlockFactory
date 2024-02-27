@@ -48,7 +48,7 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
     {
         try
         {
-            if (_isInGame)
+            if (_isInGame || packet is KickPacket)
             {
                 if (packet is IInGamePacket p)
                 {
@@ -105,5 +105,10 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
     public override void SendPacket<T>(PlayerEntity? player, T packet)
     {
         EnqueueSendPacketInternal(packet, _peer);
+    }
+
+    protected override bool ShouldProcessPackets()
+    {
+        return BlockFactoryClient.LogicProcessor != null;
     }
 }

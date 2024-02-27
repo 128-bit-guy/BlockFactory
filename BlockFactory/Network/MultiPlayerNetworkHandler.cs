@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Entity_;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;
 using ENet.Managed;
 using ZstdSharp;
@@ -32,6 +33,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         var cnt = _receiveQueue.Count;
         for (var i = 0; i < cnt; ++i)
         {
+            if(!ShouldProcessPackets()) break;
             if (!_receiveQueue.TryDequeue(out var entry)) break;
             switch (entry.Type)
             {
@@ -46,6 +48,11 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
                     break;
             }
         }
+    }
+
+    protected virtual bool ShouldProcessPackets()
+    {
+        return true;
     }
 
     protected void EnqueueSendPacketInternal<T>(T packet, ENetPeer peer) where T : class, IPacket
