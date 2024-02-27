@@ -58,14 +58,11 @@ public static class TagIO
         if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
         File.WriteAllBytes(file, res);
     }
-    
+
     public static void Deserialize(string file, ITagSerializable s)
     {
         var tag = Read(file);
-        if (tag != null)
-        {
-            s.DeserializeFromTag(tag, SerializationReason.Save);
-        }
+        if (tag != null) s.DeserializeFromTag(tag, SerializationReason.Save);
     }
 
     public static void Serialize(string file, ITagSerializable s)

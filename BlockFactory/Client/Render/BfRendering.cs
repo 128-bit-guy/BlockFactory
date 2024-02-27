@@ -13,9 +13,9 @@ public static class BfRendering
 {
     public static GL Gl = null!;
     public static readonly Color SkyColor = Color.Aqua;
+    public static MatrixStack Matrices = new();
     public static Matrix4X4<float> View { get; private set; }
     public static Matrix4X4<float> Projection { get; private set; }
-    public static MatrixStack Matrices = new();
 
     public static unsafe void Init()
     {

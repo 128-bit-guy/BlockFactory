@@ -12,36 +12,33 @@ namespace BlockFactory;
 
 public class LogicProcessor : IDisposable
 {
+    private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
+    private readonly List<PlayerEntity> _players = new();
+    private readonly Stopwatch _stopwatch = new();
     public readonly LogicalSide LogicalSide;
     public readonly INetworkHandler NetworkHandler;
-    private World _world = null!;
-    private DateTime _lastTickTime;
-    public DateTime LastUpdateTime;
-    private readonly List<PlayerEntity> _players = new();
-    private readonly List<Chunk>[] _chunkUpdateClasses = new List<Chunk>[27];
-    private int _heavyUpdateClass;
-    public readonly string SaveLocation;
-    private readonly Stopwatch _stopwatch = new();
-    private bool _stopRequested = false;
-    public readonly WorldData WorldData;
     public readonly PlayerData PlayerData;
-    
+    public readonly string SaveLocation;
+    public readonly WorldData WorldData;
+    private int _heavyUpdateClass;
+    private DateTime _lastTickTime;
+    private bool _stopRequested;
+    private World _world = null!;
+    public DateTime LastUpdateTime;
+
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation,
         WorldSettings? worldSettings = null)
     {
         NetworkHandler = networkHandler;
         LogicalSide = logicalSide;
         SaveLocation = saveLocation;
-        for (var i = 0; i < 27; ++i)
-        {
-            _chunkUpdateClasses[i] = new List<Chunk>();
-        }
+        for (var i = 0; i < 27; ++i) _chunkUpdateClasses[i] = new List<Chunk>();
 
         if (logicalSide == LogicalSide.Client)
         {
             WorldData = new WorldData();
         }
-        else if(worldSettings == null)
+        else if (worldSettings == null)
         {
             WorldData = new WorldData();
             TagIO.Deserialize(GetWorldDataLocation(), WorldData);
@@ -52,9 +49,17 @@ public class LogicProcessor : IDisposable
         }
 
         PlayerData = new PlayerData(this);
-        if (logicalSide != LogicalSide.Client)
+        if (logicalSide != LogicalSide.Client) TagIO.Deserialize(GetPlayerDataLocation(), PlayerData);
+    }
+
+    public void Dispose()
+    {
+        _world.Dispose();
+        NetworkHandler.Dispose();
+        if (LogicalSide != LogicalSide.Client)
         {
-            TagIO.Deserialize(GetPlayerDataLocation(), PlayerData);
+            TagIO.Serialize(GetWorldDataLocation(), WorldData);
+            TagIO.Serialize(GetPlayerDataLocation(), PlayerData);
         }
     }
 
@@ -69,7 +74,7 @@ public class LogicProcessor : IDisposable
     {
         return Path.Combine(SaveLocation, "world.dat");
     }
-    
+
     private string GetPlayerDataLocation()
     {
         return Path.Combine(SaveLocation, "players.dat");
@@ -77,10 +82,7 @@ public class LogicProcessor : IDisposable
 
     private void UpdateChunk(Chunk c)
     {
-        if (!c.IsTicking)
-        {
-            return;
-        }
+        if (!c.IsTicking) return;
 
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
     }
@@ -118,7 +120,7 @@ public class LogicProcessor : IDisposable
             Parallel.ForEach(_chunkUpdateClasses[i], PreUpdateChunk);
             // _chunkUpdateClasses[i].Clear();
         }
-        
+
         for (var i = 0; i < 27; ++i)
         {
             Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
@@ -127,15 +129,9 @@ public class LogicProcessor : IDisposable
         }
 
         ++_heavyUpdateClass;
-        if (_heavyUpdateClass == 27)
-        {
-            _heavyUpdateClass = 0;
-        }
+        if (_heavyUpdateClass == 27) _heavyUpdateClass = 0;
 
-        foreach (var player in _players)
-        {
-            player.Update();
-        }
+        foreach (var player in _players) player.Update();
     }
 
     [ExclusiveTo(Side.Client)]
@@ -168,10 +164,7 @@ public class LogicProcessor : IDisposable
         else if (LogicalSide == LogicalSide.Server)
         {
             var packet = new ServerTickTimePacket(delta);
-            foreach (var player in _players)
-            {
-                NetworkHandler.SendPacket(player, packet);
-            }
+            foreach (var player in _players) NetworkHandler.SendPacket(player, packet);
         }
     }
 
@@ -204,17 +197,6 @@ public class LogicProcessor : IDisposable
         _stopRequested = true;
     }
 
-    public void Dispose()
-    {
-        _world.Dispose();
-        NetworkHandler.Dispose();
-        if (LogicalSide != LogicalSide.Client)
-        {
-            TagIO.Serialize(GetWorldDataLocation(), WorldData);
-            TagIO.Serialize(GetPlayerDataLocation(), PlayerData);
-        }
-    }
-
     private string GetMappingSaveLocation()
     {
         return Path.Combine(SaveLocation, "registry_mapping.dat");
@@ -224,10 +206,7 @@ public class LogicProcessor : IDisposable
     {
         var mappingSaveLocation = GetMappingSaveLocation();
         var mapping = new RegistryMapping();
-        if (File.Exists(mappingSaveLocation))
-        {
-            TagIO.Deserialize(mappingSaveLocation, mapping);
-        }
+        if (File.Exists(mappingSaveLocation)) TagIO.Deserialize(mappingSaveLocation, mapping);
 
         SynchronizedRegistries.LoadMapping(mapping);
     }

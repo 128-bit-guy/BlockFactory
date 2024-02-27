@@ -13,10 +13,7 @@ public static class KeyboardInputManager
         {
             if (BlockFactoryClient.MenuManager.Empty)
             {
-                if (BlockFactoryClient.LogicProcessor != null)
-                {
-                    BlockFactoryClient.MenuManager.Push(new PauseMenu());
-                }
+                if (BlockFactoryClient.LogicProcessor != null) BlockFactoryClient.MenuManager.Push(new PauseMenu());
             }
             else
             {
@@ -25,18 +22,12 @@ public static class KeyboardInputManager
         }
         else
         {
-            if (!BlockFactoryClient.MenuManager.Empty)
-            {
-                BlockFactoryClient.MenuManager.Top!.KeyDown(key, a);
-            }
+            if (!BlockFactoryClient.MenuManager.Empty) BlockFactoryClient.MenuManager.Top!.KeyDown(key, a);
         }
     }
 
     public static void KeyChar(IKeyboard keyboard, char c)
     {
-        if (!BlockFactoryClient.MenuManager.Empty)
-        {
-            BlockFactoryClient.MenuManager.Top!.KeyChar(c);
-        }
+        if (!BlockFactoryClient.MenuManager.Empty) BlockFactoryClient.MenuManager.Top!.KeyChar(c);
     }
 }

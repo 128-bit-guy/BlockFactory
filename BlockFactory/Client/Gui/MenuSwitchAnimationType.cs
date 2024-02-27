@@ -2,5 +2,7 @@
 
 public enum MenuSwitchAnimationType
 {
-    None, Push, Pop
+    None,
+    Push,
+    Pop
 }

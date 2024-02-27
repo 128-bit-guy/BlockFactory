@@ -10,9 +10,9 @@ namespace BlockFactory.Network.Packet_;
 [PacketFlags(ENetPacketFlags.Reliable)]
 public class LightChangePacket : IInGamePacket
 {
-    private Vector3D<int> _pos;
     private LightChannel _channel;
     private byte _light;
+    private Vector3D<int> _pos;
 
     public LightChangePacket(Vector3D<int> pos, LightChannel channel, byte light)
     {

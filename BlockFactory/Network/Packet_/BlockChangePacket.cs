@@ -9,8 +9,8 @@ namespace BlockFactory.Network.Packet_;
 [PacketFlags(ENetPacketFlags.Reliable)]
 public class BlockChangePacket : IInGamePacket
 {
-    private Vector3D<int> _pos;
     private short _block;
+    private Vector3D<int> _pos;
 
     public BlockChangePacket(Vector3D<int> pos, short block)
     {

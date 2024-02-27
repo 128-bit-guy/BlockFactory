@@ -9,9 +9,30 @@ namespace BlockFactory.Entity_;
 
 public class Entity : ITagSerializable
 {
-    public Vector3D<double> Pos;
     public Vector2D<float> HeadRotation;
+    public Vector3D<double> Pos;
     public World? World { get; private set; }
+
+    public virtual DictionaryTag SerializeToTag(SerializationReason reason)
+    {
+        var res = new DictionaryTag();
+        if (reason != SerializationReason.NetworkUpdate)
+        {
+            res.SetVector3D("pos", Pos);
+            res.SetVector2D("head_rotation", HeadRotation);
+        }
+
+        return res;
+    }
+
+    public virtual void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    {
+        if (reason != SerializationReason.NetworkUpdate)
+        {
+            Pos = tag.GetVector3D<double>("pos");
+            HeadRotation = tag.GetVector2D<float>("head_rotation");
+        }
+    }
 
     public void SetWorld(World? world)
     {
@@ -74,26 +95,5 @@ public class Entity : ITagSerializable
     public Vector3D<float> GetRight()
     {
         return new Vector3D<float>(-MathF.Cos(HeadRotation.X), 0, MathF.Sin(HeadRotation.X));
-    }
-
-    public virtual DictionaryTag SerializeToTag(SerializationReason reason)
-    {
-        var res = new DictionaryTag();
-        if (reason != SerializationReason.NetworkUpdate)
-        {
-            res.SetVector3D("pos", Pos);
-            res.SetVector2D("head_rotation", HeadRotation);
-        }
-
-        return res;
-    }
-
-    public virtual void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
-    {
-        if (reason != SerializationReason.NetworkUpdate)
-        {
-            Pos = tag.GetVector3D<double>("pos");
-            HeadRotation = tag.GetVector2D<float>("head_rotation");
-        }
     }
 }

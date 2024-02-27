@@ -1,13 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using ENet.Managed;
+﻿using ENet.Managed;
 
 namespace BlockFactory.Network;
 
 public static class NetworkRegistry
 {
-    private static bool _locked = false;
+    private static bool _locked;
     private static List<(string ns, Type t, Func<IPacket> creator)> _packetList = new();
-    private static List<bool> _isCompressed = new();
+    private static readonly List<bool> _isCompressed = new();
 
     public static void RegisterPacket<T>(string ns, Func<T> creator) where T : class, IPacket
     {
@@ -79,6 +78,6 @@ public static class NetworkRegistry
         public static ENetPacketFlags Flags = 0;
 
         // ReSharper disable once StaticMemberInGenericType
-        public static bool IsCompressed = false;
+        public static bool IsCompressed;
     }
 }

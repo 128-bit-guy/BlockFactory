@@ -5,7 +5,7 @@ namespace BlockFactory.Client.Gui;
 public class KickedMenu : Menu
 {
     private readonly ButtonControl _back;
-    
+
     public KickedMenu(string s)
     {
         Root = new SlottedWindowControl(new Vector2D<int>(12, 3),
@@ -14,7 +14,6 @@ public class KickedMenu : Menu
             .With(0, 1, 11, 1, new LabelControl(s))
             .With(0, 2, 11, 2, _back = new ButtonControl("Back"));
         _back.Pressed += OnBackPressed;
-
     }
 
     private void OnBackPressed()

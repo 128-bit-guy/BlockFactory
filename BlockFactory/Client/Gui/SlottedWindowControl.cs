@@ -8,11 +8,11 @@ public class SlottedWindowControl : WindowControl
     private const float SlotSize = 64;
     private const float NormalMargin = 5;
     private const float DivisionMargin = 24;
-    private Vector2D<int> _slotCounts;
-    private readonly int[] _divisionsX;
-    private readonly int[] _divisionsY;
 
     private readonly List<(MenuControl control, Box2D<int> slots)> _children = new();
+    private readonly int[] _divisionsX;
+    private readonly int[] _divisionsY;
+    private Vector2D<int> _slotCounts;
 
     public SlottedWindowControl(Vector2D<int> slotCounts, int[] divisionsX, int[] divisionsY)
     {
@@ -26,16 +26,10 @@ public class SlottedWindowControl : WindowControl
     private Vector2D<float> GetMinPosForSlot(Box2D<float> contentBox, Vector2D<int> slot)
     {
         var divCntX = 0;
-        while (divCntX < _divisionsX.Length && _divisionsX[divCntX] < slot.X)
-        {
-            ++divCntX;
-        }
+        while (divCntX < _divisionsX.Length && _divisionsX[divCntX] < slot.X) ++divCntX;
 
         var divCntY = 0;
-        while (divCntY < _divisionsY.Length && _divisionsY[divCntY] < slot.Y)
-        {
-            ++divCntY;
-        }
+        while (divCntY < _divisionsY.Length && _divisionsY[divCntY] < slot.Y) ++divCntY;
 
         return contentBox.Min + slot.As<float>() * (SlotSize + NormalMargin) +
                new Vector2D<float>(divCntX, divCntY) * (DivisionMargin - NormalMargin);
@@ -87,44 +81,30 @@ public class SlottedWindowControl : WindowControl
 
     protected override void UpdateAndRenderChildren(float z)
     {
-        foreach (var (control, _) in _children)
-        {
-            control.UpdateAndRender(z);
-        }
+        foreach (var (control, _) in _children) control.UpdateAndRender(z);
     }
 
     public override void MouseDown(MouseButton button)
     {
         base.MouseDown(button);
-        foreach (var (control, _) in _children)
-        {
-            control.MouseDown(button);
-        }
+        foreach (var (control, _) in _children) control.MouseDown(button);
     }
 
     public override void MouseUp(MouseButton button)
     {
         base.MouseUp(button);
-        foreach (var (control, _) in _children)
-        {
-            control.MouseUp(button);
-        }
+        foreach (var (control, _) in _children) control.MouseUp(button);
     }
 
     public override void KeyDown(Key key, int a)
     {
         base.KeyDown(key, a);
-        foreach (var (control, _) in _children)
-        {
-            control.KeyDown(key, a);
-        }
+        foreach (var (control, _) in _children) control.KeyDown(key, a);
     }
+
     public override void KeyChar(char c)
     {
         base.KeyChar(c);
-        foreach (var (control, _) in _children)
-        {
-            control.KeyChar(c);
-        }
+        foreach (var (control, _) in _children) control.KeyChar(c);
     }
 }

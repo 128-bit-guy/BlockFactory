@@ -6,8 +6,8 @@ namespace BlockFactory.World_.Gen;
 public class WorldGenElement
 {
     private const long HalfMask = uint.MaxValue;
-    public readonly WorldGenerator Generator;
     private readonly long _uniqueNumber;
+    public readonly WorldGenerator Generator;
 
     public WorldGenElement(WorldGenerator generator, long uniqueNumber)
     {

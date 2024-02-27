@@ -1,15 +1,14 @@
-﻿using System.Security.Cryptography;
-using Silk.NET.Maths;
+﻿using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
 
 public class CreateWorldMenu : Menu
 {
-    private readonly TextInputControl _textInput;
-    private readonly ButtonControl _createButton;
     private readonly ButtonControl _cancelButton;
-    private readonly ButtonControl _typeButton;
+    private readonly ButtonControl _createButton;
     private readonly WorldSettings _settings;
+    private readonly TextInputControl _textInput;
+    private readonly ButtonControl _typeButton;
 
     public CreateWorldMenu()
     {
@@ -48,10 +47,7 @@ public class CreateWorldMenu : Menu
         for (var i = 1;; ++i)
         {
             var name = $"BlockFactory World {i}";
-            if (!Directory.Exists(Path.Combine(BlockFactoryClient.WorldsDirectory, name)))
-            {
-                return name;
-            }
+            if (!Directory.Exists(Path.Combine(BlockFactoryClient.WorldsDirectory, name))) return name;
         }
     }
 
@@ -73,10 +69,7 @@ public class CreateWorldMenu : Menu
 
     private void OnEnterPressed()
     {
-        if (_createButton.Enabled)
-        {
-            Apply();
-        }
+        if (_createButton.Enabled) Apply();
     }
 
     private void Apply()
@@ -86,7 +79,7 @@ public class CreateWorldMenu : Menu
         BlockFactoryClient.MenuManager.Pop();
         BlockFactoryClient.StartSinglePlayer(
             Path.Combine(BlockFactoryClient.WorldsDirectory, _textInput.Text), _settings
-            );
+        );
     }
 
     private void OnCancelPressed()

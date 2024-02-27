@@ -11,11 +11,17 @@ public class PlayerChunkTicker : IDisposable
     private readonly Chunk?[] _watchedChunks = new Chunk?[1 << (3 * PlayerChunkTicking.CkdPowerOf2)];
     public readonly PlayerEntity Player;
     private Vector3D<int> _lastChunkPos;
-    public int Progress { get; private set; }
 
     public PlayerChunkTicker(PlayerEntity player)
     {
         Player = player;
+    }
+
+    public int Progress { get; private set; }
+
+    public void Dispose()
+    {
+        Reset();
     }
 
     public void Update()
@@ -48,15 +54,9 @@ public class PlayerChunkTicker : IDisposable
         {
             var delta = PlayerChunkTicking.ChunkDeltas[Progress];
             var c = Player.World!.GetChunk(chunkPos + delta, false);
-            if (c == null)
-            {
-                break;
-            }
+            if (c == null) break;
 
-            if (!IsChunkWatched(c))
-            {
-                WatchChunk(c);
-            }
+            if (!IsChunkWatched(c)) WatchChunk(c);
 
             ++Progress;
             --leftProgressDelta;
@@ -88,11 +88,6 @@ public class PlayerChunkTicker : IDisposable
     {
         _watchedChunks[GetArrIndex(c.Position)] = c;
         c.AddTickingDependency();
-    }
-
-    public void Dispose()
-    {
-        Reset();
     }
 
     private void Reset()

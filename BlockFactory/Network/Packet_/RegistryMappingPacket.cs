@@ -1,5 +1,4 @@
-﻿using BlockFactory.Entity_;
-using BlockFactory.Registry_;
+﻿using BlockFactory.Registry_;
 using BlockFactory.Serialization;
 using ENet.Managed;
 
@@ -17,7 +16,6 @@ public class RegistryMappingPacket : IPacket
 
     public RegistryMappingPacket() : this(new RegistryMapping())
     {
-        
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)

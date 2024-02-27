@@ -4,9 +4,9 @@ namespace BlockFactory.Client.Gui;
 
 public class CredentialsMenu : Menu
 {
+    private readonly ButtonControl _back;
     private readonly TextInputControl _name;
     private readonly TextInputControl _password;
-    private readonly ButtonControl _back;
 
     public CredentialsMenu()
     {
@@ -48,9 +48,6 @@ public class CredentialsMenu : Menu
 
     public override void EscapePressed()
     {
-        if (_back.Enabled)
-        {
-            base.EscapePressed();
-        }
+        if (_back.Enabled) base.EscapePressed();
     }
 }

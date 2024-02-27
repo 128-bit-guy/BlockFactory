@@ -1,8 +1,4 @@
 ﻿using BlockFactory.Base;
-using BlockFactory.Block_;
-using BlockFactory.Math_;
-using BlockFactory.Random_;
-using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
@@ -30,9 +26,7 @@ public class WorldGenerator : IWorldGenerator
         _caveGenerator.GenerateCaves(c);
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var j = 0; j < Constants.ChunkSize; ++j)
-        {
             c.Data.SetLightUpdateScheduled(new Vector3D<int>(i, Constants.ChunkSize - 1, j), true);
-        }
     }
 
     public void DecorateChunk(Chunk c)

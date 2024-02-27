@@ -10,24 +10,20 @@ namespace BlockFactory.World_;
 
 public class World : IChunkStorage, IBlockWorld, IDisposable
 {
-    public readonly LogicProcessor LogicProcessor;
     private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
     public readonly WorldChunkStorage ChunkStorage = new();
     public readonly IWorldGenerator Generator;
-    public readonly WorldSaveManager? SaveManager;
+    public readonly LogicProcessor LogicProcessor;
     public readonly Random Random = new();
+    public readonly WorldSaveManager? SaveManager;
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
         if (logicProcessor.WorldData.WorldSettings.Flat)
-        {
             Generator = new FlatWorldGenerator();
-        }
         else
-        {
             Generator = new WorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
-        }
 
         LogicProcessor = logicProcessor;
         if (logicProcessor.LogicalSide != LogicalSide.Client)
@@ -86,18 +82,6 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         return BeginLoadingChunk(pos);
     }
 
-    private Chunk BeginLoadingChunk(Vector3D<int> pos)
-    {
-        if (LogicProcessor.LogicalSide == LogicalSide.Client)
-            throw new InvalidOperationException("Can't load chunks on client");
-        var region = SaveManager!.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
-        var nc = new Chunk(this, pos, region);
-        ++region.DependencyCount;
-        nc.StartLoadTask();
-        AddChunk(nc);
-        return nc;
-    }
-
     public void AddChunk(Chunk chunk)
     {
         ChunkStorage.AddChunk(chunk);
@@ -110,25 +94,12 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         if (c.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
 
         ChunkStorage.RemoveChunk(pos);
-        if (c.Region != null)
-        {
-            --c.Region.DependencyCount;
-        }
+        if (c.Region != null) --c.Region.DependencyCount;
     }
 
     public IEnumerable<Chunk> GetLoadedChunks()
     {
         return ChunkStorage.GetLoadedChunks();
-    }
-
-    public void Update()
-    {
-        ChunkStatusManager.Update();
-        _chunksToRemove.Clear();
-        if (LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
-            SaveManager!.Update();
-        }
     }
 
     public void Dispose()
@@ -138,9 +109,25 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
 
         _chunksToRemove.Clear();
-        if (LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
-            SaveManager!.Dispose();
-        }
+        if (LogicProcessor.LogicalSide != LogicalSide.Client) SaveManager!.Dispose();
+    }
+
+    private Chunk BeginLoadingChunk(Vector3D<int> pos)
+    {
+        if (LogicProcessor.LogicalSide == LogicalSide.Client)
+            throw new InvalidOperationException("Can't load chunks on client");
+        var region = SaveManager!.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
+        var nc = new Chunk(this, pos, region);
+        ++region.DependencyCount;
+        nc.StartLoadTask();
+        AddChunk(nc);
+        return nc;
+    }
+
+    public void Update()
+    {
+        ChunkStatusManager.Update();
+        _chunksToRemove.Clear();
+        if (LogicProcessor.LogicalSide != LogicalSide.Client) SaveManager!.Update();
     }
 }

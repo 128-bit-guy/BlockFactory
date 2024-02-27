@@ -25,9 +25,9 @@ public static class BlockFactoryClient
     public static IWindow Window = null!;
     public static ResourceLoader ResourceLoader = null!;
     public static IInputContext InputContext = null!;
-    public static PlayerEntity? Player = null;
-    public static LogicProcessor? LogicProcessor = null;
-    public static WorldRenderer? WorldRenderer = null;
+    public static PlayerEntity? Player;
+    public static LogicProcessor? LogicProcessor;
+    public static WorldRenderer? WorldRenderer;
     public static MenuManager MenuManager = null!;
     public static string WorldsDirectory = null!;
     public static Settings Settings = new();
@@ -91,15 +91,9 @@ public static class BlockFactoryClient
 
     private static void UpdateAndRender(double deltaTime)
     {
-        if (Player == null)
-        {
-            LogicProcessor?.Update();
-        }
-        if (LogicProcessor?.ShouldStop() ?? false)
-        {
-            ExitWorld();
-        }
-        
+        if (Player == null) LogicProcessor?.Update();
+        if (LogicProcessor?.ShouldStop() ?? false) ExitWorld();
+
         var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
@@ -110,27 +104,17 @@ public static class BlockFactoryClient
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
 
-        if (Player != null)
-        {
-            UpdateAndRenderInGame(deltaTime);
-        }
+        if (Player != null) UpdateAndRenderInGame(deltaTime);
 
         BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
         BfRendering.UseGuiMatrices();
 
-        if (MenuManager.Empty && LogicProcessor == null)
-        {
-            MenuManager.Push(new MainMenu());
-        }
+        if (MenuManager.Empty && LogicProcessor == null) MenuManager.Push(new MainMenu());
 
         if (!MenuManager.HasAnythingToRender() && LogicProcessor != null)
-        {
             UpdateAndRenderHud();
-        }
         else
-        {
             MenuManager.UpdateAndRender(deltaTime);
-        }
 
         if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
         BfDebug.UpdateAndRender(deltaTime);
@@ -191,10 +175,7 @@ public static class BlockFactoryClient
     private static void OnWindowLoad()
     {
         WorldsDirectory = Path.GetFullPath("worlds");
-        if (!Directory.Exists(WorldsDirectory))
-        {
-            Directory.CreateDirectory(WorldsDirectory);
-        }
+        if (!Directory.Exists(WorldsDirectory)) Directory.CreateDirectory(WorldsDirectory);
 
         ManagedENet.Startup();
         InputContext = Window.CreateInput();
@@ -223,14 +204,8 @@ public static class BlockFactoryClient
     {
         if (LogicProcessor != null)
         {
-            if (Player != null)
-            {
-                RemovePlayer();
-            }
-            if (LogicProcessor.LogicalSide != LogicalSide.Client)
-            {
-                LogicProcessor.SaveMapping();
-            }
+            if (Player != null) RemovePlayer();
+            if (LogicProcessor.LogicalSide != LogicalSide.Client) LogicProcessor.SaveMapping();
 
             LogicProcessor.Dispose();
             LogicProcessor = null;

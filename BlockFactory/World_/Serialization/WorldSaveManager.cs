@@ -13,6 +13,20 @@ public class WorldSaveManager : IDisposable
         SaveLocation = saveLocation;
     }
 
+    public void Dispose()
+    {
+        foreach (var region in _regions.Values)
+        {
+            region.LoadTask?.Wait();
+            region.LoadTask = null;
+            if (region.UnloadTask == null) region.StartUnloadTask();
+        }
+
+        foreach (var region in _regions.Values) region.UnloadTask!.Wait();
+
+        _regions.Clear();
+    }
+
     public ChunkRegion GetRegion(Vector3D<int> pos)
     {
         if (!_regions.TryGetValue(pos, out var region))
@@ -31,27 +45,16 @@ public class WorldSaveManager : IDisposable
     {
         foreach (var region in _regions.Values)
         {
-            if (region.LoadTask != null && region.LoadTask.IsCompleted)
-            {
-                region.LoadTask = null;
-            }
+            if (region.LoadTask != null && region.LoadTask.IsCompleted) region.LoadTask = null;
 
             if (region.DependencyCount != 0) continue;
             if (region.LoadTask != null) continue;
             if (region.UnloadTask == null)
-            {
                 region.StartUnloadTask();
-            }
-            else if (region.UnloadTask.IsCompleted)
-            {
-                _regionsToRemove.Add(region.Position);
-            }
+            else if (region.UnloadTask.IsCompleted) _regionsToRemove.Add(region.Position);
         }
 
-        foreach (var pos in _regionsToRemove)
-        {
-            _regions.Remove(pos);
-        }
+        foreach (var pos in _regionsToRemove) _regions.Remove(pos);
 
         _regionsToRemove.Clear();
     }
@@ -59,25 +62,5 @@ public class WorldSaveManager : IDisposable
     public void CreateDirectory()
     {
         Directory.CreateDirectory(SaveLocation);
-    }
-
-    public void Dispose()
-    {
-        foreach (var region in _regions.Values)
-        {
-            region.LoadTask?.Wait();
-            region.LoadTask = null;
-            if (region.UnloadTask == null)
-            {
-                region.StartUnloadTask();
-            }
-        }
-
-        foreach (var region in _regions.Values)
-        {
-            region.UnloadTask!.Wait();
-        }
-
-        _regions.Clear();
     }
 }

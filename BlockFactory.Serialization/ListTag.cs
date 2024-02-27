@@ -20,6 +20,8 @@ public class ListTag : ITag
     }
 
     public TagType ElementType { get; private set; }
+
+    public int Count => _elements.Count;
     public TagType Type => TagType.List;
 
     public void Write(BinaryWriter writer)
@@ -100,6 +102,4 @@ public class ListTag : ITag
     {
         for (var i = 0; i < _elements.Count; ++i) yield return GetValue<T>(i);
     }
-
-    public int Count => _elements.Count;
 }

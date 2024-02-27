@@ -1,6 +1,5 @@
 ﻿using BlockFactory.Entity_;
 using BlockFactory.Serialization;
-using Silk.NET.Maths;
 
 namespace BlockFactory.Network.Packet_;
 

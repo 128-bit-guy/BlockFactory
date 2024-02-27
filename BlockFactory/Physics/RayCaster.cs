@@ -46,7 +46,7 @@ public static class RayCaster
         CubeFace minFace = default;
         for (var i = 0; i <= length; ++i)
         {
-            var curRayPos = rayOrigin + (ray * i) / length;
+            var curRayPos = rayOrigin + ray * i / length;
             var curBlockPos = curRayPos.Floor();
             foreach (var neighborFace in CubeFaceUtils.Values())
             {
@@ -78,10 +78,7 @@ public static class RayCaster
             }
         }
 
-        if (found)
-        {
-            return (minPos, minFace);
-        }
+        if (found) return (minPos, minFace);
 
         return null;
     }

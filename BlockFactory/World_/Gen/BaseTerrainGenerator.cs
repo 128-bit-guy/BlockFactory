@@ -10,13 +10,13 @@ namespace BlockFactory.World_.Gen;
 public class BaseTerrainGenerator
 {
     private const long HalfMask = uint.MaxValue;
-    private readonly WorldGenerator _worldGenerator;
-    private readonly FastNoiseLite _noise = new();
-    private readonly FastNoiseLite _mountainNoise = new();
-    private readonly FastNoiseLite _biomeHeightNoise = new();
-    private readonly FastNoiseLite _oceanNoise = new();
-    [ThreadStatic] private static int[,]? _oceanMap;
     private const int OceanSmoothRadius = 8;
+    [ThreadStatic] private static int[,]? _oceanMap;
+    private readonly FastNoiseLite _biomeHeightNoise = new();
+    private readonly FastNoiseLite _mountainNoise = new();
+    private readonly FastNoiseLite _noise = new();
+    private readonly FastNoiseLite _oceanNoise = new();
+    private readonly WorldGenerator _worldGenerator;
 
     public BaseTerrainGenerator(WorldGenerator worldGenerator)
     {
@@ -52,7 +52,8 @@ public class BaseTerrainGenerator
             var x = i + cBegin.X;
             var z = j + cBegin.Z;
             var val = _oceanNoise.GetNoise(x / 20.0d, z / 20.0d);
-            _oceanMap![i + OceanSmoothRadius, j + OceanSmoothRadius] = val < 0.65 ? val < 0.6f? val < 0.5f? val < -0.0f ? 4 : 3 : 2 : 1 : 0;
+            _oceanMap![i + OceanSmoothRadius, j + OceanSmoothRadius] =
+                val < 0.65 ? val < 0.6f ? val < 0.5f ? val < -0.0f ? 4 : 3 : 2 : 1 : 0;
         }
 
         Span<float> heights = stackalloc float[5];
@@ -70,16 +71,14 @@ public class BaseTerrainGenerator
             var smoothHeight = 0.0f;
             for (var l = -OceanSmoothRadius; l <= OceanSmoothRadius; ++l)
             for (var m = -OceanSmoothRadius; m <= OceanSmoothRadius; ++m)
-            {
                 smoothHeight += heights[_oceanMap![i + l + OceanSmoothRadius, k + m + OceanSmoothRadius]];
-            }
-            smoothHeight /= ((2 * OceanSmoothRadius + 1) * (2 * OceanSmoothRadius + 1));
+            smoothHeight /= (2 * OceanSmoothRadius + 1) * (2 * OceanSmoothRadius + 1);
             var val = smoothHeight + _noise.GetNoise(x * 3.0d, z * 3.0d) * 2;
             var biomeVal = _biomeHeightNoise.GetNoise(x * 3.0d, z * 3.0d);
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {
                 var y = j + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Y;
-                bool underground = false;
+                var underground = false;
                 if (val >= y)
                 {
                     c.Data!.SetBlock(new Vector3D<int>(x, y, z), 1);
@@ -87,10 +86,12 @@ public class BaseTerrainGenerator
                     {
                         c.Data!.SetBiome(new Vector3D<int>(x, y, z), 1);
                         underground = true;
-                    } else if (_oceanMap![i + OceanSmoothRadius, k + OceanSmoothRadius] is >= 1 and <= 2)
+                    }
+                    else if (_oceanMap![i + OceanSmoothRadius, k + OceanSmoothRadius] is >= 1 and <= 2)
                     {
                         c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Beach);
-                    } else if (_oceanMap[i + OceanSmoothRadius, k + OceanSmoothRadius] > 2)
+                    }
+                    else if (_oceanMap[i + OceanSmoothRadius, k + OceanSmoothRadius] > 2)
                     {
                         c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Ocean);
                     }
@@ -103,14 +104,13 @@ public class BaseTerrainGenerator
                 if (underground) continue;
                 if (_oceanMap![i + OceanSmoothRadius, k + OceanSmoothRadius] is >= 1 and <= 2)
                 {
-                    if (val + biomeVal <= 7)
-                    {
-                        c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Beach);
-                    }
-                } else if (_oceanMap[i + OceanSmoothRadius, k + OceanSmoothRadius] > 2)
+                    if (val + biomeVal <= 7) c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Beach);
+                }
+                else if (_oceanMap[i + OceanSmoothRadius, k + OceanSmoothRadius] > 2)
                 {
                     c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.Ocean);
                 }
+
                 switch (y + biomeVal * 3)
                 {
                     case <= 20:

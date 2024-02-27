@@ -80,21 +80,13 @@ public partial class SideStripperTransformer
             if (t != null)
             {
                 if (t.FullName == typeof(int).FullName)
-                {
                     processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldc_I4_0));
-                }
                 else if (t.FullName == typeof(float).FullName)
-                {
                     processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldc_R4, 0.0f));
-                }
                 else if (t.IsValueType)
-                {
                     throw new NotImplementedException("Value types are not implemented yet");
-                }
                 else
-                {
                     processor.InsertAfter(insn, Instruction.Create(OpCodes.Ldnull));
-                }
             }
 
             var insn2 = BuildException(insn, processor);

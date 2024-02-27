@@ -4,9 +4,9 @@ namespace BlockFactory.Block_;
 
 public class ColumnBlock : Block
 {
-    private readonly int _top;
     private readonly int _bottom;
     private readonly int _side;
+    private readonly int _top;
 
     public ColumnBlock(int top, int bottom, int side)
     {

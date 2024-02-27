@@ -18,7 +18,6 @@ public class KickPacket : IInGamePacket
 
     public KickPacket() : this(string.Empty)
     {
-        
     }
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
@@ -38,10 +37,7 @@ public class KickPacket : IInGamePacket
 
     public void Handle(PlayerEntity? sender)
     {
-        while (!BlockFactoryClient.MenuManager.Empty)
-        {
-            BlockFactoryClient.MenuManager.Pop();
-        }
+        while (!BlockFactoryClient.MenuManager.Empty) BlockFactoryClient.MenuManager.Pop();
         BlockFactoryClient.MenuManager.Push(new MainMenu());
         BlockFactoryClient.MenuManager.Push(new KickedMenu(_message));
         BlockFactoryClient.ExitWorld();

@@ -2,9 +2,6 @@
 
 public interface ITagSerializable : IBinarySerializable
 {
-    DictionaryTag SerializeToTag(SerializationReason reason);
-    void DeserializeFromTag(DictionaryTag tag, SerializationReason reason);
-
     void IBinarySerializable.SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
         SerializeToTag(reason).Write(writer);
@@ -16,4 +13,7 @@ public interface ITagSerializable : IBinarySerializable
         tag.Read(reader);
         DeserializeFromTag(tag, reason);
     }
+
+    DictionaryTag SerializeToTag(SerializationReason reason);
+    void DeserializeFromTag(DictionaryTag tag, SerializationReason reason);
 }

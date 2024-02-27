@@ -40,12 +40,9 @@ public class WaterBlock : Block
         base.UpdateBlock(pointer);
         foreach (var face in CubeFaceUtils.Values())
         {
-            if(face == CubeFace.Top) continue;
+            if (face == CubeFace.Top) continue;
             var oPointer = pointer + face.GetDelta();
-            if (oPointer.GetBlock() == 0)
-            {
-                oPointer.SetBlock(this);
-            }
+            if (oPointer.GetBlock() == 0) oPointer.SetBlock(this);
         }
     }
 }

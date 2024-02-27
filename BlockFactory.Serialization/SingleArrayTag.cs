@@ -17,19 +17,13 @@ public class SingleArrayTag : IValueBasedTag<float[]>
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Value.Length);
-        foreach (var s in Value)
-        {
-            writer.Write(s);
-        }
+        foreach (var s in Value) writer.Write(s);
     }
 
     public void Read(BinaryReader reader)
     {
         Value = new float[reader.Read7BitEncodedInt()];
-        for (var i = 0; i < Value.Length; ++i)
-        {
-            Value[i] = reader.ReadSingle();
-        }
+        for (var i = 0; i < Value.Length; ++i) Value[i] = reader.ReadSingle();
     }
 
     public float[] Value { get; set; }

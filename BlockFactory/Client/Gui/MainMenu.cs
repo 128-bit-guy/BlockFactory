@@ -4,10 +4,10 @@ namespace BlockFactory.Client.Gui;
 
 public class MainMenu : Menu
 {
-    private readonly ButtonControl _singlePlayer;
+    private readonly ButtonControl _mods;
     private readonly ButtonControl _multiplayer;
     private readonly ButtonControl _settings;
-    private readonly ButtonControl _mods;
+    private readonly ButtonControl _singlePlayer;
     private readonly ButtonControl _textures;
 
     public MainMenu()
@@ -30,17 +30,11 @@ public class MainMenu : Menu
     private void OnSinglePlayerPressed()
     {
         BlockFactoryClient.MenuManager.Push(new SinglePlayerMenu());
-        // BlockFactoryClient.MenuManager.Pop();
-        // BlockFactoryClient.StartSinglePlayer("world");
     }
 
     private void OnMultiplayerPressed()
     {
         BlockFactoryClient.MenuManager.Push(new MultiplayerMenu());
-        // Console.WriteLine("Enter server address and port");
-        // var serverAddressAndPort = Console.ReadLine()!;
-        // BlockFactoryClient.MenuManager.Pop();
-        // BlockFactoryClient.StartMultiplayer(serverAddressAndPort);
     }
 
     private void OnSettingsPressed()

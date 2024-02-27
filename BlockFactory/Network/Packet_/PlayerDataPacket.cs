@@ -12,13 +12,13 @@ public class PlayerDataPacket : IInGamePacket
 
     public PlayerDataPacket()
     {
-        
     }
 
     public PlayerDataPacket(PlayerEntity player)
     {
         _data = TagIO.Write(player.SerializeToTag(SerializationReason.NetworkInit));
     }
+
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
         writer.Write7BitEncodedInt(_data!.Length);

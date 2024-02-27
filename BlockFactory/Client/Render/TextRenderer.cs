@@ -68,6 +68,11 @@ public class TextRenderer : IDisposable
         }
     }
 
+    public void Dispose()
+    {
+        BfRendering.Gl.DeleteTexture(_tex);
+    }
+
     private static unsafe int BakeFontBitmap(byte[] ttf, int offset, float pixel_height, byte[] pixels, int pw,
         int ph,
         int first_char, int num_chars, StbTrueType.stbtt_bakedchar[] chardata)
@@ -183,10 +188,5 @@ public class TextRenderer : IDisposable
     public void BindTexture()
     {
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, _tex);
-    }
-
-    public void Dispose()
-    {
-        BfRendering.Gl.DeleteTexture(_tex);
     }
 }

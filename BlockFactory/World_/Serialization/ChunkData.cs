@@ -11,20 +11,102 @@ namespace BlockFactory.World_.Serialization;
 public class ChunkData : IBlockStorage, IBinarySerializable
 {
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
-    private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
 
     private readonly byte[] _light =
         new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
 
-    private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
     private BitArray _blockUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
+    private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
+
     public bool Decorated;
-    public bool HasSkyLight;
     public int DecoratedNeighbours;
-    public bool FullyDecorated => DecoratedNeighbours == 27;
+    public bool HasSkyLight;
     public bool TopSoilPlaced;
+    public bool FullyDecorated => DecoratedNeighbours == 27;
+
+    // public DictionaryTag SerializeToTag(SerializationReason reason)
+    // {
+    //     var res = new DictionaryTag();
+    //     res.SetValue("blocks", _blocks);
+    //     res.SetValue("biomes", _biomes);
+    //     res.SetValue("decorated", Decorated);
+    //     res.SetValue("light", _light);
+    //     var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
+    //     _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
+    //     res.SetValue("light_update_scheduled", lightUpdateScheduled);
+    //     res.SetValue("has_sky_light", HasSkyLight);
+    //     return res;
+    // }
+    //
+    // public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    // {
+    //     _blocks = tag.GetValue<short[]>("blocks");
+    //     _biomes = tag.GetValue<byte[]>("biomes");
+    //     Decorated = tag.GetValue<bool>("decorated");
+    //     _light = tag.GetArray<byte>("light", _light.Length);
+    //     _lightUpdateScheduled =
+    //         new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
+    //     HasSkyLight = tag.GetValue<bool>("has_sky_light");
+    // }
+
+    public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
+    {
+        foreach (var block in _blocks) writer.Write(block);
+
+        writer.Write(_biomes);
+
+        writer.Write(_light);
+
+        if (reason != SerializationReason.Save) return;
+
+        var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
+        _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
+
+        writer.Write(lightUpdateScheduled);
+
+        var blockUpdateScheduled = new byte[_blockUpdateScheduled.Length >> 3];
+        _blockUpdateScheduled.CopyTo(blockUpdateScheduled, 0);
+
+        writer.Write(blockUpdateScheduled);
+
+        writer.Write(Decorated);
+
+        writer.Write(HasSkyLight);
+
+        writer.Write7BitEncodedInt(DecoratedNeighbours);
+
+        writer.Write(TopSoilPlaced);
+    }
+
+    public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
+    {
+        for (var i = 0; i < _blocks.Length; ++i) _blocks[i] = reader.ReadInt16();
+
+        for (var i = 0; i < _biomes.Length; ++i) _biomes[i] = reader.ReadByte();
+
+        for (var i = 0; i < _light.Length; ++i) _light[i] = reader.ReadByte();
+
+        if (reason != SerializationReason.Save)
+        {
+            Decorated = HasSkyLight = true;
+            return;
+        }
+
+        _lightUpdateScheduled = new BitArray(reader.ReadBytes(_lightUpdateScheduled.Length >> 3));
+
+        _blockUpdateScheduled = new BitArray(reader.ReadBytes(_blockUpdateScheduled.Length >> 3));
+
+        Decorated = reader.ReadBoolean();
+
+        HasSkyLight = reader.ReadBoolean();
+
+        DecoratedNeighbours = reader.Read7BitEncodedInt();
+
+        TopSoilPlaced = reader.ReadBoolean();
+    }
 
     public short GetBlock(Vector3D<int> pos)
     {
@@ -70,7 +152,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     {
         _lightUpdateScheduled[GetArrIndex(pos)] = update;
     }
-    
+
     public void SetBlockUpdateScheduled(Vector3D<int> pos, bool update)
     {
         _blockUpdateScheduled[GetArrIndex(pos)] = update;
@@ -81,98 +163,5 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     {
         return (pos.X & Constants.ChunkMask) | (((pos.Y & Constants.ChunkMask) | ((pos.Z & Constants.ChunkMask)
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
-    }
-
-    // public DictionaryTag SerializeToTag(SerializationReason reason)
-    // {
-    //     var res = new DictionaryTag();
-    //     res.SetValue("blocks", _blocks);
-    //     res.SetValue("biomes", _biomes);
-    //     res.SetValue("decorated", Decorated);
-    //     res.SetValue("light", _light);
-    //     var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
-    //     _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
-    //     res.SetValue("light_update_scheduled", lightUpdateScheduled);
-    //     res.SetValue("has_sky_light", HasSkyLight);
-    //     return res;
-    // }
-    //
-    // public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
-    // {
-    //     _blocks = tag.GetValue<short[]>("blocks");
-    //     _biomes = tag.GetValue<byte[]>("biomes");
-    //     Decorated = tag.GetValue<bool>("decorated");
-    //     _light = tag.GetArray<byte>("light", _light.Length);
-    //     _lightUpdateScheduled =
-    //         new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
-    //     HasSkyLight = tag.GetValue<bool>("has_sky_light");
-    // }
-
-    public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
-    {
-        foreach (var block in _blocks)
-        {
-            writer.Write(block);
-        }
-
-        writer.Write(_biomes);
-
-        writer.Write(_light);
-
-        if (reason != SerializationReason.Save) return;
-
-        var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
-        _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
-
-        writer.Write(lightUpdateScheduled);
-
-        var blockUpdateScheduled = new byte[_blockUpdateScheduled.Length >> 3];
-        _blockUpdateScheduled.CopyTo(blockUpdateScheduled, 0);
-
-        writer.Write(blockUpdateScheduled);
-
-        writer.Write(Decorated);
-
-        writer.Write(HasSkyLight);
-
-        writer.Write7BitEncodedInt(DecoratedNeighbours);
-        
-        writer.Write(TopSoilPlaced);
-    }
-
-    public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
-    {
-        for (var i = 0; i < _blocks.Length; ++i)
-        {
-            _blocks[i] = reader.ReadInt16();
-        }
-
-        for (var i = 0; i < _biomes.Length; ++i)
-        {
-            _biomes[i] = reader.ReadByte();
-        }
-
-        for (var i = 0; i < _light.Length; ++i)
-        {
-            _light[i] = reader.ReadByte();
-        }
-
-        if (reason != SerializationReason.Save)
-        {
-            Decorated = HasSkyLight = true;
-            return;
-        }
-
-        _lightUpdateScheduled = new BitArray(reader.ReadBytes(_lightUpdateScheduled.Length >> 3));
-
-        _blockUpdateScheduled = new BitArray(reader.ReadBytes(_blockUpdateScheduled.Length >> 3));
-
-        Decorated = reader.ReadBoolean();
-
-        HasSkyLight = reader.ReadBoolean();
-
-        DecoratedNeighbours = reader.Read7BitEncodedInt();
-
-        TopSoilPlaced = reader.ReadBoolean();
     }
 }

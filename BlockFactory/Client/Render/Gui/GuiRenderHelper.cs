@@ -2,11 +2,9 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
-using BlockFactory.Entity_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using Texture = BlockFactory.Client.Render.Texture_.Texture;
 
 namespace BlockFactory.Client.Render.Gui;
 
@@ -27,7 +25,7 @@ public static class GuiRenderHelper
 
     public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align, Color color)
     {
-        if(s.IsEmpty) return;
+        if (s.IsEmpty) return;
         GuiBuilder.Color = color;
         renderer.Render(s, GuiBuilder, align);
         GuiBuilder.Upload(GuiMesh);

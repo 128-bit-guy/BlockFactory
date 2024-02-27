@@ -113,7 +113,9 @@ public class PlayerChunkLoader : IDisposable
     private void UnWatchChunk(Chunk c)
     {
         if (IsChunkVisible(c))
+        {
             MakeChunkNotVisible(c);
+        }
         else
         {
             _loadingChunks.Remove(c);

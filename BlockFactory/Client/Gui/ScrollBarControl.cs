@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using BlockFactory.Client.Render;
+﻿using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -8,13 +7,13 @@ namespace BlockFactory.Client.Gui;
 
 public class ScrollBarControl : MenuControl
 {
-    private Box2D<float> _controlBox;
     private const float Padding = 8f;
-    public int Positions;
+    private float _buttonMousePosDelta;
+    private Box2D<float> _controlBox;
+    private bool _interacting;
     public int CurrentPosition;
+    public int Positions;
     public event Action PositionChanged = () => { };
-    private bool _interacting = false;
-    private float _buttonMousePosDelta = 0;
 
     public override void SetWorkingArea(Box2D<float> box)
     {
@@ -33,10 +32,7 @@ public class ScrollBarControl : MenuControl
 
     private Vector2D<float> GetButtonPosition()
     {
-        if (Positions == 1)
-        {
-            return _controlBox.Center;
-        }
+        if (Positions == 1) return _controlBox.Center;
 
         var progress = (float)CurrentPosition / (Positions - 1);
         var delta = GetButtonPositionExtent() * (progress - 0.5f);
@@ -57,14 +53,14 @@ public class ScrollBarControl : MenuControl
 
     private void UpdateCurrentPosition()
     {
-        if(!_interacting) return;
+        if (!_interacting) return;
         var newButtonY = BlockFactoryClient.InputContext.Mice[0].Position.Y + _buttonMousePosDelta;
         var extent = GetButtonPositionExtent();
         var min = _controlBox.Center.Y - extent / 2;
         var newButtonRelY = newButtonY - min;
         var newButtonPosFloat = newButtonRelY / extent * (Positions - 1);
         var newButtonPos = Math.Clamp((int)MathF.Round(newButtonPosFloat), 0, Positions - 1);
-        if(CurrentPosition == newButtonPos) return;
+        if (CurrentPosition == newButtonPos) return;
         CurrentPosition = newButtonPos;
         PositionChanged();
     }
@@ -77,7 +73,7 @@ public class ScrollBarControl : MenuControl
         BfRendering.Matrices.Translate(0, 0, z);
         GuiRenderHelper.RenderQuadWithBorder(4, _controlBox, Padding, 1 / 8.0f);
         BfRendering.Matrices.Translate(0, 0, 1);
-        var texture = (_interacting || IsMouseOverButton()) ? 6 : 5;
+        var texture = _interacting || IsMouseOverButton() ? 6 : 5;
         GuiRenderHelper.RenderTexturedQuad(texture, GetButtonQuad());
         BfRendering.Matrices.Pop();
     }
@@ -101,9 +97,6 @@ public class ScrollBarControl : MenuControl
     public override void MouseUp(MouseButton button)
     {
         base.MouseUp(button);
-        if (button == MouseButton.Left)
-        {
-            _interacting = false;
-        }
+        if (button == MouseButton.Left) _interacting = false;
     }
 }

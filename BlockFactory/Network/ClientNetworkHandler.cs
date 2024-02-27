@@ -5,7 +5,6 @@ using BlockFactory.Client;
 using BlockFactory.Entity_;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
-using BlockFactory.Serialization;
 using ENet.Managed;
 
 namespace BlockFactory.Network;
@@ -15,9 +14,9 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 {
     private readonly ENetPeer _peer;
     private bool _connected;
-    private bool _isInGame = false;
-    private Queue<IPacket> _preGameQueue = new();
+    private bool _isInGame;
     private IEnumerator _preGameEnumerator;
+    private readonly Queue<IPacket> _preGameQueue = new();
 
     public ClientNetworkHandler(IPEndPoint remote) : base(LogicalSide.Client,
         new ENetHost(null, 1, 1))
@@ -28,20 +27,14 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
 
     protected override void OnPeerConnected(ENetPeer peer)
     {
-        if (peer != _peer)
-        {
-            peer.Disconnect(0);
-        }
+        if (peer != _peer) peer.Disconnect(0);
         _preGameEnumerator = GetPreGameEnumerator();
         _preGameEnumerator.MoveNext();
     }
 
     protected override void OnPeerDisconnected(ENetPeer peer)
     {
-        if (peer == _peer)
-        {
-            _connected = false;
-        }
+        if (peer == _peer) _connected = false;
     }
 
     protected override void OnPacketReceived(IPacket packet, ENetPeer peer)
@@ -50,10 +43,7 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
         {
             if (_isInGame || packet is KickPacket)
             {
-                if (packet is IInGamePacket p)
-                {
-                    p.Handle(null);
-                }
+                if (packet is IInGamePacket p) p.Handle(null);
             }
             else
             {
@@ -83,7 +73,7 @@ public class ClientNetworkHandler : MultiPlayerNetworkHandler
                 yield return null;
                 continue;
             }
-            
+
             yield break;
         }
     }

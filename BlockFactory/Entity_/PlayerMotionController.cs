@@ -7,14 +7,14 @@ namespace BlockFactory.Entity_;
 
 public class PlayerMotionController
 {
-    public ClientControlledPlayerState ClientState;
     private readonly PlayerEntity _player;
     private readonly LinkedList<ClientControlledPlayerState> _states;
-    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _serverState;
     [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _predictedServerState;
+    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _serverState;
 
     [ExclusiveTo(Side.Client)] private DateTime _serverStateSetTime;
-    public bool PredictingState = false;
+    public ClientControlledPlayerState ClientState;
+    public bool PredictingState;
 
     public PlayerMotionController(PlayerEntity player)
     {
@@ -28,9 +28,7 @@ public class PlayerMotionController
         ++ClientState.MotionTick;
         ClientState.HeadRotation = _player.HeadRotation;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.SinglePlayer)
-        {
             _player.World.LogicProcessor.NetworkHandler.SendPacket(null, new PlayerControlPacket(ClientState));
-        }
 
         _states.AddLast(ClientState);
     }
@@ -40,10 +38,7 @@ public class PlayerMotionController
     {
         if (_serverState.MotionTick == newServerState.MotionTick) return;
         var predictedState = PredictServerStateForTick(newServerState.MotionTick);
-        while (_states.Count > 0 && _states.First!.Value.MotionTick < newServerState.MotionTick)
-        {
-            _states.RemoveFirst();
-        }
+        while (_states.Count > 0 && _states.First!.Value.MotionTick < newServerState.MotionTick) _states.RemoveFirst();
 
         _predictedServerState = predictedState;
         _serverState = newServerState;
@@ -85,10 +80,8 @@ public class PlayerMotionController
         ClientState = oldCState;
         _player.HeadRotation = oldHeadRotation;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
             //TODO set velocity
             _player.Pos = oldPos;
-        }
 
         return resState;
     }
@@ -102,26 +95,16 @@ public class PlayerMotionController
         //TODO Set velocity when physics are added
         newServerState.Velocity = Vector3D<double>.Zero;
         if (_player.World!.LogicProcessor.LogicalSide == LogicalSide.SinglePlayer)
-        {
             SetServerState(newServerState);
-        }
         else
-        {
             _player.World!.LogicProcessor.NetworkHandler.SendPacket(_player, new PlayerPosPacket(newServerState));
-        }
     }
 
     public void Update()
     {
         if (PredictingState) return;
-        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Server)
-        {
-            UpdateClient();
-        }
+        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Server) UpdateClient();
 
-        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
-            PreUpdateServer();
-        }
+        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client) PreUpdateServer();
     }
 }

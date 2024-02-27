@@ -4,11 +4,11 @@ namespace BlockFactory.Client.Gui;
 
 public class RenameWorldMenu : Menu
 {
-    private readonly SinglePlayerMenu _singlePlayerMenu;
-    private readonly string _worldName;
-    private readonly TextInputControl _textInput;
-    private readonly ButtonControl _renameButton;
     private readonly ButtonControl _cancelButton;
+    private readonly ButtonControl _renameButton;
+    private readonly SinglePlayerMenu _singlePlayerMenu;
+    private readonly TextInputControl _textInput;
+    private readonly string _worldName;
 
     public RenameWorldMenu(SinglePlayerMenu singlePlayerMenu, string worldName)
     {
@@ -35,7 +35,7 @@ public class RenameWorldMenu : Menu
 
     private void UpdateRenameEnabled()
     {
-        _renameButton.Enabled = _textInput.Text != "" && 
+        _renameButton.Enabled = _textInput.Text != "" &&
                                 !Directory.Exists(Path.Combine(BlockFactoryClient.WorldsDirectory, _textInput.Text));
     }
 
@@ -46,10 +46,7 @@ public class RenameWorldMenu : Menu
 
     private void OnEnterPressed()
     {
-        if (_renameButton.Enabled)
-        {
-            Apply();
-        }
+        if (_renameButton.Enabled) Apply();
     }
 
     private void Apply()

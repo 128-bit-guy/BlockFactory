@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using BlockFactory.Client.Render;
+﻿using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Maths;
 
@@ -7,8 +6,8 @@ namespace BlockFactory.Client.Gui;
 
 public class LabelControl : MenuControl
 {
-    public string Text;
     private Box2D<float> _controlBox;
+    public string Text;
 
     public LabelControl(string text)
     {
@@ -19,7 +18,7 @@ public class LabelControl : MenuControl
     {
         var size = new Vector2D<float>(BfClientContent.TextRenderer.GetStringWidth(Text),
             BfClientContent.TextRenderer.GetStringHeight(Text));
-        var min = box.Center - (size / 2);
+        var min = box.Center - size / 2;
         _controlBox = new Box2D<float>(min, min + size);
     }
 

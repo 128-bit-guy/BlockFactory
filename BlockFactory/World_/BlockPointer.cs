@@ -21,7 +21,7 @@ public struct BlockPointer
     {
         return new BlockPointer(pointer.World, pointer.Pos + pos);
     }
-    
+
     public static BlockPointer operator -(BlockPointer pointer, Vector3D<int> pos)
     {
         return new BlockPointer(pointer.World, pointer.Pos - pos);
@@ -66,7 +66,7 @@ public struct BlockPointer
     {
         World.SetBiome(Pos, biome);
     }
-    
+
     public void SetBiome(Biome biome)
     {
         World.SetBiome(Pos, biome);

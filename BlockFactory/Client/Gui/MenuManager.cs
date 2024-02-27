@@ -6,10 +6,12 @@ public class MenuManager
 {
     private readonly Stack<Menu> _menus = new();
     private MenuSwitchAnimationType _animationType = MenuSwitchAnimationType.None;
-    private Menu? _previousMenu = null;
-    private float _progress = 0;
+    private Menu? _previousMenu;
+    private float _progress;
 
     public bool Empty => _menus.Count == 0;
+
+    public Menu? Top => _menus.Count == 0 ? null : _menus.Peek();
 
     public void Push(Menu menu)
     {
@@ -27,8 +29,6 @@ public class MenuManager
         _progress = 0;
         _previousMenu ??= previous;
     }
-
-    public Menu? Top => _menus.Count == 0 ? null : _menus.Peek();
 
     public void UpdateAndRender(double deltaTime)
     {
@@ -72,13 +72,13 @@ public class MenuManager
         if (_animationType != MenuSwitchAnimationType.None)
         {
             _progress += (float)deltaTime * 3;
-            if(_progress < 1) return;
+            if (_progress < 1) return;
             _progress = 0;
             _animationType = MenuSwitchAnimationType.None;
             _previousMenu = null;
         }
     }
-    
+
     public bool IsAnimationPlaying()
     {
         return _animationType != MenuSwitchAnimationType.None;

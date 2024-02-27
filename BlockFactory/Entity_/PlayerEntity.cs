@@ -3,7 +3,6 @@ using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
 using BlockFactory.Physics;
-using BlockFactory.Serialization;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;
@@ -13,17 +12,18 @@ namespace BlockFactory.Entity_;
 
 public class PlayerEntity : Entity
 {
-    public PlayerChunkLoader? ChunkLoader { get; private set; }
-    public PlayerChunkTicker? ChunkTicker { get; private set; }
     public readonly PlayerMotionController MotionController;
-    private int _blockCooldown = 0;
-    public event Action<Chunk> ChunkBecameVisible = (_) => { };
-    public event Action<Chunk> ChunkBecameInvisible = (_) => { };
+    private int _blockCooldown;
 
     public PlayerEntity()
     {
         MotionController = new PlayerMotionController(this);
     }
+
+    public PlayerChunkLoader? ChunkLoader { get; private set; }
+    public PlayerChunkTicker? ChunkTicker { get; private set; }
+    public event Action<Chunk> ChunkBecameVisible = _ => { };
+    public event Action<Chunk> ChunkBecameInvisible = _ => { };
 
     private Vector3D<float> CalculateTargetVelocity()
     {
@@ -34,25 +34,18 @@ public class PlayerEntity : Entity
         s[2] = GetForward();
         foreach (var face in CubeFaceUtils.Values())
         {
-            if (((int)MotionController.ClientState.ControlState & (1 << ((int)face))) == 0) continue;
+            if (((int)MotionController.ClientState.ControlState & (1 << (int)face)) == 0) continue;
             res += s[face.GetAxis()] * face.GetSign();
         }
 
-        if (res.LengthSquared <= 1e-5f)
-        {
-            return Vector3D<float>.Zero;
-        }
+        if (res.LengthSquared <= 1e-5f) return Vector3D<float>.Zero;
 
         res = Vector3D.Normalize(res);
 
         if ((MotionController.ClientState.ControlState & PlayerControlState.Sprinting) != 0)
-        {
             res *= 0.8f;
-        }
         else
-        {
             res *= 0.5f;
-        }
 
         return res;
     }
@@ -102,10 +95,7 @@ public class PlayerEntity : Entity
     {
         MotionController.Update();
         base.Update();
-        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
-            UpdateMotion();
-        }
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
 
         ProcessInteraction();
         ChunkLoader!.Update();

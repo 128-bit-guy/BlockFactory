@@ -10,8 +10,8 @@ public class TextInputControl : MenuControl
 {
     private const float Padding = 8f;
     private Box2D<float> _controlBox;
+    public int CursorPos;
     public string Text = "";
-    public int CursorPos = 0;
     public event Action TextChanged = () => { };
     public event Action EnterPressed = () => { };
 
@@ -24,32 +24,27 @@ public class TextInputControl : MenuControl
     {
         return _controlBox;
     }
-    
+
     public override void MouseDown(MouseButton button)
     {
         base.MouseDown(button);
         if (IsMouseOver && button == MouseButton.Left)
-        {
             ActiveControl = this;
-        }
-        else if(ActiveControl == this)
-        {
-            ActiveControl = null;
-        }
+        else if (ActiveControl == this) ActiveControl = null;
     }
 
     private string GetRenderedText()
     {
         return ActiveControl == this ? Text.Insert(CursorPos, "|") : Text;
     }
-    
+
     public override void UpdateAndRender(float z)
     {
         base.UpdateAndRender(z);
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(0, 0, z);
         GuiRenderHelper.RenderQuadWithBorder(4, _controlBox, Padding, 1 / 8.0f);
-        string renderedText = GetRenderedText();
+        var renderedText = GetRenderedText();
         BfRendering.Matrices.Translate(_controlBox.Center.X,
             _controlBox.Center.Y - BfClientContent.TextRenderer.GetStringHeight(renderedText) * 0.4f, 1);
         BfRendering.Matrices.Scale(0.8f);

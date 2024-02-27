@@ -4,16 +4,16 @@ namespace BlockFactory.Client.Gui;
 
 public class SinglePlayerMenu : Menu
 {
-    private readonly ScrollBarControl _scrollBar;
-    private readonly ButtonControl _playButton;
-    private readonly ButtonControl _renameButton;
+    private readonly ButtonControl _backButton;
     private readonly ButtonControl _createButton;
     private readonly ButtonControl _deleteButton;
-    private readonly ButtonControl _backButton;
+    private readonly ButtonControl _playButton;
+    private readonly ButtonControl _renameButton;
+    private readonly ScrollBarControl _scrollBar;
     private readonly ButtonControl[] _worldButtons;
-    private int[] _worldButtonIndices;
-    private List<string> _worldList = new();
     private int _currentSelected = -1;
+    private readonly int[] _worldButtonIndices;
+    private readonly List<string> _worldList = new();
 
     public SinglePlayerMenu()
     {
@@ -53,9 +53,7 @@ public class SinglePlayerMenu : Menu
     {
         _worldList.Clear();
         foreach (var dir in Directory.GetDirectories(BlockFactoryClient.WorldsDirectory))
-        {
             _worldList.Add(Path.GetRelativePath(BlockFactoryClient.WorldsDirectory, dir));
-        }
 
         _scrollBar.Positions = Math.Max(_worldList.Count - _worldButtons.Length + 1, 1);
 

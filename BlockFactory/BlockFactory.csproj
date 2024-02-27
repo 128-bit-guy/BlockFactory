@@ -22,20 +22,20 @@
     <ItemGroup>
         <ProjectReference Include="..\BlockFactory.Base\BlockFactory.Base.csproj"/>
         <ProjectReference Include="..\BlockFactory.CubeMath\BlockFactory.CubeMath.csproj"/>
-        <ProjectReference Include="..\BlockFactory.Serialization\BlockFactory.Serialization.csproj" />
+        <ProjectReference Include="..\BlockFactory.Serialization\BlockFactory.Serialization.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="**\*.png" />
-        <EmbeddedResource Include="**\*.png" />
-        <None Remove="**\*.glsl" />
-        <EmbeddedResource Include="**\*.glsl" />
-        <None Remove="**\*.ttf" />
-        <EmbeddedResource Include="**\*.ttf" />
+        <None Remove="**\*.png"/>
+        <EmbeddedResource Include="**\*.png"/>
+        <None Remove="**\*.glsl"/>
+        <EmbeddedResource Include="**\*.glsl"/>
+        <None Remove="**\*.ttf"/>
+        <EmbeddedResource Include="**\*.ttf"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Fonts\" />
+        <Folder Include="Fonts\"/>
         <Folder Include="Textures\"/>
     </ItemGroup>
 

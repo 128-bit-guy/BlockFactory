@@ -23,11 +23,6 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateBlock(pos);
     }
 
-    public void UpdateLight(Vector3D<int> pos)
-    {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateLight(pos);
-    }
-
     public void ScheduleLightUpdate(Vector3D<int> pos)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.ScheduleLightUpdate(pos);
@@ -81,6 +76,11 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
     public IEnumerable<Chunk> GetLoadedChunks()
     {
         return _neighbours.Where(c => c != null)!;
+    }
+
+    public void UpdateLight(Vector3D<int> pos)
+    {
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateLight(pos);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

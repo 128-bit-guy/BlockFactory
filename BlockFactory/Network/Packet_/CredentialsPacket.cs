@@ -7,6 +7,7 @@ namespace BlockFactory.Network.Packet_;
 public class CredentialsPacket : IPacket
 {
     public readonly Credentials Credentials;
+
     public CredentialsPacket(Credentials credentials)
     {
         Credentials = credentials;
@@ -14,8 +15,8 @@ public class CredentialsPacket : IPacket
 
     public CredentialsPacket() : this(new Credentials())
     {
-        
     }
+
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
         Credentials.SerializeToTag(SerializationReason.NetworkInit).Write(writer);

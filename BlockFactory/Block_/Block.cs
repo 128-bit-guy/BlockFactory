@@ -50,7 +50,6 @@ public class Block : IRegistryEntry
 
     public virtual void UpdateBlock(BlockPointer pointer)
     {
-        
     }
 
     public virtual bool IsFaceSolid(CubeFace face)
@@ -60,6 +59,5 @@ public class Block : IRegistryEntry
 
     public virtual void RandomUpdateBlock(BlockPointer pointer)
     {
-        
     }
 }

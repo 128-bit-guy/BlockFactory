@@ -12,8 +12,8 @@ namespace BlockFactory.Network.Packet_;
 [CompressedPacket]
 public class ChunkDataPacket : IInGamePacket
 {
+    private readonly ChunkData _data;
     private Vector3D<int> _pos;
-    private ChunkData _data;
 
     public ChunkDataPacket(Vector3D<int> pos, ChunkData data)
     {

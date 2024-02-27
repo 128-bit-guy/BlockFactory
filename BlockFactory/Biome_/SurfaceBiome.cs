@@ -19,8 +19,6 @@ public class SurfaceBiome : Biome
     {
         if (pointer.GetBlock() == 0 && (pointer - Vector3D<int>.UnitY).GetBlock() == Blocks.Grass.Id &&
             rng.Next(150) == 0)
-        {
             TreeGenerator.Generate(pointer, rng);
-        }
     }
 }

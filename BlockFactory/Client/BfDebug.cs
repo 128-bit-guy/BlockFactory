@@ -79,12 +79,8 @@ public static class BfDebug
         }
 
         if (ImGui.Begin("Debug functions"))
-        {
             if (ImGui.Button("Garbage collection"))
-            {
                 GC.Collect();
-            }
-        }
 
         ImGui.End();
 
@@ -94,10 +90,7 @@ public static class BfDebug
     public static void HandleTickTime(float time)
     {
         TickTimes.Add(time);
-        if (TickTimes.Count > 60)
-        {
-            TickTimes.RemoveAt(0);
-        }
+        if (TickTimes.Count > 60) TickTimes.RemoveAt(0);
     }
 
     public static void Destroy()

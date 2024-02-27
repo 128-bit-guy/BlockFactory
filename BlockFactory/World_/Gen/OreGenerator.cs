@@ -7,12 +7,13 @@ namespace BlockFactory.World_.Gen;
 
 public class OreGenerator
 {
-    private short _block, _replacedBlock;
-    private int _minSize, _maxSize;
-    private int _maxRadius;
-    private float _veinChance;
-
     [ThreadStatic] private static List<Vector3D<int>>? _posQueue;
+    private readonly short _block;
+    private readonly short _replacedBlock;
+    private readonly int _maxRadius;
+    private readonly int _minSize;
+    private readonly int _maxSize;
+    private readonly float _veinChance;
 
     public OreGenerator(short block, short replacedBlock, int minSize, int maxSize, int maxRadius, float veinChance)
     {
@@ -50,10 +51,7 @@ public class OreGenerator
             foreach (var face in CubeFaceUtils.Values())
             {
                 var nPos = cPos + face.GetDelta();
-                if ((nPos - pos).LengthSquared <= _maxRadius * _maxRadius)
-                {
-                    _posQueue.Add(nPos);
-                }
+                if ((nPos - pos).LengthSquared <= _maxRadius * _maxRadius) _posQueue.Add(nPos);
             }
         }
 

@@ -12,10 +12,7 @@ public class RegistryMapping : ITagSerializable
         foreach (var (id, mapping) in Mappings)
         {
             var tag = new DictionaryTag();
-            foreach (var (entryStrId, entryNumId) in mapping)
-            {
-                tag.SetValue(entryStrId, entryNumId);
-            }
+            foreach (var (entryStrId, entryNumId) in mapping) tag.SetValue(entryStrId, entryNumId);
 
             result.Set(id, tag);
         }

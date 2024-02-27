@@ -17,19 +17,13 @@ public class ByteArrayTag : IValueBasedTag<byte[]>
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Value.Length);
-        foreach (var b in Value)
-        {
-            writer.Write(b);
-        }
+        foreach (var b in Value) writer.Write(b);
     }
 
     public void Read(BinaryReader reader)
     {
         Value = new byte[reader.Read7BitEncodedInt()];
-        for (var i = 0; i < Value.Length; ++i)
-        {
-            Value[i] = reader.ReadByte();
-        }
+        for (var i = 0; i < Value.Length; ++i) Value[i] = reader.ReadByte();
     }
 
     public byte[] Value { get; set; }

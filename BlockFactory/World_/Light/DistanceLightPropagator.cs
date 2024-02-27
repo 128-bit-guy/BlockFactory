@@ -22,28 +22,20 @@ public static class DistanceLightPropagator
         if (_addLightQueue == null)
         {
             _addLightQueue = new List<Vector3D<int>>[16];
-            for (int i = 1; i < 16; ++i)
-            {
-                _addLightQueue[i] = new List<Vector3D<int>>();
-            }
+            for (var i = 1; i < 16; ++i) _addLightQueue[i] = new List<Vector3D<int>>();
         }
     }
 
     private static int GetEmittedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
     {
         if (channel == LightChannel.Block)
-        {
             return n.GetBlockObj(pos).GetEmittedLight();
-        }
-        else
-        {
-            return n.GetLight(pos, LightChannel.DirectSky);
-        }
+        return n.GetLight(pos, LightChannel.DirectSky);
     }
 
     private static int GetSupposedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
     {
-        int cLight = GetEmittedLight(n, pos, channel);
+        var cLight = GetEmittedLight(n, pos, channel);
         foreach (var face in CubeFaceUtils.Values())
         {
             var oPos = pos + face.GetDelta();
@@ -72,8 +64,8 @@ public static class DistanceLightPropagator
                 var l = n.GetLight(pos, channel);
                 if (sl > l)
                 {
-                    bool shouldBfs = false;
-                    foreach (CubeFace face in CubeFaceUtils.Values())
+                    var shouldBfs = false;
+                    foreach (var face in CubeFaceUtils.Values())
                     {
                         var ol = GetEmittedLight(n, pos + face.GetDelta(), channel);
                         if (ol < sl - 1)
@@ -84,13 +76,9 @@ public static class DistanceLightPropagator
                     }
 
                     if (shouldBfs)
-                    {
                         _beginAddLightList!.Add(pos);
-                    }
                     else
-                    {
                         n.SetLight(pos, channel, (byte)sl);
-                    }
                 }
                 else if (sl < l)
                 {
@@ -102,10 +90,7 @@ public static class DistanceLightPropagator
             {
                 var (pos, changed) = _removeLightQueue.Dequeue();
                 var light = n.GetLight(pos, channel);
-                if (light != 0 || changed)
-                {
-                    _beginAddLightList!.Add(pos);
-                }
+                if (light != 0 || changed) _beginAddLightList!.Add(pos);
 
                 if (light == 0) continue;
                 n.SetLight(pos, channel, 0);
@@ -115,20 +100,14 @@ public static class DistanceLightPropagator
                     var oPos = pos + face.GetDelta();
                     var lightCanPass = (changed || n.GetBlockObj(pos).CanLightLeave(face, channel)) &&
                                        n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
-                    if (lightCanPass && n.GetLight(oPos, channel) < light)
-                    {
-                        _removeLightQueue.Enqueue((oPos, false));
-                    }
+                    if (lightCanPass && n.GetLight(oPos, channel) < light) _removeLightQueue.Enqueue((oPos, false));
                 }
             }
 
             foreach (var pos in _beginAddLightList!)
             {
                 var cLight = GetSupposedLight(n, pos, channel);
-                if (cLight > 0)
-                {
-                    _addLightQueue![cLight].Add(pos);
-                }
+                if (cLight > 0) _addLightQueue![cLight].Add(pos);
             }
 
             _beginAddLightList.Clear();
@@ -152,10 +131,7 @@ public static class DistanceLightPropagator
                         if (n.GetLight(oPos, channel) >= cLight - 1) continue;
                         var canLightPass = n.GetBlockObj(pos).CanLightLeave(face, channel) &&
                                            n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
-                        if (canLightPass)
-                        {
-                            _addLightQueue[cLight - 1].Add(oPos);
-                        }
+                        if (canLightPass) _addLightQueue[cLight - 1].Add(oPos);
                     }
                 }
 

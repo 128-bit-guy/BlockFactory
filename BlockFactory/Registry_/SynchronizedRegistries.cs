@@ -14,16 +14,10 @@ public static class SynchronizedRegistries
     public static void LoadMapping(RegistryMapping mapping)
     {
         foreach (var (id, reg) in SyncedRegistries)
-        {
             if (mapping.Mappings.TryGetValue(id, out var m))
-            {
                 reg.AssignNumericalIds(m);
-            }
             else
-            {
                 reg.AssignNumericalIds(new Dictionary<string, int>());
-            }
-        }
     }
 
     public static RegistryMapping WriteMapping()

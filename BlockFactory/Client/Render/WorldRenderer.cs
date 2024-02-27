@@ -14,10 +14,12 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class WorldRenderer : IDisposable
 {
-    private readonly List<ChunkRenderer> _transparentRenderers = new();
     private readonly Stack<BlockMeshBuilder> _blockMeshBuilders = new();
     private readonly List<ChunkRenderer> _fadingOutRenderers = new();
     private readonly ChunkRenderer?[] _renderers = new ChunkRenderer?[1 << (3 * PlayerChunkLoading.CkdPowerOf2)];
+
+    private readonly List<ChunkRenderer> _transparentRenderers = new();
+
     // public readonly World World;
     public readonly PlayerEntity Player;
     private Vector3D<double> _playerSmoothPos;
@@ -101,7 +103,7 @@ public class WorldRenderer : IDisposable
         Textures.Blocks.Bind();
         Shaders.Block.Use();
         Shaders.Block.SetSkyColor(BfRendering.SkyColor);
-        List<ChunkRenderer> transparentRenderers = _transparentRenderers;
+        var transparentRenderers = _transparentRenderers;
         foreach (var delta in PlayerChunkLoading.ChunkDeltas)
         {
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
@@ -129,7 +131,8 @@ public class WorldRenderer : IDisposable
 
             if (!intersectionHelper.TestAab(b)) continue;
 
-            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 && renderer.Chunk.ReadyForTick)
+            if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 &&
+                renderer.Chunk.ReadyForTick)
             {
                 var bmb = _blockMeshBuilders.Pop();
                 renderer.StartRebuildTask(bmb);
@@ -138,10 +141,7 @@ public class WorldRenderer : IDisposable
 
             renderer.Update(deltaTime);
             RenderChunk(renderer, false);
-            if (renderer.TransparentStart != renderer.Mesh.IndexCount)
-            {
-                transparentRenderers.Add(renderer);
-            }
+            if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);
         }
 
         foreach (var renderer in _fadingOutRenderers)
@@ -151,16 +151,13 @@ public class WorldRenderer : IDisposable
         }
 
         _fadingOutRenderers.RemoveAll(renderer => renderer.LoadProgress <= 0.01f);
-        
+
         BfRendering.Gl.Enable(EnableCap.Blend);
         BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        foreach (var renderer in transparentRenderers)
-        {
-            RenderChunk(renderer, true);
-        }
+        foreach (var renderer in transparentRenderers) RenderChunk(renderer, true);
         transparentRenderers.Clear();
         BfRendering.Gl.Disable(EnableCap.Blend);
-        
+
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);

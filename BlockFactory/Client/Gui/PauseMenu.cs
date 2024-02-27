@@ -4,8 +4,8 @@ namespace BlockFactory.Client.Gui;
 
 public class PauseMenu : Menu
 {
-    private readonly ButtonControl _saveAndQuit;
     private readonly ButtonControl _backToGame;
+    private readonly ButtonControl _saveAndQuit;
 
     public PauseMenu()
     {

@@ -8,12 +8,11 @@ public class MeshBuilder<T> where T : unmanaged
 {
     public readonly MatrixStack Matrices;
     public readonly IUvTransformer UvTransformer;
-    public Color Color = Color.White;
     private uint _indBegin;
-    public int IndexCount { get; private set; }
     private uint[] _indices;
     private int _vertCnt;
     private T[] _vertices;
+    public Color Color = Color.White;
 
     public MeshBuilder(MatrixStack matrices, IUvTransformer transformer)
     {
@@ -30,6 +29,8 @@ public class MeshBuilder<T> where T : unmanaged
     public MeshBuilder() : this(IdentityUvTransformer.Instance)
     {
     }
+
+    public int IndexCount { get; private set; }
 
     public MeshBuilder<T> NewPolygon()
     {

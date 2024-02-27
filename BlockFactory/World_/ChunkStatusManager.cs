@@ -7,9 +7,10 @@ public class ChunkStatusManager
 {
     public delegate void ChunkEventHandler(Chunk c);
 
-    public readonly World World;
     private readonly ConcurrentQueue<Chunk> _statusUpdateQueue = new();
     private readonly ConcurrentQueue<Chunk> _tickingUpdateQueue = new();
+
+    public readonly World World;
 
     public ChunkStatusManager(World world)
     {

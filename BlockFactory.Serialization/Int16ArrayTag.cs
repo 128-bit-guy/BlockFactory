@@ -17,19 +17,13 @@ public class Int16ArrayTag : IValueBasedTag<short[]>
     public void Write(BinaryWriter writer)
     {
         writer.Write7BitEncodedInt(Value.Length);
-        foreach (var s in Value)
-        {
-            writer.Write(s);
-        }
+        foreach (var s in Value) writer.Write(s);
     }
 
     public void Read(BinaryReader reader)
     {
         Value = new short[reader.Read7BitEncodedInt()];
-        for (var i = 0; i < Value.Length; ++i)
-        {
-            Value[i] = reader.ReadInt16();
-        }
+        for (var i = 0; i < Value.Length; ++i) Value[i] = reader.ReadInt16();
     }
 
     public short[] Value { get; set; }

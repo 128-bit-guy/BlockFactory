@@ -8,8 +8,8 @@ namespace BlockFactory.Network;
 public class ServerPeerState
 {
     public ServerPlayerEntity? Player;
-    public Queue<IPacket> PreGameQueue = new Queue<IPacket>();
     public IEnumerator PreGameEnumerator = null!;
+    public Queue<IPacket> PreGameQueue = new();
 
     public IEnumerable WaitForPreGamePacket<T>() where T : IPacket
     {
@@ -27,7 +27,7 @@ public class ServerPeerState
                 yield return null;
                 continue;
             }
-            
+
             yield break;
         }
     }

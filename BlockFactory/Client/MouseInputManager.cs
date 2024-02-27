@@ -46,17 +46,13 @@ public static class MouseInputManager
     public static void MouseDown(IMouse mouse, MouseButton button)
     {
         if (MouseShouldBeEnabled() && !ImGuiShouldBeFocused() && !BlockFactoryClient.MenuManager.Empty)
-        {
             BlockFactoryClient.MenuManager.Top!.MouseDown(button);
-        }
     }
 
     public static void MouseUp(IMouse mouse, MouseButton button)
     {
         if (MouseShouldBeEnabled() && !ImGuiShouldBeFocused() && !BlockFactoryClient.MenuManager.Empty)
-        {
             BlockFactoryClient.MenuManager.Top!.MouseUp(button);
-        }
     }
 
     public static void Update()

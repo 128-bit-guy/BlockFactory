@@ -4,9 +4,10 @@ namespace BlockFactory.Client.Gui;
 
 public class MultiplayerMenu : Menu
 {
-    private readonly ButtonControl _connect;
     private readonly ButtonControl _back;
+    private readonly ButtonControl _connect;
     private readonly TextInputControl _textInput;
+
     public MultiplayerMenu()
     {
         Root = new SlottedWindowControl(new Vector2D<int>(4, 4),

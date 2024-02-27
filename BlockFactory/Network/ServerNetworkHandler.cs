@@ -74,7 +74,6 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         else
         {
             if (packet is IInGamePacket p)
-            {
                 try
                 {
                     p.Handle(peerState.Player);
@@ -83,7 +82,6 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
                 {
                     Console.WriteLine(ex);
                 }
-            }
         }
     }
 
@@ -100,22 +98,19 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         }
 
         if (BlockFactoryServer.LogicProcessor.PlayerData.Players.TryGetValue(p.Credentials.Name, out var pl))
-        {
             if (pl.World != null)
             {
-                
                 Console.WriteLine($"Player {p.Credentials.Name} attempted to log in from two clients at once");
                 EnqueueSendPacketInternal(new KickPacket("Attempted to log in from two clients at once"), peer);
                 // peer.Disconnect(0);
                 yield break;
             }
-        }
+
         Console.WriteLine($"Player {p.Credentials.Name} logged in");
         EnqueueSendPacketInternal(new RegistryMappingPacket(BlockFactoryServer.Mapping), peer);
         var player = LoadOrCreatePlayer(p.Credentials.Name, peer);
         peerState.Player = player;
         SendPacket(player, new PlayerDataPacket(player));
-        yield break;
     }
 
     public override bool ShouldStop()

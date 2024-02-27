@@ -22,13 +22,9 @@ public static class TreeGenerator
             {
                 var neighbourBottom = neighbour - new Vector3D<int>(0, j, 0);
                 if (neighbourBottom.GetBlock() == 0 || neighbourBottom.GetBlock() == Blocks.Leaves.Id)
-                {
                     neighbourBottom.SetBlock(Blocks.Log);
-                }
                 else
-                {
                     break;
-                }
             }
         }
     }
@@ -40,30 +36,20 @@ public static class TreeGenerator
         while (leftLength > 0)
         {
             if (first)
-            {
                 first = false;
-            }
-            else if (rng.Next(80) < leftLength)
-            {
-                GenerateBranch(pointer, direction, relPos, rng, leftLength, neighbours);
-            }
+            else if (rng.Next(80) < leftLength) GenerateBranch(pointer, direction, relPos, rng, leftLength, neighbours);
 
             var np = pointer + new Vector3D<float>(MathF.Round(relPos.X), MathF.Round(relPos.Y),
                 MathF.Round(relPos.Z)).As<int>();
-            for (int k = 0; k < 2; ++k)
+            for (var k = 0; k < 2; ++k)
             {
                 var np2 = np + new Vector3D<int>(0, k, 0);
                 np2.SetBlock(Blocks.Log);
-                for (int j = 0; j < Math.Min(4, (leftLength - 12) / 2 - 1); ++j)
-                {
+                for (var j = 0; j < Math.Min(4, (leftLength - 12) / 2 - 1); ++j)
                     (np2 + neighbours[j]).SetBlock(Blocks.Log);
-                }
             }
 
-            if (leftLength < 3)
-            {
-                SetLeaves(np, 4);
-            }
+            if (leftLength < 3) SetLeaves(np, 4);
 
             relPos += direction / 2;
             var newDir = 4 * direction + RandomUtils.PointOnSphere(rng) + 0 * Vector3D<float>.UnitY;
@@ -81,10 +67,7 @@ public static class TreeGenerator
             var delta = new Vector3D<int>(i, j, k);
             if (delta.LengthSquared > radius * radius) continue;
             var leafPos = center + delta;
-            if (leafPos.GetBlock() == 0)
-            {
-                leafPos.SetBlock(Blocks.Leaves);
-            }
+            if (leafPos.GetBlock() == 0) leafPos.SetBlock(Blocks.Leaves);
         }
     }
 }

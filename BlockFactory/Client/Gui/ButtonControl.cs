@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
-using BlockFactory.Client.Render.Texture_;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
@@ -11,14 +10,15 @@ public class ButtonControl : MenuControl
 {
     private const float Padding = 8f;
     private Box2D<float> _controlBox;
-    public string Text;
-    public event Action Pressed = () => { };
     public bool Enabled = true;
+    public string Text;
 
     public ButtonControl(string text)
     {
         Text = text;
     }
+
+    public event Action Pressed = () => { };
 
     public override void SetWorkingArea(Box2D<float> box)
     {
@@ -32,7 +32,7 @@ public class ButtonControl : MenuControl
         BfRendering.Matrices.Translate(0, 0, z);
         var mouseOver = IsMouseOver;
         GuiRenderHelper.RenderQuadWithBorder(
-            Enabled ? (mouseOver ? 2 : 0) : 1, _controlBox,
+            Enabled ? mouseOver ? 2 : 0 : 1, _controlBox,
             Padding, 1 / 8.0f);
         BfRendering.Matrices.Translate(_controlBox.Center.X,
             _controlBox.Center.Y - BfClientContent.TextRenderer.GetStringHeight(Text) * 0.4f, 1);
@@ -49,9 +49,6 @@ public class ButtonControl : MenuControl
     public override void MouseDown(MouseButton button)
     {
         base.MouseDown(button);
-        if (IsMouseOver && button == MouseButton.Left && Enabled)
-        {
-            Pressed();
-        }
+        if (IsMouseOver && button == MouseButton.Left && Enabled) Pressed();
     }
 }

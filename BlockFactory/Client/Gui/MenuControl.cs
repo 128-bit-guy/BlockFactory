@@ -5,9 +5,9 @@ namespace BlockFactory.Client.Gui;
 
 public abstract class MenuControl
 {
+    public static MenuControl? ActiveControl;
     public MenuControl? Parent;
     public bool IsMouseOver { get; private set; }
-    public static MenuControl? ActiveControl;
 
     private void UpdateMouse()
     {
@@ -32,14 +32,15 @@ public abstract class MenuControl
     public virtual void MouseDown(MouseButton button)
     {
     }
-    
+
     public virtual void MouseUp(MouseButton button)
     {
     }
-    
+
     public virtual void KeyDown(Key key, int a)
     {
     }
+
     public virtual void KeyChar(char c)
     {
     }

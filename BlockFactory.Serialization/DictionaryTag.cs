@@ -3,6 +3,8 @@
 public class DictionaryTag : ITag
 {
     private readonly Dictionary<string, ITag> _dictionary = new();
+
+    public IEnumerable<string> Keys => _dictionary.Keys;
     public TagType Type => TagType.Dictionary;
 
     public void Write(BinaryWriter writer)
@@ -69,6 +71,4 @@ public class DictionaryTag : ITag
     {
         _dictionary[s] = TagTypes.CreateValueBasedTag(value);
     }
-
-    public IEnumerable<string> Keys => _dictionary.Keys;
 }

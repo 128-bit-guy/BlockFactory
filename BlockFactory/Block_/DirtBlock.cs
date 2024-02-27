@@ -20,7 +20,7 @@ public class DirtBlock : Block
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
         {
-            if((pointer + new Vector3D<int>(i, j, k)).GetBlock() != Blocks.Grass.Id) continue;
+            if ((pointer + new Vector3D<int>(i, j, k)).GetBlock() != Blocks.Grass.Id) continue;
             pointer.SetBlock(Blocks.Grass);
             goto EndLoop;
         }

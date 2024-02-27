@@ -1,5 +1,4 @@
-﻿using BlockFactory.Entity_;
-using Silk.NET.Maths;
+﻿using Silk.NET.Maths;
 
 namespace BlockFactory.World_.ChunkLoading;
 

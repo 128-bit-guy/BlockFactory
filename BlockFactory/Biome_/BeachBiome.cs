@@ -10,8 +10,6 @@ public class BeachBiome : Biome
     {
         world.SetBlock(pos, Blocks.Sand);
         if (world.GetBlockObj(pos - Vector3D<int>.UnitY).GetWorldGenBase() == Blocks.Stone)
-        {
             world.SetBlock(pos - Vector3D<int>.UnitY, Blocks.Sand);
-        }
     }
 }

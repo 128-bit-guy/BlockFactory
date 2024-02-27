@@ -1,6 +1,5 @@
 ﻿using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
-using BlockFactory.Client.Render.Texture_;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Gui;
@@ -15,7 +14,7 @@ public abstract class WindowControl : MenuControl
     public override void SetWorkingArea(Box2D<float> box)
     {
         var size = GetSize();
-        var min = box.Center - (size / 2);
+        var min = box.Center - size / 2;
         var contentBox = new Box2D<float>(min, min + size);
         _controlBox = new Box2D<float>(contentBox.Min - new Vector2D<float>(Padding),
             contentBox.Max + new Vector2D<float>(Padding));

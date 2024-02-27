@@ -72,12 +72,8 @@ public class CaveGenerator : WorldGenElement
         {
             var pos = new Vector3D<int>(i, j, k);
             if ((pos - center).LengthSquared <= radius * radius)
-            {
                 if (carvedChunk.Data!.GetBlock(pos) != Blocks.Water.Id)
-                {
                     carvedChunk.Data!.SetBlock(pos, block);
-                }
-            }
         }
     }
 }

@@ -6,39 +6,22 @@ namespace BlockFactory;
 public class PlayerData : ITagSerializable
 {
     private readonly LogicProcessor _logicProcessor;
-    public readonly Dictionary<string, PlayerEntity> Players = new();
     private readonly Dictionary<string, string> _passwords = new();
+    public readonly Dictionary<string, PlayerEntity> Players = new();
 
     public PlayerData(LogicProcessor logicProcessor)
     {
         _logicProcessor = logicProcessor;
     }
 
-    public bool AttemptLogin(Credentials credentials)
-    {
-        if (_passwords.TryGetValue(credentials.Name, out var savedPassword))
-        {
-            return savedPassword == credentials.Password;
-        }
-        
-        _passwords.Add(credentials.Name, credentials.Password);
-        return true;
-    }
-
     public DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var res = new DictionaryTag();
         var passwords = new DictionaryTag();
-        foreach (var (name, password) in _passwords)
-        {
-            passwords.SetValue(name, password);
-        }
+        foreach (var (name, password) in _passwords) passwords.SetValue(name, password);
         res.Set("passwords", passwords);
         var players = new DictionaryTag();
-        foreach (var (name, player) in Players)
-        {
-            players.Set(name, player.SerializeToTag(reason));
-        }
+        foreach (var (name, player) in Players) players.Set(name, player.SerializeToTag(reason));
         res.Set("players", players);
         return res;
     }
@@ -47,20 +30,27 @@ public class PlayerData : ITagSerializable
     {
         var passwords = tag.Get<DictionaryTag>("passwords");
         _passwords.Clear();
-        foreach (var name in passwords.Keys)
-        {
-            _passwords.Add(name, passwords.GetValue<string>(name));
-        }
+        foreach (var name in passwords.Keys) _passwords.Add(name, passwords.GetValue<string>(name));
 
         var players = tag.Get<DictionaryTag>("players");
         Players.Clear();
         foreach (var name in players.Keys)
         {
             var playerTag = players.Get<DictionaryTag>(name);
-            var player = _logicProcessor.LogicalSide == LogicalSide.Server ?
-                new ServerPlayerEntity() : new PlayerEntity();
+            var player = _logicProcessor.LogicalSide == LogicalSide.Server
+                ? new ServerPlayerEntity()
+                : new PlayerEntity();
             player.DeserializeFromTag(playerTag, reason);
             Players.Add(name, player);
         }
+    }
+
+    public bool AttemptLogin(Credentials credentials)
+    {
+        if (_passwords.TryGetValue(credentials.Name, out var savedPassword))
+            return savedPassword == credentials.Password;
+
+        _passwords.Add(credentials.Name, credentials.Password);
+        return true;
     }
 }

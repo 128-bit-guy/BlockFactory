@@ -4,8 +4,8 @@ namespace BlockFactory;
 
 public class WorldSettings : ITagSerializable
 {
-    public long Seed;
     public bool Flat;
+    public long Seed;
 
     public WorldSettings(long seed, bool flat)
     {

@@ -18,13 +18,11 @@ public static class VectorTagSerialization
     {
         var array = tag.GetArray<T>(name, 3);
         var res = new Vector3D<T>();
-        for (var i = 0; i < 3; ++i)
-        {
-            res.SetValue(i, array[i]);
-        }
+        for (var i = 0; i < 3; ++i) res.SetValue(i, array[i]);
 
         return res;
     }
+
     public static void SetVector2D<T>(this DictionaryTag tag, string name, Vector2D<T> value)
         where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
     {
@@ -38,10 +36,7 @@ public static class VectorTagSerialization
     {
         var array = tag.GetArray<T>(name, 2);
         var res = new Vector2D<T>();
-        for (var i = 0; i < 2; ++i)
-        {
-            res.SetValue(i, array[i]);
-        }
+        for (var i = 0; i < 2; ++i) res.SetValue(i, array[i]);
 
         return res;
     }

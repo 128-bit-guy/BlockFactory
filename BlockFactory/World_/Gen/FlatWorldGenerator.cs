@@ -21,10 +21,12 @@ public class FlatWorldGenerator : IWorldGenerator
             if (absPos.Y == 0)
             {
                 c.Data!.SetBlock(absPos, Blocks.Grass);
-            } else if (absPos.Y == -1)
+            }
+            else if (absPos.Y == -1)
             {
                 c.Data!.SetBlock(absPos, Blocks.Dirt);
-            } else if (absPos.Y < -1)
+            }
+            else if (absPos.Y < -1)
             {
                 c.Data!.SetBlock(absPos, 1);
                 c.Data!.SetBiome(absPos, Biomes.Underground);
@@ -34,11 +36,10 @@ public class FlatWorldGenerator : IWorldGenerator
                 c.Data!.SetBiome(absPos, Biomes.Surface);
             }
         }
+
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var j = 0; j < Constants.ChunkSize; ++j)
-        {
             c.Data.SetLightUpdateScheduled(new Vector3D<int>(i, Constants.ChunkSize - 1, j), true);
-        }
     }
 
     public void DecorateChunk(Chunk c)

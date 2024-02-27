@@ -24,9 +24,9 @@ public class ChunkRenderer : IDisposable
     public BlockMeshBuilder? MeshBuilder;
     public Task? RebuildTask;
     public bool RequiresRebuild = true;
+    public uint TransparentStart = 0;
     public bool Unloading;
     public bool Valid = true;
-    public uint TransparentStart = 0;
 
     static ChunkRenderer()
     {
@@ -38,23 +38,16 @@ public class ChunkRenderer : IDisposable
             differentTriangles[15 & ~(1 << order[i])] = (i & 1) == 0;
         }
 
-        for (var mask = 0; mask < (1 << 16); ++mask)
+        for (var mask = 0; mask < 1 << 16; ++mask)
         {
             var lights = new int[4];
-            for (var i = 0; i < 4; ++i)
-            {
-                lights[i] = (mask >> (i << 2)) & 15;
-            }
+            for (var i = 0; i < 4; ++i) lights[i] = (mask >> (i << 2)) & 15;
 
             var mi = lights.Min();
             var oMask = 0;
             for (var i = 0; i < 4; ++i)
-            {
                 if (lights[i] == mi)
-                {
-                    oMask |= (1 << i);
-                }
-            }
+                    oMask |= 1 << i;
 
             DifferentTriangles[mask] = differentTriangles[oMask];
         }
@@ -90,10 +83,7 @@ public class ChunkRenderer : IDisposable
                          + new Vector3D<int>(i, j, k);
             var block = neighbourhood.GetBlockObj(absPos);
             if (block == Blocks.Air) continue;
-            if (block == Blocks.Water)
-            {
-                continue;
-            }
+            if (block == Blocks.Water) continue;
             builder.Matrices.Push();
             builder.Matrices.Translate(i, j, k);
             foreach (var face in CubeFaceUtils.Values())
@@ -129,7 +119,7 @@ public class ChunkRenderer : IDisposable
                 for (var l = 0; l < 4; ++l)
                 {
                     _vertexLight[l] = (float)lightVal[l] / 15;
-                    dtMask |= (lightVal[l] << (l << 2));
+                    dtMask |= lightVal[l] << (l << 2);
                 }
 
                 builder.Matrices.Push();
@@ -154,7 +144,7 @@ public class ChunkRenderer : IDisposable
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
             var block = neighbourhood.GetBlockObj(absPos);
-            if(block != Blocks.Water) continue;
+            if (block != Blocks.Water) continue;
             builder.Matrices.Push();
             builder.Matrices.Translate(i, j, k);
             foreach (var face in CubeFaceUtils.Values())
@@ -163,7 +153,7 @@ public class ChunkRenderer : IDisposable
                 var oPos = absPos + face.GetDelta();
                 var neighbour = neighbourhood.GetBlockObj(oPos);
                 if (neighbour.BlockRendering(face.GetOpposite())) continue;
-                if(neighbour == block) continue;
+                if (neighbour == block) continue;
                 // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
@@ -192,7 +182,7 @@ public class ChunkRenderer : IDisposable
                 for (var l = 0; l < 4; ++l)
                 {
                     _vertexLight[l] = (float)lightVal[l] / 15;
-                    dtMask |= (lightVal[l] << (l << 2));
+                    dtMask |= lightVal[l] << (l << 2);
                 }
 
                 builder.Matrices.Push();

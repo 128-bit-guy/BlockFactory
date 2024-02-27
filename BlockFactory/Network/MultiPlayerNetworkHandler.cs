@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Entity_;
-using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;
 using ENet.Managed;
 using ZstdSharp;
@@ -9,13 +8,13 @@ namespace BlockFactory.Network;
 
 public abstract class MultiPlayerNetworkHandler : INetworkHandler
 {
-    public readonly ENetHost Host;
-    private readonly ConcurrentQueue<PacketSendQueueEntry> _sendQueue;
-    private readonly ConcurrentQueue<PacketReceiveQueueEntry> _receiveQueue;
-    private bool _shouldRun;
-    private readonly Thread _networkThread;
     private readonly LogicalSide _logicalSide;
+    private readonly Thread _networkThread;
     private readonly HashSet<ENetPeer> _peers;
+    private readonly ConcurrentQueue<PacketReceiveQueueEntry> _receiveQueue;
+    private readonly ConcurrentQueue<PacketSendQueueEntry> _sendQueue;
+    public readonly ENetHost Host;
+    private bool _shouldRun;
 
     public MultiPlayerNetworkHandler(LogicalSide side, ENetHost host)
     {
@@ -33,7 +32,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         var cnt = _receiveQueue.Count;
         for (var i = 0; i < cnt; ++i)
         {
-            if(!ShouldProcessPackets()) break;
+            if (!ShouldProcessPackets()) break;
             if (!_receiveQueue.TryDequeue(out var entry)) break;
             switch (entry.Type)
             {
@@ -48,6 +47,21 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
                     break;
             }
         }
+    }
+
+    public abstract bool ShouldStop();
+    public abstract void SendPacket<T>(PlayerEntity? player, T packet) where T : class, IPacket;
+
+    public void Start()
+    {
+        _networkThread.Start();
+    }
+
+    public void Dispose()
+    {
+        _shouldRun = false;
+        _networkThread.Join();
+        Host.Dispose();
     }
 
     protected virtual bool ShouldProcessPackets()
@@ -76,7 +90,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
             }
 
             var cnt = _sendQueue.Count;
-            for (int i = 0; i < cnt; ++i)
+            for (var i = 0; i < cnt; ++i)
             {
                 if (!_sendQueue.TryDequeue(out var entry)) break;
                 if (!_peers.Contains(entry.Peer)) continue;
@@ -97,14 +111,6 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
     protected abstract void OnPeerDisconnected(ENetPeer peer);
     protected abstract void OnPacketReceived(IPacket packet, ENetPeer peer);
 
-    public abstract bool ShouldStop();
-    public abstract void SendPacket<T>(PlayerEntity? player, T packet) where T : class, IPacket;
-
-    public void Start()
-    {
-        _networkThread.Start();
-    }
-
 
     private void Connect(ENetEvent evt)
     {
@@ -124,9 +130,7 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         {
             var packet = DeserializePacket(evt.Packet.Data.ToArray());
             if (packet.SupportsLogicalSide(_logicalSide))
-            {
                 _receiveQueue.Enqueue(new PacketReceiveQueueEntry(packet, evt.Peer, 1));
-            }
         }
         catch (Exception ex)
         {
@@ -154,20 +158,14 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
 
     private static IPacket DeserializePacket(byte[] b)
     {
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(b, 0, sizeof(int));
-        }
+        if (BitConverter.IsLittleEndian) Array.Reverse(b, 0, sizeof(int));
 
         var id = BitConverter.ToInt32(b);
         var p = NetworkRegistry.CreatePacket(id);
         byte[] readable;
         if (NetworkRegistry.IsPacketCompressed(id))
         {
-            if (BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(b, sizeof(int), sizeof(int));
-            }
+            if (BitConverter.IsLittleEndian) Array.Reverse(b, sizeof(int), sizeof(int));
 
             var uncompressedSize = BitConverter.ToInt32(b.AsSpan()[sizeof(int)..]);
             readable = Zstd.Decompress(b, 2 * sizeof(int), b.Length - 2 * sizeof(int), uncompressedSize);
@@ -209,12 +207,5 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
         if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
 
         return res;
-    }
-
-    public void Dispose()
-    {
-        _shouldRun = false;
-        _networkThread.Join();
-        Host.Dispose();
     }
 }
