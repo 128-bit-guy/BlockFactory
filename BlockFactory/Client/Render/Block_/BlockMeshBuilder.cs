@@ -21,6 +21,7 @@ public class BlockMeshBuilder
     public void Reset()
     {
         MeshBuilder.Reset();
+        MeshBuilder.Matrices.Reset();
         TransparentStart = 0;
     }
 }

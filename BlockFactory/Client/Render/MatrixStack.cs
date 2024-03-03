@@ -48,6 +48,14 @@ public class MatrixStack
         Scale(s, s, s);
     }
 
+    public void Reset()
+    {
+        while (_stack.Count > 0)
+        {
+            _stack.Pop();
+        }
+    }
+
     public static implicit operator Matrix4X4<float>(MatrixStack stack)
     {
         return stack._stack.Peek();
