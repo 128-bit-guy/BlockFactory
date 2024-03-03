@@ -14,7 +14,8 @@ public static class TreeGenerator
         neighbours[2] = -Vector3D<int>.UnitX;
         neighbours[3] = -Vector3D<int>.UnitZ;
         neighbours.Shuffle(rng);
-        GenerateBranch(pointer, Vector3D<float>.UnitY, Vector3D<float>.Zero, rng, 25, neighbours);
+        GenerateBranch(pointer, pointer, Vector3D<float>.UnitY, Vector3D<float>.Zero, rng, 
+            25, neighbours);
         for (var i = 0; i < 4; ++i)
         {
             var neighbour = pointer + neighbours[i] - Vector3D<int>.UnitY;
@@ -29,7 +30,8 @@ public static class TreeGenerator
         }
     }
 
-    private static void GenerateBranch(BlockPointer pointer, Vector3D<float> direction, Vector3D<float> relPos,
+    private static void GenerateBranch(BlockPointer pointer, BlockPointer treeCenter, Vector3D<float> direction,
+        Vector3D<float> relPos,
         Random rng, int leftLength, Span<Vector3D<int>> neighbours)
     {
         var first = true;
@@ -37,7 +39,8 @@ public static class TreeGenerator
         {
             if (first)
                 first = false;
-            else if (rng.Next(80) < leftLength) GenerateBranch(pointer, direction, relPos, rng, leftLength, neighbours);
+            else if (rng.Next(80) < leftLength)
+                GenerateBranch(pointer, treeCenter, direction, relPos, rng, leftLength, neighbours);
 
             var np = pointer + new Vector3D<float>(MathF.Round(relPos.X), MathF.Round(relPos.Y),
                 MathF.Round(relPos.Z)).As<int>();
@@ -49,7 +52,7 @@ public static class TreeGenerator
                     (np2 + neighbours[j]).SetBlock(Blocks.Log);
             }
 
-            if (leftLength < 3) SetLeaves(np, 4);
+            if (leftLength < 3) SetLeaves(np, treeCenter, 4);
 
             relPos += direction / 2;
             var newDir = 4 * direction + RandomUtils.PointOnSphere(rng) + 0 * Vector3D<float>.UnitY;
@@ -58,7 +61,7 @@ public static class TreeGenerator
         }
     }
 
-    private static void SetLeaves(BlockPointer center, int radius)
+    private static void SetLeaves(BlockPointer center, BlockPointer treeCenter, int radius)
     {
         for (var i = -radius; i <= radius; ++i)
         for (var j = -radius; j <= radius; ++j)
@@ -67,6 +70,7 @@ public static class TreeGenerator
             var delta = new Vector3D<int>(i, j, k);
             if (delta.LengthSquared > radius * radius) continue;
             var leafPos = center + delta;
+            if(Math.Abs(leafPos.Pos.Y - treeCenter.Pos.Y) > 15) continue;
             if (leafPos.GetBlock() == 0) leafPos.SetBlock(Blocks.Leaves);
         }
     }
