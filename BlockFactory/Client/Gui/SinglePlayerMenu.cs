@@ -10,10 +10,10 @@ public class SinglePlayerMenu : Menu
     private readonly ButtonControl _playButton;
     private readonly ButtonControl _renameButton;
     private readonly ScrollBarControl _scrollBar;
-    private readonly ButtonControl[] _worldButtons;
-    private int _currentSelected = -1;
     private readonly int[] _worldButtonIndices;
+    private readonly ButtonControl[] _worldButtons;
     private readonly List<string> _worldList = new();
+    private int _currentSelected = -1;
 
     public SinglePlayerMenu()
     {

@@ -20,14 +20,12 @@ public class WorldRenderer : IDisposable
 
     private readonly List<ChunkRenderer> _transparentRenderers = new();
 
-    // public readonly World World;
     public readonly PlayerEntity Player;
     private Vector3D<double> _playerSmoothPos;
 
     public WorldRenderer(PlayerEntity player)
     {
         Player = player;
-        // World = world;
         player.ChunkBecameVisible += OnChunkReadyForTick;
         player.ChunkBecameInvisible += OnChunkNotReadyForTick;
         for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder());

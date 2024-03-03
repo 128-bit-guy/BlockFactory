@@ -50,14 +50,6 @@ public class LinearCongruentialRandom : Random
 
         var r = (int)NextBits(31);
         var m = maxValue - 1;
-        //if ((maxValue & m) == 0)
-        //{
-        //    Console.WriteLine("R : {0}", r);
-        //    Console.WriteLine("MaxValue * R: {0}", (long)maxValue * (long)r);
-        //    r = (int)((((long)maxValue) * ((long)r)) >> 31);
-        //    Console.WriteLine("R became: {0}", r);
-        //}
-        //else
         {
             for (var u = r;
                  u - (r = u % maxValue) + m < 0;

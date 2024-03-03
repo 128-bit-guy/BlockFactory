@@ -14,7 +14,7 @@ public static class TreeGenerator
         neighbours[2] = -Vector3D<int>.UnitX;
         neighbours[3] = -Vector3D<int>.UnitZ;
         neighbours.Shuffle(rng);
-        GenerateBranch(pointer, pointer, Vector3D<float>.UnitY, Vector3D<float>.Zero, rng, 
+        GenerateBranch(pointer, pointer, Vector3D<float>.UnitY, Vector3D<float>.Zero, rng,
             25, neighbours);
         for (var i = 0; i < 4; ++i)
         {
@@ -70,7 +70,7 @@ public static class TreeGenerator
             var delta = new Vector3D<int>(i, j, k);
             if (delta.LengthSquared > radius * radius) continue;
             var leafPos = center + delta;
-            if(Math.Abs(leafPos.Pos.Y - treeCenter.Pos.Y) > 15) continue;
+            if (Math.Abs(leafPos.Pos.Y - treeCenter.Pos.Y) > 15) continue;
             if (leafPos.GetBlock() == 0) leafPos.SetBlock(Blocks.Leaves);
         }
     }

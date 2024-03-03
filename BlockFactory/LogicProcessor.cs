@@ -107,25 +107,16 @@ public class LogicProcessor : IDisposable
     {
         NetworkHandler.Update();
         _world.Update();
-        // foreach (var chunk in _world.GetLoadedChunks())
-        // {
-        //     if (chunk.ReadyForTick)
-        //     {
-        //         _chunkUpdateClasses[chunk.GetUpdateClass()].Add(chunk);
-        //     }
-        // }
         for (var i = 0; i < 27; ++i)
         {
             _chunkUpdateClasses[i].Shuffle(Random.Shared);
             Parallel.ForEach(_chunkUpdateClasses[i], PreUpdateChunk);
-            // _chunkUpdateClasses[i].Clear();
         }
 
         for (var i = 0; i < 27; ++i)
         {
             Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
             _chunkUpdateClasses[i].RemoveAll(c => !c.IsTicking);
-            // _chunkUpdateClasses[i].Clear();
         }
 
         ++_heavyUpdateClass;

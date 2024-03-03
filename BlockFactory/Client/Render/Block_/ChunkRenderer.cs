@@ -91,7 +91,6 @@ public class ChunkRenderer : IDisposable
                 transformer.Sprite = block.GetTexture(face);
                 var oPos = absPos + face.GetDelta();
                 if (neighbourhood.GetBlockObj(oPos).BlockRendering(face.GetOpposite())) continue;
-                // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                     : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
@@ -154,7 +153,6 @@ public class ChunkRenderer : IDisposable
                 var neighbour = neighbourhood.GetBlockObj(oPos);
                 if (neighbour.BlockRendering(face.GetOpposite())) continue;
                 if (neighbour == block) continue;
-                // var light = neighbourhood.GetLight(oPos, LightChannel.Block) / 15.0f;
                 var s = face.GetAxis() == 1
                     ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                     : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;

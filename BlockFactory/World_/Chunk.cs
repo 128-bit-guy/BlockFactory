@@ -80,11 +80,6 @@ public class Chunk : IBlockWorld
             }
 
         if (!update) return;
-        // if (World.LogicProcessor.LogicalSide == LogicalSide.Client)
-        // {
-        //     
-        //     return;
-        // }
         ScheduleLightUpdate(pos);
         UpdateBlock(pos);
         for (var i = -1; i <= 1; ++i)

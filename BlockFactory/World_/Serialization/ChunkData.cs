@@ -27,31 +27,6 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     public bool TopSoilPlaced;
     public bool FullyDecorated => DecoratedNeighbours == 27;
 
-    // public DictionaryTag SerializeToTag(SerializationReason reason)
-    // {
-    //     var res = new DictionaryTag();
-    //     res.SetValue("blocks", _blocks);
-    //     res.SetValue("biomes", _biomes);
-    //     res.SetValue("decorated", Decorated);
-    //     res.SetValue("light", _light);
-    //     var lightUpdateScheduled = new byte[_lightUpdateScheduled.Length >> 3];
-    //     _lightUpdateScheduled.CopyTo(lightUpdateScheduled, 0);
-    //     res.SetValue("light_update_scheduled", lightUpdateScheduled);
-    //     res.SetValue("has_sky_light", HasSkyLight);
-    //     return res;
-    // }
-    //
-    // public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
-    // {
-    //     _blocks = tag.GetValue<short[]>("blocks");
-    //     _biomes = tag.GetValue<byte[]>("biomes");
-    //     Decorated = tag.GetValue<bool>("decorated");
-    //     _light = tag.GetArray<byte>("light", _light.Length);
-    //     _lightUpdateScheduled =
-    //         new BitArray(tag.GetArray<byte>("light_update_scheduled", _lightUpdateScheduled.Length >> 3));
-    //     HasSkyLight = tag.GetValue<bool>("has_sky_light");
-    // }
-
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
         foreach (var block in _blocks) writer.Write(block);

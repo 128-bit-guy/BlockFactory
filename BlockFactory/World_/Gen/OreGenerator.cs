@@ -9,10 +9,10 @@ public class OreGenerator
 {
     [ThreadStatic] private static List<Vector3D<int>>? _posQueue;
     private readonly short _block;
-    private readonly short _replacedBlock;
     private readonly int _maxRadius;
-    private readonly int _minSize;
     private readonly int _maxSize;
+    private readonly int _minSize;
+    private readonly short _replacedBlock;
     private readonly float _veinChance;
 
     public OreGenerator(short block, short replacedBlock, int minSize, int maxSize, int maxRadius, float veinChance)

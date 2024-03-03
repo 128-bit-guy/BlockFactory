@@ -122,7 +122,6 @@ public static class BlockFactoryClient
 
     private static IPEndPoint GetEndPoint(string serverAddressAndPort)
     {
-        // if (serverAddressAndPort.Length == 0) serverAddressAndPort = Dns.GetHostName();
         if (!serverAddressAndPort.Contains(':')) serverAddressAndPort += ":" + Constants.DefaultPort;
         var a = serverAddressAndPort.Split(':');
         var address = a[0];
@@ -157,7 +156,6 @@ public static class BlockFactoryClient
     public static void StartMultiplayer(string serverAddressAndPort)
     {
         var mapping = new RegistryMapping();
-        //TODO receive mapping from server
         SynchronizedRegistries.LoadMapping(mapping);
         var ep = GetEndPoint(serverAddressAndPort);
         LogicProcessor = new LogicProcessor(LogicalSide.Client, new ClientNetworkHandler(ep), "remote");

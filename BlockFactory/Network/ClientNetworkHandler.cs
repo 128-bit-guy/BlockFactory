@@ -13,10 +13,10 @@ namespace BlockFactory.Network;
 public class ClientNetworkHandler : MultiPlayerNetworkHandler
 {
     private readonly ENetPeer _peer;
+    private readonly Queue<IPacket> _preGameQueue = new();
     private bool _connected;
     private bool _isInGame;
     private IEnumerator _preGameEnumerator;
-    private readonly Queue<IPacket> _preGameQueue = new();
 
     public ClientNetworkHandler(IPEndPoint remote) : base(LogicalSide.Client,
         new ENetHost(null, 1, 1))

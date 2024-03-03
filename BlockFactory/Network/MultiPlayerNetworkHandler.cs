@@ -85,7 +85,6 @@ public abstract class MultiPlayerNetworkHandler : INetworkHandler
                 var evt = Host.Service(TimeSpan.FromMilliseconds(first ? 1 : 0));
                 first = false;
                 if (evt.Type == ENetEventType.None) break;
-                // Console.WriteLine($"Network event of type: {evt.Type}");
                 ProcessEvent(evt);
             }
 
