@@ -6,7 +6,9 @@ using BlockFactory.Network;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
 using BlockFactory.Serialization;
+using BlockFactory.Server;
 using BlockFactory.World_;
+using Silk.NET.Maths;
 
 namespace BlockFactory;
 
@@ -85,6 +87,20 @@ public class LogicProcessor : IDisposable
         if (!c.IsTicking) return;
 
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
+    }
+
+    public PlayerEntity GetOrCreatePlayer(string name)
+    {
+        if (PlayerData.Players.TryGetValue(name, out var p))
+        {
+            return p;
+        }
+
+        var player = LogicalSide == LogicalSide.Server? new ServerPlayerEntity() : new PlayerEntity();
+        player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
+            (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
+        PlayerData.Players.Add(name, player);
+        return player;
     }
 
     private void PreUpdateChunk(Chunk c)

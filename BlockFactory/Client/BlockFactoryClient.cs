@@ -149,8 +149,8 @@ public static class BlockFactoryClient
             new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
         LogicProcessor.LoadMapping();
         LogicProcessor.Start();
-        SetPlayer(new PlayerEntity());
-        Player.Pos = new Vector3D<double>(0, 0, 0);
+        var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name);
+        SetPlayer(player);
     }
 
     public static void StartMultiplayer(string serverAddressAndPort)

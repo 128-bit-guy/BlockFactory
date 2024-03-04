@@ -31,18 +31,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
 
     private ServerPlayerEntity LoadOrCreatePlayer(string name, ENetPeer peer)
     {
-        ServerPlayerEntity player;
-        if (BlockFactoryServer.LogicProcessor.PlayerData.Players.TryGetValue(name, out var p))
-        {
-            player = (ServerPlayerEntity)p;
-        }
-        else
-        {
-            player = new ServerPlayerEntity();
-            player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
-                (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
-            BlockFactoryServer.LogicProcessor.PlayerData.Players.Add(name, player);
-        }
+        var player = (ServerPlayerEntity)BlockFactoryServer.LogicProcessor.GetOrCreatePlayer(name);
 
         player.Peer = peer;
         BlockFactoryServer.LogicProcessor.AddPlayer(player);
