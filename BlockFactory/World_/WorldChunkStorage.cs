@@ -25,6 +25,11 @@ public class WorldChunkStorage : IChunkStorage
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLight(pos, channel);
     }
 
+    public bool IsBlockLoaded(Vector3D<int> pos)
+    {
+        return _chunks.ContainsKey(pos.ShiftRight(Constants.ChunkSizeLog2));
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);

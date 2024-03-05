@@ -66,6 +66,11 @@ public class Chunk : IBlockWorld
         return Data!.GetLight(pos, channel);
     }
 
+    public bool IsBlockLoaded(Vector3D<int> pos)
+    {
+        return pos.ShiftRight(Constants.ChunkSizeLog2) == Position;
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         LoadTask?.Wait();

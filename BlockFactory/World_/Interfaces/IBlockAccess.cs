@@ -8,4 +8,5 @@ public interface IBlockAccess
     public short GetBlock(Vector3D<int> pos);
     public byte GetBiome(Vector3D<int> pos);
     public byte GetLight(Vector3D<int> pos, LightChannel channel);
+    public bool IsBlockLoaded(Vector3D<int> pos);
 }

@@ -34,4 +34,11 @@ public static class BfMathUtils
     {
         return (1 - f) * a + f * b;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Box3D<T> Add<T>(this Box3D<T> a, Vector3D<T> b)
+        where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        return new Box3D<T>(a.Min + b, a.Max + b);
+    }
 }

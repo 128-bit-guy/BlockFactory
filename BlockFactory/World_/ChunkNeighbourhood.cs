@@ -43,6 +43,17 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLight(pos, channel);
     }
 
+    public bool IsBlockLoaded(Vector3D<int> pos)
+    {
+        var diff = pos.ShiftRight(Constants.ChunkSizeLog2) - Center.Position;
+        for (var i = 0; i < 3; ++i)
+        {
+            if (Math.Abs(diff[i]) > 1) return false;
+        }
+
+        return true;
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);

@@ -98,6 +98,11 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         return _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))];
     }
 
+    public bool IsBlockLoaded(Vector3D<int> pos)
+    {
+        return true;
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = false)
     {
         _blocks[GetArrIndex(pos)] = block;

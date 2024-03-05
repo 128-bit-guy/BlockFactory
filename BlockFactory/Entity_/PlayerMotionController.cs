@@ -56,8 +56,11 @@ public class PlayerMotionController
             Vector3D.Lerp(_predictedServerState.Velocity, _serverState.Velocity, motionLerpVal);
         interpolatedBaseState.Pos =
             Vector3D.Lerp(_predictedServerState.Pos, _serverState.Pos, motionLerpVal);
+        interpolatedBaseState.IsStandingOnGround = _serverState.IsStandingOnGround;
         interpolatedBaseState.MotionTick = _serverState.MotionTick;
         var oldPos = _player.Pos;
+        var oldVelocity = _player.Velocity;
+        var oldGround = _player.IsStandingOnGround;
         _player.Pos = interpolatedBaseState.Pos;
         var oldHeadRotation = _player.HeadRotation;
         var oldCState = ClientState;
@@ -75,13 +78,19 @@ public class PlayerMotionController
         resState.MotionTick = motionTick;
         resState.Pos = _player.Pos;
         //TODO set velocity
+        resState.Velocity = _player.Velocity;
+        resState.IsStandingOnGround = _player.IsStandingOnGround;
 
         PredictingState = false;
         ClientState = oldCState;
         _player.HeadRotation = oldHeadRotation;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
-            //TODO set velocity
+        {
             _player.Pos = oldPos;
+            //TODO set velocity
+            _player.Velocity = oldVelocity;
+            _player.IsStandingOnGround = oldGround;
+        }
 
         return resState;
     }
@@ -93,7 +102,9 @@ public class PlayerMotionController
         newServerState.MotionTick = ClientState.MotionTick;
         newServerState.Pos = _player.Pos;
         //TODO Set velocity when physics are added
-        newServerState.Velocity = Vector3D<double>.Zero;
+        newServerState.Velocity = _player.Velocity;
+        newServerState.IsStandingOnGround = _player.IsStandingOnGround;
+        
         if (_player.World!.LogicProcessor.LogicalSide == LogicalSide.SinglePlayer)
             SetServerState(newServerState);
         else

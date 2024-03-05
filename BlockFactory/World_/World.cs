@@ -60,6 +60,13 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLight(pos, channel);
     }
 
+    public bool IsBlockLoaded(Vector3D<int> pos)
+    {
+        var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);
+        var c = GetChunk(chunkPos, false);
+        return c is { ReadyForUse: true };
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);

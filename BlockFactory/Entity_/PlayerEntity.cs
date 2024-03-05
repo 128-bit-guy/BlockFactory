@@ -10,13 +10,14 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Entity_;
 
-public class PlayerEntity : Entity
+public class PlayerEntity : WalkingEntity
 {
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown;
 
     public PlayerEntity()
     {
+        BoundingBox = new Box3D<double>(-0.4d, -1.4d, -0.4d, 0.4d, 0.4d, 0.4d);
         MotionController = new PlayerMotionController(this);
     }
 
@@ -24,31 +25,6 @@ public class PlayerEntity : Entity
     public PlayerChunkTicker? ChunkTicker { get; private set; }
     public event Action<Chunk> ChunkBecameVisible = _ => { };
     public event Action<Chunk> ChunkBecameInvisible = _ => { };
-
-    private Vector3D<float> CalculateTargetVelocity()
-    {
-        var res = Vector3D<float>.Zero;
-        Span<Vector3D<float>> s = stackalloc Vector3D<float>[3];
-        s[0] = GetRight();
-        s[1] = Vector3D<float>.UnitY;
-        s[2] = GetForward();
-        foreach (var face in CubeFaceUtils.Values())
-        {
-            if (((int)MotionController.ClientState.ControlState & (1 << (int)face)) == 0) continue;
-            res += s[face.GetAxis()] * face.GetSign();
-        }
-
-        if (res.LengthSquared <= 1e-5f) return Vector3D<float>.Zero;
-
-        res = Vector3D.Normalize(res);
-
-        if ((MotionController.ClientState.ControlState & PlayerControlState.Sprinting) != 0)
-            res *= 0.8f;
-        else
-            res *= 0.5f;
-
-        return res;
-    }
 
     private void ProcessInteraction()
     {
@@ -82,13 +58,46 @@ public class PlayerEntity : Entity
     public Vector3D<double> GetSmoothPos()
     {
         var state = MotionController.PredictServerStateForTick(MotionController.ClientState.MotionTick + 1);
-        return state.Pos + BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>();
+        return state.Pos /*+ BlockFactoryClient.LogicProcessor.GetPartialTicks() * CalculateTargetVelocity().As<double>()*/;
     }
 
-    public void UpdateMotion()
+    protected override Vector2D<double> GetTargetWalkVelocity()
     {
-        var motion = CalculateTargetVelocity();
-        Pos += motion.As<double>();
+        var res = Vector3D<double>.Zero;
+        Span<Vector3D<double>> s = stackalloc Vector3D<double>[3];
+        s[0] = GetRight().As<double>();
+        s[1] = Vector3D<double>.Zero;
+        s[2] = GetForward().As<double>();
+        foreach (var face in CubeFaceUtils.Values())
+        {
+            if (((int)MotionController.ClientState.ControlState & (1 << (int)face)) == 0) continue;
+            res += s[face.GetAxis()] * face.GetSign();
+        }
+
+        if (res.LengthSquared <= 1e-5f) return Vector2D<double>.Zero;
+
+        res = Vector3D.Normalize(res);
+
+        if ((MotionController.ClientState.ControlState & PlayerControlState.Sprinting) != 0)
+            res *= 0.8f;
+        else
+            res *= 0.5f;
+
+        return new Vector2D<double>(res.X, res.Z);
+    }
+
+    protected override double GetMaxWalkForce()
+    {
+        return 0.2d;
+    }
+
+    public override void UpdateMotion()
+    {
+        if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0 && IsStandingOnGround)
+        {
+            Velocity += Vector3D<double>.UnitY * 0.3d;
+        }
+        base.UpdateMotion();
     }
 
     public override void Update()
