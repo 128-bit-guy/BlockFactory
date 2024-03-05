@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client;
+using BlockFactory.Math_;
 using BlockFactory.Network.Packet_;
 using Silk.NET.Maths;
 
@@ -9,8 +10,9 @@ public class PlayerMotionController
 {
     private readonly PlayerEntity _player;
     private readonly LinkedList<ClientControlledPlayerState> _states;
-    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _predictedServerState;
-    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _serverState;
+    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _currentState;
+    [ExclusiveTo(Side.Client)] private ServerControlledPlayerState _nextState;
+    private ServerControlledPlayerState _previousPredictedState;
 
     [ExclusiveTo(Side.Client)] private DateTime _serverStateSetTime;
     public ClientControlledPlayerState ClientState;
@@ -25,85 +27,83 @@ public class PlayerMotionController
     [ExclusiveTo(Side.Client)]
     private void UpdateClient()
     {
+        _previousPredictedState = Predict();
+        
         ++ClientState.MotionTick;
         ClientState.HeadRotation = _player.HeadRotation;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.SinglePlayer)
             _player.World.LogicProcessor.NetworkHandler.SendPacket(null, new PlayerControlPacket(ClientState));
-
+        
         _states.AddLast(ClientState);
+
+        _currentState = _nextState;
+
+        while (_states.Count > 0 && _states.First!.Value.MotionTick < _currentState.MotionTick)
+        {
+            _states.RemoveFirst();
+        }
     }
 
     [ExclusiveTo(Side.Client)]
     public void SetServerState(ServerControlledPlayerState newServerState)
     {
-        if (_serverState.MotionTick == newServerState.MotionTick) return;
-        var predictedState = PredictServerStateForTick(newServerState.MotionTick);
-        while (_states.Count > 0 && _states.First!.Value.MotionTick < newServerState.MotionTick) _states.RemoveFirst();
-
-        _predictedServerState = predictedState;
-        _serverState = newServerState;
-        _serverStateSetTime = BlockFactoryClient.LogicProcessor.LastUpdateTime;
+        _nextState = newServerState;
     }
 
     [ExclusiveTo(Side.Client)]
-    public ServerControlledPlayerState PredictServerStateForTick(long motionTick)
+    private ServerControlledPlayerState Predict()
     {
-        var lastUpdate = BlockFactoryClient.LogicProcessor.LastUpdateTime;
-        var motionLerpVal = (lastUpdate - _serverStateSetTime).TotalSeconds * 10;
-        motionLerpVal = Math.Clamp(motionLerpVal, 0, 1);
-        ServerControlledPlayerState interpolatedBaseState = default;
-        interpolatedBaseState.Velocity =
-            Vector3D.Lerp(_predictedServerState.Velocity, _serverState.Velocity, motionLerpVal);
-        interpolatedBaseState.Pos =
-            Vector3D.Lerp(_predictedServerState.Pos, _serverState.Pos, motionLerpVal);
-        interpolatedBaseState.IsStandingOnGround = _serverState.IsStandingOnGround;
-        interpolatedBaseState.MotionTick = _serverState.MotionTick;
-        var oldPos = _player.Pos;
-        var oldVelocity = _player.Velocity;
-        var oldGround = _player.IsStandingOnGround;
-        _player.Pos = interpolatedBaseState.Pos;
-        var oldHeadRotation = _player.HeadRotation;
-        var oldCState = ClientState;
-        PredictingState = true;
-        foreach (var cState in _states)
+        var normalState = LoadPlayerState();
+        ClientState.HeadRotation = _player.HeadRotation;
+        var normalCState = ClientState;
+        SetPlayerState(_currentState);
+        foreach (var state in _states)
         {
-            if (cState.MotionTick >= motionTick) break;
-            _player.HeadRotation = cState.HeadRotation;
-            ClientState = cState;
+            ClientState = state;
+            _player.HeadRotation = state.HeadRotation;
             _player.UpdateMotion();
         }
 
-        var resState = new ServerControlledPlayerState();
-
-        resState.MotionTick = motionTick;
-        resState.Pos = _player.Pos;
-        //TODO set velocity
-        resState.Velocity = _player.Velocity;
-        resState.IsStandingOnGround = _player.IsStandingOnGround;
-
-        PredictingState = false;
-        ClientState = oldCState;
-        _player.HeadRotation = oldHeadRotation;
-        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client)
+        ClientState = normalCState;
+        _player.HeadRotation = normalCState.HeadRotation;
+        _player.UpdateMotion();
+        var res = LoadPlayerState();
+        if (BlockFactoryClient.LogicProcessor!.LogicalSide != LogicalSide.Client)
         {
-            _player.Pos = oldPos;
-            //TODO set velocity
-            _player.Velocity = oldVelocity;
-            _player.IsStandingOnGround = oldGround;
+            SetPlayerState(normalState);
         }
 
-        return resState;
+        return res;
     }
 
-    private void PreUpdateServer()
+    [ExclusiveTo(Side.Client)]
+    private void SetPlayerState(ServerControlledPlayerState state)
+    {
+        _player.Pos = state.Pos;
+        _player.Velocity = state.Velocity;
+        _player.IsStandingOnGround = state.IsStandingOnGround;
+    }
+
+    private ServerControlledPlayerState LoadPlayerState()
+    {
+        ServerControlledPlayerState res = default;
+        res.Pos = _player.Pos;
+        res.Velocity = _player.Velocity;
+        res.IsStandingOnGround = _player.IsStandingOnGround;
+        res.MotionTick = ClientState.MotionTick;
+        return res;
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public Vector3D<double> GetSmoothPos(double partialTicks)
+    {
+        return Vector3D.Lerp(_previousPredictedState.Pos, Predict().Pos, partialTicks);
+    }
+
+    private void UpdateServer()
     {
         _player.HeadRotation = ClientState.HeadRotation;
-        var newServerState = new ServerControlledPlayerState();
-        newServerState.MotionTick = ClientState.MotionTick;
-        newServerState.Pos = _player.Pos;
-        //TODO Set velocity when physics are added
-        newServerState.Velocity = _player.Velocity;
-        newServerState.IsStandingOnGround = _player.IsStandingOnGround;
+        var newServerState = LoadPlayerState();
         
         if (_player.World!.LogicProcessor.LogicalSide == LogicalSide.SinglePlayer)
             SetServerState(newServerState);
@@ -116,6 +116,6 @@ public class PlayerMotionController
         if (PredictingState) return;
         if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Server) UpdateClient();
 
-        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client) PreUpdateServer();
+        if (_player.World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateServer();
     }
 }
