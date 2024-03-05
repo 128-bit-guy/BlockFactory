@@ -92,7 +92,22 @@ public class PlayerEntity : WalkingEntity
 
     public override void UpdateMotion()
     {
-        if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0 && IsStandingOnGround)
+        if (IsInWater())
+        {
+            var targetVerticalVelocity = 0.0d;
+            if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0)
+            {
+                targetVerticalVelocity += 0.2d;
+            } else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
+            {
+                targetVerticalVelocity -= 0.2d;
+            }
+
+            var delta = targetVerticalVelocity - Velocity.Y;
+            delta = Math.Clamp(delta, -0.1d, 0.1d);
+            Velocity.Y += delta;
+        }
+        else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0 && IsStandingOnGround)
         {
             Velocity += Vector3D<double>.UnitY * 0.3d;
         }

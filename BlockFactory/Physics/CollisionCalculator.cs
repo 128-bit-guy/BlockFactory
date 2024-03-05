@@ -1,4 +1,5 @@
-﻿using BlockFactory.World_.Interfaces;
+﻿using BlockFactory.Block_;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Physics;
@@ -27,7 +28,9 @@ public static class CollisionCalculator
             {
                 return null;
             }
-            if(access.GetBlock(pos) == 0) continue;
+
+            var block = access.GetBlock(pos);
+            if(block == 0 || block == Blocks.Water.Id) continue;
             Boxes.Add(new Box3D<double>(x, y, z, x + 1, y + 1, z + 1));
         }
 

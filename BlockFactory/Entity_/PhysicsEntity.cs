@@ -1,4 +1,5 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Block_;
+using BlockFactory.CubeMath;
 using BlockFactory.Math_;
 using BlockFactory.Physics;
 using BlockFactory.Serialization;
@@ -39,7 +40,28 @@ public class PhysicsEntity : Entity
             Velocity -= Velocity / velocityLength * Math.Min(velocityLength, 0.002f);
         
             if (IsStandingOnGround) Velocity -= Velocity / velocityLength * Math.Min(velocityLength, 0.01f);
+
+            if (IsInWater()) Velocity -= Velocity / velocityLength * Math.Min(velocityLength, 0.05f);
         }
+    }
+
+    public bool IsInWater()
+    {
+        var offsetBox = BoundingBox.Add(Pos);
+        for (var x = (int)Math.Floor(offsetBox.Min.X); x < (int)Math.Ceiling(offsetBox.Max.X); ++x)
+        for (var y = (int)Math.Floor(offsetBox.Min.Y); y < (int)Math.Ceiling(offsetBox.Max.Y); ++y)
+        for (var z = (int)Math.Floor(offsetBox.Min.Z); z < (int)Math.Ceiling(offsetBox.Max.Z); ++z)
+        {
+            var pos = new Vector3D<int>(x, y, z);
+            if(!World!.IsBlockLoaded(pos)) continue;
+            var block = World.GetBlock(pos);
+            if (block == Blocks.Water.Id)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public override DictionaryTag SerializeToTag(SerializationReason reason)

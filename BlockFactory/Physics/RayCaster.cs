@@ -1,4 +1,5 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Block_;
+using BlockFactory.CubeMath;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -51,7 +52,7 @@ public static class RayCaster
             foreach (var neighborFace in CubeFaceUtils.Values())
             {
                 var pos = curBlockPos + neighborFace.GetDelta();
-                if (world.GetBlock(pos) == 0) continue;
+                if (world.GetBlock(pos) == 0 || world.GetBlock(pos) == Blocks.Water.Id) continue;
                 var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
                 var intersection = GetIntersectionTime(rayOrigin, ray, box);
                 if (!intersection.HasValue) continue;
@@ -65,7 +66,7 @@ public static class RayCaster
 
             {
                 var pos = curBlockPos;
-                if (world.GetBlock(pos) == 0) continue;
+                if (world.GetBlock(pos) == 0 || world.GetBlock(pos) == Blocks.Water.Id) continue;
                 var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
                 var intersection = GetIntersectionTime(rayOrigin, ray, box);
                 if (!intersection.HasValue) continue;
