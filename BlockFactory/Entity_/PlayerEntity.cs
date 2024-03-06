@@ -78,16 +78,16 @@ public class PlayerEntity : WalkingEntity
         res = Vector3D.Normalize(res);
 
         if ((MotionController.ClientState.ControlState & PlayerControlState.Sprinting) != 0)
-            res *= 0.8f;
+            res *= 0.3f;
         else
-            res *= 0.5f;
+            res *= 0.2f;
 
         return new Vector2D<double>(res.X, res.Z);
     }
 
     protected override double GetMaxWalkForce()
     {
-        return 0.2d;
+        return 0.1d;
     }
 
     public override void UpdateMotion()
