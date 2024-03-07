@@ -42,7 +42,7 @@ public class BaseTerrainGenerator
         _oceanMap ??= new int[Constants.ChunkSize + 2 * OceanSmoothRadius, Constants.ChunkSize + 2 * OceanSmoothRadius];
     }
 
-    public void GenerateBaseTerrain(Chunk c)
+    public bool GenerateBaseTerrain(Chunk c)
     {
         InitThreadStatics();
         var cBegin = c.Position.ShiftLeft(Constants.ChunkSizeLog2);
@@ -58,6 +58,7 @@ public class BaseTerrainGenerator
 
         Span<float> heights = stackalloc float[5];
 
+        var sky = c.Position.Y >= 0;
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var k = 0; k < Constants.ChunkSize; ++k)
         {
@@ -81,6 +82,7 @@ public class BaseTerrainGenerator
                 var underground = false;
                 if (val >= y)
                 {
+                    sky = false;
                     c.Data!.SetBlock(new Vector3D<int>(x, y, z), 1);
                     if (val >= y + 5)
                     {
@@ -121,5 +123,7 @@ public class BaseTerrainGenerator
                 }
             }
         }
+
+        return sky;
     }
 }
