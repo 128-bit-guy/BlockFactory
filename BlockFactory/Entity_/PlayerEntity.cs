@@ -2,10 +2,12 @@
 using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
+using BlockFactory.Item_;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Physics;
+using BlockFactory.Serialization;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
-using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Entity_;
@@ -14,11 +16,13 @@ public class PlayerEntity : WalkingEntity
 {
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown;
+    public ItemStack StackInHand;
 
     public PlayerEntity()
     {
         BoundingBox = new Box3D<double>(-0.4d, -1.4d, -0.4d, 0.4d, 0.4d, 0.4d);
         MotionController = new PlayerMotionController(this);
+        StackInHand = new ItemStack(Blocks.Sand, 1);
     }
 
     public PlayerChunkLoader? ChunkLoader { get; private set; }
@@ -48,7 +52,7 @@ public class PlayerEntity : WalkingEntity
 
             if ((MotionController.ClientState.ControlState & PlayerControlState.Using) != 0)
             {
-                World!.SetBlock(pos + face.GetDelta(), Blocks.Sand);
+                StackInHand.ItemInstance.Item.Use(StackInHand, new BlockPointer(World, pos), face, this);
                 _blockCooldown = 5;
             }
         }
@@ -125,6 +129,52 @@ public class PlayerEntity : WalkingEntity
         ChunkTicker!.Update();
     }
 
+    [ExclusiveTo(Side.Server)]
+    public void SendUpdateToClient()
+    {
+        World!.LogicProcessor.NetworkHandler.SendPacket(this, new PlayerUpdatePacket(this));
+    }
+
+    public void ProcessPlayerAction(PlayerAction action, int delta)
+    {
+        int hotBarPos = StackInHand.ItemInstance.Item.Id;
+        if (action == PlayerAction.HotBarAdd)
+        {
+            hotBarPos += delta;
+        }
+        else
+        {
+            hotBarPos = delta;
+        }
+
+        hotBarPos %= Items.Registry.Count;
+
+        if (hotBarPos < 0)
+        {
+            hotBarPos += Items.Registry.Count;
+        }
+
+        StackInHand = new ItemStack(Items.Registry[hotBarPos]!, 1);
+
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            SendUpdateToClient();
+        }
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public void DoPlayerAction(PlayerAction action, int delta)
+    {
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Client)
+        {
+            World!.LogicProcessor.NetworkHandler.SendPacket(null, new PlayerActionPacket(action, delta));
+        }
+        else
+        {
+            ProcessPlayerAction(action, delta);
+        }
+    }
+
     protected override void OnRemovedFromWorld()
     {
         ChunkTicker!.Dispose();
@@ -149,5 +199,18 @@ public class PlayerEntity : WalkingEntity
     public virtual void OnChunkBecameInvisible(Chunk c)
     {
         ChunkBecameInvisible(c);
+    }
+
+    public override DictionaryTag SerializeToTag(SerializationReason reason)
+    {
+        var res = base.SerializeToTag(reason);
+        res.Set("stack_in_hand", StackInHand.SerializeToTag(reason));
+        return res;
+    }
+
+    public override void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    {
+        base.DeserializeFromTag(tag, reason);
+        StackInHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_hand"), reason);
     }
 }

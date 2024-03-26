@@ -79,6 +79,25 @@ public static class BlockFactoryClient
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
+    private static void UpdateAndRender3DHud()
+    {
+        BfRendering.Matrices.Push();
+        var time = Window.Time;
+        var sin = (float)Math.Sin(time);
+        var cos = (float)Math.Cos(time);
+        BfRendering.Matrices.Translate(10 * BfRendering.GetDirectionFromPosFor3DHud(
+            new Vector2D<float>(0.8f + sin * 0.05f, 0.8f + cos * 0.05f)));
+        // BlockMeshBuilder.MatrixStack.RotateX(MathF.PI / 6);
+        BfRendering.Matrices.RotateX(sin * 0.05f);
+        BfRendering.Matrices.RotateY(-MathF.PI / 12);
+        BfRendering.Matrices.Scale(4);
+        // BfRendering.Matrices.Translate(new Vector3D<float>(-0.5f));
+        var stack = Player!.StackInHand;
+        ItemRenderer.RenderItemStack(stack);
+        // Client.ItemRenderer!.RenderItemStack(stack);
+        BfRendering.Matrices.Pop();
+    }
+
     private static void UpdateAndRenderHud()
     {
         var size = Window.FramebufferSize;
@@ -104,8 +123,17 @@ public static class BlockFactoryClient
         BfRendering.Gl.Enable(EnableCap.DepthTest);
         BfRendering.Gl.DepthFunc(DepthFunction.Lequal);
 
-        if (Player != null) UpdateAndRenderInGame(deltaTime);
-
+        if (Player != null)
+        {
+            UpdateAndRenderInGame(deltaTime);
+        
+            BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
+            
+            BfRendering.Use3DHudMatrices();
+            
+            UpdateAndRender3DHud();
+        }
+        
         BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
         BfRendering.UseGuiMatrices();
 
@@ -147,7 +175,6 @@ public static class BlockFactoryClient
     {
         LogicProcessor =
             new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
-        LogicProcessor.LoadMapping();
         LogicProcessor.Start();
         var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name);
         SetPlayer(player);
@@ -186,6 +213,7 @@ public static class BlockFactoryClient
         MenuManager = new MenuManager();
         InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
         InputContext.Mice[0].MouseUp += MouseInputManager.MouseUp;
+        InputContext.Mice[0].Scroll += MouseInputManager.Scroll;
         InputContext.Keyboards[0].KeyDown += KeyboardInputManager.KeyDown;
         InputContext.Keyboards[0].KeyChar += KeyboardInputManager.KeyChar;
         LoadSettings();

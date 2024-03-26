@@ -4,9 +4,11 @@ namespace BlockFactory.Registry_;
 
 public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryEntry
 {
+    public delegate void RegisterHandler(string id, T entry);
     private readonly Dictionary<string, T> _entries = new();
     private readonly Dictionary<string, int> _forcedIds = new();
     private readonly HashSet<int> _occupiedForcedIds = new();
+    private readonly List<RegisterHandler> _handlers = new();
 
     private T?[]? _entriesByNumId;
     private string?[]? _stringIdsByNumId;
@@ -93,6 +95,11 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
 
         _entries.Add(id, entry);
 
+        foreach (var handler in _handlers)
+        {
+            handler(id, entry);
+        }
+
         return entry;
     }
 
@@ -120,4 +127,25 @@ public class Registry<T> : IRegistry, IEnumerable<T> where T : class, IRegistryE
     {
         return _stringIdsByNumId![entry.Id]!;
     }
+
+    public int? GetForcedId(string name)
+    {
+        if (_forcedIds.TryGetValue(name, out var value))
+        {
+            return value;
+        }
+
+        return null;
+    }
+
+    public void ForEachEntry(RegisterHandler handler)
+    {
+        foreach (var (id, entry) in _entries)
+        {
+            handler(id, entry);
+        }
+        _handlers.Add(handler);
+    }
+
+    public int Count => _entries.Count;
 }

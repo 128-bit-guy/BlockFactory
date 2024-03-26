@@ -38,6 +38,21 @@ public class MatrixStack
         Multiply(Matrix4X4.CreateScale(scale));
     }
 
+    public void RotateX(float angle)
+    {
+        Multiply(Matrix4X4.CreateRotationX(angle));
+    }
+    
+    public void RotateY(float angle)
+    {
+        Multiply(Matrix4X4.CreateRotationY(angle));
+    }
+    
+    public void RotateZ(float angle)
+    {
+        Multiply(Matrix4X4.CreateRotationZ(angle));
+    }
+
     public void Scale(float x, float y, float z)
     {
         Scale(new Vector3D<float>(x, y, z));

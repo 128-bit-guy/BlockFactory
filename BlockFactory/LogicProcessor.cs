@@ -34,6 +34,7 @@ public class LogicProcessor : IDisposable
         NetworkHandler = networkHandler;
         LogicalSide = logicalSide;
         SaveLocation = saveLocation;
+        LoadMapping();
         for (var i = 0; i < 27; ++i) _chunkUpdateClasses[i] = new List<Chunk>();
 
         if (logicalSide == LogicalSide.Client)
@@ -209,7 +210,7 @@ public class LogicProcessor : IDisposable
         return Path.Combine(SaveLocation, "registry_mapping.dat");
     }
 
-    public void LoadMapping()
+    private void LoadMapping()
     {
         var mappingSaveLocation = GetMappingSaveLocation();
         var mapping = new RegistryMapping();

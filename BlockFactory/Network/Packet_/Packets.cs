@@ -15,6 +15,8 @@ public static class Packets
         NetworkRegistry.RegisterPacket<RegistryMappingPacket>("");
         NetworkRegistry.RegisterPacket<CredentialsPacket>("");
         NetworkRegistry.RegisterPacket<KickPacket>("");
+        NetworkRegistry.RegisterPacket<PlayerUpdatePacket>("");
+        NetworkRegistry.RegisterPacket<PlayerActionPacket>("");
     }
 
     public static void Lock()

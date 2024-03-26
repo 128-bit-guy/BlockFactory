@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using BlockFactory.Base;
+using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -51,8 +52,7 @@ public static class BfRendering
         var up = BlockFactoryClient.Player.GetViewUp();
         View = Matrix4X4.CreateLookAt(Vector3D<float>.Zero, forward, up);
         var aspectRatio = (float)BlockFactoryClient.Window.Size.X / BlockFactoryClient.Window.Size.Y;
-        Projection = Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
-            300f);
+        Projection = CreatePerspective();
     }
 
     public static void UseGuiMatrices()
@@ -61,6 +61,28 @@ public static class BfRendering
         View = Matrix4X4<float>.Identity;
         Projection = Matrix4X4.CreateOrthographicOffCenter<float>(0, size.X, size.Y, 0, -100,
             100);
+    }
+
+    public static void Use3DHudMatrices()
+    {
+        View = Matrix4X4<float>.Identity;
+        var aspectRatio = (float)BlockFactoryClient.Window.Size.X / BlockFactoryClient.Window.Size.Y;
+        Projection = CreatePerspective();
+    }
+
+    public static Matrix4X4<float> CreatePerspective()
+    {
+        var aspectRatio = (float)BlockFactoryClient.Window.Size.X / BlockFactoryClient.Window.Size.Y;
+        return Matrix4X4.CreatePerspectiveFieldOfView(MathF.PI / 2, aspectRatio, 0.05f,
+            300f);
+    }
+
+    public static Vector3D<float> GetDirectionFromPosFor3DHud(Vector2D<float> pos)
+    {
+        Matrix4X4.Invert(CreatePerspective(), out var inv);
+        pos.Y = -pos.Y;
+        return Vector3D.Normalize(BfMathUtils.Unproject(
+            new Vector3D<float>(pos, 0), -1, -1, 2, 2, -1, 1, inv));
     }
 
     public static FrustumIntersectionHelper CreateIntersectionHelper()

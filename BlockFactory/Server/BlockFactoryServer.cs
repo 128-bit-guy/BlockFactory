@@ -40,7 +40,6 @@ public static class BlockFactoryServer
         var port = GetPort();
         NetworkHandler = new ServerNetworkHandler(port);
         LogicProcessor = new LogicProcessor(LogicalSide.Server, NetworkHandler, "world_server");
-        LogicProcessor.LoadMapping();
         LogicProcessor.Start();
         Mapping = SynchronizedRegistries.WriteMapping();
         ConsoleCommandReaderThread = new Thread(ReadConsoleCommands);

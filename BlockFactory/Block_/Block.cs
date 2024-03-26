@@ -1,12 +1,13 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
+using BlockFactory.Item_;
 using BlockFactory.Registry_;
 using BlockFactory.World_;
 using BlockFactory.World_.Light;
 
 namespace BlockFactory.Block_;
 
-public class Block : IRegistryEntry
+public class Block : IRegistryEntry, IItemProvider
 {
     public int Id { get; set; }
 
@@ -59,5 +60,10 @@ public class Block : IRegistryEntry
 
     public virtual void RandomUpdateBlock(BlockPointer pointer)
     {
+    }
+
+    public Item AsItem()
+    {
+        return Items.BlockItems[this];
     }
 }

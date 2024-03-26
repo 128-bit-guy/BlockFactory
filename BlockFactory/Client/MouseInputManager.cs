@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Entity_;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
@@ -53,6 +54,12 @@ public static class MouseInputManager
     {
         if (MouseShouldBeEnabled() && !ImGuiShouldBeFocused() && !BlockFactoryClient.MenuManager.Empty)
             BlockFactoryClient.MenuManager.Top!.MouseUp(button);
+    }
+
+    public static void Scroll(IMouse mouse, ScrollWheel wheel)
+    {
+        if(MouseIsEnabled) return;
+        BlockFactoryClient.Player!.DoPlayerAction(PlayerAction.HotBarAdd, (int)MathF.Round(wheel.Y));
     }
 
     public static void Update()
