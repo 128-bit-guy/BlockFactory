@@ -17,7 +17,7 @@ public struct BlockVertex
     public Vector2D<float> Uv;
 
     [LayoutLocation(3)] [TransformationType(TransformType.SpriteIndex)]
-    public int Sprite;
+    public float Sprite;
 
     public BlockVertex(Vector3D<float> pos, Vector4D<float> color, Vector2D<float> uv)
     {

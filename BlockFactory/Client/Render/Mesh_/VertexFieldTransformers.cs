@@ -35,4 +35,16 @@ public static class VertexFieldTransformers<T> where T : unmanaged
             return 0;
         }
     }
+
+    public static float TransformSpriteIndex(float spriteIndex, MeshBuilder<T> builder)
+    {
+        if (builder.UvTransformer is TextureAtlasUvTransformer transformer)
+        {
+            return transformer.Sprite;
+        }
+        else
+        {
+            return 0;
+        }
+    }
 }
