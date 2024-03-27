@@ -10,6 +10,7 @@ public static class Textures
 {
     public static TextureAtlas Blocks = null!;
     public static TextureAtlas Gui = null!;
+    public static TextureAtlas Items = null!;
 
     public static void Init()
     {
@@ -17,6 +18,7 @@ public static class Textures
         foreach (var name in typeof(Textures).Assembly.GetManifestResourceNames()) Console.WriteLine(name);
         Blocks = LoadTextureAtlas("BlockFactory.Textures.Blocks.png", 4);
         Gui = LoadTextureAtlas("BlockFactory.Textures.Gui.png", 2);
+        Items = LoadTextureAtlas("BlockFactory.Textures.Items.png", 4);
     }
 
     public static Texture LoadTexture(string location)
@@ -39,5 +41,6 @@ public static class Textures
     {
         Blocks.Dispose();
         Gui.Dispose();
+        Items.Dispose();
     }
 }

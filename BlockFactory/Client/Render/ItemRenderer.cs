@@ -14,10 +14,26 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public static class ItemRenderer
 {
-    private static readonly BlockMeshBuilder MeshBuilder = new();
+    private static BlockMeshBuilder _blockMeshBuilder = null!;
+    private static ItemMeshBuilder _itemMeshBuilder = null!;
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
-    private static readonly RenderMesh Mesh = new(VertexBufferObjectUsage.StreamDraw);
+    private static RenderMesh _blockMesh = null!;
+    private static RenderMesh _itemMesh = null!;
     private static readonly float[] VertexLight = new float[4];
+
+    public static void Init()
+    {
+        _blockMeshBuilder = new BlockMeshBuilder();
+        _blockMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
+        _itemMeshBuilder = new ItemMeshBuilder();
+        _itemMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
+    }
+
+    public static void Destroy()
+    {
+        _blockMesh.Dispose();
+        _itemMesh.Dispose();
+    }
 
     public static void RenderItemStack(ItemStack stack)
     {
@@ -25,12 +41,16 @@ public static class ItemRenderer
         {
             RenderBlock(blockItem.Block);
         }
+        else
+        {
+            RenderItem(stack);
+        }
     }
 
     private static unsafe void RenderBlock(Block block)
     {
-        var builder = MeshBuilder.MeshBuilder;
-        var transformer = MeshBuilder.UvTransformer;
+        var builder = _blockMeshBuilder.MeshBuilder;
+        var transformer = _blockMeshBuilder.UvTransformer;
         Span<byte> lightVal = stackalloc byte[4];
         if (block == Blocks.Air) return;
         builder.Matrices.Push();
@@ -71,11 +91,11 @@ public static class ItemRenderer
 
         builder.Matrices.Pop();
 
-        builder.Upload(Mesh);
+        builder.Upload(_blockMesh);
 
         builder.Reset();
 
-        if (Mesh.IndexCount == 0) return;
+        if (_blockMesh.IndexCount == 0) return;
 
         BfRendering.Gl.Enable(EnableCap.Blend);
         BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
@@ -85,8 +105,53 @@ public static class ItemRenderer
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(1);
-        Mesh.Bind();
-        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, Mesh.IndexCount,
+        _blockMesh.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _blockMesh.IndexCount,
+            DrawElementsType.UnsignedInt, null);
+
+        BfRendering.Gl.BindVertexArray(0);
+        BfRendering.Gl.UseProgram(0);
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        BfRendering.Gl.Disable(EnableCap.Blend);
+    }
+
+    private static unsafe void RenderItem(ItemStack stack)
+    {
+        var builder = _itemMeshBuilder.MeshBuilder;
+        var transformer = _itemMeshBuilder.UvTransformer;
+        builder.Matrices.Push();
+        builder.Matrices.Translate(-0.5f, -0.5f, 0f);
+        {
+            transformer.Sprite = stack.ItemInstance.Item.GetTexture(stack);
+
+            builder.Matrices.Push();
+            builder.NewPolygon().Indices(QuadIndices)
+                .Vertex(new BlockVertex(0, 0, 0, 1.0f, 1.0f, 1.0f, 1, 0, 0))
+                .Vertex(new BlockVertex(1, 0, 0, 1.0f, 1.0f, 1.0f, 1, 1, 0))
+                .Vertex(new BlockVertex(1, 1, 0, 1.0f, 1.0f, 1.0f, 1, 1, 1))
+                .Vertex(new BlockVertex(0, 1, 0, 1.0f, 1.0f, 1.0f, 1, 0, 1));
+            builder.Matrices.Pop();
+        }
+
+        builder.Matrices.Pop();
+
+        builder.Upload(_itemMesh);
+
+        builder.Reset();
+
+        if (_itemMesh.IndexCount == 0) return;
+
+        BfRendering.Gl.Enable(EnableCap.Blend);
+        BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        Shaders.Block.Use();
+        Textures.Items.Bind();
+        BfRendering.SetVpMatrices(Shaders.Block);
+        Shaders.Block.SetModel(BfRendering.Matrices);
+        Shaders.Block.SetLoadProgress(1);
+        _itemMesh.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _itemMesh.IndexCount,
             DrawElementsType.UnsignedInt, null);
 
         BfRendering.Gl.BindVertexArray(0);

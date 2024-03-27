@@ -1,4 +1,5 @@
-﻿using BlockFactory.CubeMath;
+﻿using BlockFactory.Base;
+using BlockFactory.CubeMath;
 using BlockFactory.Entity_;
 using BlockFactory.Registry_;
 using BlockFactory.World_;
@@ -28,5 +29,11 @@ public class Item : IRegistryEntry, IItemProvider
     public virtual void Use(ItemStack stack, BlockPointer pointer, CubeFace face, object user)
     {
         
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public virtual int GetTexture(ItemStack stack)
+    {
+        return 0;
     }
 }

@@ -11,11 +11,15 @@ public static class Items
 {
     public static Registry<Item> Registry;
     public static Dictionary<Block, BlockItem> BlockItems;
+    public static FertilizerItem Fertilizer = null!;
+    public static PickaxeItem Pickaxe = null!;
     public static void Init()
     {
         Registry = SynchronizedRegistries.NewSynchronizedRegistry<Item>("Item");
         BlockItems = new Dictionary<Block, BlockItem>();
         Blocks.Registry.ForEachEntry(RegisterItemForBlock);
+        Fertilizer = Registry.Register("fertilizer", new FertilizerItem());
+        Pickaxe = Registry.Register("pickaxe", new PickaxeItem());
     }
 
     private static void RegisterItemForBlock(string name, Block block)

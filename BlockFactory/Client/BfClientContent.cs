@@ -20,10 +20,12 @@ public static class BfClientContent
             BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Fonts.LiberationSerif-Regular.ttf")!;
         TextRenderer = new TextRenderer(stream, 64);
         GuiRenderHelper.Init();
+        ItemRenderer.Init();
     }
 
     public static void Destroy()
     {
+        ItemRenderer.Destroy();
         Textures.Destroy();
         Shaders.Destroy();
         TextRenderer.Dispose();

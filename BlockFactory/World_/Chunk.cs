@@ -121,11 +121,14 @@ public class Chunk : IBlockWorld
     public void UpdateBlock(Vector3D<int> pos)
     {
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            LoadTask?.Wait();
             if (!Data!.IsBlockUpdateScheduled(pos))
             {
                 Data!.SetBlockUpdateScheduled(pos, true);
                 _scheduledBlockUpdates.Add(pos);
             }
+        }
 
         BlockUpdate(pos);
     }
