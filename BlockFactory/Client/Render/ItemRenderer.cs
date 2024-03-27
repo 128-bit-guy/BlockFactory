@@ -105,6 +105,8 @@ public static class ItemRenderer
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(1);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         _blockMesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _blockMesh.IndexCount,
             DrawElementsType.UnsignedInt, null);
@@ -150,6 +152,8 @@ public static class ItemRenderer
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(1);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Items.SpriteBoxesBuffer.Bind(2);
         _itemMesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _itemMesh.IndexCount,
             DrawElementsType.UnsignedInt, null);

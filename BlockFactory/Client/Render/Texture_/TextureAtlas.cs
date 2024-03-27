@@ -11,6 +11,7 @@ public class TextureAtlas : IDisposable
     private readonly Texture _texture;
 
     public readonly int SizeLog2;
+    public readonly ShaderStorageBuffer SpriteBoxesBuffer;
 
     public TextureAtlas(Image image, int sizeLog2)
     {
@@ -48,10 +49,13 @@ public class TextureAtlas : IDisposable
         }
 
         _texture = new Texture(nImage, TextureWrapMode.ClampToEdge, 4);
+        SpriteBoxesBuffer = new ShaderStorageBuffer();
+        SpriteBoxesBuffer.Upload<Box2D<float>>(_spriteBoxes);
     }
 
     public void Dispose()
     {
+        SpriteBoxesBuffer.Dispose();
         _texture.Dispose();
     }
 

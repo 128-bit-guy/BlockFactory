@@ -101,6 +101,8 @@ public class WorldRenderer : IDisposable
         Textures.Blocks.Bind();
         Shaders.Block.Use();
         Shaders.Block.SetSkyColor(BfRendering.SkyColor);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         var transparentRenderers = _transparentRenderers;
         foreach (var delta in PlayerChunkLoading.ChunkDeltas)
         {

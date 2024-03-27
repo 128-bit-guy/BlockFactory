@@ -71,8 +71,17 @@ public static class VertexFormatInfo<T> where T : unmanaged
         foreach (var info in _vertexAttributeInfos)
         {
             BfRendering.Gl.EnableVertexArrayAttrib(vao, info.LayoutLocation);
-            BfRendering.Gl.VertexArrayAttribFormat(vao, info.LayoutLocation, info.Count, info.Type,
-                false, info.Offset);
+            if (info.Type == VertexAttribType.Int)
+            {
+                BfRendering.Gl.VertexArrayAttribIFormat(vao, info.LayoutLocation, info.Count,
+                    VertexAttribIType.Int, info.Offset);
+            }
+            else
+            {
+                BfRendering.Gl.VertexArrayAttribFormat(vao, info.LayoutLocation, info.Count, info.Type,
+                    false, info.Offset);
+            }
+
             BfRendering.Gl.VertexArrayAttribBinding(vao, info.LayoutLocation, binding);
         }
     }

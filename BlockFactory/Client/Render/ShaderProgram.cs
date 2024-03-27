@@ -24,6 +24,7 @@ public class ShaderProgram : IDisposable
         BfRendering.Gl.AttachShader(_program, vs);
         BfRendering.Gl.AttachShader(_program, fs);
         BfRendering.Gl.LinkProgram(_program);
+        Console.WriteLine(BfRendering.Gl.GetProgramInfoLog(_program));
         BfRendering.Gl.DeleteShader(vs);
         BfRendering.Gl.DeleteShader(fs);
         _model = GetUniformLocation("model");
@@ -46,6 +47,11 @@ public class ShaderProgram : IDisposable
         return BfRendering.Gl.GetUniformLocation(_program, name);
     }
 
+    protected void ShaderStorageBlockBinding(uint block, uint binding)
+    {
+        BfRendering.Gl.ShaderStorageBlockBinding(_program, block, binding);
+    }
+ 
     protected void SetMatrix4(int uniform, Matrix4X4<float> mat)
     {
         BfRendering.Gl.ProgramUniformMatrix4(_program, uniform, 1, false, mat.Row1.X);
