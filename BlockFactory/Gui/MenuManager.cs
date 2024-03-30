@@ -1,6 +1,8 @@
-﻿using Silk.NET.Maths;
+﻿using BlockFactory.Client;
+using BlockFactory.Gui.Menu_;
+using Silk.NET.Maths;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Gui;
 
 public class MenuManager
 {

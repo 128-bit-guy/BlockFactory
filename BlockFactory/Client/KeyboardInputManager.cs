@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
-using BlockFactory.Client.Gui;
+using BlockFactory.Gui;
+using BlockFactory.Gui.Menu_;
 using Silk.NET.Input;
 
 namespace BlockFactory.Client;

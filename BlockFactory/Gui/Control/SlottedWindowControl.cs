@@ -1,7 +1,7 @@
 ﻿using Silk.NET.Input;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Gui.Control;
 
 public class SlottedWindowControl : WindowControl
 {

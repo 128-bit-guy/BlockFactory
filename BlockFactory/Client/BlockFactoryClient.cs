@@ -2,10 +2,11 @@
 using System.Net;
 using System.Net.Sockets;
 using BlockFactory.Base;
-using BlockFactory.Client.Gui;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Entity_;
+using BlockFactory.Gui;
+using BlockFactory.Gui.Menu_;
 using BlockFactory.Network;
 using BlockFactory.Registry_;
 using BlockFactory.Resource;

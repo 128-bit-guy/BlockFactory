@@ -1,7 +1,8 @@
-﻿using Silk.NET.Input;
+﻿using BlockFactory.Client;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Gui.Control;
 
 public abstract class MenuControl
 {

@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Client.Gui;
+﻿namespace BlockFactory.Gui;
 
 public enum MenuSwitchAnimationType
 {

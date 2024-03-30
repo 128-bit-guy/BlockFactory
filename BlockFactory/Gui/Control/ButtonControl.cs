@@ -1,10 +1,11 @@
 ﻿using System.Drawing;
+using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Gui.Control;
 
 public class ButtonControl : MenuControl
 {

@@ -2,7 +2,7 @@
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Client.Gui;
+namespace BlockFactory.Gui.Control;
 
 public abstract class WindowControl : MenuControl
 {
