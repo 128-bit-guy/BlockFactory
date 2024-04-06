@@ -18,7 +18,11 @@ public class PhysicsEntity : Entity
 
     public virtual void UpdateMotion()
     {
-        Velocity += Gravity;
+        if (HasGravity)
+        {
+            Velocity += Gravity;
+        }
+
         var offsetBox = BoundingBox.Add(Pos);
         var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
         if(!calcRes.HasValue) return;

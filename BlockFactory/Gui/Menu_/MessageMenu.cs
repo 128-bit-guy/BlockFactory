@@ -34,6 +34,6 @@ public class MessageMenu : SynchronizedMenu
     private void Send()
     {
         MenuManager.Pop();
-        BlockFactoryServer.AddCommand(_textInput.Text);
+        BlockFactoryServer.ProcessCommand(User, _textInput.Text);
     }
 }

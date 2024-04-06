@@ -1,8 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Base;
+using BlockFactory.CubeMath;
+using BlockFactory.Entity_;
 using BlockFactory.Network;
 using BlockFactory.Registry_;
 using ENet.Managed;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Server;
 
@@ -53,10 +56,7 @@ public static class BlockFactoryServer
         for (var i = 0; i < cnt; ++i)
             if (ConsoleCommandQueue.TryDequeue(out var res))
             {
-                if (res == "/stop")
-                    LogicProcessor.RequestStop();
-                else
-                    Console.WriteLine($"Unknown command: {res}");
+                ProcessCommand(null, res);
             }
             else
             {
@@ -64,9 +64,58 @@ public static class BlockFactoryServer
             }
     }
 
-    public static void AddCommand(string command)
+    public static void ProcessCommand(PlayerEntity? sender, string command)
     {
-        ConsoleCommandQueue.Enqueue(command);
+        var s = command.Split(' ');
+        if (s.Length == 0)
+        {
+            return;
+        }
+        if (s[0] == "/stop")
+            LogicProcessor.RequestStop();
+        else if (s[0] == "/tp")
+        {
+            try
+            {
+                Vector3D<double> newPos = default;
+                for (int i = 0; i < 3; ++i)
+                {
+                    var n = s[i + 1];
+                    var tilde = n[0] == '~';
+                    if (tilde) n = n[1..];
+                    var c = n == ""? 0 : double.Parse(n);
+                    if (tilde)
+                    {
+                        c += sender!.Pos[i];
+                    }
+                    newPos.SetValue(i, c);
+                }
+
+                sender!.Pos = newPos;
+            }
+            catch (Exception)
+            {
+                //Ignore incorrect command
+            }
+        }
+        else if (s[0] == "/fly")
+        {
+            sender!.HasGravity = !sender.HasGravity;
+            sender.SendUpdateToClient();
+        } else if (s[0] == "/fast_tick")
+        {
+            try
+            {
+                var ticks = int.Parse(s[1]);
+                LogicProcessor.FastTick(ticks);
+            }
+            catch (Exception)
+            {
+                //Ignore incorrect command
+            }
+        }
+        else if(sender == null)
+            Console.WriteLine($"Unknown command: {command}");
     }
 
     private static void Update()

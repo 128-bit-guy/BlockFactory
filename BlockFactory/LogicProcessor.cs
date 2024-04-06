@@ -190,6 +190,11 @@ public class LogicProcessor : IDisposable
         }
     }
 
+    public void FastTick(int ticks)
+    {
+        _lastTickTime -= TimeSpan.FromMilliseconds(Constants.TickFrequencyMs * ticks);
+    }
+
     public World GetWorld()
     {
         return _world;

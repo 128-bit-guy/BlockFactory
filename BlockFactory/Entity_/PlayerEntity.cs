@@ -106,7 +106,7 @@ public abstract class PlayerEntity : WalkingEntity
             MotionController.ClientState.ControlState = 0;
         }
 
-        if (IsInWater())
+        if (IsInWater() || !HasGravity)
         {
             var targetVerticalVelocity = 0.0d;
             if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0)
