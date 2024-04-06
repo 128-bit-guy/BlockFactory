@@ -37,9 +37,9 @@ public class PlayerData : ITagSerializable
         foreach (var name in players.Keys)
         {
             var playerTag = players.Get<DictionaryTag>(name);
-            var player = _logicProcessor.LogicalSide == LogicalSide.Server
+            PlayerEntity player = _logicProcessor.LogicalSide == LogicalSide.Server
                 ? new ServerPlayerEntity()
-                : new PlayerEntity();
+                : new ClientPlayerEntity();
             player.DeserializeFromTag(playerTag, reason);
             Players.Add(name, player);
         }

@@ -97,7 +97,7 @@ public class LogicProcessor : IDisposable
             return p;
         }
 
-        var player = LogicalSide == LogicalSide.Server? new ServerPlayerEntity() : new PlayerEntity();
+        PlayerEntity player = LogicalSide == LogicalSide.Server ? new ServerPlayerEntity() : new ClientPlayerEntity();
         player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
             (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
         PlayerData.Players.Add(name, player);

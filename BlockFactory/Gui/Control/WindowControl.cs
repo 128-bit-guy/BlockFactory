@@ -1,16 +1,22 @@
-﻿using BlockFactory.Client.Render;
+﻿using BlockFactory.Base;
+using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Gui.Control;
 
-public abstract class WindowControl : MenuControl
+public abstract class WindowControl : SynchronizedMenuControl
 {
+    [ExclusiveTo(Side.Client)]
     private const float Padding = 16f;
+    
+    [ExclusiveTo(Side.Client)]
     private Box2D<float> _controlBox;
 
+    [ExclusiveTo(Side.Client)]
     protected abstract Vector2D<float> GetSize();
 
+    [ExclusiveTo(Side.Client)]
     public override void SetWorkingArea(Box2D<float> box)
     {
         var size = GetSize();
@@ -21,8 +27,10 @@ public abstract class WindowControl : MenuControl
         SetChildrenAreas(contentBox);
     }
 
+    [ExclusiveTo(Side.Client)]
     protected abstract void SetChildrenAreas(Box2D<float> contentBox);
 
+    [ExclusiveTo(Side.Client)]
     public override void UpdateAndRender(float z)
     {
         base.UpdateAndRender(z);
@@ -30,6 +38,7 @@ public abstract class WindowControl : MenuControl
         UpdateAndRenderChildren(z + 1);
     }
 
+    [ExclusiveTo(Side.Client)]
     private void RenderWindow(float z)
     {
         BfRendering.Matrices.Push();
@@ -39,8 +48,10 @@ public abstract class WindowControl : MenuControl
         BfRendering.Matrices.Pop();
     }
 
+    [ExclusiveTo(Side.Client)]
     protected abstract void UpdateAndRenderChildren(float z);
 
+    [ExclusiveTo(Side.Client)]
     public override Box2D<float> GetControlBox()
     {
         return _controlBox;

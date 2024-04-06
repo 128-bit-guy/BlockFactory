@@ -21,9 +21,22 @@ public static class KeyboardInputManager
                 BlockFactoryClient.MenuManager.Top!.EscapePressed();
             }
         }
+        else if (BlockFactoryClient.MenuManager.Empty)
+        {
+            if (BlockFactoryClient.Player != null)
+            {
+                if (key == Key.T)
+                {
+                    BlockFactoryClient.Player.HandleOpenMenuRequest(OpenMenuRequestType.Message);
+                } else if (key == Key.E)
+                {
+                    BlockFactoryClient.Player.HandleOpenMenuRequest(OpenMenuRequestType.Inventory);
+                }
+            }
+        }
         else
         {
-            if (!BlockFactoryClient.MenuManager.Empty) BlockFactoryClient.MenuManager.Top!.KeyDown(key, a);
+            BlockFactoryClient.MenuManager.Top!.KeyDown(key, a);
         }
     }
 

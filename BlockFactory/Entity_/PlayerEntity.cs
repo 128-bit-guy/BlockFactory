@@ -2,6 +2,8 @@
 using BlockFactory.Block_;
 using BlockFactory.Client;
 using BlockFactory.CubeMath;
+using BlockFactory.Gui;
+using BlockFactory.Gui.Menu_;
 using BlockFactory.Item_;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Physics;
@@ -12,11 +14,13 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Entity_;
 
-public class PlayerEntity : WalkingEntity
+public abstract class PlayerEntity : WalkingEntity
 {
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown;
     public ItemStack StackInHand;
+    
+    public abstract MenuManager MenuManager { get; }
 
     public PlayerEntity()
     {
@@ -212,5 +216,24 @@ public class PlayerEntity : WalkingEntity
     {
         base.DeserializeFromTag(tag, reason);
         StackInHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_hand"), reason);
+    }
+
+    public void HandleOpenMenuRequest(OpenMenuRequestType requestType)
+    {
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Client)
+        {
+            World!.LogicProcessor.NetworkHandler.SendPacket(this, new OpenMenuRequestPacket(requestType));
+            return;
+        }
+        if(!MenuManager.Empty) return;
+        switch (requestType)
+        {
+            case OpenMenuRequestType.Message:
+                MenuManager.Push(new MessageMenu(this));
+                break;
+            case OpenMenuRequestType.Inventory:
+                MenuManager.Push(new InventoryMenu(this));
+                break;
+        }
     }
 }

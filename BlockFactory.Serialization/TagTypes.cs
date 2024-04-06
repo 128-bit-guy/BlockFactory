@@ -20,6 +20,7 @@ public static class TagTypes
         RegisterTag<ByteArrayTag>();
         RegisterTag<DoubleArrayTag>();
         RegisterTag<SingleArrayTag>();
+        RegisterTag<Int32ArrayTag>();
         BuildTags();
     }
 

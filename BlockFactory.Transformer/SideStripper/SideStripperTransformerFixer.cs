@@ -44,8 +44,14 @@ public partial class SideStripperTransformer
         if (ScanDataContains(scanDataGetter, method.ReturnType))
             throw new InvalidOperationException(
                 $"Method {method.FullName} has return value of excluded type {method.ReturnType.FullName}");
-
         if (!method.HasBody) return;
+        
+        foreach (var variableDefinition in method.Body.Variables)
+        {
+            if (ScanDataContains(scanDataGetter, variableDefinition.VariableType))
+                throw new InvalidOperationException(
+                    $"Method {method.FullName} has local variable of excluded type {variableDefinition.VariableType.FullName}");
+        }
 
         method.Body.SimplifyMacros();
 

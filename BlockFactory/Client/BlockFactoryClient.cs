@@ -138,6 +138,14 @@ public static class BlockFactoryClient
         BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit);
         BfRendering.UseGuiMatrices();
 
+        if (Player == null)
+        {
+            while (MenuManager.Top is SynchronizedMenu)
+            {
+                MenuManager.Pop();
+            }
+        }
+
         if (MenuManager.Empty && LogicProcessor == null) MenuManager.Push(new MainMenu());
 
         if (!MenuManager.HasAnythingToRender() && LogicProcessor != null)
@@ -211,7 +219,7 @@ public static class BlockFactoryClient
         var a = typeof(BlockFactoryClient).Assembly;
         ResourceLoader = new AssemblyResourceLoader(a);
         BfClientContent.Init();
-        MenuManager = new MenuManager();
+        MenuManager = new MenuManager(false);
         InputContext.Mice[0].MouseDown += MouseInputManager.MouseDown;
         InputContext.Mice[0].MouseUp += MouseInputManager.MouseUp;
         InputContext.Mice[0].Scroll += MouseInputManager.Scroll;

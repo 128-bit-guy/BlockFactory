@@ -33,7 +33,7 @@ public class PlayerDataPacket : IInGamePacket
 
     public void Handle(PlayerEntity? sender)
     {
-        var player = new PlayerEntity();
+        PlayerEntity player = new ClientPlayerEntity();
         player.DeserializeFromTag(TagIO.Read(_data!), SerializationReason.NetworkInit);
         BlockFactoryClient.SetPlayer(player);
     }

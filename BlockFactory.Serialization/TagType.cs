@@ -14,5 +14,6 @@ public enum TagType
     Int16Array,
     ByteArray,
     DoubleArray,
-    SingleArray
+    SingleArray,
+    Int32Array
 }

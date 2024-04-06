@@ -1,31 +1,39 @@
 ﻿using System.Drawing;
+using BlockFactory.Base;
 using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
+using BlockFactory.Serialization;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Gui.Control;
 
-public class TextInputControl : MenuControl
+public class TextInputControl : SynchronizedMenuControl
 {
+    [ExclusiveTo(Side.Client)]
     private const float Padding = 8f;
+    [ExclusiveTo(Side.Client)]
     private Box2D<float> _controlBox;
+    [ExclusiveTo(Side.Client)]
     public int CursorPos;
     public string Text = "";
     public event Action TextChanged = () => { };
     public event Action EnterPressed = () => { };
 
+    [ExclusiveTo(Side.Client)]
     public override void SetWorkingArea(Box2D<float> box)
     {
         _controlBox = box;
     }
 
+    [ExclusiveTo(Side.Client)]
     public override Box2D<float> GetControlBox()
     {
         return _controlBox;
     }
 
+    [ExclusiveTo(Side.Client)]
     public override void MouseDown(MouseButton button)
     {
         base.MouseDown(button);
@@ -34,11 +42,13 @@ public class TextInputControl : MenuControl
         else if (ActiveControl == this) ActiveControl = null;
     }
 
+    [ExclusiveTo(Side.Client)]
     private string GetRenderedText()
     {
         return ActiveControl == this ? Text.Insert(CursorPos, "|") : Text;
     }
 
+    [ExclusiveTo(Side.Client)]
     public override void UpdateAndRender(float z)
     {
         base.UpdateAndRender(z);
@@ -53,6 +63,7 @@ public class TextInputControl : MenuControl
         BfRendering.Matrices.Pop();
     }
 
+    [ExclusiveTo(Side.Client)]
     public override void KeyDown(Key key, int a)
     {
         base.KeyDown(key, a);
@@ -64,7 +75,7 @@ public class TextInputControl : MenuControl
                     {
                         Text = Text.Remove(CursorPos - 1, 1);
                         --CursorPos;
-                        TextChanged();
+                        TextChanged0();
                     }
 
                     break;
@@ -78,16 +89,35 @@ public class TextInputControl : MenuControl
                     if (CursorPos != Text.Length)
                     {
                         Text = Text.Remove(CursorPos, 1);
-                        TextChanged();
+                        TextChanged0();
                     }
 
                     break;
                 case Key.Enter:
-                    EnterPressed();
+                    EnterPressed0();
                     break;
             }
     }
 
+    private void TextChanged0()
+    {
+        if (LogicalSide == LogicalSide.Client)
+        {
+            //TODO send to server
+        }
+        TextChanged();
+    }
+
+    private void EnterPressed0()
+    {
+        if (LogicalSide == LogicalSide.Client)
+        {
+            //TODO send to server
+        }
+        EnterPressed();
+    }
+
+    [ExclusiveTo(Side.Client)]
     public override void KeyChar(char c)
     {
         base.KeyChar(c);
@@ -98,4 +128,18 @@ public class TextInputControl : MenuControl
             TextChanged();
         }
     }
+
+    public override DictionaryTag SerializeToTag(SerializationReason reason)
+    {
+        var res = new DictionaryTag();
+        res.SetValue("text", Text);
+        return res;
+    }
+
+    public override void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
+    {
+        Text = tag.GetValue<string>("text");
+    }
+    
+    public override SynchronizedControlType Type => SynchronizedControls.TextInput;
 }

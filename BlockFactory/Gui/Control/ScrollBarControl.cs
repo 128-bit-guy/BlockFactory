@@ -1,4 +1,5 @@
-﻿using BlockFactory.Client;
+﻿using BlockFactory.Base;
+using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using Silk.NET.Input;
@@ -6,6 +7,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Gui.Control;
 
+[ExclusiveTo(Side.Client)]
 public class ScrollBarControl : MenuControl
 {
     private const float Padding = 8f;

@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Biome_;
 using BlockFactory.Block_;
+using BlockFactory.Gui.Control;
 using BlockFactory.Item_;
 using BlockFactory.Network.Packet_;
 
@@ -14,8 +15,10 @@ public static class BfContent
         Blocks.Init();
         Items.Init();
         Biomes.Init();
+        SynchronizedControls.Init();
         Blocks.Lock();
         Items.Lock();
         Biomes.Lock();
+        SynchronizedControls.Lock();
     }
 }

@@ -1,9 +1,11 @@
-﻿using BlockFactory.Client;
+﻿using BlockFactory.Base;
+using BlockFactory.Client;
 using BlockFactory.Gui.Control;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Gui.Menu_;
 
+[ExclusiveTo(Side.Client)]
 public class PauseMenu : Menu
 {
     private readonly ButtonControl _backToGame;

@@ -1,4 +1,5 @@
-﻿using BlockFactory.Client;
+﻿using BlockFactory.Base;
+using BlockFactory.Client;
 using BlockFactory.Gui.Menu_;
 using Silk.NET.Maths;
 
@@ -7,31 +8,49 @@ namespace BlockFactory.Gui;
 public class MenuManager
 {
     private readonly Stack<Menu> _menus = new();
-    private MenuSwitchAnimationType _animationType = MenuSwitchAnimationType.None;
+    [ExclusiveTo(Side.Client)]
+    private MenuSwitchAnimationType _animationType;
+    [ExclusiveTo(Side.Client)]
     private Menu? _previousMenu;
+    [ExclusiveTo(Side.Client)]
     private float _progress;
+
+    public readonly bool Server;
+
+    public MenuManager(bool server)
+    {
+        Server = server;
+    }
 
     public bool Empty => _menus.Count == 0;
 
     public Menu? Top => _menus.Count == 0 ? null : _menus.Peek();
 
-    public void Push(Menu menu)
+    public virtual void Push(Menu menu)
     {
         var previous = _menus.Count == 0 ? null : _menus.Peek();
         _menus.Push(menu);
-        _animationType = MenuSwitchAnimationType.Push;
-        _progress = 0;
-        _previousMenu ??= previous;
+        menu.MenuManager = this;
+        if (!Server)
+        {
+            _animationType = MenuSwitchAnimationType.Push;
+            _progress = 0;
+            _previousMenu ??= previous;
+        }
     }
 
-    public void Pop()
+    public virtual void Pop()
     {
         var previous = _menus.Pop();
-        _animationType = MenuSwitchAnimationType.Pop;
-        _progress = 0;
-        _previousMenu ??= previous;
+        if (!Server)
+        {
+            _animationType = MenuSwitchAnimationType.Pop;
+            _progress = 0;
+            _previousMenu ??= previous;
+        }
     }
 
+    [ExclusiveTo(Side.Client)]
     public void UpdateAndRender(double deltaTime)
     {
         var size = BlockFactoryClient.Window.FramebufferSize;
@@ -81,11 +100,13 @@ public class MenuManager
         }
     }
 
+    [ExclusiveTo(Side.Client)]
     public bool IsAnimationPlaying()
     {
         return _animationType != MenuSwitchAnimationType.None;
     }
 
+    [ExclusiveTo(Side.Client)]
     public bool HasAnythingToRender()
     {
         return !Empty || IsAnimationPlaying();

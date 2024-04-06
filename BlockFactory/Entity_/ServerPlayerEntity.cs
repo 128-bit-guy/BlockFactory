@@ -1,12 +1,22 @@
-﻿using BlockFactory.Network.Packet_;
+﻿using BlockFactory.Base;
+using BlockFactory.Gui;
+using BlockFactory.Network.Packet_;
 using BlockFactory.World_;
 using ENet.Managed;
 
 namespace BlockFactory.Entity_;
 
+[ExclusiveTo(Side.Server)]
 public class ServerPlayerEntity : PlayerEntity
 {
     public ENetPeer Peer = default;
+
+    public override MenuManager MenuManager { get; }
+
+    public ServerPlayerEntity()
+    {
+        MenuManager = new ServerMenuManager(this);
+    }
 
     public override void OnChunkBecameVisible(Chunk c)
     {

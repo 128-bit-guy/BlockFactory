@@ -17,6 +17,10 @@ public static class Packets
         NetworkRegistry.RegisterPacket<KickPacket>("");
         NetworkRegistry.RegisterPacket<PlayerUpdatePacket>("");
         NetworkRegistry.RegisterPacket<PlayerActionPacket>("");
+        NetworkRegistry.RegisterPacket<OpenMenuPacket>("");
+        NetworkRegistry.RegisterPacket<CloseMenuPacket>("");
+        NetworkRegistry.RegisterPacket<CloseMenuRequestPacket>("");
+        NetworkRegistry.RegisterPacket<OpenMenuRequestPacket>("");
     }
 
     public static void Lock()
