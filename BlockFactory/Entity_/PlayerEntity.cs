@@ -240,7 +240,11 @@ public abstract class PlayerEntity : WalkingEntity
         switch (requestType)
         {
             case OpenMenuRequestType.Message:
-                MenuManager.Push(new MessageMenu(this));
+                if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+                {
+                    MenuManager.Push(new MessageMenu(this));
+                }
+
                 break;
             case OpenMenuRequestType.Inventory:
                 MenuManager.Push(new InventoryMenu(this));
