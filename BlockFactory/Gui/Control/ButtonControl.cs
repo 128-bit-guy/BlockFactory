@@ -63,10 +63,12 @@ public class ButtonControl : SynchronizedMenuControl
 
     private void Pressed0()
     {
-        if (LogicalSide == LogicalSide.Client)
-        {
-            //TODO Send pressed
-        }
+        DoAction(0);
+    }
+
+    protected override void ProcessAction(int action)
+    {
+        base.ProcessAction(action);
         Pressed();
     }
 

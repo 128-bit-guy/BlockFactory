@@ -161,8 +161,18 @@ public class SlottedWindowControl : WindowControl
             var type = SynchronizedControls.Registry[childTag.GetValue<int>("type")];
             var control = type!.Creator();
             control.DeserializeFromTag(childTag.Get<DictionaryTag>("tag"), reason);
-            _children.Add((control, new Box2D<int>(min, max)));
+            With(new Box2D<int>(min, max), control);
         } 
+    }
+
+    public override int GetChildIndex(MenuControl control)
+    {
+        return _children.FindIndex(c => c.control == control);
+    }
+
+    public override MenuControl? GetChild(int index)
+    {
+        return _children[index].control;
     }
 
     public override SynchronizedControlType Type => SynchronizedControls.SlottedWindow;

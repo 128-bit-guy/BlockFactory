@@ -1,8 +1,10 @@
 ﻿using System.Drawing;
+using System.Net.Mime;
 using BlockFactory.Base;
 using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -94,26 +96,31 @@ public class TextInputControl : SynchronizedMenuControl
 
                     break;
                 case Key.Enter:
-                    EnterPressed0();
+                    DoAction(0);
                     break;
             }
     }
 
-    private void TextChanged0()
+    [ExclusiveTo(Side.Server)]
+    public void SetTextFromPacket(string text)
     {
-        if (LogicalSide == LogicalSide.Client)
-        {
-            //TODO send to server
-        }
-        TextChanged();
+        Text = text;
+        TextChanged0();
     }
 
-    private void EnterPressed0()
+    private void TextChanged0()
     {
+        TextChanged();
         if (LogicalSide == LogicalSide.Client)
         {
-            //TODO send to server
+            BlockFactoryClient.LogicProcessor!.NetworkHandler
+                .SendPacket(null, new TextInputTextChangePacket(this, Text));
         }
+    }
+
+    protected override void ProcessAction(int action)
+    {
+        base.ProcessAction(action);
         EnterPressed();
     }
 
@@ -125,7 +132,7 @@ public class TextInputControl : SynchronizedMenuControl
         {
             Text = Text.Insert(CursorPos, "" + c);
             ++CursorPos;
-            TextChanged();
+            TextChanged0();
         }
     }
 

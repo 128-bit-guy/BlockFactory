@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client;
+using BlockFactory.Gui.Control;
 using BlockFactory.Gui.Menu_;
 using Silk.NET.Maths;
 
@@ -7,7 +8,7 @@ namespace BlockFactory.Gui;
 
 public class MenuManager
 {
-    private readonly Stack<Menu> _menus = new();
+    private readonly List<Menu> _menus = new();
     [ExclusiveTo(Side.Client)]
     private MenuSwitchAnimationType _animationType;
     [ExclusiveTo(Side.Client)]
@@ -24,12 +25,12 @@ public class MenuManager
 
     public bool Empty => _menus.Count == 0;
 
-    public Menu? Top => _menus.Count == 0 ? null : _menus.Peek();
+    public Menu? Top => _menus.Count == 0 ? null : _menus[^1];
 
     public virtual void Push(Menu menu)
     {
-        var previous = _menus.Count == 0 ? null : _menus.Peek();
-        _menus.Push(menu);
+        var previous = _menus.Count == 0 ? null : _menus[^1];
+        _menus.Add(menu);
         menu.MenuManager = this;
         if (!Server)
         {
@@ -41,7 +42,8 @@ public class MenuManager
 
     public virtual void Pop()
     {
-        var previous = _menus.Pop();
+        var previous = _menus[^1];
+        _menus.RemoveAt(_menus.Count - 1);
         if (!Server)
         {
             _animationType = MenuSwitchAnimationType.Pop;
@@ -49,6 +51,30 @@ public class MenuManager
             _previousMenu ??= previous;
         }
     }
+
+    public int GetMenuIndex(Menu menu)
+    {
+        return _menus.IndexOf(menu);
+    }
+
+    public Menu GetMenu(int index)
+    {
+        return _menus[index];
+    }
+
+    public SynchronizedMenuControl? GetControlFromPath(List<int> path)
+    {
+        var m = _menus[path[0]];
+        var control = (SynchronizedMenuControl?)m.Root;
+        for (int i = 1; i < path.Count; ++i)
+        {
+            control = (SynchronizedMenuControl?)control?.GetChild(path[i]);
+        }
+
+        return control;
+    }
+    
+    
 
     [ExclusiveTo(Side.Client)]
     public void UpdateAndRender(double deltaTime)

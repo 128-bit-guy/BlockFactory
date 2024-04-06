@@ -21,6 +21,8 @@ public static class Packets
         NetworkRegistry.RegisterPacket<CloseMenuPacket>("");
         NetworkRegistry.RegisterPacket<CloseMenuRequestPacket>("");
         NetworkRegistry.RegisterPacket<OpenMenuRequestPacket>("");
+        NetworkRegistry.RegisterPacket<ControlActionPacket>("");
+        NetworkRegistry.RegisterPacket<TextInputTextChangePacket>("");
     }
 
     public static void Lock()

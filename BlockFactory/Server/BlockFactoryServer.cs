@@ -64,6 +64,11 @@ public static class BlockFactoryServer
             }
     }
 
+    public static void AddCommand(string command)
+    {
+        ConsoleCommandQueue.Enqueue(command);
+    }
+
     private static void Update()
     {
         ExecuteConsoleCommands();

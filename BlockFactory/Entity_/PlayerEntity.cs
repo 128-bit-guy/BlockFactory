@@ -181,6 +181,10 @@ public abstract class PlayerEntity : WalkingEntity
 
     protected override void OnRemovedFromWorld()
     {
+        while (!MenuManager.Empty)
+        {
+            MenuManager.Pop();
+        }
         ChunkTicker!.Dispose();
         ChunkTicker = null;
         ChunkLoader!.Dispose();
@@ -236,4 +240,6 @@ public abstract class PlayerEntity : WalkingEntity
                 break;
         }
     }
+    
+    
 }
