@@ -42,7 +42,7 @@ public abstract class PlayerEntity : WalkingEntity
             return;
         }
 
-        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client)
+        if (MenuManager.Empty && World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
             var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
                 .As<double>() * 10);
@@ -100,6 +100,12 @@ public abstract class PlayerEntity : WalkingEntity
 
     public override void UpdateMotion()
     {
+        var state = MotionController.ClientState.ControlState;
+        if (!MenuManager.Empty)
+        {
+            MotionController.ClientState.ControlState = 0;
+        }
+
         if (IsInWater())
         {
             var targetVerticalVelocity = 0.0d;
@@ -120,6 +126,7 @@ public abstract class PlayerEntity : WalkingEntity
             Velocity += Vector3D<double>.UnitY * 0.3d;
         }
         base.UpdateMotion();
+        MotionController.ClientState.ControlState = state;
     }
 
     public override void Update()
