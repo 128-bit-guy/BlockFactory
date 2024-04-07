@@ -92,6 +92,7 @@ public static class BlockFactoryServer
                 }
 
                 sender!.Pos = newPos;
+                sender.Velocity = Vector3D<double>.Zero;
             }
             catch (Exception)
             {
