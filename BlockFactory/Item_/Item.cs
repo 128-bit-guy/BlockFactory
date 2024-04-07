@@ -31,6 +31,23 @@ public class Item : IRegistryEntry, IItemProvider
         
     }
 
+    public virtual int GetMaxCount(ItemInstance instance)
+    {
+        if (IsNonStackable())
+        {
+            return 1;
+        }
+        else
+        {
+            return 64;
+        }
+    }
+
+    public virtual bool IsNonStackable()
+    {
+        return false;
+    }
+
     [ExclusiveTo(Side.Client)]
     public virtual int GetTexture(ItemStack stack)
     {

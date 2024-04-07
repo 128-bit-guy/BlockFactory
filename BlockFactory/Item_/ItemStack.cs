@@ -3,7 +3,7 @@ using BlockFactory.Serialization;
 
 namespace BlockFactory.Item_;
 
-public class ItemStack : ITagSerializable
+public class ItemStack : ITagSerializable, ICloneable
 {
     public ItemInstance ItemInstance;
     public int Count;
@@ -20,6 +20,11 @@ public class ItemStack : ITagSerializable
         ItemInstance = item.AsItem().CreateInstance();
         Count = count;
         SyncCountAndInstance();
+    }
+
+    public ItemStack() : this(Blocks.Air, 0)
+    {
+        
     }
 
     public DictionaryTag SerializeToTag(SerializationReason reason)
@@ -62,5 +67,12 @@ public class ItemStack : ITagSerializable
         {
             Count = 0;
         }
+    }
+
+
+    public object Clone()
+    {
+        var newInstance = (ItemInstance)ItemInstance.Clone();
+        return new ItemStack(newInstance, Count);
     }
 }

@@ -14,6 +14,7 @@ public class FertilizerItem : Item
         if(face != CubeFace.Top) return;
         if(pointer.GetBlock() != Blocks.Grass.Id) return;
         TreeGenerator.Generate(pointer + new Vector3D<int>(0, 1, 0), Random.Shared);
+        stack.Decrement();
     }
 
     public override int GetTexture(ItemStack stack)

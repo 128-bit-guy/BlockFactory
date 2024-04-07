@@ -19,6 +19,7 @@ public class BlockItem : Item
         if (placePos.GetBlock() == Blocks.Air.Id || placePos.GetBlock() == Blocks.Water.Id)
         {
             placePos.SetBlock(Block);
+            stack.Decrement();
         }
     }
 }

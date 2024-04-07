@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Item_;
 using BlockFactory.Math_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -152,5 +153,31 @@ public static class GuiRenderHelper
         }
 
         RenderBufferContent();
+    }
+
+    public static void RenderStack(ItemStack stack)
+    {
+        BfRendering.Matrices.Push();
+        BfRendering.Matrices.Scale(new Vector3D<float>(-32.0f, -32.0f, 1.0f));
+        if (stack.ItemInstance.Item is BlockItem)
+        {
+            BfRendering.Matrices.RotateX(-0.62f);
+            BfRendering.Matrices.RotateY(MathF.PI / 4);
+        }
+        else
+        {
+            BfRendering.Matrices.RotateY(MathF.PI);
+        }
+
+        ItemRenderer.RenderItemStack(stack);
+        BfRendering.Matrices.Pop();
+        if (!stack.ItemInstance.IsEmpty())
+        {
+            BfRendering.Matrices.Push();
+            BfRendering.Matrices.Translate(0f, 0f, 2f);
+            BfRendering.Matrices.Scale(0.5f);
+            RenderText(stack.Count.ToString(), 0);
+            BfRendering.Matrices.Pop();
+        }
     }
 }

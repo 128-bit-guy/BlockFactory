@@ -53,4 +53,9 @@ public class PickaxeItem : Item
     {
         return 1;
     }
+
+    public override bool IsNonStackable()
+    {
+        return true;
+    }
 }

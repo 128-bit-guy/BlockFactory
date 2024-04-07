@@ -8,6 +8,7 @@ namespace BlockFactory.Gui.Control;
 public abstract class SynchronizedMenuControl : MenuControl, ITagSerializable
 {
     private LogicalSide _logicalSide;
+    private SynchronizedMenu? _menu;
     private bool _logicalSideChecked;
 
     public abstract SynchronizedControlType Type { get; }
@@ -38,6 +39,24 @@ public abstract class SynchronizedMenuControl : MenuControl, ITagSerializable
             }
 
             return _logicalSide = LogicalSide.SinglePlayer;
+        }
+    }
+
+    public SynchronizedMenu SyncMenu
+    {
+        get
+        {
+            if (_menu != null)
+            {
+                return _menu;
+            }
+
+            if (ParentMenu != null)
+            {
+                return _menu = (SynchronizedMenu)ParentMenu;
+            }
+
+            return _menu = ((SynchronizedMenuControl)Parent!).SyncMenu;
         }
     }
 
@@ -84,5 +103,18 @@ public abstract class SynchronizedMenuControl : MenuControl, ITagSerializable
     protected virtual void ProcessAction(int action)
     {
         
+    }
+
+    public virtual void UpdateLogic()
+    {
+        
+    }
+
+    public void SendUpdateFromServer()
+    {
+        if (LogicalSide == LogicalSide.Server)
+        {
+            SyncMenu.User.World!.LogicProcessor.NetworkHandler.SendPacket(SyncMenu.User, new ControlUpdatePacket(this));
+        }
     }
 }

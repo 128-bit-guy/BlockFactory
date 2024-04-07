@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -176,4 +177,13 @@ public class SlottedWindowControl : WindowControl
     }
 
     public override SynchronizedControlType Type => SynchronizedControls.SlottedWindow;
+
+    public override void UpdateLogic()
+    {
+        base.UpdateLogic();
+        foreach (var (control, _) in _children)
+        {
+            ((SynchronizedMenuControl)control).UpdateLogic();
+        }
+    }
 }

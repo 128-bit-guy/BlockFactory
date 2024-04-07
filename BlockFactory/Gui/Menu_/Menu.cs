@@ -22,7 +22,7 @@ public class Menu
     }
 
     [ExclusiveTo(Side.Client)]
-    public void UpdateAndRender(Box2D<float> workingArea)
+    public virtual void UpdateAndRender(Box2D<float> workingArea)
     {
         Root?.SetWorkingArea(workingArea);
         Root?.UpdateAndRender(-99);

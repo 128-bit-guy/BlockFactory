@@ -1,7 +1,14 @@
-﻿using BlockFactory.Entity_;
+﻿using BlockFactory.Base;
+using BlockFactory.Client;
+using BlockFactory.Client.Render;
+using BlockFactory.Client.Render.Gui;
+using BlockFactory.Entity_;
 using BlockFactory.Gui.Control;
+using BlockFactory.Item_;
+using BlockFactory.Item_.Inventory_;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Gui.Menu_;
 
@@ -38,7 +45,7 @@ public class SynchronizedMenu : Menu, ITagSerializable
 
     public void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
     {
-        if(reason == SerializationReason.NetworkUpdate) return;
+        if(reason == SerializationReason.NetworkUpdate){ return;}
         if (tag.Keys.Contains("root_type"))
         {
             var type = SynchronizedControls.Registry[tag.GetValue<int>("root_type")];
@@ -49,5 +56,21 @@ public class SynchronizedMenu : Menu, ITagSerializable
         {
             Root = null;
         }
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public override void UpdateAndRender(Box2D<float> workingArea)
+    {
+        base.UpdateAndRender(workingArea);
+        var mousePos = BlockFactoryClient.InputContext.Mice[0].Position;
+        BfRendering.Matrices.Push();
+        BfRendering.Matrices.Translate(mousePos.X, mousePos.Y, 10f);
+        GuiRenderHelper.RenderStack(User.StackInMenuHand);
+        BfRendering.Matrices.Pop();
+    }
+
+    public virtual void UpdateLogic()
+    {
+        ((SynchronizedMenuControl?)Root)?.UpdateLogic();
     }
 }

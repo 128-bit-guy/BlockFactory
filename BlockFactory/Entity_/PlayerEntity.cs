@@ -5,11 +5,13 @@ using BlockFactory.CubeMath;
 using BlockFactory.Gui;
 using BlockFactory.Gui.Menu_;
 using BlockFactory.Item_;
+using BlockFactory.Item_.Inventory_;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Physics;
 using BlockFactory.Serialization;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Entity_;
@@ -18,7 +20,12 @@ public abstract class PlayerEntity : WalkingEntity
 {
     public readonly PlayerMotionController MotionController;
     private int _blockCooldown;
+    public Inventory Inventory;
+    public Inventory HotBar;
+    public Inventory MenuHand;
+    public int HotBarPos = 0;
     public ItemStack StackInHand;
+    public ItemStack StackInMenuHand;
     
     public abstract MenuManager MenuManager { get; }
 
@@ -27,6 +34,17 @@ public abstract class PlayerEntity : WalkingEntity
         BoundingBox = new Box3D<double>(-0.4d, -1.4d, -0.4d, 0.4d, 0.4d, 0.4d);
         MotionController = new PlayerMotionController(this);
         StackInHand = new ItemStack(Blocks.Sand, 1);
+        Inventory = new Inventory(9 * 3);
+        HotBar = new Inventory(9);
+        MenuHand = new Inventory(1);
+        var pos = 0;
+        foreach (var item in Items.Registry)
+        {
+            var instance = item.CreateInstance();
+            Inventory.Insert(pos++, new ItemStack(instance, item.GetMaxCount(instance)), false);
+        }
+
+        StackInMenuHand = new ItemStack();
     }
 
     public PlayerChunkLoader? ChunkLoader { get; private set; }
@@ -50,13 +68,20 @@ public abstract class PlayerEntity : WalkingEntity
             var (pos, face) = hitOptional.Value;
             if ((MotionController.ClientState.ControlState & PlayerControlState.Attacking) != 0)
             {
+                foreach (var stack in World!.GetBlockObj(pos).GetDroppedStacks(new BlockPointer(World, pos)))
+                {
+                    var s = (ItemStack)stack.Clone();
+                    s = InventoryUtils.Insert(HotBar, s, false);
+                    InventoryUtils.Insert(Inventory, s, false);
+                }
                 World!.SetBlock(pos, 0);
                 _blockCooldown = 5;
             }
 
             if ((MotionController.ClientState.ControlState & PlayerControlState.Using) != 0)
             {
-                StackInHand.ItemInstance.Item.Use(StackInHand, new BlockPointer(World, pos), face, this);
+                HotBar[HotBarPos].ItemInstance.Item
+                    .Use(HotBar[HotBarPos], new BlockPointer(World, pos), face, this);
                 _blockCooldown = 5;
             }
         }
@@ -138,39 +163,49 @@ public abstract class PlayerEntity : WalkingEntity
         ProcessInteraction();
         ChunkLoader!.Update();
         ChunkTicker!.Update();
+        if (World.LogicProcessor.LogicalSide != LogicalSide.Client && MenuManager.Empty)
+        {
+            var s = MenuHand.Extract(0, int.MaxValue, false);
+            s = InventoryUtils.Insert(HotBar, s, false);
+            InventoryUtils.Insert(Inventory, s, false);
+        } 
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client
+            && (!StackInHand.Equals(HotBar[HotBarPos]) || !StackInMenuHand.Equals(MenuHand[0])))
+        {
+            StackInHand = (ItemStack)HotBar[HotBarPos].Clone();
+            StackInMenuHand = (ItemStack)MenuHand[0].Clone();
+            SendUpdateToClient();
+        }
+        MenuManager.UpdateLogic();
     }
 
-    [ExclusiveTo(Side.Server)]
     public void SendUpdateToClient()
     {
-        World!.LogicProcessor.NetworkHandler.SendPacket(this, new PlayerUpdatePacket(this));
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            World!.LogicProcessor.NetworkHandler.SendPacket(this, new PlayerUpdatePacket(this));
+        }
     }
 
     public void ProcessPlayerAction(PlayerAction action, int delta)
     {
-        int hotBarPos = StackInHand.ItemInstance.Item.Id;
         if (action == PlayerAction.HotBarAdd)
         {
-            hotBarPos += delta;
+            HotBarPos += delta;
         }
         else
         {
-            hotBarPos = delta;
+            HotBarPos = delta;
         }
 
-        hotBarPos %= Items.Registry.Count;
+        HotBarPos %= 9;
 
-        if (hotBarPos < 0)
+        if (HotBarPos < 0)
         {
-            hotBarPos += Items.Registry.Count;
+            HotBarPos += 9;
         }
 
-        StackInHand = new ItemStack(Items.Registry[hotBarPos]!, 1);
-
-        if (World!.LogicProcessor.LogicalSide == LogicalSide.Server)
-        {
-            SendUpdateToClient();
-        }
+        SendUpdateToClient();
     }
 
     [ExclusiveTo(Side.Client)]
@@ -219,14 +254,36 @@ public abstract class PlayerEntity : WalkingEntity
     public override DictionaryTag SerializeToTag(SerializationReason reason)
     {
         var res = base.SerializeToTag(reason);
-        res.Set("stack_in_hand", StackInHand.SerializeToTag(reason));
+        res.SetValue("hot_bar_pos", HotBarPos);
+        if (reason == SerializationReason.Save)
+        {
+            res.Set("inventory", Inventory.SerializeToTag(reason));
+            res.Set("hot_bar", HotBar.SerializeToTag(reason));
+            res.Set("menu_hand", MenuHand.SerializeToTag(reason));
+        }
+        else
+        {
+            res.Set("stack_in_hand", StackInHand.SerializeToTag(reason));
+            res.Set("stack_in_menu_hand", StackInMenuHand.SerializeToTag(reason));
+        }
         return res;
     }
 
     public override void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
     {
         base.DeserializeFromTag(tag, reason);
-        StackInHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_hand"), reason);
+        HotBarPos = tag.GetValue<int>("hot_bar_pos");
+        if (reason == SerializationReason.Save)
+        {
+            Inventory.DeserializeFromTag(tag.Get<DictionaryTag>("inventory"), reason);
+            HotBar.DeserializeFromTag(tag.Get<DictionaryTag>("hot_bar"), reason);
+            MenuHand.DeserializeFromTag(tag.Get<DictionaryTag>("menu_hand"), reason);
+        }
+        else
+        {
+            StackInHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_hand"), reason);
+            StackInMenuHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_menu_hand"), reason);
+        }
     }
 
     public void HandleOpenMenuRequest(OpenMenuRequestType requestType)

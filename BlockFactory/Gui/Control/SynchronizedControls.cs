@@ -14,6 +14,7 @@ public class SynchronizedControls
     public static SynchronizedControlType Button;
     public static SynchronizedControlType TextInput;
     public static SynchronizedControlType SlottedWindow;
+    public static SynchronizedControlType ItemSlot;
 
     public static void Init()
     {
@@ -28,6 +29,7 @@ public class SynchronizedControls
                 Array.Empty<int>()
                 )
             ));
+        ItemSlot = Registry.Register("ItemSlot", SynchronizedControlType.Create<ItemSlotControl>());
     }
 
     public static void Lock()

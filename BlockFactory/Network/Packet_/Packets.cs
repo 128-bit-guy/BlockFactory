@@ -23,6 +23,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<OpenMenuRequestPacket>("");
         NetworkRegistry.RegisterPacket<ControlActionPacket>("");
         NetworkRegistry.RegisterPacket<TextInputTextChangePacket>("");
+        NetworkRegistry.RegisterPacket<ControlUpdatePacket>("");
     }
 
     public static void Lock()

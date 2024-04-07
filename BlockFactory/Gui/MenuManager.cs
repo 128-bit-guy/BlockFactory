@@ -137,4 +137,15 @@ public class MenuManager
     {
         return !Empty || IsAnimationPlaying();
     }
+
+    public void UpdateLogic()
+    {
+        foreach (var menu in _menus)
+        {
+            if (menu is SynchronizedMenu m)
+            {
+                m.UpdateLogic();
+            } 
+        }
+    }
 }

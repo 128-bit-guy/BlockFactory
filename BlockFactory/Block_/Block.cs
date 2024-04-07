@@ -66,4 +66,9 @@ public class Block : IRegistryEntry, IItemProvider
     {
         return Items.BlockItems[this];
     }
+
+    public List<ItemStack> GetDroppedStacks(BlockPointer pointer)
+    {
+        return new List<ItemStack>{new ItemStack(this, 1)};
+    }
 }
