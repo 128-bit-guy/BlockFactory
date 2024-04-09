@@ -24,7 +24,6 @@ public class ShaderProgram : IDisposable
         BfRendering.Gl.AttachShader(_program, vs);
         BfRendering.Gl.AttachShader(_program, fs);
         BfRendering.Gl.LinkProgram(_program);
-        Console.WriteLine(BfRendering.Gl.GetProgramInfoLog(_program));
         BfRendering.Gl.DeleteShader(vs);
         BfRendering.Gl.DeleteShader(fs);
         _model = GetUniformLocation("model");
