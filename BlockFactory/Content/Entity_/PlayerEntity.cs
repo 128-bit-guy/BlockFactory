@@ -26,6 +26,7 @@ public abstract class PlayerEntity : WalkingEntity
     public int HotBarPos = 0;
     public ItemStack StackInHand;
     public ItemStack StackInMenuHand;
+    public bool Spawned = false;
     
     public abstract MenuManager MenuManager { get; }
 
@@ -156,6 +157,19 @@ public abstract class PlayerEntity : WalkingEntity
 
     public override void Update()
     {
+        if (!Spawned)
+        {
+            var posOptional = World!.SpawnPointSearcher.FoundPos;
+            if (posOptional.HasValue)
+            {
+                Spawned = true;
+                Pos = posOptional.Value.As<double>() + new Vector3D<double>(0.5);
+            }
+            else
+            {
+                return;
+            }
+        }
         MotionController.Update();
         base.Update();
         if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
@@ -260,6 +274,7 @@ public abstract class PlayerEntity : WalkingEntity
             res.Set("inventory", Inventory.SerializeToTag(reason));
             res.Set("hot_bar", HotBar.SerializeToTag(reason));
             res.Set("menu_hand", MenuHand.SerializeToTag(reason));
+            res.SetValue("spawned", Spawned);
         }
         else
         {
@@ -278,11 +293,13 @@ public abstract class PlayerEntity : WalkingEntity
             Inventory.DeserializeFromTag(tag.Get<DictionaryTag>("inventory"), reason);
             HotBar.DeserializeFromTag(tag.Get<DictionaryTag>("hot_bar"), reason);
             MenuHand.DeserializeFromTag(tag.Get<DictionaryTag>("menu_hand"), reason);
+            Spawned = tag.GetValue<bool>("spawned");
         }
         else
         {
             StackInHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_hand"), reason);
             StackInMenuHand.DeserializeFromTag(tag.Get<DictionaryTag>("stack_in_menu_hand"), reason);
+            Spawned = true;
         }
     }
 

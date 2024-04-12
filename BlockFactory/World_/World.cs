@@ -3,6 +3,7 @@ using BlockFactory.Utils;
 using BlockFactory.World_.Gen;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
+using BlockFactory.World_.Search;
 using BlockFactory.World_.Serialization;
 using Silk.NET.Maths;
 
@@ -17,6 +18,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     public readonly LogicProcessor LogicProcessor;
     public readonly Random Random = new();
     public readonly WorldSaveManager? SaveManager;
+    public readonly SpawnPointSearcher SpawnPointSearcher;
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
@@ -33,6 +35,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         }
 
         ChunkStatusManager = new ChunkStatusManager(this);
+        SpawnPointSearcher = new SpawnPointSearcher(this);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
@@ -111,6 +114,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
 
     public void Dispose()
     {
+        SpawnPointSearcher.Dispose();
         _chunksToRemove.AddRange(GetLoadedChunks());
 
         foreach (var chunk in _chunksToRemove) RemoveChunk(chunk.Position);
@@ -135,6 +139,11 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     {
         ChunkStatusManager.Update();
         _chunksToRemove.Clear();
-        if (LogicProcessor.LogicalSide != LogicalSide.Client) SaveManager!.Update();
+        if (LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            SaveManager!.Update();
+            SpawnPointSearcher.Update();
+            SpawnPointSearcher.Update();
+        }
     }
 }
