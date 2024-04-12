@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using BlockFactory.Base;
-using BlockFactory.Entity_;
+using BlockFactory.Content.Entity_;
 
 namespace BlockFactory.Network;
 

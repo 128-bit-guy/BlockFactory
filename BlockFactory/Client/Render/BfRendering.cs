@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using BlockFactory.Base;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 

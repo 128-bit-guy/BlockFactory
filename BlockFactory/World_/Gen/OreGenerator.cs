@@ -1,4 +1,4 @@
-﻿using BlockFactory.Block_;
+﻿using BlockFactory.Content.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;

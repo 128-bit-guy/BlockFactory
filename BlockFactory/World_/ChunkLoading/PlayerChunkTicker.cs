@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
-using BlockFactory.Entity_;
-using BlockFactory.Math_;
+using BlockFactory.Content.Entity_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.ChunkLoading;

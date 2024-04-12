@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Fonts\"/>
+        <Folder Include="Assets\" />
     </ItemGroup>
 
 </Project>

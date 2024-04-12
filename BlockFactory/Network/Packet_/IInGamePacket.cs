@@ -1,4 +1,4 @@
-﻿using BlockFactory.Entity_;
+﻿using BlockFactory.Content.Entity_;
 
 namespace BlockFactory.Network.Packet_;
 

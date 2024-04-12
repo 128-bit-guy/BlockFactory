@@ -2,8 +2,8 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
-using BlockFactory.Item_;
-using BlockFactory.Math_;
+using BlockFactory.Content.Item_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 

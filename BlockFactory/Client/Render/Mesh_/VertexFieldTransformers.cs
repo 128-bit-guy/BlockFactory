@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Texture_;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;

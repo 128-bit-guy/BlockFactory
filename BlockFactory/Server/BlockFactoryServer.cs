@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using BlockFactory.Base;
+using BlockFactory.Content;
+using BlockFactory.Content.Entity_;
 using BlockFactory.CubeMath;
-using BlockFactory.Entity_;
 using BlockFactory.Network;
 using BlockFactory.Registry_;
 using ENet.Managed;

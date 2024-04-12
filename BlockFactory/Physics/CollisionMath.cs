@@ -1,5 +1,5 @@
 ﻿using BlockFactory.CubeMath;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Physics;

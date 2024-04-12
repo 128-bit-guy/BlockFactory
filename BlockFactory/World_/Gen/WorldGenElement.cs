@@ -1,4 +1,4 @@
-﻿using BlockFactory.Random_;
+﻿using BlockFactory.Utils.Random_;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Gen;

@@ -12,21 +12,21 @@ public static class Shaders
     public static void Init()
     {
         {
-            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Block.Vertex.glsl")!;
+            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Block.Vertex.glsl")!;
             var fragText =
-                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Block.Fragment.glsl")!;
+                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Block.Fragment.glsl")!;
             Block = new BlockShaderProgram(vertText, fragText);
         }
         {
-            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Text.Vertex.glsl")!;
+            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Text.Vertex.glsl")!;
             var fragText =
-                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Text.Fragment.glsl")!;
+                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Text.Fragment.glsl")!;
             Text = new ShaderProgram(vertText, fragText);
         }
         {
-            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Gui.Vertex.glsl")!;
+            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Gui.Vertex.glsl")!;
             var fragText =
-                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Shaders.Gui.Fragment.glsl")!;
+                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Gui.Fragment.glsl")!;
             Gui = new ShaderProgram(vertText, fragText);
         }
     }

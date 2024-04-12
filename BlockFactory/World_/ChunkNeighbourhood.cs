@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;

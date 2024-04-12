@@ -1,5 +1,5 @@
-﻿using BlockFactory.Biome_;
-using BlockFactory.Block_;
+﻿using BlockFactory.Content.Biome_;
+using BlockFactory.Content.Block_;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;

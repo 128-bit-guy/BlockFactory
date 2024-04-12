@@ -1,5 +1,5 @@
 ﻿using BlockFactory.Base;
-using BlockFactory.Entity_;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Network.Packet_;
 
 namespace BlockFactory.Network;

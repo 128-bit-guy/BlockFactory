@@ -1,5 +1,6 @@
-﻿using BlockFactory.Block_;
-using BlockFactory.Random_;
+﻿using BlockFactory.Content.Block_;
+using BlockFactory.Utils;
+using BlockFactory.Utils.Random_;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Gen;

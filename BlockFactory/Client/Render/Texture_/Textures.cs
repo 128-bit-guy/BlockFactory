@@ -16,9 +16,9 @@ public static class Textures
     {
         StbImage.stbi_set_flip_vertically_on_load(1);
         foreach (var name in typeof(Textures).Assembly.GetManifestResourceNames()) Console.WriteLine(name);
-        Blocks = LoadTextureAtlas("BlockFactory.Textures.Blocks.png", 4);
-        Gui = LoadTextureAtlas("BlockFactory.Textures.Gui.png", 2);
-        Items = LoadTextureAtlas("BlockFactory.Textures.Items.png", 4);
+        Blocks = LoadTextureAtlas("BlockFactory.Assets.Textures.Blocks.png", 4);
+        Gui = LoadTextureAtlas("BlockFactory.Assets.Textures.Gui.png", 2);
+        Items = LoadTextureAtlas("BlockFactory.Assets.Textures.Items.png", 4);
     }
 
     public static Texture LoadTexture(string location)

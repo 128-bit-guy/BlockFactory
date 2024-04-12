@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 using BlockFactory.Base;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 

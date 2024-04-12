@@ -1,5 +1,5 @@
 ﻿using BlockFactory.Client;
-using BlockFactory.Entity_;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Serialization;
 
 namespace BlockFactory.Network.Packet_;

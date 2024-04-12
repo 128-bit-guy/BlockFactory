@@ -1,0 +1,15 @@
+﻿using BlockFactory.Content.Block_;
+using BlockFactory.World_.Interfaces;
+using Silk.NET.Maths;
+
+namespace BlockFactory.Content.Biome_;
+
+public class BigHeightBiome : Biome
+{
+    public override void SetTopSoil(IBlockStorage world, Vector3D<int> pos)
+    {
+        world.SetBlock(pos, Blocks.Grass);
+        if (world.GetBlockObj(pos - Vector3D<int>.UnitY).GetWorldGenBase() == Blocks.Stone)
+            world.SetBlock(pos - Vector3D<int>.UnitY, Blocks.Dirt);
+    }
+}

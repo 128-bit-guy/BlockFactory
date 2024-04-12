@@ -17,7 +17,7 @@ public static class BfClientContent
         Textures.Init();
         Shaders.Init();
         using var stream =
-            BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Fonts.LiberationSerif-Regular.ttf")!;
+            BlockFactoryClient.ResourceLoader.GetResourceStream("BlockFactory.Assets.Fonts.LiberationSerif-Regular.ttf")!;
         TextRenderer = new TextRenderer(stream, 64);
         GuiRenderHelper.Init();
         ItemRenderer.Init();

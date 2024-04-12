@@ -1,6 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 

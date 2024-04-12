@@ -1,7 +1,6 @@
 ﻿using BlockFactory.Client;
-using BlockFactory.Entity_;
-using BlockFactory.Gui;
-using BlockFactory.Gui.Menu_;
+using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Gui.Menu_;
 using BlockFactory.Serialization;
 using ENet.Managed;
 

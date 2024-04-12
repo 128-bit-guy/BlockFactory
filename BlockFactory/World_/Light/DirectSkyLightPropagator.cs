@@ -1,7 +1,7 @@
 ﻿using BlockFactory.Base;
-using BlockFactory.Biome_;
+using BlockFactory.Content.Biome_;
 using BlockFactory.CubeMath;
-using BlockFactory.Math_;
+using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 

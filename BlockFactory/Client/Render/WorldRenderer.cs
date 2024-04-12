@@ -2,8 +2,8 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Texture_;
-using BlockFactory.Entity_;
-using BlockFactory.Math_;
+using BlockFactory.Content.Entity_;
+using BlockFactory.Utils;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
 using Silk.NET.Maths;

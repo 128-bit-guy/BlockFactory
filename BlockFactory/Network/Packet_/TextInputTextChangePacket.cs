@@ -1,5 +1,5 @@
-﻿using BlockFactory.Entity_;
-using BlockFactory.Gui.Control;
+﻿using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Gui.Control;
 using BlockFactory.Serialization;
 using ENet.Managed;
 
