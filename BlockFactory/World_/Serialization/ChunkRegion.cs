@@ -76,13 +76,13 @@ public class ChunkRegion : IBinarySerializable
     {
         var saveFile = GetSaveFile();
         if (!File.Exists(saveFile)) return;
-        BinaryIO.Deserialize(saveFile, this);
+        BinaryIO.DeserializeBuffered(saveFile, this);
     }
 
     private void Unload()
     {
         var saveFile = GetSaveFile();
-        BinaryIO.Serialize(saveFile, this);
+        BinaryIO.SerializeBuffered(saveFile, this);
     }
 
     public void StartLoadTask()

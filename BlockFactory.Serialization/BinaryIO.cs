@@ -1,4 +1,5 @@
-﻿using ZstdSharp;
+﻿using System.Net;
+using ZstdSharp;
 
 namespace BlockFactory.Serialization;
 
@@ -29,5 +30,24 @@ public static class BinaryIO
         BitConverter.TryWriteBytes(res, uncompressed.Length);
         if (BitConverter.IsLittleEndian) Array.Reverse(res, 0, sizeof(int));
         File.WriteAllBytes(file, res);
+    }
+
+    public static void DeserializeBuffered(string file, IBinarySerializable serializable)
+    {
+        if (!File.Exists(file)) return;
+        using var fileStream = File.OpenRead(file);
+        using var zstdStream = new ZstdStream(fileStream, ZstdStreamMode.Decompress);
+        using var bufferedStream = new BufferedStream(zstdStream);
+        using var reader = new BinaryReader(bufferedStream);
+        serializable.DeserializeBinary(reader, SerializationReason.Save);
+    }
+
+    public static void SerializeBuffered(string file, IBinarySerializable serializable)
+    {
+        using var fileStream = File.OpenWrite(file);
+        using var zstdStream = new ZstdStream(fileStream, ZstdStreamMode.Compress);
+        using var bufferedStream = new BufferedStream(zstdStream);
+        using var writer = new BinaryWriter(bufferedStream);
+        serializable.SerializeBinary(writer, SerializationReason.Save);
     }
 }
