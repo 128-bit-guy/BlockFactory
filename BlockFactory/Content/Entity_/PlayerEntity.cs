@@ -61,6 +61,11 @@ public abstract class PlayerEntity : WalkingEntity
             return;
         }
 
+        if (World!.GetChunk(GetChunkPos(), false)?.IsTicking ?? false)
+        {
+            return;
+        }
+
         if (MenuManager.Empty && World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
             var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
