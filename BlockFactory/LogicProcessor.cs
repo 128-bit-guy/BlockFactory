@@ -9,6 +9,7 @@ using BlockFactory.Serialization;
 using BlockFactory.Server;
 using BlockFactory.Utils;
 using BlockFactory.World_;
+using BlockFactory.World_.Search;
 using Silk.NET.Maths;
 
 namespace BlockFactory;
@@ -28,6 +29,7 @@ public class LogicProcessor : IDisposable
     private bool _stopRequested;
     private World _world = null!;
     public DateTime LastUpdateTime;
+    private SpawnPointSearcher _spawnPointSearcher = null!;
 
     public LogicProcessor(LogicalSide logicalSide, INetworkHandler networkHandler, string saveLocation,
         WorldSettings? worldSettings = null)
@@ -72,6 +74,10 @@ public class LogicProcessor : IDisposable
         _world = new World(this, SaveLocation);
         _lastTickTime = DateTime.UtcNow;
         NetworkHandler.Start();
+        if (LogicalSide != LogicalSide.Client)
+        {
+            _spawnPointSearcher = new SpawnPointSearcher(_world);
+        }
     }
 
     private string GetWorldDataLocation()
@@ -139,6 +145,12 @@ public class LogicProcessor : IDisposable
 
         ++_heavyUpdateClass;
         if (_heavyUpdateClass == 27) _heavyUpdateClass = 0;
+
+        if (LogicalSide != LogicalSide.Client && WorldData.SpawnPoint == null)
+        {
+            _spawnPointSearcher.Update();
+            WorldData.SpawnPoint = _spawnPointSearcher.FoundPos;
+        }
 
         foreach (var player in _players) player.Update();
     }

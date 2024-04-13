@@ -159,7 +159,7 @@ public abstract class PlayerEntity : WalkingEntity
     {
         if (!Spawned)
         {
-            var posOptional = World!.SpawnPointSearcher.FoundPos;
+            var posOptional = World!.LogicProcessor.WorldData.SpawnPoint;
             if (posOptional.HasValue)
             {
                 Spawned = true;
