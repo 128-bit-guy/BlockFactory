@@ -61,7 +61,7 @@ public abstract class PlayerEntity : WalkingEntity
             return;
         }
 
-        if (World!.GetChunk(GetChunkPos(), false)?.IsTicking ?? false)
+        if (!(World!.GetChunk(GetChunkPos(), false)?.IsTicking ?? false))
         {
             return;
         }
