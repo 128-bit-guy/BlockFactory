@@ -104,7 +104,8 @@ public class WorldRenderer : IDisposable
         Shaders.Block.SetSpriteBoxesBinding(2);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         var transparentRenderers = _transparentRenderers;
-        foreach (var delta in PlayerChunkLoading.ChunkDeltas)
+        var maxRebuilds = _blockMeshBuilders.Count;
+        foreach (var delta in WorldRendering.ChunkDeltas)
         {
             var pos = BlockFactoryClient.Player.GetChunkPos() + delta;
             var renderer = _renderers[GetArrIndex(pos)];
@@ -132,8 +133,9 @@ public class WorldRenderer : IDisposable
             if (!intersectionHelper.TestAab(b)) continue;
 
             if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 &&
-                renderer.Chunk.ReadyForTick)
+                renderer.Chunk.ReadyForTick && maxRebuilds > 0)
             {
+                --maxRebuilds;
                 var bmb = _blockMeshBuilders.Pop();
                 renderer.StartRebuildTask(bmb);
                 renderer.RequiresRebuild = false;
