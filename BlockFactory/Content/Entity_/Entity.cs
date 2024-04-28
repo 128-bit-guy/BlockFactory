@@ -12,6 +12,7 @@ public class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
+    public Guid Guid;
     public World? World { get; private set; }
 
     public virtual DictionaryTag SerializeToTag(SerializationReason reason)
@@ -21,6 +22,7 @@ public class Entity : ITagSerializable
         {
             res.SetVector3D("pos", Pos);
             res.SetVector2D("head_rotation", HeadRotation);
+            
         }
 
         return res;

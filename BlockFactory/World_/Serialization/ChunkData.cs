@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Serialization;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
@@ -20,7 +21,8 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     private BitArray _blockUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
-
+    public Dictionary<Guid, Entity> Entities = new();
+    
     public bool Decorated;
     public int DecoratedNeighbours;
     public bool HasSkyLight;
@@ -54,6 +56,8 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         writer.Write7BitEncodedInt(DecoratedNeighbours);
 
         writer.Write(TopSoilPlaced);
+
+        TagIO.Write(WriteTagData(reason), writer);
     }
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
@@ -81,6 +85,30 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         DecoratedNeighbours = reader.Read7BitEncodedInt();
 
         TopSoilPlaced = reader.ReadBoolean();
+
+        ReadTagData(TagIO.Read<DictionaryTag>(reader), reason);
+    }
+
+    public DictionaryTag WriteTagData(SerializationReason reason)
+    {
+        var res = new DictionaryTag();
+        var entityList = new ListTag(0, TagType.Dictionary);
+        foreach (var (_, entity) in Entities)
+        {
+            entityList.Add(entity.SerializeToTag(reason));
+        }
+        res.Set("entities", entityList);
+        return res;
+    }
+
+    public void ReadTagData(DictionaryTag tag, SerializationReason reason)
+    {
+        var entityList = tag.Get<ListTag>("entities");
+        Entities.Clear();
+        foreach (var entityTag in entityList.GetEnumerable<DictionaryTag>())
+        {
+            
+        }
     }
 
     public short GetBlock(Vector3D<int> pos)
