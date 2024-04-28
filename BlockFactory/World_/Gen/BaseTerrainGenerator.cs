@@ -15,6 +15,7 @@ public class BaseTerrainGenerator
     private readonly FastNoiseLite _biomeHeightNoise = new();
     private readonly FastNoiseLite _mountainNoise = new();
     private readonly FastNoiseLite _noise = new();
+    private readonly FastNoiseLite _noise2 = new();
     private readonly FastNoiseLite _oceanNoise = new();
     private readonly WorldGenerator _worldGenerator;
 
@@ -23,6 +24,7 @@ public class BaseTerrainGenerator
         _worldGenerator = worldGenerator;
         _mountainNoise.SetFractalType(FastNoiseLite.FractalType.Ridged);
         _noise.SetSeed(GetNoiseSeed(1388148653, 1767345779));
+        _noise2.SetSeed(GetNoiseSeed(1277495113, 1878018581));
         _mountainNoise.SetSeed(GetNoiseSeed(1878018581, 1115628257));
         _biomeHeightNoise.SetSeed(GetNoiseSeed(1960908821, 1458846821));
         _oceanNoise.SetSeed(GetNoiseSeed(1277495113, 1048827289));
@@ -64,17 +66,17 @@ public class BaseTerrainGenerator
         {
             var x = i + c.Position.ShiftLeft(Constants.ChunkSizeLog2).X;
             var z = k + c.Position.ShiftLeft(Constants.ChunkSizeLog2).Z;
-            heights[0] = Math.Max(0, _mountainNoise.GetNoise(x / 10.0d, z / 10.0d) - 2.0f / 7) * 140 + 2;
+            heights[0] = Math.Max(0, _mountainNoise.GetNoise(x / 10.0d, z / 10.0d) - 2.0f / 7) * 140 + 9  + _noise2.GetNoise(x / 2.0d, z / 2.0d) * 7;
             heights[1] = 2;
             heights[2] = -5;
-            heights[3] = -32;
-            heights[4] = -64;
+            heights[3] = -32 + _noise2.GetNoise(x / 2.0d, z / 2.0d) * 7;
+            heights[4] = -64 + _noise2.GetNoise(x / 2.0d, z / 2.0d) * 7;
             var smoothHeight = 0.0f;
             for (var l = -OceanSmoothRadius; l <= OceanSmoothRadius; ++l)
             for (var m = -OceanSmoothRadius; m <= OceanSmoothRadius; ++m)
                 smoothHeight += heights[_oceanMap![i + l + OceanSmoothRadius, k + m + OceanSmoothRadius]];
             smoothHeight /= (2 * OceanSmoothRadius + 1) * (2 * OceanSmoothRadius + 1);
-            var val = smoothHeight + _noise.GetNoise(x * 3.0d, z * 3.0d) * 2;
+            var val = smoothHeight + _noise.GetNoise(x * 3.0d, z * 3.0d) * 3;
             var biomeVal = _biomeHeightNoise.GetNoise(x * 3.0d, z * 3.0d);
             for (var j = 0; j < Constants.ChunkSize; ++j)
             {
@@ -115,7 +117,7 @@ public class BaseTerrainGenerator
 
                 switch (y + biomeVal * 3)
                 {
-                    case <= 20:
+                    case <= 30:
                         continue;
                     default:
                         c.Data!.SetBiome(new Vector3D<int>(x, y, z), Biomes.BigHeight);
