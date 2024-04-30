@@ -10,7 +10,6 @@ public class WorldGenerator : IWorldGenerator
     private readonly BaseTerrainGenerator _baseTerrainGenerator;
     private readonly CaveGenerator _caveGenerator;
     private readonly WorldDecorator _decorator;
-    public readonly long Seed;
 
     public WorldGenerator(long seed)
     {
@@ -19,6 +18,8 @@ public class WorldGenerator : IWorldGenerator
         _caveGenerator = new CaveGenerator(this);
         _decorator = new WorldDecorator(this);
     }
+
+    public long Seed { get; }
 
     public void GenerateChunk(Chunk c)
     {

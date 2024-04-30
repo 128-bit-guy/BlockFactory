@@ -23,7 +23,7 @@ public static class Blocks
     public static LeavesBlock Leaves;
     public static WaterBlock Water;
     public static SandBlock Sand;
-    public static SimpleBlock Planks;
+    public static Block Planks;
     public static FenceBlock Fence;
 
     public static void Init()

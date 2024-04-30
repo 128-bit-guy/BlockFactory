@@ -22,7 +22,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
         if (logicProcessor.WorldData.WorldSettings.Flat)
-            Generator = new FlatWorldGenerator();
+            Generator = new FlatWorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
         else
             Generator = new WorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
 

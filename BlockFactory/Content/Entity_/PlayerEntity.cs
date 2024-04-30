@@ -120,6 +120,10 @@ public abstract class PlayerEntity : WalkingEntity
             res *= 0.3f;
         else
             res *= 0.2f;
+        if (!HasGravity)
+        {
+            res *= 2;
+        }
 
         return new Vector2D<double>(res.X, res.Z);
     }
@@ -146,6 +150,11 @@ public abstract class PlayerEntity : WalkingEntity
             } else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
             {
                 targetVerticalVelocity -= 0.2d;
+            }
+
+            if (!HasGravity)
+            {
+                targetVerticalVelocity *= 2;
             }
 
             var delta = targetVerticalVelocity - Velocity.Y;

@@ -3,6 +3,8 @@ using BlockFactory.Base;
 using BlockFactory.Content.Biome_;
 using BlockFactory.Content.Block_;
 using BlockFactory.Utils;
+using BlockFactory.Utils.Random_;
+using BlockFactory.World_.Gen.Mineshaft;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using BlockFactory.World_.Serialization;
@@ -12,6 +14,16 @@ namespace BlockFactory.World_.Gen;
 
 public class FlatWorldGenerator : IWorldGenerator
 {
+    private readonly MineshaftGenerator _mineshaftGenerator;
+
+    public FlatWorldGenerator(long seed)
+    {
+        Seed = seed;
+        _mineshaftGenerator = new MineshaftGenerator(this, 1937742181);
+    }
+
+    public long Seed { get; }
+
     public void GenerateChunk(Chunk c)
     {
         c.Data = new ChunkData();
@@ -73,5 +85,6 @@ public class FlatWorldGenerator : IWorldGenerator
 
     public void DecorateChunk(Chunk c)
     {
+        _mineshaftGenerator.Generate(c, new LinearCongruentialRandom(0));
     }
 }

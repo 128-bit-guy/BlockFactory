@@ -2,6 +2,7 @@
 using BlockFactory.Content.Block_;
 using BlockFactory.CubeMath;
 using BlockFactory.Utils;
+using BlockFactory.World_.Gen.Mineshaft;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -10,6 +11,7 @@ namespace BlockFactory.World_.Gen;
 public class WorldDecorator : WorldGenElement
 {
     private readonly List<OreGenerator> _oreGenerators;
+    private readonly MineshaftGenerator _mineshaftGenerator;
 
     public WorldDecorator(WorldGenerator generator) : base(generator, -1320159947507007282)
     {
@@ -19,6 +21,7 @@ public class WorldDecorator : WorldGenElement
         _oreGenerators.Add(new OreGenerator(Blocks.TinOre, Blocks.Stone, 3, 9, 15, 1 / 2000f));
         _oreGenerators.Add(new OreGenerator(Blocks.DiamondOre, Blocks.Stone, 3, 9, 15, 1 / 20000f));
         _oreGenerators.Add(new OreGenerator(Blocks.CoalOre, Blocks.Stone, 12, 28, 15, 1 / 2000f));
+        _mineshaftGenerator = new MineshaftGenerator(generator, 1937742181);
     }
 
     private void PlaceTopSoil(Chunk c)
@@ -67,5 +70,6 @@ public class WorldDecorator : WorldGenElement
             foreach (var generator in _oreGenerators)
                 generator.Generate(c.Neighbourhood, new Vector3D<int>(x, y, z), rng);
         }
+        _mineshaftGenerator.Generate(c, rng);
     }
 }

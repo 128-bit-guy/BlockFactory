@@ -7,9 +7,9 @@ public class WorldGenElement
 {
     private const long HalfMask = uint.MaxValue;
     private readonly long _uniqueNumber;
-    public readonly WorldGenerator Generator;
+    public readonly IWorldGenerator Generator;
 
-    public WorldGenElement(WorldGenerator generator, long uniqueNumber)
+    public WorldGenElement(IWorldGenerator generator, long uniqueNumber)
     {
         Generator = generator;
         _uniqueNumber = uniqueNumber;

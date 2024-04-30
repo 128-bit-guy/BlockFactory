@@ -6,11 +6,16 @@ namespace BlockFactory.CubeMath;
 public static class CubeFaceUtils
 {
     private static readonly CubeFace[] AllValues = Enum.GetValues<CubeFace>();
-
+    private static readonly CubeFace[] AllHorizontals = AllValues.Where(f => f.GetAxis() != 1).ToArray();
 
     public static CubeFace[] Values()
     {
         return AllValues;
+    }
+    
+    public static CubeFace[] Horizontals()
+    {
+        return AllHorizontals;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
