@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Runtime.CompilerServices;
+using BlockFactory.CubeMath;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Utils;
@@ -61,5 +62,19 @@ public static class BfMathUtils
         vector3.Z = (float) ((double) num1 * (double) inverseWorldViewProjection.M13 + (double) num2 * (double) inverseWorldViewProjection.M23 + (double) num3 * (double) inverseWorldViewProjection.M33) + inverseWorldViewProjection.M43;
         float num4 = (float) ((double) num1 * (double) inverseWorldViewProjection.M14 + (double) num2 * (double) inverseWorldViewProjection.M24 + (double) num3 * (double) inverseWorldViewProjection.M34) + inverseWorldViewProjection.M44;
         return vector3 / num4;
+    }
+
+    public static Vector3D<T> BoxLerp<T>(Box3D<T> box, Vector3D<T> vec) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        Vector3D<T> res = default;
+        for (var i = 0; i < 3; ++i)
+        {
+            res.SetValue(i, Scalar.Add(
+                Scalar.Multiply(Scalar.Subtract(Scalar<T>.One, vec[i]), box.Min[i]),
+                Scalar.Multiply(vec[i], box.Max[i])
+                ));
+        }
+
+        return res;
     }
 }

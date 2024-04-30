@@ -4,6 +4,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Registry_;
 using BlockFactory.World_;
 using BlockFactory.World_.Light;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Block_;
 

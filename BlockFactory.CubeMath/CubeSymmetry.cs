@@ -10,6 +10,10 @@ public class CubeSymmetry
 
     private static readonly CubeSymmetry?[] FromToKeepingRotations;
 
+    public static readonly CubeSymmetry Identity;
+
+    private static readonly CubeSymmetry[] Inverses;
+
     private readonly CubeFace[] _faceTransformations;
 
     public readonly Matrix4X4<float> AroundCenterMatrix4;
@@ -102,6 +106,33 @@ public class CubeSymmetry
                 GetFromTo(a, b, true).FirstOrDefault(s => keep * s == keep);
 
         #endregion
+
+        #region Identity
+
+        foreach (var rotation in Values)
+        {
+            var ok = CubeFaceUtils.Values().All(face => face * rotation == face);
+            if (!ok) continue;
+            Identity = rotation;
+            break;
+        }
+
+        #endregion
+
+        #region Inverses
+
+        Inverses = new CubeSymmetry[Values.Length];
+        foreach (var symmetry in Values)
+        {
+            foreach(var oSymmetry in Values)
+            {
+                if (symmetry * oSymmetry != Identity) continue;
+                Inverses[symmetry.Ordinal] = oSymmetry;
+                break;
+            }
+        }
+
+        #endregion
     }
 
     private CubeSymmetry(int ordinal, Matrix3X3<int> matrix)
@@ -126,6 +157,8 @@ public class CubeSymmetry
                               Matrix4X4.CreateTranslation(0.5f, 0.5f, 0.5f);
     }
 
+    public CubeSymmetry Inverse => Inverses[Ordinal];
+
     #region Application
 
     public static CubeFace operator *(CubeFace face, CubeSymmetry symmetry)
@@ -141,6 +174,18 @@ public class CubeSymmetry
     public static CubeSymmetry operator *(CubeSymmetry a, CubeSymmetry b)
     {
         return a._combinations[b.Ordinal];
+    }
+
+    public Vector3D<float> TransformAroundCenter(Vector3D<float> v)
+    {
+        return Vector3D.Transform(v, AroundCenterMatrix4);
+    }
+
+    public Box3D<float> TransformAroundCenter(Box3D<float> b)
+    {
+        var rotMin = TransformAroundCenter(b.Min);
+        var rotMax = TransformAroundCenter(b.Max);
+        return new Box3D<float>(Vector3D.Min(rotMin, rotMax), Vector3D.Max(rotMin, rotMax));
     }
 
     #endregion
