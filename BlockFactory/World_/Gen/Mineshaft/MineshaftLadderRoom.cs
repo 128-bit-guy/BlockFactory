@@ -140,5 +140,25 @@ public class MineshaftLadderRoom : IMineshaftElement
                 c.Neighbourhood.SetBlock(absPos, Blocks.Log);
             }
         }
+
+        if (floor)
+        {
+            if (rng.Next(2) == 0)
+            {
+                c.Neighbourhood.SetBlock(_center + new Vector3D<int>(2, -1, 2), Blocks.Torch);
+            }
+            if (rng.Next(2) == 0)
+            {
+                c.Neighbourhood.SetBlock(_center + new Vector3D<int>(-2, -1, 2), Blocks.Torch);
+            }
+            if (rng.Next(2) == 0)
+            {
+                c.Neighbourhood.SetBlock(_center + new Vector3D<int>(-2, -1, -2), Blocks.Torch);
+            }
+            if (rng.Next(2) == 0)
+            {
+                c.Neighbourhood.SetBlock(_center + new Vector3D<int>(2, -1, -2), Blocks.Torch);
+            }
+        }
     }
 }

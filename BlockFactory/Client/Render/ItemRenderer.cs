@@ -59,6 +59,9 @@ public static class ItemRenderer
         if (block is FenceBlock f)
         {
             BlockMeshes.RenderFence(f, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), _blockMeshBuilder);
+        } else if (block is TorchBlock t)
+        {
+            BlockMeshes.RenderTorch(t, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), _blockMeshBuilder);
         }
         else
         {

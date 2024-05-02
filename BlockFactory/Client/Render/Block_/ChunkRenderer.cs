@@ -89,6 +89,9 @@ public class ChunkRenderer : IDisposable
             if (block is FenceBlock f)
             {
                 BlockMeshes.RenderFence(f, new BlockPointer(neighbourhood, absPos), bmb);
+            } else if (block is TorchBlock t)
+            {
+                BlockMeshes.RenderTorch(t, new BlockPointer(neighbourhood, absPos), bmb);
             }
             else
             {

@@ -88,5 +88,13 @@ public class MineshaftCorridor : IMineshaftElement
         SetBlock(c, new Vector3D<int>(1, 0, 3), Blocks.Fence.Id);
         SetBlock(c, new Vector3D<int>(-1, -1, 3), Blocks.Fence.Id);
         SetBlock(c, new Vector3D<int>(1, -1, 3), Blocks.Fence.Id);
+        if (rng.Next(2) == 0)
+        {
+            SetBlock(c, new Vector3D<int>(0, 1, 2), Blocks.Torch.Id);
+        }
+        if (rng.Next(2) == 0)
+        {
+            SetBlock(c, new Vector3D<int>(0, 1, 4), Blocks.Torch.Id);
+        }
     }
 }

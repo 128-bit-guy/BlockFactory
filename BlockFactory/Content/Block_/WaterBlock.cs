@@ -45,4 +45,9 @@ public class WaterBlock : Block
             if (oPointer.GetBlock() == 0) oPointer.SetBlock(this);
         }
     }
+
+    public override bool HasCollision()
+    {
+        return false;
+    }
 }

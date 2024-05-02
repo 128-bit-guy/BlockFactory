@@ -14,8 +14,8 @@ public static class BlockMeshes
 {
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
 
-    private static readonly Box3D<float> CenterBox =
-        new Box3D<float>(12 / 32.0f, 0.0f, 12 / 32.0f, 20 / 32.0f, 1.0f, 20 / 32.0f);
+    private static readonly Box3D<float> CenterBox = new(12 / 32.0f, 0.0f, 12 / 32.0f,
+        20 / 32.0f, 1.0f, 20 / 32.0f);
 
     private static readonly Box3D<float>[] ConnectionBoxes = new[]
     {
@@ -26,6 +26,9 @@ public static class BlockMeshes
             14 / 32.0f, 9 / 32.0f, 20 / 32.0f, 18 / 32.0f, 15 / 32.0f, 1.0f
         )
     };
+
+    private static readonly Box3D<float> TorchBox = new(14 / 32.0f, 0.0f, 14 / 32.0f,
+        18 / 32.0f, 24 / 32.0f, 18 / 32.0f);
 
     public static void RenderFence(FenceBlock fence, BlockPointer pointer, BlockMeshBuilder bmb)
     {
@@ -44,7 +47,69 @@ public static class BlockMeshes
         }
     }
 
+    public static void RenderTorch(TorchBlock torch, BlockPointer pointer, BlockMeshBuilder bmb)
+    {
+        var hasBlock = false;
+        var hasPlanks = false;
+        foreach (var face in CubeFaceUtils.Values())
+        {
+            var n = pointer + face.GetDelta();
+            if(!n.GetBlockObj().IsFaceSolid(face.GetOpposite())) continue;
+            hasBlock = true;
+            if(n.GetBlock() != Blocks.Planks.Id) continue;
+            hasPlanks = true;
+        }
+
+        if (!hasBlock)
+        {
+            RenderTorchFace(torch, pointer, bmb, CubeFace.Bottom);
+        }
+        
+        foreach (var face in CubeFaceUtils.Values())
+        {
+            var n = pointer + face.GetDelta();
+            if(!n.GetBlockObj().IsFaceSolid(face.GetOpposite())) continue;
+            if(hasPlanks && n.GetBlock() != Blocks.Planks.Id) continue;
+            RenderTorchFace(torch, pointer, bmb, face);
+        }
+    }
+
+    private static void RenderTorchFace(TorchBlock torch, BlockPointer pointer, BlockMeshBuilder bmb, CubeFace face)
+    {
+        Span<int> t = stackalloc int[6];
+        foreach(var f in CubeFaceUtils.Values())
+        {
+            t[(int)f] = torch.GetTexture(f);
+        }
+        var light = Math.Max(pointer.GetLight(LightChannel.Sky), pointer.GetLight(LightChannel.Block)) / 15.0f;
+        var matrices = bmb.MeshBuilder.Matrices;
+        matrices.Push();
+        if (face.GetAxis() != 1)
+        {
+            var s = CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
+            matrices.Multiply(s.AroundCenterMatrix4);
+            matrices.Translate(0.5f, 0.5f, 0.8f);
+            matrices.RotateX(-MathF.PI / 6);
+            matrices.Translate(-0.5f, -0.5f, -0.5f);
+            matrices.Multiply(s.Inverse.AroundCenterMatrix4);
+        }
+        else if (face == CubeFace.Top)
+        {
+            var s = CubeSymmetry.GetFromTo(CubeFace.Bottom, face, true)[0];
+            matrices.Multiply(s.AroundCenterMatrix4);
+        }
+        RenderCuboid(bmb, TorchBox, t, light);
+        matrices.Pop();
+    }
+
     private static void RenderCuboid(BlockMeshBuilder bmb, Box3D<float> cube, int texture, float light)
+    {
+        Span<int> t = stackalloc int[6];
+        t.Fill(texture);
+        RenderCuboid(bmb, cube, t, light);
+    }
+
+    private static void RenderCuboid(BlockMeshBuilder bmb, Box3D<float> cube, Span<int> textures, float light)
     {
         var builder = bmb.MeshBuilder;
         var transformer = bmb.UvTransformer;
@@ -55,7 +120,7 @@ public static class BlockMeshes
         uvs[3] = new Vector2D<float>(0, 1);
         foreach (var face in CubeFaceUtils.Values())
         {
-            transformer.Sprite = texture;
+            transformer.Sprite = textures[(int)face];
             var s = face.GetAxis() == 1
                 ? CubeSymmetry.GetFromTo(CubeFace.Front, face, true)[0]
                 : CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;

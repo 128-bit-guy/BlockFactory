@@ -54,5 +54,21 @@ public class MineshaftRoom : IMineshaftElement
                 }
             }
         }
+        if (rng.Next(2) == 0)
+        {
+            c.Neighbourhood.SetBlock(_center + new Vector3D<int>(3, -1, 3), Blocks.Torch);
+        }
+        if (rng.Next(2) == 0)
+        {
+            c.Neighbourhood.SetBlock(_center + new Vector3D<int>(-3, -1, 3), Blocks.Torch);
+        }
+        if (rng.Next(2) == 0)
+        {
+            c.Neighbourhood.SetBlock(_center + new Vector3D<int>(-3, -1, -3), Blocks.Torch);
+        }
+        if (rng.Next(2) == 0)
+        {
+            c.Neighbourhood.SetBlock(_center + new Vector3D<int>(3, -1, -3), Blocks.Torch);
+        }
     }
 }

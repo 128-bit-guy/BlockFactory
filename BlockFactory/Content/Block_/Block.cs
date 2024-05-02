@@ -72,4 +72,9 @@ public class Block : IRegistryEntry, IItemProvider
     {
         return new List<ItemStack>{new ItemStack(this, 1)};
     }
+
+    public virtual bool HasCollision()
+    {
+        return true;
+    }
 }

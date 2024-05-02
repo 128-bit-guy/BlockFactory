@@ -29,8 +29,8 @@ public static class CollisionCalculator
                 return null;
             }
 
-            var block = access.GetBlock(pos);
-            if(block == 0 || block == Blocks.Water.Id) continue;
+            var block = access.GetBlockObj(pos);
+            if(!block.HasCollision()) continue;
             Boxes.Add(new Box3D<double>(x, y, z, x + 1, y + 1, z + 1));
         }
 

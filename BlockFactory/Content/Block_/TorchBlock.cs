@@ -4,7 +4,7 @@ using BlockFactory.World_.Light;
 
 namespace BlockFactory.Content.Block_;
 
-public class AirBlock : Block
+public class TorchBlock : Block
 {
     [ExclusiveTo(Side.Client)]
     public override bool BlockRendering(CubeFace face)
@@ -12,12 +12,27 @@ public class AirBlock : Block
         return false;
     }
 
+    [ExclusiveTo(Side.Client)]
+    public override int GetTexture(CubeFace face)
+    {
+        return face == CubeFace.Top ? 13 : 12;
+    }
+
+    public override byte GetEmittedLight()
+    {
+        return 15;
+    }
+
     public override bool CanLightEnter(CubeFace face, LightChannel channel)
     {
         return true;
     }
 
-    [ExclusiveTo(Side.Client)]
+    public override bool CanLightLeave(CubeFace face, LightChannel channel)
+    {
+        return true;
+    }
+
     public override bool HasAo()
     {
         return false;
