@@ -77,4 +77,9 @@ public class Block : IRegistryEntry, IItemProvider
     {
         return true;
     }
+
+    public virtual bool IsReplaceable()
+    {
+        return false;
+    }
 }

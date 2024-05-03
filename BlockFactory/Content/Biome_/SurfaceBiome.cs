@@ -17,8 +17,15 @@ public class SurfaceBiome : Biome
 
     public override void Decorate(BlockPointer pointer, Random rng)
     {
-        if (pointer.GetBlock() == 0 && (pointer - Vector3D<int>.UnitY).GetBlock() == Blocks.Grass.Id &&
-            rng.Next(150) == 0)
-            TreeGenerator.Generate(pointer, rng);
+        if (pointer.GetBlockObj().IsReplaceable() && (pointer - Vector3D<int>.UnitY).GetBlock() == Blocks.Grass.Id)
+        {
+            if (rng.Next(150) == 0)
+            {
+                TreeGenerator.Generate(pointer, rng);
+            } else if (rng.Next(5) == 0)
+            {
+                pointer.SetBlock(Blocks.TallGrass);
+            }
+        }
     }
 }

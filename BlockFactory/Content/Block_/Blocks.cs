@@ -26,6 +26,7 @@ public static class Blocks
     public static Block Planks;
     public static FenceBlock Fence;
     public static TorchBlock Torch;
+    public static TallGrassBlock TallGrass;
 
     public static void Init()
     {
@@ -47,6 +48,7 @@ public static class Blocks
         Planks = Registry.Register("Planks", new SimpleBlock(11));
         Fence = Registry.Register("Fence", new FenceBlock());
         Torch = Registry.Register("Torch", new TorchBlock());
+        TallGrass = Registry.Register("TallGrass", new TallGrassBlock());
     }
 
     public static void Lock()

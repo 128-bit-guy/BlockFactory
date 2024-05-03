@@ -50,4 +50,9 @@ public class WaterBlock : Block
     {
         return false;
     }
+
+    public override bool IsReplaceable()
+    {
+        return true;
+    }
 }

@@ -92,6 +92,9 @@ public class ChunkRenderer : IDisposable
             } else if (block is TorchBlock t)
             {
                 BlockMeshes.RenderTorch(t, new BlockPointer(neighbourhood, absPos), bmb);
+            } else if (block is TallGrassBlock g)
+            {
+                BlockMeshes.RenderTallGrass(g, new BlockPointer(neighbourhood, absPos), bmb);
             }
             else
             {

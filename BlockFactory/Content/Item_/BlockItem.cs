@@ -16,7 +16,7 @@ public class BlockItem : Item
     public override void Use(ItemStack stack, BlockPointer pointer, CubeFace face, object user)
     {
         var placePos = pointer + face.GetDelta();
-        if (placePos.GetBlock() == Blocks.Air.Id || placePos.GetBlock() == Blocks.Water.Id)
+        if (placePos.GetBlockObj().IsReplaceable())
         {
             placePos.SetBlock(Block);
             stack.Decrement();

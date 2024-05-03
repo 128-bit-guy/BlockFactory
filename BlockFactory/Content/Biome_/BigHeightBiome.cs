@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Content.Block_;
+using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -11,5 +12,16 @@ public class BigHeightBiome : Biome
         world.SetBlock(pos, Blocks.Grass);
         if (world.GetBlockObj(pos - Vector3D<int>.UnitY).GetWorldGenBase() == Blocks.Stone)
             world.SetBlock(pos - Vector3D<int>.UnitY, Blocks.Dirt);
+    }
+
+    public override void Decorate(BlockPointer pointer, Random rng)
+    {
+        if (pointer.GetBlockObj().IsReplaceable() && (pointer - Vector3D<int>.UnitY).GetBlock() == Blocks.Grass.Id)
+        {
+            if (rng.Next(5) == 0)
+            {
+                pointer.SetBlock(Blocks.TallGrass);
+            }
+        }
     }
 }

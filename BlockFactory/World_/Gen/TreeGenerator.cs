@@ -23,7 +23,7 @@ public static class TreeGenerator
             for (var j = 0; j < 3; ++j)
             {
                 var neighbourBottom = neighbour - new Vector3D<int>(0, j, 0);
-                if (neighbourBottom.GetBlock() == 0 || neighbourBottom.GetBlock() == Blocks.Leaves.Id)
+                if (neighbourBottom.GetBlockObj().IsReplaceable() || neighbourBottom.GetBlock() == Blocks.Leaves.Id)
                     neighbourBottom.SetBlock(Blocks.Log);
                 else
                     break;

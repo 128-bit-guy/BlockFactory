@@ -62,6 +62,13 @@ public static class ItemRenderer
         } else if (block is TorchBlock t)
         {
             BlockMeshes.RenderTorch(t, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), _blockMeshBuilder);
+        } else if (block is TallGrassBlock g)
+        {
+            BlockMeshes.RenderTallGrass(
+                g,
+                new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero),
+                _blockMeshBuilder
+                );
         }
         else
         {

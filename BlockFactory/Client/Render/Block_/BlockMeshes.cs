@@ -102,6 +102,31 @@ public static class BlockMeshes
         matrices.Pop();
     }
 
+    public static void RenderTallGrass(TallGrassBlock g, BlockPointer pointer, BlockMeshBuilder bmb)
+    {
+        var light = Math.Max(pointer.GetLight(LightChannel.Sky), pointer.GetLight(LightChannel.Block)) / 15.0f;
+        var tex = g.GetTexture(CubeFace.Top);
+        var builder = bmb.MeshBuilder;
+        var transformer = bmb.UvTransformer;
+        var matrices = builder.Matrices;
+        transformer.Sprite = tex;
+        var ext = 0.5f;
+        var mi = 0.5f - ext;
+        var ma = 0.5f + ext;
+        foreach (var face in CubeFaceUtils.Horizontals())
+        {
+            var s = CubeSymmetry.GetFromToKeepingRotation(CubeFace.Front, face, CubeFace.Top)!;
+            matrices.Push();
+            matrices.Multiply(s.AroundCenterMatrix4);
+            builder.NewPolygon().Indices(QuadIndices);
+            builder.Vertex(new BlockVertex(mi, 0, mi, light, light, light, 1, 0, 0));
+            builder.Vertex(new BlockVertex(ma, 0, ma, light, light, light, 1, 1, 0));
+            builder.Vertex(new BlockVertex(ma, 1, ma, light, light, light, 1, 1, 1));
+            builder.Vertex(new BlockVertex(mi, 1, mi, light, light, light, 1, 0, 1));
+            matrices.Pop();
+        }
+    }
+
     private static void RenderCuboid(BlockMeshBuilder bmb, Box3D<float> cube, int texture, float light)
     {
         Span<int> t = stackalloc int[6];
