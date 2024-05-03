@@ -22,6 +22,7 @@ flat in int vertexSprite;
 void main()
 {
     vec2 uv = min(max(vertexUv, boxes[vertexSprite].min), boxes[vertexSprite].max);
-    FragColor = mix(skyColor, vertexColor * texture(tex, uv), loadProgress);
+    vec4 meshColor = vertexColor * texture(tex, uv);
+    FragColor = vec4(mix(skyColor.rgb, meshColor.rgb, loadProgress), meshColor.a);
     if(FragColor.a < 0.1f) discard;
 } 
