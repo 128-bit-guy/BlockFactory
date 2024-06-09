@@ -27,7 +27,9 @@ public abstract class PlayerEntity : WalkingEntity
     public ItemStack StackInHand;
     public ItemStack StackInMenuHand;
     public bool Spawned = false;
-    
+
+    public override EntityType Type => Entities.Player;
+
     public abstract MenuManager MenuManager { get; }
 
     public PlayerEntity()
@@ -331,5 +333,15 @@ public abstract class PlayerEntity : WalkingEntity
         }
     }
     
-    
+    public static PlayerEntity Create()
+    {
+        if (GameInfo.PhysicalSide == Side.Client)
+        {
+            return new ClientPlayerEntity();
+        }
+        else
+        {
+            return new ServerPlayerEntity();
+        }
+    }
 }

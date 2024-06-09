@@ -10,6 +10,7 @@ public static class ServerMain
     public static void Main()
     {
         Console.WriteLine("Launching Server!");
+        GameInfo.PhysicalSide = Side.Server;
         BlockFactoryServer.Run();
     }
 }

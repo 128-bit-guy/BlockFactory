@@ -10,6 +10,7 @@ public static class ClientMain
     public static void Main()
     {
         Console.WriteLine("Launching Client!");
+        GameInfo.PhysicalSide = Side.Client;
         BlockFactoryClient.Run();
     }
 }

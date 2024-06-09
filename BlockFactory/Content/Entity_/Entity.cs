@@ -8,12 +8,13 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Entity_;
 
-public class Entity : ITagSerializable
+public abstract class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
-    public Guid Guid;
+    public Guid Guid = Guid.NewGuid();
     public World? World { get; private set; }
+    public abstract EntityType Type { get; }
 
     public virtual DictionaryTag SerializeToTag(SerializationReason reason)
     {
@@ -22,7 +23,7 @@ public class Entity : ITagSerializable
         {
             res.SetVector3D("pos", Pos);
             res.SetVector2D("head_rotation", HeadRotation);
-            
+            res.SetValue("guid", Guid.ToString());
         }
 
         return res;
@@ -34,6 +35,7 @@ public class Entity : ITagSerializable
         {
             Pos = tag.GetVector3D<double>("pos");
             HeadRotation = tag.GetVector2D<float>("head_rotation");
+            Guid = Guid.Parse(tag.GetValue<string>("guid"));
         }
     }
 

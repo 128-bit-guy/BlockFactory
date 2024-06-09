@@ -95,7 +95,9 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         var entityList = new ListTag(0, TagType.Dictionary);
         foreach (var (_, entity) in Entities)
         {
-            entityList.Add(entity.SerializeToTag(reason));
+            var tag = entity.SerializeToTag(reason);
+            tag.SetValue("type", entity.Type.Id);
+            entityList.Add(tag);
         }
         res.Set("entities", entityList);
         return res;
@@ -107,7 +109,10 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         Entities.Clear();
         foreach (var entityTag in entityList.GetEnumerable<DictionaryTag>())
         {
-            
+            var type = Content.Entity_.Entities.Registry[entityTag.GetValue<int>("type")];
+            var entity = type!.Creator();
+            entity.DeserializeFromTag(entityTag, reason);
+            Entities.Add(entity.Guid, entity);
         }
     }
 

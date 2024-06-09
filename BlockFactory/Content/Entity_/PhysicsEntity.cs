@@ -8,7 +8,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Entity_;
 
-public class PhysicsEntity : Entity
+public abstract class PhysicsEntity : Entity
 {
     public Vector3D<double> Velocity;
     public Box3D<double> BoundingBox;
