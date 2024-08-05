@@ -133,7 +133,7 @@ public class WorldRenderer : IDisposable
             if (!intersectionHelper.TestAab(b)) continue;
 
             if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 &&
-                renderer.Chunk.ReadyForTick && maxRebuilds > 0)
+                renderer.Chunk.ChunkStatusInfo.ReadyForTick && maxRebuilds > 0)
             {
                 --maxRebuilds;
                 var bmb = _blockMeshBuilders.Pop();

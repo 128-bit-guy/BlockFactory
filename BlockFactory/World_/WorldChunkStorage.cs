@@ -52,7 +52,7 @@ public class WorldChunkStorage : IChunkStorage
 
     public void AddChunk(Chunk chunk)
     {
-        chunk.IsValid = true;
+        chunk.ChunkStatusInfo.IsValid = true;
         _chunks.Add(chunk.Position, chunk);
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
@@ -84,7 +84,7 @@ public class WorldChunkStorage : IChunkStorage
 
         _chunks.Remove(pos);
 
-        c.IsValid = false;
+        c.ChunkStatusInfo.IsValid = false;
     }
 
     public IEnumerable<Chunk> GetLoadedChunks()

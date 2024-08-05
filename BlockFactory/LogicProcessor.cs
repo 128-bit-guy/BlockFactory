@@ -92,7 +92,7 @@ public class LogicProcessor : IDisposable
 
     private void UpdateChunk(Chunk c)
     {
-        if (!c.IsTicking) return;
+        if (!c.ChunkStatusInfo.IsTicking) return;
 
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
     }
@@ -113,9 +113,9 @@ public class LogicProcessor : IDisposable
 
     private void PreUpdateChunk(Chunk c)
     {
-        if (!c.ShouldTick())
+        if (!c.ChunkStatusInfo.ShouldTick())
         {
-            c.IsTicking = false;
+            c.ChunkStatusInfo.IsTicking = false;
             return;
         }
 
@@ -140,7 +140,7 @@ public class LogicProcessor : IDisposable
         for (var i = 0; i < 27; ++i)
         {
             Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
-            _chunkUpdateClasses[i].RemoveAll(c => !c.IsTicking);
+            _chunkUpdateClasses[i].RemoveAll(c => !c.ChunkStatusInfo.IsTicking);
         }
 
         ++_heavyUpdateClass;

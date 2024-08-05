@@ -38,7 +38,7 @@ public abstract class WorldLocationSearcher : IDisposable
         for (var j = 0; j < BoxDiameter; ++j)
         for (var k = 0; k < BoxDiameter; ++k)
         {
-            _chunkBox[i, j, k]!.RemoveTickingDependency();
+            _chunkBox[i, j, k]!.ChunkStatusInfo.RemoveTickingDependency();
             _chunkBox[i, j, k] = null;
         }
     }
@@ -58,7 +58,7 @@ public abstract class WorldLocationSearcher : IDisposable
         {
             var absPos = new Vector3D<int>(i, j, k) - new Vector3D<int>(BoxRadius) + center;
             _chunkBox[i, j, k] = World.GetChunk(absPos);
-            _chunkBox[i, j, k]!.AddTickingDependency();
+            _chunkBox[i, j, k]!.ChunkStatusInfo.AddTickingDependency();
         }
     }
 
@@ -68,7 +68,7 @@ public abstract class WorldLocationSearcher : IDisposable
         for (var j = BoxRadius - 1; j <= BoxRadius + 1; ++j)
         for (var k = BoxRadius - 1; k <= BoxRadius + 1; ++k)
         {
-            if (!_chunkBox[i, j, k]!.IsLoaded) return false;
+            if (!_chunkBox[i, j, k]!.ChunkStatusInfo.IsLoaded) return false;
             if (!_chunkBox[i, j, k]!.Data!.FullyDecorated)
             {
                 return false;

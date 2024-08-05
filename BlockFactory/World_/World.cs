@@ -65,7 +65,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     {
         var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);
         var c = GetChunk(chunkPos, false);
-        return c is { ReadyForUse: true };
+        return c is { ChunkStatusInfo.ReadyForUse: true };
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
@@ -98,8 +98,8 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
     public void RemoveChunk(Vector3D<int> pos)
     {
         var c = ChunkStorage.GetChunk(pos)!;
-        c.LoadTask?.Wait();
-        if (c.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
+        c.ChunkStatusInfo.LoadTask?.Wait();
+        if (c.ChunkStatusInfo.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
 
         ChunkStorage.RemoveChunk(pos);
         if (c.Region != null) --c.Region.DependencyCount;
@@ -127,7 +127,7 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         var region = SaveManager!.GetRegion(pos.ShiftRight(ChunkRegion.SizeLog2));
         var nc = new Chunk(this, pos, region);
         ++region.DependencyCount;
-        nc.StartLoadTask();
+        nc.ChunkStatusInfo.StartLoadTask();
         AddChunk(nc);
         return nc;
     }

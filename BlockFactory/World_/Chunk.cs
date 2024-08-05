@@ -15,29 +15,26 @@ public class Chunk : IBlockWorld
 {
     public delegate void BlockEventHandler(Vector3D<int> pos);
 
+    #region Updates
     private readonly List<Vector3D<int>> _blockUpdateBuffer = new();
-
     private readonly BitArray _bufferedUpdateScheduled =
         new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
-
     private readonly List<Vector3D<int>> _scheduledBlockUpdates = new();
+    public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
+    #endregion
+    
+    #region Status
+
+    #endregion
 
     public readonly ChunkNeighbourhood Neighbourhood;
+    
     public readonly Vector3D<int> Position;
     public readonly ChunkRegion? Region;
-    public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
-    public readonly HashSet<PlayerEntity> WatchingPlayers = new();
-
     public readonly World World;
-    private bool _loadingCompleted;
     public ChunkData? Data;
-    public bool IsTicking = false;
-    public bool IsValid = false;
-    public Task? LoadTask;
-    public bool ReadyForTick = false;
-    public bool ReadyForUse = false;
-    public int ReadyForUseNeighbours = 0;
-    public int TickingDependencies;
+    public readonly ChunkStatusInfo ChunkStatusInfo;
+
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
     {
@@ -45,19 +42,18 @@ public class Chunk : IBlockWorld
         Region = region;
         World = world;
         Neighbourhood = new ChunkNeighbourhood(this);
+        ChunkStatusInfo = new ChunkStatusInfo(this);
     }
-
-    public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted || _loadingCompleted;
 
     public short GetBlock(Vector3D<int> pos)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         return Data!.GetBlock(pos);
     }
 
     public byte GetBiome(Vector3D<int> pos)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         return Data!.GetBiome(pos);
     }
 
@@ -73,12 +69,12 @@ public class Chunk : IBlockWorld
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
         _bufferedUpdateScheduled[GetArrIndex(pos)] = false;
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
-            foreach (var player in WatchingPlayers)
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
             {
                 if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new BlockChangePacket(pos, block));
@@ -100,7 +96,7 @@ public class Chunk : IBlockWorld
 
     public void SetBiome(Vector3D<int> pos, byte biome)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         Data!.SetBiome(pos, biome);
     }
 
@@ -109,7 +105,7 @@ public class Chunk : IBlockWorld
         if (Data!.GetLight(pos, channel) == light) return;
         Data!.SetLight(pos, channel, light);
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
-            foreach (var player in WatchingPlayers)
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
             {
                 if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new LightChangePacket(pos, channel, light));
@@ -122,7 +118,7 @@ public class Chunk : IBlockWorld
     {
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
-            LoadTask?.Wait();
+            ChunkStatusInfo.LoadTask?.Wait();
             if (!Data!.IsBlockUpdateScheduled(pos))
             {
                 Data!.SetBlockUpdateScheduled(pos, true);
@@ -181,17 +177,6 @@ public class Chunk : IBlockWorld
     public event BlockEventHandler BlockUpdate = p => { };
     public event BlockEventHandler LightUpdate = p => { };
 
-    public void AddWatchingPlayer(PlayerEntity player)
-    {
-        WatchingPlayers.Add(player);
-    }
-
-    public void RemoveWatchingPlayer(PlayerEntity player)
-    {
-        WatchingPlayers.Remove(player);
-        World.ChunkStatusManager.ScheduleStatusUpdate(this);
-    }
-
     private void FullyDecoratedUpdate()
     {
         var x = World.Random.Next(Constants.ChunkSize);
@@ -247,7 +232,7 @@ public class Chunk : IBlockWorld
         }
     }
 
-    private void GenerateOrLoad()
+    public void GenerateOrLoad()
     {
         var data = Region!.GetChunk(Position);
         if (data == null)
@@ -262,28 +247,9 @@ public class Chunk : IBlockWorld
 
         CopyUpdatesFromData();
 
-        _loadingCompleted = true;
+        ChunkStatusInfo.SetLoadingCompleted();
 
         World.ChunkStatusManager.ScheduleStatusUpdate(this);
-    }
-
-    public void StartLoadTask()
-    {
-        if (Region!.LoadTask == null)
-            LoadTask = Task.Run(GenerateOrLoad);
-        else
-            LoadTask = Task.Factory.ContinueWhenAll(new[] { Region.LoadTask }, _ => GenerateOrLoad());
-    }
-
-    public void AddTickingDependency()
-    {
-        ++TickingDependencies;
-        World.ChunkStatusManager.ScheduleTickingUpdate(this);
-    }
-
-    public void RemoveTickingDependency()
-    {
-        --TickingDependencies;
     }
 
     public int GetUpdateClass()
@@ -295,11 +261,5 @@ public class Chunk : IBlockWorld
         var z = Position.Z % 3;
         if (z < 0) z += 3;
         return x + y * 3 + z * 9;
-    }
-
-    public bool ShouldTick()
-    {
-        if (!IsValid || !ReadyForTick) return false;
-        return !Data!.Decorated || !Data!.HasSkyLight || TickingDependencies > 0;
     }
 }

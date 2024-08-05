@@ -24,9 +24,9 @@ public class ChunkStatusManager
 
     public void OnChunkReadyForUse(Chunk c)
     {
-        c.ReadyForUse = true;
+        c.ChunkStatusInfo.ReadyForUse = true;
         ChunkReadyForUse(c);
-        ++c.ReadyForUseNeighbours;
+        ++c.ChunkStatusInfo.ReadyForUseNeighbours;
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
         for (var k = -1; k <= 1; ++k)
@@ -34,20 +34,20 @@ public class ChunkStatusManager
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
             var oChunk = c.Neighbourhood.GetChunk(oPos, false);
-            if (oChunk is not { ReadyForUse: true }) continue;
-            ++oChunk.ReadyForUseNeighbours;
-            if (oChunk.ReadyForUseNeighbours == 27)
+            if (oChunk is not { ChunkStatusInfo.ReadyForUse: true }) continue;
+            ++oChunk.ChunkStatusInfo.ReadyForUseNeighbours;
+            if (oChunk.ChunkStatusInfo.ReadyForUseNeighbours == 27)
             {
-                oChunk.ReadyForTick = true;
+                oChunk.ChunkStatusInfo.ReadyForTick = true;
                 OnChunkReadyForTick(oChunk);
             }
 
-            if (oChunk.ReadyForUse) ++c.ReadyForUseNeighbours;
+            if (oChunk.ChunkStatusInfo.ReadyForUse) ++c.ChunkStatusInfo.ReadyForUseNeighbours;
         }
 
-        if (c.ReadyForUseNeighbours == 27)
+        if (c.ChunkStatusInfo.ReadyForUseNeighbours == 27)
         {
-            c.ReadyForTick = true;
+            c.ChunkStatusInfo.ReadyForTick = true;
             OnChunkReadyForTick(c);
         }
     }
@@ -60,13 +60,13 @@ public class ChunkStatusManager
 
     public void OnChunkNotReadyForUse(Chunk c)
     {
-        if (c.ReadyForUseNeighbours == 27)
+        if (c.ChunkStatusInfo.ReadyForUseNeighbours == 27)
         {
             ChunkNotReadyForTick(c);
-            c.ReadyForTick = false;
+            c.ChunkStatusInfo.ReadyForTick = false;
         }
 
-        --c.ReadyForUseNeighbours;
+        --c.ChunkStatusInfo.ReadyForUseNeighbours;
 
         for (var i = -1; i <= 1; ++i)
         for (var j = -1; j <= 1; ++j)
@@ -75,33 +75,33 @@ public class ChunkStatusManager
             if (i == 0 && j == 0 && k == 0) continue;
             var oPos = c.Position + new Vector3D<int>(i, j, k);
             var oChunk = c.Neighbourhood.GetChunk(oPos, false);
-            if (oChunk is not { ReadyForUse: true }) continue;
-            if (oChunk.ReadyForUseNeighbours == 27)
+            if (oChunk is not { ChunkStatusInfo.ReadyForUse: true }) continue;
+            if (oChunk.ChunkStatusInfo.ReadyForUseNeighbours == 27)
             {
                 ChunkNotReadyForTick(oChunk);
-                oChunk.ReadyForTick = false;
+                oChunk.ChunkStatusInfo.ReadyForTick = false;
             }
 
-            --oChunk.ReadyForUseNeighbours;
+            --oChunk.ChunkStatusInfo.ReadyForUseNeighbours;
 
-            if (oChunk.ReadyForUse) --c.ReadyForUseNeighbours;
+            if (oChunk.ChunkStatusInfo.ReadyForUse) --c.ChunkStatusInfo.ReadyForUseNeighbours;
         }
 
         ChunkNotReadyForUse(c);
-        c.ReadyForUse = false;
+        c.ChunkStatusInfo.ReadyForUse = false;
     }
 
     private void UpdateStatus(Chunk chunk)
     {
-        if (chunk.WatchingPlayers.Count == 0 && chunk.TickingDependencies == 0)
+        if (chunk.ChunkStatusInfo.WatchingPlayers.Count == 0 && chunk.ChunkStatusInfo.TickingDependencies == 0)
         {
             World.RemoveChunk(chunk.Position);
         }
         else
         {
-            if (chunk is { IsLoaded: true, ReadyForUse: false })
+            if (chunk is { ChunkStatusInfo.IsLoaded: true, ChunkStatusInfo.ReadyForUse: false })
             {
-                chunk.LoadTask = null;
+                chunk.ChunkStatusInfo.LoadTask = null;
                 OnChunkReadyForUse(chunk);
             }
         }
@@ -109,10 +109,10 @@ public class ChunkStatusManager
 
     private void UpdateTicking(Chunk chunk)
     {
-        if (chunk.IsTicking) return;
-        if (!chunk.ShouldTick()) return;
+        if (chunk.ChunkStatusInfo.IsTicking) return;
+        if (!chunk.ChunkStatusInfo.ShouldTick()) return;
         World.LogicProcessor.AddTickingChunk(chunk);
-        chunk.IsTicking = true;
+        chunk.ChunkStatusInfo.IsTicking = true;
     }
 
     public void ScheduleStatusUpdate(Chunk c)
@@ -132,7 +132,7 @@ public class ChunkStatusManager
             for (var i = 0; i < cnt; ++i)
             {
                 if (!_statusUpdateQueue.TryDequeue(out var c)) continue;
-                if (!c.IsValid) continue;
+                if (!c.ChunkStatusInfo.IsValid) continue;
                 UpdateStatus(c);
             }
         }
@@ -141,7 +141,7 @@ public class ChunkStatusManager
             for (var i = 0; i < cnt; ++i)
             {
                 if (!_tickingUpdateQueue.TryDequeue(out var c)) continue;
-                if (!c.IsValid) continue;
+                if (!c.ChunkStatusInfo.IsValid) continue;
                 UpdateTicking(c);
             }
         }
