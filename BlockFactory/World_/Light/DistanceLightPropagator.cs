@@ -58,7 +58,7 @@ public static class DistanceLightPropagator
         foreach (var channel in Channels)
         {
             if (channel == LightChannel.DirectSky) continue;
-            foreach (var pos in c.ScheduledLightUpdates)
+            foreach (var pos in c.ChunkUpdateInfo.ScheduledLightUpdates)
             {
                 var sl = GetSupposedLight(n, pos, channel);
                 var l = n.GetLight(pos, channel);

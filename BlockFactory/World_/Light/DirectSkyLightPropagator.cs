@@ -38,7 +38,7 @@ public static class DirectSkyLightPropagator
         InitThreadStatics();
         var initialSkyLighting = !chunk.Data!.HasSkyLight;
         chunk.Data.HasSkyLight = true;
-        foreach (var pos in chunk.ScheduledLightUpdates) _updatePoses![(pos.Y & Constants.ChunkMask) + 1].Add(pos);
+        foreach (var pos in chunk.ChunkUpdateInfo.ScheduledLightUpdates) _updatePoses![(pos.Y & Constants.ChunkMask) + 1].Add(pos);
 
         for (var i = Constants.ChunkSize; i >= 1; --i)
         {

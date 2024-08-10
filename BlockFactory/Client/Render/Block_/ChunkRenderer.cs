@@ -57,14 +57,14 @@ public class ChunkRenderer : IDisposable
     {
         Chunk = chunk;
         Mesh = new RenderMesh();
-        chunk.BlockUpdate += OnBlockUpdate;
-        chunk.LightUpdate += OnBlockUpdate;
+        chunk.ChunkUpdateInfo.BlockUpdate += OnBlockUpdate;
+        chunk.ChunkUpdateInfo.LightUpdate += OnBlockUpdate;
     }
 
     public void Dispose()
     {
-        Chunk.BlockUpdate -= OnBlockUpdate;
-        Chunk.LightUpdate -= OnBlockUpdate;
+        Chunk.ChunkUpdateInfo.BlockUpdate -= OnBlockUpdate;
+        Chunk.ChunkUpdateInfo.LightUpdate -= OnBlockUpdate;
         Mesh.Dispose();
     }
 

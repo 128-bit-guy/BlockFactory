@@ -92,7 +92,7 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
 
     public void UpdateLight(Vector3D<int> pos)
     {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateLight(pos);
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.ChunkUpdateInfo.UpdateLight(pos);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -7,8 +7,8 @@ public static class LightPropagator
         DirectSkyLightPropagator.ProcessLightUpdates(chunk);
 
         DistanceLightPropagator.ProcessLightUpdates(chunk);
-        foreach (var pos in chunk.ScheduledLightUpdates) chunk.Data!.SetLightUpdateScheduled(pos, false);
+        foreach (var pos in chunk.ChunkUpdateInfo.ScheduledLightUpdates) chunk.Data!.SetLightUpdateScheduled(pos, false);
 
-        chunk.ScheduledLightUpdates.Clear();
+        chunk.ChunkUpdateInfo.ScheduledLightUpdates.Clear();
     }
 }
