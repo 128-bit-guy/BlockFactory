@@ -8,14 +8,13 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
 
-public class ChunkData : IBlockStorage, IBinarySerializable
+public sealed class ChunkData : IBlockStorage, IBinarySerializable
 {
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
     private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
-    private readonly short[] _blocks = new short[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
+    private ChunkArray16 _blocks;
 
-    private readonly byte[] _light =
-        new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize * LightChannelCnt];
+    private ChunkLightArray _light;
 
     private BitArray _blockUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
@@ -29,11 +28,17 @@ public class ChunkData : IBlockStorage, IBinarySerializable
 
     public void SerializeBinary(BinaryWriter writer, SerializationReason reason)
     {
-        foreach (var block in _blocks) writer.Write(block);
+        for (int i = 0; i < Constants.ChunkArrayLength; ++i)
+        {
+            writer.Write(_blocks[i]);
+        }
 
         writer.Write(_biomes);
 
-        writer.Write(_light);
+        for (int i = 0; i < 3 * Constants.ChunkArrayLength; ++i)
+        {
+            writer.Write(_light[i]);
+        }
 
         if (reason != SerializationReason.Save) return;
 
@@ -58,11 +63,11 @@ public class ChunkData : IBlockStorage, IBinarySerializable
 
     public void DeserializeBinary(BinaryReader reader, SerializationReason reason)
     {
-        for (var i = 0; i < _blocks.Length; ++i) _blocks[i] = reader.ReadInt16();
+        for (var i = 0; i < Constants.ChunkArrayLength; ++i) _blocks[i] = reader.ReadInt16();
 
         for (var i = 0; i < _biomes.Length; ++i) _biomes[i] = reader.ReadByte();
 
-        for (var i = 0; i < _light.Length; ++i) _light[i] = reader.ReadByte();
+        for (var i = 0; i < 3 * Constants.ChunkArrayLength; ++i) _light[i] = reader.ReadByte();
 
         if (reason != SerializationReason.Save)
         {
@@ -83,6 +88,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         TopSoilPlaced = reader.ReadBoolean();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetBlock(Vector3D<int> pos)
     {
         return _blocks[GetArrIndex(pos)];
@@ -93,6 +99,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         return _biomes[GetArrIndex(pos)];
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetLight(Vector3D<int> pos, LightChannel channel)
     {
         return _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))];
@@ -113,6 +120,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
         _biomes[GetArrIndex(pos)] = biome;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetLight(Vector3D<int> pos, LightChannel channel, byte light)
     {
         _light[GetArrIndex(pos) | ((int)channel << (3 * Constants.ChunkSizeLog2))] = light;

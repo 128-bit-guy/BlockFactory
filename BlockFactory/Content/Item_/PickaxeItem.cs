@@ -38,7 +38,7 @@ public class PickaxeItem : Item
             while (q.Count > 0)
             {
                 var (ptr, dist) = q.Dequeue();
-                if (dist > 100) break;
+                if (dist > 1000) break;
                 if (ptr.GetBlock() != type) continue;
                 ptr.SetBlock(0);
                 foreach (var face1 in CubeFaceUtils.Values())

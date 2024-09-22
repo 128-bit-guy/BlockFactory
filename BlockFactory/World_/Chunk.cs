@@ -11,7 +11,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class Chunk : IBlockWorld
+public sealed class Chunk : IBlockWorld
 {
     public delegate void BlockEventHandler(Vector3D<int> pos);
 
@@ -49,6 +49,7 @@ public class Chunk : IBlockWorld
 
     public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted || _loadingCompleted;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short GetBlock(Vector3D<int> pos)
     {
         LoadTask?.Wait();
@@ -60,7 +61,8 @@ public class Chunk : IBlockWorld
         LoadTask?.Wait();
         return Data!.GetBiome(pos);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte GetLight(Vector3D<int> pos, LightChannel channel)
     {
         return Data!.GetLight(pos, channel);
