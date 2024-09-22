@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Gen;
 using BlockFactory.World_.Interfaces;
@@ -9,7 +10,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class World : IChunkStorage, IBlockWorld, IDisposable
+public class World : IChunkWorld, IDisposable
 {
     private readonly List<Chunk> _chunksToRemove = new();
     public readonly ChunkStatusManager ChunkStatusManager;
@@ -100,6 +101,8 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         var c = ChunkStorage.GetChunk(pos)!;
         c.ChunkStatusInfo.LoadTask?.Wait();
         if (c.ChunkStatusInfo.ReadyForUse) ChunkStatusManager.OnChunkNotReadyForUse(c);
+        
+        c.OnUnloaded();
 
         ChunkStorage.RemoveChunk(pos);
         if (c.Region != null) --c.Region.DependencyCount;
@@ -140,5 +143,43 @@ public class World : IChunkStorage, IBlockWorld, IDisposable
         {
             SaveManager!.Update();
         }
+    }
+
+    public void RemoveEntityInternal(Entity entity, bool serialization)
+    {
+        if (entity.World != this)
+        {
+            throw new ArgumentException("Entity is not added to this world", nameof(entity));
+        }
+        entity.SetWorld(null, serialization);
+    }
+
+    public void AddEntityInternal(Entity entity, bool serialization)
+    {
+        if (entity.World != null)
+        {
+            throw new ArgumentException("Entity is already added to a world", nameof(entity));
+        }
+        entity.SetWorld(this, serialization);
+    }
+
+    public Entity? GetEntity(Guid guid)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        throw new NotImplementedException();
     }
 }

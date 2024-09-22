@@ -11,7 +11,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class Chunk : IBlockWorld
+public class Chunk : IBlockWorld, IEntityStorage
 {
     public readonly ChunkNeighbourhood Neighbourhood;
     
@@ -174,11 +174,30 @@ public class Chunk : IBlockWorld
             Data = data;
         }
 
-        ChunkUpdateInfo.CopyUpdatesFromData();
+        OnLoaded(data != null);
 
         ChunkStatusInfo.SetLoadingCompleted();
 
         World.ChunkStatusManager.ScheduleStatusUpdate(this);
+    }
+
+    public void OnLoaded(bool serialization)
+    {
+        ChunkUpdateInfo.CopyUpdatesFromData();
+        foreach (var entity in Data!.Entities.Values)
+        {
+            World.AddEntityInternal(entity, serialization);
+            AddEntityInternal(entity, serialization);
+        }
+    }
+
+    public void OnUnloaded()
+    {
+        foreach (var entity in Data!.Entities.Values)
+        {
+            RemoveEntityInternal(entity, true);
+            World.RemoveEntityInternal(entity, true);
+        }
     }
 
     public int GetUpdateClass()
@@ -190,5 +209,50 @@ public class Chunk : IBlockWorld
         var z = Position.Z % 3;
         if (z < 0) z += 3;
         return x + y * 3 + z * 9;
+    }
+
+    public Entity? GetEntity(Guid guid)
+    {
+        ChunkStatusInfo.LoadTask?.Wait();
+        return Data!.GetEntity(guid);
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        ChunkStatusInfo.LoadTask?.Wait();
+        return Data!.GetEntities(box);
+    }
+
+    public void RemoveEntityInternal(Entity entity, bool serialization)
+    {
+        if (entity.Chunk != this)
+        {
+            throw new ArgumentException("Entity is not added to this chunk", nameof(entity));
+        }
+        entity.SetChunk(null, serialization);
+    }
+
+    public void AddEntityInternal(Entity entity, bool serialization)
+    {
+        if (entity.Chunk != null)
+        {
+            throw new ArgumentException("Entity is already added to a chunk", nameof(entity));
+        }
+        entity.SetChunk(this, serialization);
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        ChunkStatusInfo.LoadTask?.Wait();
+        Data!.AddEntity(entity);
+        World.AddEntityInternal(entity, false);
+        AddEntityInternal(entity, false);
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        RemoveEntityInternal(entity, false);
+        World.RemoveEntityInternal(entity, false);
+        Data!.RemoveEntity(entity);
     }
 }

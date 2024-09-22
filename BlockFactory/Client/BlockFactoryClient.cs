@@ -187,8 +187,8 @@ public static class BlockFactoryClient
         LogicProcessor =
             new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
         LogicProcessor.Start();
-        var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name);
-        SetPlayer(player);
+        var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name, out var found);
+        SetPlayer(player, found);
     }
 
     public static void StartMultiplayer(string serverAddressAndPort)
@@ -200,12 +200,12 @@ public static class BlockFactoryClient
         LogicProcessor.Start();
     }
 
-    public static void SetPlayer(PlayerEntity player)
+    public static void SetPlayer(PlayerEntity player, bool serialization)
     {
         Player = player;
         WorldRenderer = new WorldRenderer(Player);
         LogicProcessor!.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld());
+        Player.SetWorld(LogicProcessor.GetWorld(), serialization);
     }
 
     private static void OnWindowLoad()

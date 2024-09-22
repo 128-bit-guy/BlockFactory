@@ -51,6 +51,7 @@ public class ChunkDataPacket : IInGamePacket
             Data = _data
         };
         player.World!.AddChunk(c);
+        c.OnLoaded(false);
         player.ChunkLoader!.AddVisibleChunk(c);
         player.World.ChunkStatusManager.ScheduleStatusUpdate(c);
     }

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
@@ -7,7 +8,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
+public class ChunkNeighbourhood : IChunkWorld
 {
     private readonly Chunk?[] _neighbours = new Chunk?[4 * 4 * 4];
     public readonly Chunk Center;
@@ -99,5 +100,40 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
     private static int GetArrIndex(Vector3D<int> pos)
     {
         return (pos.X & 3) | (((pos.Y & 3) | ((pos.Z & 3) << 2)) << 2);
+    }
+
+    public Entity? GetEntity(Guid guid)
+    {
+        foreach (var chunk in _neighbours)
+        {
+            var e = chunk?.GetEntity(guid);
+            if (e != null)
+            {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        var res = new List<Entity>();
+        foreach (var chunk in GetLoadedChunks())
+        {
+            res.AddRange(chunk.GetEntities(box));
+        }
+
+        return res;
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        throw new NotImplementedException();
     }
 }

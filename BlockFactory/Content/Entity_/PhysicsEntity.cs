@@ -11,7 +11,6 @@ namespace BlockFactory.Content.Entity_;
 public abstract class PhysicsEntity : Entity
 {
     public Vector3D<double> Velocity;
-    public Box3D<double> BoundingBox;
     public bool HasGravity = true;
     public bool IsStandingOnGround;
     public int LastCollidedMask;

@@ -2,14 +2,16 @@
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Physics;
 using BlockFactory.Serialization;
+using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
 
-public class ChunkData : IBlockStorage, IBinarySerializable
+public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
 {
     private static readonly int LightChannelCnt = Enum.GetValues<LightChannel>().Length;
     private readonly byte[] _biomes = new byte[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
@@ -21,7 +23,7 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     private BitArray _blockUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
 
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
-    public Dictionary<Guid, Entity> Entities = new();
+    public readonly Dictionary<Guid, Entity> Entities = new();
     
     public bool Decorated;
     public int DecoratedNeighbours;
@@ -176,5 +178,25 @@ public class ChunkData : IBlockStorage, IBinarySerializable
     {
         return (pos.X & Constants.ChunkMask) | (((pos.Y & Constants.ChunkMask) | ((pos.Z & Constants.ChunkMask)
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
+    }
+
+    public Entity? GetEntity(Guid guid)
+    {
+        return Entities[guid];
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        return Entities.Values.Where(e => CollisionMath.StrictlyIntersect(e.BoundingBox.Add(e.Pos), box));
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        Entities.Add(entity.Guid, entity);
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        Entities.Remove(entity.Guid);
     }
 }

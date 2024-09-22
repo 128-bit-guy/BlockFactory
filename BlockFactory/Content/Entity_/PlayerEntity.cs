@@ -242,7 +242,7 @@ public abstract class PlayerEntity : WalkingEntity
         }
     }
 
-    protected override void OnRemovedFromWorld()
+    protected override void OnRemovedFromWorld(bool serialization)
     {
         while (!MenuManager.Empty)
         {
@@ -252,12 +252,12 @@ public abstract class PlayerEntity : WalkingEntity
         ChunkTicker = null;
         ChunkLoader!.Dispose();
         ChunkLoader = null;
-        base.OnRemovedFromWorld();
+        base.OnRemovedFromWorld(serialization);
     }
 
-    protected override void OnAddedToWorld()
+    protected override void OnAddedToWorld(bool serialization)
     {
-        base.OnAddedToWorld();
+        base.OnAddedToWorld(serialization);
         ChunkLoader = new PlayerChunkLoader(this);
         ChunkTicker = new PlayerChunkTicker(this);
     }

@@ -31,11 +31,11 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
 
     private ServerPlayerEntity LoadOrCreatePlayer(string name, ENetPeer peer)
     {
-        var player = (ServerPlayerEntity)BlockFactoryServer.LogicProcessor.GetOrCreatePlayer(name);
+        var player = (ServerPlayerEntity)BlockFactoryServer.LogicProcessor.GetOrCreatePlayer(name, out var found);
 
         player.Peer = peer;
         BlockFactoryServer.LogicProcessor.AddPlayer(player);
-        player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld());
+        player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
         SendPacket(player, new PlayerDataPacket(player));
         return player;
     }
@@ -46,7 +46,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         _players.Remove(peer, out var peerState);
         if (peerState!.Player != null)
         {
-            peerState.Player!.SetWorld(null);
+            peerState.Player!.SetWorld(null, true);
             BlockFactoryServer.LogicProcessor.RemovePlayer(peerState.Player);
             peerState.Player!.Peer = default;
         }

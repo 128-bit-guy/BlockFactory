@@ -97,10 +97,11 @@ public class LogicProcessor : IDisposable
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
     }
 
-    public PlayerEntity GetOrCreatePlayer(string name)
+    public PlayerEntity GetOrCreatePlayer(string name, out bool found)
     {
         if (PlayerData.Players.TryGetValue(name, out var p))
         {
+            found = true;
             return p;
         }
 
@@ -108,6 +109,7 @@ public class LogicProcessor : IDisposable
         player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
             (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
         PlayerData.Players.Add(name, player);
+        found = false;
         return player;
     }
 

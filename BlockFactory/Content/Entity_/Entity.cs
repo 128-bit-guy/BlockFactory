@@ -12,8 +12,10 @@ public abstract class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
+    public Box3D<double> BoundingBox;
     public Guid Guid = Guid.NewGuid();
     public World? World { get; private set; }
+    public Chunk? Chunk { get; private set; }
     public abstract EntityType Type { get; }
 
     public virtual DictionaryTag SerializeToTag(SerializationReason reason)
@@ -39,18 +41,42 @@ public abstract class Entity : ITagSerializable
         }
     }
 
-    public void SetWorld(World? world)
+    public void SetWorld(World? world, bool serialization)
     {
+        if (World == world)
+        {
+            return;
+        }
         if (World != null)
         {
-            OnRemovedFromWorld();
+            OnRemovedFromWorld(serialization);
             World = null;
         }
 
         if (world != null)
         {
             World = world;
-            OnAddedToWorld();
+            OnAddedToWorld(serialization);
+        }
+    }
+
+    public void SetChunk(Chunk? c, bool serialization)
+    {
+        if (Chunk == c)
+        {
+            return;
+        }
+
+        if (Chunk != null)
+        {
+            OnRemovedFromChunk(serialization);
+            Chunk = null;
+        }
+
+        if (c != null)
+        {
+            Chunk = c;
+            OnAddedToChunk(serialization);
         }
     }
 
@@ -58,12 +84,22 @@ public abstract class Entity : ITagSerializable
     {
     }
 
-    protected virtual void OnRemovedFromWorld()
+    protected virtual void OnRemovedFromWorld(bool serialization)
     {
     }
 
-    protected virtual void OnAddedToWorld()
+    protected virtual void OnAddedToWorld(bool serialization)
     {
+    }
+
+    protected virtual void OnRemovedFromChunk(bool serialization)
+    {
+        
+    }
+
+    protected virtual void OnAddedToChunk(bool serialization)
+    {
+        
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
