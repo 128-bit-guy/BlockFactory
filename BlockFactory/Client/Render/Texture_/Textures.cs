@@ -11,6 +11,7 @@ public static class Textures
     public static TextureAtlas Blocks = null!;
     public static TextureAtlas Gui = null!;
     public static TextureAtlas Items = null!;
+    public static TextureAtlas Sky = null!;
 
     public static void Init()
     {
@@ -19,6 +20,7 @@ public static class Textures
         Blocks = LoadTextureAtlas("BlockFactory.Assets.Textures.Blocks.png", 4);
         Gui = LoadTextureAtlas("BlockFactory.Assets.Textures.Gui.png", 2);
         Items = LoadTextureAtlas("BlockFactory.Assets.Textures.Items.png", 4);
+        Sky = LoadTextureAtlas("BlockFactory.Assets.Textures.Sky.png", 2);
     }
 
     public static Texture LoadTexture(string location)
@@ -42,5 +44,6 @@ public static class Textures
         Blocks.Dispose();
         Gui.Dispose();
         Items.Dispose();
+        Sky.Dispose();
     }
 }

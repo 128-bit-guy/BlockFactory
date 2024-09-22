@@ -32,6 +32,7 @@ public static class BlockFactoryClient
     public static PlayerEntity? Player;
     public static LogicProcessor? LogicProcessor;
     public static WorldRenderer? WorldRenderer;
+    public static SkyRenderer? SkyRenderer;
     public static MenuManager MenuManager = null!;
     public static string WorldsDirectory = null!;
     public static Settings Settings = new();
@@ -77,7 +78,8 @@ public static class BlockFactoryClient
         BfRendering.UseWorldMatrices();
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
-        WorldRenderer!.UpdateAndRender(deltaTime);
+        
+        // WorldRenderer!.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -209,6 +211,7 @@ public static class BlockFactoryClient
     {
         Player = player;
         WorldRenderer = new WorldRenderer(Player);
+        SkyRenderer = new SkyRenderer();
         LogicProcessor!.AddPlayer(Player);
         Player.SetWorld(LogicProcessor.GetWorld(), serialization);
     }
@@ -239,6 +242,8 @@ public static class BlockFactoryClient
     {
         WorldRenderer?.Dispose();
         WorldRenderer = null;
+        SkyRenderer?.Dispose();
+        SkyRenderer = null;
         Player = null;
     }
 
