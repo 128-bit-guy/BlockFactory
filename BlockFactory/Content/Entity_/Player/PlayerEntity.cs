@@ -14,7 +14,7 @@ using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 public abstract class PlayerEntity : WalkingEntity
 {

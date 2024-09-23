@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Utils;
 using Silk.NET.Maths;
 

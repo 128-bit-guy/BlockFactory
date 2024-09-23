@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Client;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Content.Gui.Menu_;
 using BlockFactory.Serialization;
 using ENet.Managed;

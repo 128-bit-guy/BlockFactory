@@ -2,6 +2,7 @@
 using System.Net;
 using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Server;
 using ENet.Managed;

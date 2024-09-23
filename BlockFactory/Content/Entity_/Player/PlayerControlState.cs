@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Content.Entity_;
+﻿namespace BlockFactory.Content.Entity_.Player;
 
 [Flags]
 public enum PlayerControlState

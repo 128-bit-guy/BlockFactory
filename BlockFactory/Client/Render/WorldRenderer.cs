@@ -3,6 +3,7 @@ using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Utils;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;

@@ -3,7 +3,7 @@ using BlockFactory.Client;
 using BlockFactory.Network.Packet_;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 public class PlayerMotionController
 {

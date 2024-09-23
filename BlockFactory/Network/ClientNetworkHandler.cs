@@ -3,6 +3,7 @@ using System.Net;
 using BlockFactory.Base;
 using BlockFactory.Client;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
 using ENet.Managed;

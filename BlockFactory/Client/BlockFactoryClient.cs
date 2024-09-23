@@ -6,6 +6,7 @@ using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Content;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Content.Gui;
 using BlockFactory.Content.Gui.Menu_;
 using BlockFactory.Network;

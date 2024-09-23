@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Content;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.CubeMath;
 using BlockFactory.Network;
 using BlockFactory.Registry_;
