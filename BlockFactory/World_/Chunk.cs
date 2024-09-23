@@ -244,15 +244,15 @@ public class Chunk : IBlockWorld, IEntityStorage
     public void AddEntity(Entity entity)
     {
         ChunkStatusInfo.LoadTask?.Wait();
-        Data!.AddEntity(entity);
         World.AddEntityInternal(entity, false);
+        Data!.AddEntity(entity);
         AddEntityInternal(entity, false);
     }
 
     public void RemoveEntity(Entity entity)
     {
         RemoveEntityInternal(entity, false);
-        World.RemoveEntityInternal(entity, false);
         Data!.RemoveEntity(entity);
+        World.RemoveEntityInternal(entity, false);
     }
 }

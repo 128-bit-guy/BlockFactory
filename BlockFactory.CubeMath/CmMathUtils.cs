@@ -32,4 +32,11 @@ public static class CmMathUtils
         return new Vector3D<double>(Math.Floor(vec.X), Math.Floor(vec.Y), Math.Floor(vec.Z))
             .As<int>();
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static Vector3D<int> Ceiling(this Vector3D<double> vec)
+    {
+        return new Vector3D<double>(Math.Ceiling(vec.X), Math.Ceiling(vec.Y), Math.Ceiling(vec.Z))
+            .As<int>();
+    }
 }

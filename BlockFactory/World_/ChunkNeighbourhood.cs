@@ -129,11 +129,11 @@ public class ChunkNeighbourhood : IChunkWorld
 
     public void AddEntity(Entity entity)
     {
-        throw new NotImplementedException();
+        GetChunk(entity.GetChunkPos())!.AddEntity(entity);
     }
 
     public void RemoveEntity(Entity entity)
     {
-        throw new NotImplementedException();
+        GetChunk(entity.GetChunkPos())!.RemoveEntity(entity);
     }
 }

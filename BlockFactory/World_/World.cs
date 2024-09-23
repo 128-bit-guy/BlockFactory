@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.CubeMath;
 using BlockFactory.Utils;
 using BlockFactory.World_.Gen;
 using BlockFactory.World_.Interfaces;
@@ -19,6 +20,7 @@ public class World : IChunkWorld, IDisposable
     public readonly LogicProcessor LogicProcessor;
     public readonly Random Random = new();
     public readonly WorldSaveManager? SaveManager;
+    public readonly PendingEntityManager PendingEntityManager;
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
@@ -35,6 +37,7 @@ public class World : IChunkWorld, IDisposable
         }
 
         ChunkStatusManager = new ChunkStatusManager(this);
+        PendingEntityManager = new PendingEntityManager(this);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
@@ -143,6 +146,7 @@ public class World : IChunkWorld, IDisposable
         {
             SaveManager!.Update();
         }
+        PendingEntityManager.Update();
     }
 
     public void RemoveEntityInternal(Entity entity, bool serialization)
@@ -165,21 +169,60 @@ public class World : IChunkWorld, IDisposable
 
     public Entity? GetEntity(Guid guid)
     {
-        throw new NotImplementedException();
+        //TODO Global indexation of entities
+        return null;
     }
 
     public IEnumerable<Entity> GetEntities(Box3D<double> box)
     {
-        throw new NotImplementedException();
+        var result = new List<Entity>();
+        var min = box.Min.Floor();
+        var max = box.Max.Ceiling();
+        for (var i = min.X; i < max.X; ++i)
+        {
+            for (var j = min.Y; j < max.Y; ++j)
+            {
+                for (var k = min.Z; k < max.Z; ++k)
+                {
+                    var pos = new Vector3D<int>(i, j, k);
+                    var c = GetChunk(pos, false);
+                    if (c is { ChunkStatusInfo.ReadyForUse: true })
+                    {
+                        result.AddRange(c.GetEntities(box));
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     public void AddEntity(Entity entity)
     {
-        throw new NotImplementedException();
+        AddEntityInternal(entity, false);
+        if (IsBlockLoaded(entity.GetBlockPos()))
+        {
+            var c = GetChunk(entity.GetChunkPos(), false)!;
+            c.Data!.AddEntity(entity);
+            c.AddEntityInternal(entity, false);
+        }
+        else
+        {
+            PendingEntityManager.AddEntity(entity);
+        }
     }
 
     public void RemoveEntity(Entity entity)
     {
-        throw new NotImplementedException();
+        if (entity.Chunk != null)
+        {
+            entity.Chunk!.RemoveEntityInternal(entity, false);
+            entity.Chunk!.Data!.RemoveEntity(entity);
+        }
+        else
+        {
+            PendingEntityManager.RemoveEntity(entity);
+        }
+        RemoveEntityInternal(entity, false);
     }
 }
