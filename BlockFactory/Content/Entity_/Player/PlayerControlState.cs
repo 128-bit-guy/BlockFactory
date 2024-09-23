@@ -11,5 +11,6 @@ public enum PlayerControlState
     MovingBackwards = 1 << 5,
     Sprinting = 1 << 6,
     Using = 1 << 7,
-    Attacking = 1 << 8
+    Attacking = 1 << 8,
+    Dropping = 1 << 9
 }

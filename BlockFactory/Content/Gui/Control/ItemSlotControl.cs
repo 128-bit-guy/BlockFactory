@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Content.Item_;
@@ -105,6 +106,11 @@ public class ItemSlotControl : SynchronizedMenuControl
             {
                 InventoryUtils.Swap(handInv, 0, _inventory!, _slot);
             }
+        } else if (action is 2 or 3)
+        {
+            var cnt = action == 2 ? 1 : _inventory![_slot].Count;
+            var stack = _inventory!.Extract(_slot, cnt, false);
+            SyncMenu.User.DropStack(stack);
         }
     }
 
@@ -121,6 +127,16 @@ public class ItemSlotControl : SynchronizedMenuControl
     {
         _stack = new ItemStack();
         _stack.DeserializeFromTag(tag.Get<DictionaryTag>("stack"), reason);
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public override void KeyDown(Key key, int a)
+    {
+        base.KeyDown(key, a);
+        if (IsMouseOver && key == Key.Q)
+        {
+            DoAction(BlockFactoryClient.InputContext.Keyboards[0].IsKeyPressed(Key.ShiftLeft) ? 3 : 2);
+        }
     }
 
     public override void UpdateLogic()

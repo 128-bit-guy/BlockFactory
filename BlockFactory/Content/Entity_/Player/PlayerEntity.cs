@@ -71,6 +71,16 @@ public abstract class PlayerEntity : WalkingEntity
 
         if (MenuManager.Empty && World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
+            if ((MotionController.ClientState.ControlState & PlayerControlState.Dropping) != 0)
+            {
+                var cnt = ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) == 0)
+                    ? 1
+                    : HotBar[HotBarPos].Count;
+                var s = HotBar.Extract(HotBarPos, cnt, false);
+                DropStack(s);
+                _blockCooldown = 5;
+            }
+            
             var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
                 .As<double>() * 10);
             if (!hitOptional.HasValue) return;
@@ -89,9 +99,8 @@ public abstract class PlayerEntity : WalkingEntity
                         HeadRotation = new Vector2D<float>(rotation, 0)
                     };
                     World.AddEntity(entity);
-                    // s = InventoryUtils.Insert(HotBar, s, false);
-                    // InventoryUtils.Insert(Inventory, s, false);
                 }
+
                 World!.SetBlock(pos, 0);
                 _blockCooldown = 5;
             }
@@ -155,7 +164,8 @@ public abstract class PlayerEntity : WalkingEntity
             if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0)
             {
                 targetVerticalVelocity += 0.2d;
-            } else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
+            }
+            else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
             {
                 targetVerticalVelocity -= 0.2d;
             }
@@ -168,6 +178,7 @@ public abstract class PlayerEntity : WalkingEntity
         {
             Velocity += Vector3D<double>.UnitY * 0.3d;
         }
+
         base.UpdateMotion();
         MotionController.ClientState.ControlState = state;
     }
@@ -187,10 +198,13 @@ public abstract class PlayerEntity : WalkingEntity
                 return;
             }
         }
+
         MotionController.Update();
         base.Update();
 
         ProcessInteraction();
+        PickUpItems();
+
         ChunkLoader!.Update();
         ChunkTicker!.Update();
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client && MenuManager.Empty)
@@ -198,7 +212,9 @@ public abstract class PlayerEntity : WalkingEntity
             var s = MenuHand.Extract(0, int.MaxValue, false);
             s = InventoryUtils.Insert(HotBar, s, false);
             InventoryUtils.Insert(Inventory, s, false);
-        } 
+            DropStack(s);
+        }
+
         if (World!.LogicProcessor.LogicalSide != LogicalSide.Client
             && (!StackInHand.Equals(HotBar[HotBarPos]) || !StackInMenuHand.Equals(MenuHand[0])))
         {
@@ -206,6 +222,7 @@ public abstract class PlayerEntity : WalkingEntity
             StackInMenuHand = (ItemStack)MenuHand[0].Clone();
             SendUpdateToClient();
         }
+
         MenuManager.UpdateLogic();
     }
 
@@ -257,6 +274,7 @@ public abstract class PlayerEntity : WalkingEntity
         {
             MenuManager.Pop();
         }
+
         ChunkTicker!.Dispose();
         ChunkTicker = null;
         ChunkLoader!.Dispose();
@@ -297,6 +315,7 @@ public abstract class PlayerEntity : WalkingEntity
             res.Set("stack_in_hand", StackInHand.SerializeToTag(reason));
             res.Set("stack_in_menu_hand", StackInMenuHand.SerializeToTag(reason));
         }
+
         return res;
     }
 
@@ -326,7 +345,8 @@ public abstract class PlayerEntity : WalkingEntity
             World!.LogicProcessor.NetworkHandler.SendPacket(this, new OpenMenuRequestPacket(requestType));
             return;
         }
-        if(!MenuManager.Empty) return;
+
+        if (!MenuManager.Empty) return;
         switch (requestType)
         {
             case OpenMenuRequestType.Message:
@@ -341,7 +361,7 @@ public abstract class PlayerEntity : WalkingEntity
                 break;
         }
     }
-    
+
     public static PlayerEntity Create()
     {
         if (GameInfo.PhysicalSide == Side.Client)
@@ -352,5 +372,33 @@ public abstract class PlayerEntity : WalkingEntity
         {
             return new ServerPlayerEntity();
         }
+    }
+
+    private void PickUpItems()
+    {
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        var b = BoundingBox;
+        b.Min -= new Vector3D<double>(0.5f, 0.0f, 0.5f);
+        b.Max += new Vector3D<double>(0.5f, 0.0f, 0.5f);
+        foreach (var entity in World.GetEntities(b.GetTranslated(Pos)))
+        {
+            if (entity is not ItemEntity { PickUpDelay: 0 } e) continue;
+            e.Stack = InventoryUtils.Insert(HotBar, e.Stack, false);
+            e.Stack = InventoryUtils.Insert(Inventory, e.Stack, false);
+        }
+    }
+
+    public void DropStack(ItemStack stack)
+    {
+        if (stack.Count == 0) return;
+        var rotation = Random.Shared.NextSingle() * 2 * MathF.PI;
+        var entity = new ItemEntity(stack)
+        {
+            Pos = Pos,
+            Velocity = GetViewForward().As<double>() * 0.2f,
+            HeadRotation = new Vector2D<float>(rotation, 0),
+            PickUpDelay = 20
+        };
+        World!.AddEntity(entity);
     }
 }

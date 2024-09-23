@@ -176,8 +176,8 @@ public class World : IChunkWorld, IDisposable
     public IEnumerable<Entity> GetEntities(Box3D<double> box)
     {
         var result = new List<Entity>();
-        var min = box.Min.Floor();
-        var max = box.Max.Ceiling();
+        var min = (box.Min / Constants.ChunkSize).Floor();
+        var max = (box.Max / Constants.ChunkSize).Ceiling();
         for (var i = min.X; i < max.X; ++i)
         {
             for (var j = min.Y; j < max.Y; ++j)

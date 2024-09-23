@@ -8,6 +8,7 @@ public class ItemEntity : PhysicsEntity
 {
     public override EntityType Type => Entities.Item;
     public ItemStack Stack;
+    public int PickUpDelay;
 
     public ItemEntity(ItemStack stack)
     {
@@ -23,9 +24,15 @@ public class ItemEntity : PhysicsEntity
     public override void Update()
     {
         base.Update();
+        if(World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
         if (Stack.Count == 0)
         {
             World!.RemoveEntity(this);
+        }
+
+        if (PickUpDelay > 0)
+        {
+            --PickUpDelay;
         }
     }
 
@@ -33,6 +40,7 @@ public class ItemEntity : PhysicsEntity
     {
         var tag = base.SerializeToTag(reason);
         tag.Set("stack", Stack.SerializeToTag(reason));
+        tag.SetValue("pick_up_delay", PickUpDelay);
         return tag;
     }
 
@@ -41,5 +49,6 @@ public class ItemEntity : PhysicsEntity
         base.DeserializeFromTag(tag, reason);
         Stack = new ItemStack();
         Stack.DeserializeFromTag(tag.Get<DictionaryTag>("stack"), reason);
+        PickUpDelay = tag.GetValue<int>("pick_up_delay");
     }
 }
