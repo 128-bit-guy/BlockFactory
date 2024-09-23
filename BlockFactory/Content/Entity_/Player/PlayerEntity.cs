@@ -9,6 +9,7 @@ using BlockFactory.CubeMath;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Physics;
 using BlockFactory.Serialization;
+using BlockFactory.Utils.Random_;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;
@@ -79,8 +80,17 @@ public abstract class PlayerEntity : WalkingEntity
                 foreach (var stack in World!.GetBlockObj(pos).GetDroppedStacks(new BlockPointer(World, pos)))
                 {
                     var s = (ItemStack)stack.Clone();
-                    s = InventoryUtils.Insert(HotBar, s, false);
-                    InventoryUtils.Insert(Inventory, s, false);
+                    var velocity = RandomUtils.PointOnSphere(Random.Shared).As<double>();
+                    var rotation = Random.Shared.NextSingle() * 2 * MathF.PI;
+                    var entity = new ItemEntity(s)
+                    {
+                        Pos = pos.As<double>() + new Vector3D<double>(0.5),
+                        Velocity = velocity * 0.1f,
+                        HeadRotation = new Vector2D<float>(rotation, 0)
+                    };
+                    World.AddEntity(entity);
+                    // s = InventoryUtils.Insert(HotBar, s, false);
+                    // InventoryUtils.Insert(Inventory, s, false);
                 }
                 World!.SetBlock(pos, 0);
                 _blockCooldown = 5;
@@ -179,7 +189,6 @@ public abstract class PlayerEntity : WalkingEntity
         }
         MotionController.Update();
         base.Update();
-        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
 
         ProcessInteraction();
         ChunkLoader!.Update();

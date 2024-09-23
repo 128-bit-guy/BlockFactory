@@ -92,4 +92,10 @@ public abstract class PhysicsEntity : Entity
 
         HasGravity = tag.GetValue<bool>("has_gravity");
     }
+
+    public override void Update()
+    {
+        base.Update();
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
+    }
 }

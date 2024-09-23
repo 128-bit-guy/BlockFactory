@@ -10,10 +10,10 @@ public class ItemMeshBuilder
     public readonly MeshBuilder<BlockVertex> MeshBuilder;
     public readonly TextureAtlasUvTransformer UvTransformer;
 
-    public ItemMeshBuilder()
+    public ItemMeshBuilder(MatrixStack? matrices = null)
     {
         UvTransformer = new TextureAtlasUvTransformer(Textures.Items);
-        MeshBuilder = new MeshBuilder<BlockVertex>(UvTransformer);
+        MeshBuilder = new MeshBuilder<BlockVertex>(matrices ?? new MatrixStack(), UvTransformer);
     }
 
     public void Reset()

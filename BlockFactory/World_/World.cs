@@ -216,8 +216,9 @@ public class World : IChunkWorld, IDisposable
     {
         if (entity.Chunk != null)
         {
-            entity.Chunk!.RemoveEntityInternal(entity, false);
-            entity.Chunk!.Data!.RemoveEntity(entity);
+            var c = entity.Chunk!;
+            c.RemoveEntityInternal(entity, false);
+            c.Data!.RemoveEntity(entity);
         }
         else
         {

@@ -1,4 +1,5 @@
-﻿using BlockFactory.Content.Entity_;
+﻿using System.Collections.Concurrent;
+using BlockFactory.Content.Entity_;
 
 namespace BlockFactory.World_;
 
@@ -6,8 +7,9 @@ namespace BlockFactory.World_;
 public class PendingEntityManager
 {
     public readonly World World;
-    private readonly Dictionary<Guid, Entity> _entities = new();
+    private readonly ConcurrentDictionary<Guid, Entity> _entities = new();
     private readonly List<Entity> _toPlaceInChunk = new();
+    
 
     public PendingEntityManager(World world)
     {
@@ -29,18 +31,21 @@ public class PendingEntityManager
             var c = World.GetChunk(entity.GetChunkPos())!;
             c.Data!.AddEntity(entity);
             c.AddEntityInternal(entity, false);
-            _entities.Remove(entity.Guid);
+            _entities.Remove(entity.Guid, out _);
         }
         _toPlaceInChunk.Clear();
     }
 
     public void AddEntity(Entity entity)
     {
-        _entities.Add(entity.Guid, entity);
+        if (!_entities.TryAdd(entity.Guid, entity))
+        {
+            throw new ArgumentException("Entity already exists");
+        }
     }
 
     public void RemoveEntity(Entity entity)
     {
-        _entities.Remove(entity.Guid);
+        _entities.Remove(entity.Guid, out var _);
     }
 }

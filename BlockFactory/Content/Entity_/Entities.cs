@@ -11,11 +11,13 @@ public static class Entities
 {
     public static Registry<EntityType> Registry;
     public static EntityType Player;
+    public static EntityType Item;
 
     public static void Init()
     {
         Registry = SynchronizedRegistries.NewSynchronizedRegistry<EntityType>("EntityType");
         Player = Registry.RegisterForced("Player", 0, new EntityType(PlayerEntity.Create));
+        Item = Registry.Register("Item", new EntityType(() => new ItemEntity()));
     }
 
     public static void Lock()

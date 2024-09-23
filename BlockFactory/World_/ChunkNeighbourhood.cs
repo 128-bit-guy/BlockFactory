@@ -73,7 +73,12 @@ public class ChunkNeighbourhood : IChunkWorld
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)
     {
         var c = _neighbours[GetArrIndex(pos)];
-        return c ?? Center.World.GetChunk(pos, load);
+        if (c != null && c.Position == pos)
+        {
+            return c;
+        }
+
+        return load ? Center.World.GetChunk(pos) : null;
     }
 
     public void AddChunk(Chunk chunk)

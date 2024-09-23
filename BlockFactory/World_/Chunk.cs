@@ -19,6 +19,7 @@ public class Chunk : IBlockWorld, IEntityStorage
     public readonly ChunkRegion? Region;
     public readonly World World;
     public ChunkData? Data;
+    [ThreadStatic] private static List<Entity>? _entitiesToMove;
     
     public readonly ChunkStatusInfo ChunkStatusInfo;
     public readonly ChunkUpdateInfo ChunkUpdateInfo;
@@ -128,11 +129,45 @@ public class Chunk : IBlockWorld, IEntityStorage
         var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
         this.GetBlockObj(absPos).RandomUpdateBlock(new BlockPointer(Neighbourhood, absPos));
         ChunkUpdateInfo.UpdateBlocksInBuffer();
+        if (_entitiesToMove == null)
+        {
+            _entitiesToMove = new List<Entity>();
+        }
+        foreach (var (_, entity) in Data!.Entities)
+        {
+            if (entity.GetChunkPos() != Position)
+            {
+                _entitiesToMove.Add(entity);
+            }
+        }
+
+        foreach (var entity in _entitiesToMove)
+        {
+            RemoveEntityInternal(entity, false);
+            Data!.RemoveEntity(entity);
+            var pos = entity.GetChunkPos();
+            var c = Neighbourhood.GetChunk(pos, false);
+            if (c != null)
+            {
+                c.Data!.AddEntity(entity);
+                c.AddEntityInternal(entity, false);
+            }
+            else
+            {
+                World.PendingEntityManager.AddEntity(entity);
+            }
+        }
+        _entitiesToMove.Clear();
     }
 
     public void PreUpdate()
     {
-        if (Data!.FullyDecorated) ChunkUpdateInfo.MoveBlockUpdatesToBuffer();
+        if (!Data!.FullyDecorated) return;
+        ChunkUpdateInfo.MoveBlockUpdatesToBuffer();
+        foreach (var (_, entity) in Data!.Entities)
+        {
+            entity.Update();
+        }
     }
 
     public void Update(bool heavy)
