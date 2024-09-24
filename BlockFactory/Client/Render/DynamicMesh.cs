@@ -1,10 +1,15 @@
-﻿using BlockFactory.Client.Render.Block_;
+﻿using System.Drawing;
+using BlockFactory.Base;
+using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Utils;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace BlockFactory.Client.Render;
 
+[ExclusiveTo(Side.Client)]
 public class DynamicMesh : IDisposable
 {
     public readonly BlockMeshBuilder BlockMeshBuilder;
@@ -84,5 +89,15 @@ public class DynamicMesh : IDisposable
         ItemMesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, ItemMesh.IndexCount,
             DrawElementsType.UnsignedInt, null);
+    }
+
+    public void SetColor(Vector4D<float> color)
+    {
+        BlockMeshBuilder.MeshBuilder.Color = ItemMeshBuilder.MeshBuilder.Color = color;
+    }
+
+    public void SetColor(Color color)
+    {
+        SetColor(color.AsVector());
     }
 }
