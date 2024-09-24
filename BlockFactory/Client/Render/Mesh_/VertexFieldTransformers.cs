@@ -21,7 +21,7 @@ public static class VertexFieldTransformers<T> where T : unmanaged
 
     public static Vector4D<float> TransformColor(Vector4D<float> color, MeshBuilder<T> builder)
     {
-        return color * builder.Color.AsVector();
+        return color * builder.Color;
     }
 
     public static int TransformSpriteIndex(int spriteIndex, MeshBuilder<T> builder)

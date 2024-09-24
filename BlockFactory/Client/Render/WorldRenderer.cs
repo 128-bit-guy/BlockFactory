@@ -103,7 +103,7 @@ public class WorldRenderer : IDisposable
 
     public void UpdateAndRender(double deltaTime)
     {
-        _playerSmoothPos = BlockFactoryClient.Player.GetSmoothPos();
+        _playerSmoothPos = BlockFactoryClient.Player!.GetSmoothPos();
         var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
         Shaders.Block.Use();
@@ -156,11 +156,16 @@ public class WorldRenderer : IDisposable
                 _dynamicMesh.Matrices.Push();
                 _dynamicMesh.Matrices.Translate((entity.Pos - _playerSmoothPos).As<float>());
                 _dynamicMesh.Matrices.Scale(0.3f);
+                var brightness =
+                    (float)LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entity.Pos);
+                var color = new Vector4D<float>(brightness, brightness, brightness, 1);
+                _dynamicMesh.SetColor(color);
                 if (item.Stack.ItemInstance.Item is BlockItem)
                 {
                     _dynamicMesh.Matrices.RotateY((float)((BlockFactoryClient.Window.Time + entity.HeadRotation.X) % (2 * Math.PI)));
                 }
                 ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
+                _dynamicMesh.SetColor(Vector4D<float>.One);
                 _dynamicMesh.Matrices.Pop();
             }
             if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);

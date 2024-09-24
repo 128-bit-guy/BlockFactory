@@ -14,7 +14,7 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public static class ItemRenderer
 {
-    private static DynamicMesh _dynamicMesh = null!;
+    public static DynamicMesh DynamicMesh = null!;
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static RenderMesh _blockMesh = null!;
     private static RenderMesh _itemMesh = null!;
@@ -22,18 +22,18 @@ public static class ItemRenderer
 
     public static void Init()
     {
-        _dynamicMesh = new DynamicMesh();
+        DynamicMesh = new DynamicMesh();
     }
 
     public static void Destroy()
     {
-        _dynamicMesh.Dispose();
+        DynamicMesh.Dispose();
     }
 
     public static void RenderItemStack(ItemStack stack)
     {
-        RenderItemStack(stack, _dynamicMesh);
-        _dynamicMesh.Render();
+        RenderItemStack(stack, DynamicMesh);
+        DynamicMesh.Render();
     }
 
     public static void RenderItemStack(ItemStack stack, DynamicMesh mesh)

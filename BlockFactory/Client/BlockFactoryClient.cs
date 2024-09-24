@@ -97,6 +97,10 @@ public static class BlockFactoryClient
         BfRendering.Matrices.Scale(4);
         // BfRendering.Matrices.Translate(new Vector3D<float>(-0.5f));
         var stack = Player!.StackInHand;
+        var brightness =
+            (float)LightInterpolation.GetInterpolatedBrightness(Player.World!, Player.GetSmoothPos());
+        var color = new Vector4D<float>(brightness, brightness, brightness, 1);
+        ItemRenderer.DynamicMesh.SetColor(color);
         ItemRenderer.RenderItemStack(stack);
         // Client.ItemRenderer!.RenderItemStack(stack);
         BfRendering.Matrices.Pop();

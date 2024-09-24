@@ -46,13 +46,9 @@ public class ChunkNeighbourhood : IChunkWorld
 
     public bool IsBlockLoaded(Vector3D<int> pos)
     {
-        var diff = pos.ShiftRight(Constants.ChunkSizeLog2) - Center.Position;
-        for (var i = 0; i < 3; ++i)
-        {
-            if (Math.Abs(diff[i]) > 1) return false;
-        }
-
-        return true;
+        var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);
+        var c = GetChunk(chunkPos, false);
+        return c is { ChunkStatusInfo.ReadyForUse: true };
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
