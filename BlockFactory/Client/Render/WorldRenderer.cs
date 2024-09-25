@@ -165,6 +165,12 @@ public class WorldRenderer : IDisposable
                 {
                     _dynamicMesh.Matrices.RotateY((float)((BlockFactoryClient.Window.Time + entity.HeadRotation.X) % (2 * Math.PI)));
                 }
+                else
+                {
+                    _dynamicMesh.Matrices.RotateY(Player.HeadRotation.X + MathF.PI);
+                    _dynamicMesh.Matrices.RotateX(Player.HeadRotation.Y);
+                }
+
                 ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
                 _dynamicMesh.SetColor(Vector4D<float>.One);
                 _dynamicMesh.Matrices.Pop();
