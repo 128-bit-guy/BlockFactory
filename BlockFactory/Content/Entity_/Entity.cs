@@ -37,7 +37,7 @@ public abstract class Entity : ITagSerializable
     private Vector3D<double> GetInterpolatedPos()
     {
         var diff = DateTime.UtcNow - _posSetTime;
-        var progress = diff.TotalMilliseconds / Constants.TickFrequencyMs / 2;
+        var progress = diff.TotalMilliseconds / Constants.TickFrequencyMs / 1.5;
         progress = Math.Clamp(progress, 0, 1);
         return _prevPos * (1 - progress) + Pos * progress;
     }
@@ -50,12 +50,12 @@ public abstract class Entity : ITagSerializable
 
     public void SetPos(Vector3D<double> pos)
     {
-        Pos = pos;
         if (World != null && World!.LogicProcessor.LogicalSide != LogicalSide.Server)
         {
             _prevPos = GetInterpolatedPos();
             _posSetTime = DateTime.UtcNow;
         }
+        Pos = pos;
     }
 
     public virtual void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
