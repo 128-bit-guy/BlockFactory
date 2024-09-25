@@ -115,7 +115,7 @@ public abstract class PlayerEntity : WalkingEntity
     }
 
     [ExclusiveTo(Side.Client)]
-    public Vector3D<double> GetSmoothPos()
+    public override Vector3D<double> GetSmoothPos()
     {
         return MotionController.GetSmoothPos(BlockFactoryClient.LogicProcessor!.GetPartialTicks());
     }

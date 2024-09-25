@@ -27,7 +27,7 @@ public abstract class PhysicsEntity : Entity
         var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
         if(!calcRes.HasValue) return;
         var (movement, mask) = calcRes.Value;
-        Pos += movement;
+        SetPos(Pos + movement);
         LastCollidedMask = mask;
         IsStandingOnGround = Velocity[1] < 0.0f && (mask & 2) != 0;
         for (var i = 0; i < 3; ++i)

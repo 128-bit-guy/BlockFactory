@@ -12,6 +12,8 @@ public abstract class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
+    [ExclusiveTo(Side.Client)] private DateTime _posSetTime;
+    [ExclusiveTo(Side.Client)] private Vector3D<double> _prevPos;
     public Box3D<double> BoundingBox;
     public Guid Guid = Guid.NewGuid();
     public World? World { get; private set; }
@@ -29,6 +31,31 @@ public abstract class Entity : ITagSerializable
         }
 
         return res;
+    }
+    
+    [ExclusiveTo(Side.Client)]
+    private Vector3D<double> GetInterpolatedPos()
+    {
+        var diff = DateTime.UtcNow - _posSetTime;
+        var progress = diff.TotalMilliseconds / Constants.TickFrequencyMs / 2;
+        progress = Math.Clamp(progress, 0, 1);
+        return _prevPos * (1 - progress) + Pos * progress;
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public virtual Vector3D<double> GetSmoothPos()
+    {
+        return GetInterpolatedPos();
+    }
+
+    public void SetPos(Vector3D<double> pos)
+    {
+        Pos = pos;
+        if (World != null && World!.LogicProcessor.LogicalSide != LogicalSide.Server)
+        {
+            _prevPos = GetInterpolatedPos();
+            _posSetTime = DateTime.UtcNow;
+        }
     }
 
     public virtual void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)

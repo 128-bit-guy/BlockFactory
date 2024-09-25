@@ -154,10 +154,11 @@ public class WorldRenderer : IDisposable
             {
                 if (entity is not ItemEntity item) continue;
                 _dynamicMesh.Matrices.Push();
-                _dynamicMesh.Matrices.Translate((entity.Pos - _playerSmoothPos).As<float>());
+                var entitySmoothPos = entity.GetSmoothPos();
+                _dynamicMesh.Matrices.Translate((entitySmoothPos - _playerSmoothPos).As<float>());
                 _dynamicMesh.Matrices.Scale(0.3f);
                 var brightness =
-                    (float)LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entity.Pos);
+                    (float)LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entitySmoothPos);
                 var color = new Vector4D<float>(brightness, brightness, brightness, 1);
                 _dynamicMesh.SetColor(color);
                 if (item.Stack.ItemInstance.Item is BlockItem)
