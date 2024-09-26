@@ -12,6 +12,8 @@ public abstract class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
+    [ExclusiveTo(Side.Server)]
+    public Vector3D<double> LastSentPos;
     [ExclusiveTo(Side.Client)] private DateTime _posSetTime;
     [ExclusiveTo(Side.Client)] private Vector3D<double> _prevPos;
     public Box3D<double> BoundingBox;

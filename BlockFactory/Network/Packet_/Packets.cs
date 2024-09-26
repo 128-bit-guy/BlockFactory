@@ -26,6 +26,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<ControlUpdatePacket>("");
         NetworkRegistry.RegisterPacket<AddEntityPacket>("");
         NetworkRegistry.RegisterPacket<RemoveEntityPacket>("");
+        NetworkRegistry.RegisterPacket<EntityPosUpdatePacket>("");
     }
 
     public static void Lock()

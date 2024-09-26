@@ -129,10 +129,7 @@ public class Chunk : IBlockWorld, IEntityStorage
         var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
         this.GetBlockObj(absPos).RandomUpdateBlock(new BlockPointer(Neighbourhood, absPos));
         ChunkUpdateInfo.UpdateBlocksInBuffer();
-        if (_entitiesToMove == null)
-        {
-            _entitiesToMove = new List<Entity>();
-        }
+        _entitiesToMove ??= new List<Entity>();
         foreach (var (_, entity) in Data!.Entities)
         {
             if (entity.GetChunkPos() != Position)
@@ -164,9 +161,35 @@ public class Chunk : IBlockWorld, IEntityStorage
     {
         if (!Data!.FullyDecorated) return;
         ChunkUpdateInfo.MoveBlockUpdatesToBuffer();
+        
+        _entitiesToMove ??= new List<Entity>();
+        
         foreach (var (_, entity) in Data!.Entities)
         {
             entity.Update();
+            if (World.LogicProcessor.LogicalSide == LogicalSide.Server &&
+                (entity.Pos - entity.LastSentPos).LengthSquared > 1e-5)
+            {
+                _entitiesToMove.Add(entity);
+            }
+        }
+
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server && _entitiesToMove.Count > 0)
+        {
+            var list = new List<(Guid, Vector3D<double>)>();
+            foreach (var entity in _entitiesToMove)
+            {
+                entity.LastSentPos = entity.Pos;
+                list.Add((entity.Guid, entity.Pos));
+            }
+
+            var packet = new EntityPosUpdatePacket(Position, list);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+            _entitiesToMove.Clear();
         }
     }
 
