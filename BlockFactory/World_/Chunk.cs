@@ -264,6 +264,15 @@ public class Chunk : IBlockWorld, IEntityStorage
         {
             throw new ArgumentException("Entity is not added to this chunk", nameof(entity));
         }
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            var packet = new RemoveEntityPacket(Position, entity.Guid);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+        }
         entity.SetChunk(null, serialization);
     }
 
@@ -274,6 +283,15 @@ public class Chunk : IBlockWorld, IEntityStorage
             throw new ArgumentException("Entity is already added to a chunk", nameof(entity));
         }
         entity.SetChunk(this, serialization);
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            var packet = new AddEntityPacket(Position, entity);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+        }
     }
 
     public void AddEntity(Entity entity)

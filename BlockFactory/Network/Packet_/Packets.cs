@@ -24,6 +24,8 @@ public static class Packets
         NetworkRegistry.RegisterPacket<ControlActionPacket>("");
         NetworkRegistry.RegisterPacket<TextInputTextChangePacket>("");
         NetworkRegistry.RegisterPacket<ControlUpdatePacket>("");
+        NetworkRegistry.RegisterPacket<AddEntityPacket>("");
+        NetworkRegistry.RegisterPacket<RemoveEntityPacket>("");
     }
 
     public static void Lock()
