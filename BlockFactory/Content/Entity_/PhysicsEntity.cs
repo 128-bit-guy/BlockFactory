@@ -4,6 +4,7 @@ using BlockFactory.Physics;
 using BlockFactory.Serialization;
 using BlockFactory.Utils;
 using BlockFactory.Utils.Serialization;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Entity_;
@@ -24,7 +25,13 @@ public abstract class PhysicsEntity : Entity
         }
 
         var offsetBox = BoundingBox.Add(Pos);
-        var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
+        var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox,
+            (IBlockAccess?)Chunk?.Neighbourhood ?? World!);
+        if (Chunk?.Neighbourhood != null)
+        {
+            calcRes ??= CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
+        }
+
         if(!calcRes.HasValue) return;
         var (movement, mask) = calcRes.Value;
         SetPos(Pos + movement);
