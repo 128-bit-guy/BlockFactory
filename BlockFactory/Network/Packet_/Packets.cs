@@ -27,6 +27,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<AddEntityPacket>("");
         NetworkRegistry.RegisterPacket<RemoveEntityPacket>("");
         NetworkRegistry.RegisterPacket<EntityPosUpdatePacket>("");
+        NetworkRegistry.RegisterPacket<EntityChangeChunkPacket>("");
     }
 
     public static void Lock()

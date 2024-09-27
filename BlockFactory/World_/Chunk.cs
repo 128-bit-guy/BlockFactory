@@ -121,6 +121,41 @@ public class Chunk : IBlockWorld, IEntityStorage
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
     }
 
+    public void MoveEntityToChunk(Entity entity, Chunk c)
+    {
+        RemoveEntityInternal(entity, false, false);
+        Data!.RemoveEntity(entity);
+        c.Data!.AddEntity(entity);
+        c.AddEntityInternal(entity, false, false);
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            EntityChangeChunkPacket? movePacket = null;
+            AddEntityPacket? addPacket = null;
+            RemoveEntityPacket? removePacket = null;
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                if (player.ChunkLoader!.IsChunkVisible(c))
+                {
+                    movePacket ??= new EntityChangeChunkPacket(entity.Guid, Position, c.Position);
+                    World.LogicProcessor.NetworkHandler.SendPacket(player, movePacket);
+                }
+                else
+                {
+                    removePacket ??= new RemoveEntityPacket(Position, entity.Guid);
+                    World.LogicProcessor.NetworkHandler.SendPacket(player, removePacket);
+                }
+            }
+
+            foreach (var player in c.ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(c) || player.ChunkLoader.IsChunkVisible(this)) continue;
+                addPacket ??= new AddEntityPacket(c.Position, entity);
+                World.LogicProcessor.NetworkHandler.SendPacket(player, addPacket);
+            }
+        }
+    }
+
     private void FullyDecoratedUpdate()
     {
         var x = World.Random.Next(Constants.ChunkSize);
@@ -140,17 +175,16 @@ public class Chunk : IBlockWorld, IEntityStorage
 
         foreach (var entity in _entitiesToMove)
         {
-            RemoveEntityInternal(entity, false);
-            Data!.RemoveEntity(entity);
             var pos = entity.GetChunkPos();
             var c = Neighbourhood.GetChunk(pos, false);
             if (c != null)
             {
-                c.Data!.AddEntity(entity);
-                c.AddEntityInternal(entity, false);
+                MoveEntityToChunk(entity, c);
             }
             else
             {
+                RemoveEntityInternal(entity, false);
+                Data!.RemoveEntity(entity);
                 World.PendingEntityManager.AddEntity(entity);
             }
         }
@@ -281,13 +315,13 @@ public class Chunk : IBlockWorld, IEntityStorage
         return Data!.GetEntities(box);
     }
 
-    public void RemoveEntityInternal(Entity entity, bool serialization)
+    public void RemoveEntityInternal(Entity entity, bool serialization, bool sendPacket = true)
     {
         if (entity.Chunk != this)
         {
             throw new ArgumentException("Entity is not added to this chunk", nameof(entity));
         }
-        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        if (sendPacket && World.LogicProcessor.LogicalSide == LogicalSide.Server)
         {
             var packet = new RemoveEntityPacket(Position, entity.Guid);
             foreach (var player in ChunkStatusInfo.WatchingPlayers)
@@ -299,14 +333,14 @@ public class Chunk : IBlockWorld, IEntityStorage
         entity.SetChunk(null, serialization);
     }
 
-    public void AddEntityInternal(Entity entity, bool serialization)
+    public void AddEntityInternal(Entity entity, bool serialization, bool sendPacket = true)
     {
         if (entity.Chunk != null)
         {
             throw new ArgumentException("Entity is already added to a chunk", nameof(entity));
         }
         entity.SetChunk(this, serialization);
-        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        if (sendPacket && World.LogicProcessor.LogicalSide == LogicalSide.Server)
         {
             var packet = new AddEntityPacket(Position, entity);
             foreach (var player in ChunkStatusInfo.WatchingPlayers)
