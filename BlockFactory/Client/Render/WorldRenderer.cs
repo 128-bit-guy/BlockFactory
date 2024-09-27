@@ -2,7 +2,10 @@
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
 using BlockFactory.Client.Render.Texture_;
+using BlockFactory.Content.Block_;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
+using BlockFactory.Content.Item_;
 using BlockFactory.Utils;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
@@ -20,6 +23,8 @@ public class WorldRenderer : IDisposable
 
     private readonly List<ChunkRenderer> _transparentRenderers = new();
 
+    private readonly DynamicMesh _dynamicMesh;
+
     public readonly PlayerEntity Player;
     private Vector3D<double> _playerSmoothPos;
 
@@ -29,6 +34,7 @@ public class WorldRenderer : IDisposable
         player.ChunkBecameVisible += OnChunkReadyForTick;
         player.ChunkBecameInvisible += OnChunkNotReadyForTick;
         for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder());
+        _dynamicMesh = new DynamicMesh();
     }
 
     public int RenderedChunks => _renderers.Count(c => c != null);
@@ -44,6 +50,7 @@ public class WorldRenderer : IDisposable
             _renderers[i]!.Dispose();
             _renderers[i] = null;
         }
+        _dynamicMesh.Dispose();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,7 +103,7 @@ public class WorldRenderer : IDisposable
 
     public void UpdateAndRender(double deltaTime)
     {
-        _playerSmoothPos = BlockFactoryClient.Player.GetSmoothPos();
+        _playerSmoothPos = BlockFactoryClient.Player!.GetSmoothPos();
         var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
         Shaders.Block.Use();
@@ -133,7 +140,7 @@ public class WorldRenderer : IDisposable
             if (!intersectionHelper.TestAab(b)) continue;
 
             if (renderer.RequiresRebuild && renderer.RebuildTask == null && _blockMeshBuilders.Count > 0 &&
-                renderer.Chunk.ReadyForTick && maxRebuilds > 0)
+                renderer.Chunk.ChunkStatusInfo.ReadyForTick && maxRebuilds > 0)
             {
                 --maxRebuilds;
                 var bmb = _blockMeshBuilders.Pop();
@@ -143,8 +150,43 @@ public class WorldRenderer : IDisposable
 
             renderer.Update(deltaTime);
             RenderChunk(renderer, false);
+            foreach (var (_, entity) in renderer.Chunk.Data!.Entities)
+            {
+                if (entity is not ItemEntity item) continue;
+                _dynamicMesh.Matrices.Push();
+                var entitySmoothPos = entity.GetSmoothPos();
+                _dynamicMesh.Matrices.Translate((entitySmoothPos - _playerSmoothPos).As<float>());
+                _dynamicMesh.Matrices.Scale(0.3f);
+                var brightness =
+                    (float)LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entitySmoothPos);
+                var color = new Vector4D<float>(brightness, brightness, brightness, 1);
+                _dynamicMesh.SetColor(color);
+                if (item.Stack.ItemInstance.Item is BlockItem)
+                {
+                    _dynamicMesh.Matrices.RotateY((float)((BlockFactoryClient.Window.Time + entity.HeadRotation.X) % (2 * Math.PI)));
+                }
+                else
+                {
+                    _dynamicMesh.Matrices.RotateY(Player.HeadRotation.X + MathF.PI);
+                    _dynamicMesh.Matrices.RotateX(Player.HeadRotation.Y);
+                }
+
+                ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
+                _dynamicMesh.SetColor(Vector4D<float>.One);
+                _dynamicMesh.Matrices.Pop();
+            }
             if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);
         }
+        
+        BfRendering.Matrices.Push();
+        _dynamicMesh.Render();
+        BfRendering.Matrices.Pop();
+        
+        Textures.Blocks.Bind();
+        Shaders.Block.Use();
+        Shaders.Block.SetSkyColor(BfRendering.SkyColor);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Blocks.SpriteBoxesBuffer.Bind(2);
 
         foreach (var renderer in _fadingOutRenderers)
         {

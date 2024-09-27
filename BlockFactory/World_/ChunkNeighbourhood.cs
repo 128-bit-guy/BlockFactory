@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.Entity_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
@@ -7,7 +8,7 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
+public class ChunkNeighbourhood : IChunkWorld
 {
     private readonly Chunk?[] _neighbours = new Chunk?[4 * 4 * 4];
     public readonly Chunk Center;
@@ -45,13 +46,9 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
 
     public bool IsBlockLoaded(Vector3D<int> pos)
     {
-        var diff = pos.ShiftRight(Constants.ChunkSizeLog2) - Center.Position;
-        for (var i = 0; i < 3; ++i)
-        {
-            if (Math.Abs(diff[i]) > 1) return false;
-        }
-
-        return true;
+        var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);
+        var c = GetChunk(chunkPos, false);
+        return c is { ChunkStatusInfo.ReadyForUse: true };
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
@@ -72,7 +69,12 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true)
     {
         var c = _neighbours[GetArrIndex(pos)];
-        return c ?? Center.World.GetChunk(pos, load);
+        if (c != null && c.Position == pos)
+        {
+            return c;
+        }
+
+        return load ? Center.World.GetChunk(pos) : null;
     }
 
     public void AddChunk(Chunk chunk)
@@ -92,12 +94,47 @@ public class ChunkNeighbourhood : IChunkStorage, IBlockWorld
 
     public void UpdateLight(Vector3D<int> pos)
     {
-        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.UpdateLight(pos);
+        GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.ChunkUpdateInfo.UpdateLight(pos);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetArrIndex(Vector3D<int> pos)
     {
         return (pos.X & 3) | (((pos.Y & 3) | ((pos.Z & 3) << 2)) << 2);
+    }
+
+    public Entity? GetEntity(Guid guid)
+    {
+        foreach (var chunk in _neighbours)
+        {
+            var e = chunk?.GetEntity(guid);
+            if (e != null)
+            {
+                return e;
+            }
+        }
+
+        return null;
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        var res = new List<Entity>();
+        foreach (var chunk in GetLoadedChunks())
+        {
+            res.AddRange(chunk.GetEntities(box));
+        }
+
+        return res;
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        GetChunk(entity.GetChunkPos())!.AddEntity(entity);
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        GetChunk(entity.GetChunkPos())!.RemoveEntity(entity);
     }
 }

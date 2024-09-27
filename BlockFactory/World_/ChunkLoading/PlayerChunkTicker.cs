@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Utils;
 using Silk.NET.Maths;
 
@@ -75,7 +76,7 @@ public class PlayerChunkTicker : IDisposable
 
     private void UnWatchChunk(Chunk c)
     {
-        c.RemoveTickingDependency();
+        c.ChunkStatusInfo.RemoveTickingDependency();
         _watchedChunks[GetArrIndex(c.Position)] = null;
     }
 
@@ -87,7 +88,7 @@ public class PlayerChunkTicker : IDisposable
     private void WatchChunk(Chunk c)
     {
         _watchedChunks[GetArrIndex(c.Position)] = c;
-        c.AddTickingDependency();
+        c.ChunkStatusInfo.AddTickingDependency();
     }
 
     private void Reset()

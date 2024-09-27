@@ -2,7 +2,7 @@
 
 namespace BlockFactory.World_.Interfaces;
 
-public interface IChunkStorage : IBlockStorage
+public interface IChunkStorage
 {
     public Chunk? GetChunk(Vector3D<int> pos, bool load = true);
     public void AddChunk(Chunk chunk);

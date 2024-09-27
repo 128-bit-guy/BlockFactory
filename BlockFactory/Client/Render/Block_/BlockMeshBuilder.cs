@@ -11,10 +11,10 @@ public class BlockMeshBuilder
     public readonly TextureAtlasUvTransformer UvTransformer;
     public uint TransparentStart;
 
-    public BlockMeshBuilder()
+    public BlockMeshBuilder(MatrixStack? matrices = null)
     {
         UvTransformer = new TextureAtlasUvTransformer(Textures.Blocks);
-        MeshBuilder = new MeshBuilder<BlockVertex>(UvTransformer);
+        MeshBuilder = new MeshBuilder<BlockVertex>(matrices ?? new MatrixStack(), UvTransformer);
         TransparentStart = 0;
     }
 

@@ -2,7 +2,7 @@
 using BlockFactory.Utils.Serialization;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 public struct ClientControlledPlayerState : IBinarySerializable
 {

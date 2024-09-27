@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 

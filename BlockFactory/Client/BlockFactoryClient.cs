@@ -6,6 +6,7 @@ using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Content;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Content.Gui;
 using BlockFactory.Content.Gui.Menu_;
 using BlockFactory.Network;
@@ -96,6 +97,10 @@ public static class BlockFactoryClient
         BfRendering.Matrices.Scale(4);
         // BfRendering.Matrices.Translate(new Vector3D<float>(-0.5f));
         var stack = Player!.StackInHand;
+        var brightness =
+            (float)LightInterpolation.GetInterpolatedBrightness(Player.World!, Player.GetSmoothPos());
+        var color = new Vector4D<float>(brightness, brightness, brightness, 1);
+        ItemRenderer.DynamicMesh.SetColor(color);
         ItemRenderer.RenderItemStack(stack);
         // Client.ItemRenderer!.RenderItemStack(stack);
         BfRendering.Matrices.Pop();
@@ -187,8 +192,8 @@ public static class BlockFactoryClient
         LogicProcessor =
             new LogicProcessor(LogicalSide.SinglePlayer, new SinglePlayerNetworkHandler(), saveName, settings);
         LogicProcessor.Start();
-        var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name);
-        SetPlayer(player);
+        var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name, out var found);
+        SetPlayer(player, found);
     }
 
     public static void StartMultiplayer(string serverAddressAndPort)
@@ -200,12 +205,12 @@ public static class BlockFactoryClient
         LogicProcessor.Start();
     }
 
-    public static void SetPlayer(PlayerEntity player)
+    public static void SetPlayer(PlayerEntity player, bool serialization)
     {
         Player = player;
         WorldRenderer = new WorldRenderer(Player);
         LogicProcessor!.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld());
+        Player.SetWorld(LogicProcessor.GetWorld(), serialization);
     }
 
     private static void OnWindowLoad()

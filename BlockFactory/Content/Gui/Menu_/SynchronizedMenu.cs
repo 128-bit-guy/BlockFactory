@@ -3,6 +3,7 @@ using BlockFactory.Client;
 using BlockFactory.Client.Render;
 using BlockFactory.Client.Render.Gui;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Content.Gui.Control;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Serialization;

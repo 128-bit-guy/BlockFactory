@@ -2,7 +2,7 @@
 using BlockFactory.Client;
 using BlockFactory.Content.Gui;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 [ExclusiveTo(Side.Client)]
 public class ClientPlayerEntity : PlayerEntity

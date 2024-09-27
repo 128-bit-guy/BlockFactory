@@ -8,11 +8,19 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Entity_;
 
-public class Entity : ITagSerializable
+public abstract class Entity : ITagSerializable
 {
     public Vector2D<float> HeadRotation;
     public Vector3D<double> Pos;
+    [ExclusiveTo(Side.Server)]
+    public Vector3D<double> LastSentPos;
+    [ExclusiveTo(Side.Client)] private DateTime _posSetTime;
+    [ExclusiveTo(Side.Client)] private Vector3D<double> _prevPos;
+    public Box3D<double> BoundingBox;
+    public Guid Guid = Guid.NewGuid();
     public World? World { get; private set; }
+    public Chunk? Chunk { get; private set; }
+    public abstract EntityType Type { get; }
 
     public virtual DictionaryTag SerializeToTag(SerializationReason reason)
     {
@@ -21,9 +29,35 @@ public class Entity : ITagSerializable
         {
             res.SetVector3D("pos", Pos);
             res.SetVector2D("head_rotation", HeadRotation);
+            res.SetValue("guid", Guid.ToString());
         }
 
         return res;
+    }
+    
+    [ExclusiveTo(Side.Client)]
+    private Vector3D<double> GetInterpolatedPos()
+    {
+        var diff = DateTime.UtcNow - _posSetTime;
+        var progress = diff.TotalMilliseconds / Constants.TickFrequencyMs / 1.5;
+        progress = Math.Clamp(progress, 0, 1);
+        return _prevPos * (1 - progress) + Pos * progress;
+    }
+
+    [ExclusiveTo(Side.Client)]
+    public virtual Vector3D<double> GetSmoothPos()
+    {
+        return GetInterpolatedPos();
+    }
+
+    public void SetPos(Vector3D<double> pos)
+    {
+        if (World != null && World!.LogicProcessor.LogicalSide != LogicalSide.Server)
+        {
+            _prevPos = GetInterpolatedPos();
+            _posSetTime = DateTime.UtcNow;
+        }
+        Pos = pos;
     }
 
     public virtual void DeserializeFromTag(DictionaryTag tag, SerializationReason reason)
@@ -32,21 +66,46 @@ public class Entity : ITagSerializable
         {
             Pos = tag.GetVector3D<double>("pos");
             HeadRotation = tag.GetVector2D<float>("head_rotation");
+            Guid = Guid.Parse(tag.GetValue<string>("guid"));
         }
     }
 
-    public void SetWorld(World? world)
+    public void SetWorld(World? world, bool serialization)
     {
+        if (World == world)
+        {
+            return;
+        }
         if (World != null)
         {
-            OnRemovedFromWorld();
+            OnRemovedFromWorld(serialization);
             World = null;
         }
 
         if (world != null)
         {
             World = world;
-            OnAddedToWorld();
+            OnAddedToWorld(serialization);
+        }
+    }
+
+    public void SetChunk(Chunk? c, bool serialization)
+    {
+        if (Chunk == c)
+        {
+            return;
+        }
+
+        if (Chunk != null)
+        {
+            OnRemovedFromChunk(serialization);
+            Chunk = null;
+        }
+
+        if (c != null)
+        {
+            Chunk = c;
+            OnAddedToChunk(serialization);
         }
     }
 
@@ -54,12 +113,22 @@ public class Entity : ITagSerializable
     {
     }
 
-    protected virtual void OnRemovedFromWorld()
+    protected virtual void OnRemovedFromWorld(bool serialization)
     {
     }
 
-    protected virtual void OnAddedToWorld()
+    protected virtual void OnAddedToWorld(bool serialization)
     {
+    }
+
+    protected virtual void OnRemovedFromChunk(bool serialization)
+    {
+        
+    }
+
+    protected virtual void OnAddedToChunk(bool serialization)
+    {
+        
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

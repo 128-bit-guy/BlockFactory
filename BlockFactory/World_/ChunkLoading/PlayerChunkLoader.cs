@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Utils;
 using Silk.NET.Maths;
 
@@ -122,14 +123,14 @@ public class PlayerChunkLoader : IDisposable
             _notReadyLoadedChunks.Remove(c);
         }
 
-        c.RemoveWatchingPlayer(Player);
+        c.ChunkStatusInfo.RemoveWatchingPlayer(Player);
         _watchedChunks[GetArrIndex(c.Position)] = null;
     }
 
     private void WatchChunk(Chunk c)
     {
         _watchedChunks[GetArrIndex(c.Position)] = c;
-        c.AddWatchingPlayer(Player);
+        c.ChunkStatusInfo.AddWatchingPlayer(Player);
     }
 
     private void MakeChunkVisible(Chunk c)

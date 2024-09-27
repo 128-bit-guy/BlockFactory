@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Client;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Serialization;
 using ENet.Managed;
 
@@ -35,7 +36,7 @@ public class PlayerDataPacket : IInGamePacket
     {
         PlayerEntity player = new ClientPlayerEntity();
         player.DeserializeFromTag(TagIO.Read(_data!), SerializationReason.NetworkInit);
-        BlockFactoryClient.SetPlayer(player);
+        BlockFactoryClient.SetPlayer(player, false);
     }
 
     public bool SupportsLogicalSide(LogicalSide side)

@@ -4,14 +4,14 @@ using BlockFactory.Physics;
 using BlockFactory.Serialization;
 using BlockFactory.Utils;
 using BlockFactory.Utils.Serialization;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Content.Entity_;
 
-public class PhysicsEntity : Entity
+public abstract class PhysicsEntity : Entity
 {
     public Vector3D<double> Velocity;
-    public Box3D<double> BoundingBox;
     public bool HasGravity = true;
     public bool IsStandingOnGround;
     public int LastCollidedMask;
@@ -25,10 +25,16 @@ public class PhysicsEntity : Entity
         }
 
         var offsetBox = BoundingBox.Add(Pos);
-        var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
+        var calcRes = CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox,
+            (IBlockAccess?)Chunk?.Neighbourhood ?? World!);
+        if (Chunk?.Neighbourhood != null)
+        {
+            calcRes ??= CollisionCalculator.AdjustMovementForCollision(Velocity, offsetBox, World!);
+        }
+
         if(!calcRes.HasValue) return;
         var (movement, mask) = calcRes.Value;
-        Pos += movement;
+        SetPos(Pos + movement);
         LastCollidedMask = mask;
         IsStandingOnGround = Velocity[1] < 0.0f && (mask & 2) != 0;
         for (var i = 0; i < 3; ++i)
@@ -92,5 +98,11 @@ public class PhysicsEntity : Entity
         }
 
         HasGravity = tag.GetValue<bool>("has_gravity");
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
     }
 }

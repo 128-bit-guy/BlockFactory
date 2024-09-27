@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using Silk.NET.Input;
 
 namespace BlockFactory.Client;
@@ -45,6 +46,11 @@ public static class PlayerControlManager
 
         if (BlockFactoryClient.InputContext.Mice[0].IsButtonPressed(MouseButton.Right) && _noWorldInteractionTime <= 0)
             nState |= PlayerControlState.Using;
+
+        if (BlockFactoryClient.InputContext.Keyboards[0].IsKeyPressed(Key.Q) && _noWorldInteractionTime <= 0)
+        {
+            nState |= PlayerControlState.Dropping;
+        }
 
         ControlState = nState;
     }

@@ -4,7 +4,7 @@ using BlockFactory.Network.Packet_;
 using BlockFactory.World_;
 using ENet.Managed;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 [ExclusiveTo(Side.Server)]
 public class ServerPlayerEntity : PlayerEntity

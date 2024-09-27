@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 using BlockFactory.Base;
+using BlockFactory.Utils;
+using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
@@ -12,7 +14,7 @@ public class MeshBuilder<T> where T : unmanaged
     private uint[] _indices;
     private int _vertCnt;
     private T[] _vertices;
-    public Color Color = Color.White;
+    public Vector4D<float> Color = Vector4D<float>.One;
 
     public MeshBuilder(MatrixStack matrices, IUvTransformer transformer)
     {
@@ -82,7 +84,12 @@ public class MeshBuilder<T> where T : unmanaged
     {
         _vertCnt = IndexCount = 0;
         _indBegin = 0;
-        Color = Color.White;
+        Color = Vector4D<float>.One;
         return this;
+    }
+
+    public void SetColor(Color color)
+    {
+        Color = color.AsVector();
     }
 }

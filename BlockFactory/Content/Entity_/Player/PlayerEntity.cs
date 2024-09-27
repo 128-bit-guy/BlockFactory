@@ -9,12 +9,13 @@ using BlockFactory.CubeMath;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Physics;
 using BlockFactory.Serialization;
+using BlockFactory.Utils.Random_;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
-namespace BlockFactory.Content.Entity_;
+namespace BlockFactory.Content.Entity_.Player;
 
 public abstract class PlayerEntity : WalkingEntity
 {
@@ -27,7 +28,9 @@ public abstract class PlayerEntity : WalkingEntity
     public ItemStack StackInHand;
     public ItemStack StackInMenuHand;
     public bool Spawned = false;
-    
+
+    public override EntityType Type => Entities.Player;
+
     public abstract MenuManager MenuManager { get; }
 
     public PlayerEntity()
@@ -61,13 +64,23 @@ public abstract class PlayerEntity : WalkingEntity
             return;
         }
 
-        if (!(World!.GetChunk(GetChunkPos(), false)?.IsTicking ?? false))
+        if (!(World!.GetChunk(GetChunkPos(), false)?.ChunkStatusInfo.IsTicking ?? false))
         {
             return;
         }
 
         if (MenuManager.Empty && World!.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
+            if ((MotionController.ClientState.ControlState & PlayerControlState.Dropping) != 0)
+            {
+                var cnt = ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) == 0)
+                    ? 1
+                    : HotBar[HotBarPos].Count;
+                var s = HotBar.Extract(HotBarPos, cnt, false);
+                DropStack(s);
+                _blockCooldown = 5;
+            }
+            
             var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
                 .As<double>() * 10);
             if (!hitOptional.HasValue) return;
@@ -77,9 +90,17 @@ public abstract class PlayerEntity : WalkingEntity
                 foreach (var stack in World!.GetBlockObj(pos).GetDroppedStacks(new BlockPointer(World, pos)))
                 {
                     var s = (ItemStack)stack.Clone();
-                    s = InventoryUtils.Insert(HotBar, s, false);
-                    InventoryUtils.Insert(Inventory, s, false);
+                    var velocity = RandomUtils.PointOnSphere(Random.Shared).As<double>();
+                    var rotation = Random.Shared.NextSingle() * 2 * MathF.PI;
+                    var entity = new ItemEntity(s)
+                    {
+                        Pos = pos.As<double>() + new Vector3D<double>(0.5),
+                        Velocity = velocity * 0.1f,
+                        HeadRotation = new Vector2D<float>(rotation, 0)
+                    };
+                    World.AddEntity(entity);
                 }
+
                 World!.SetBlock(pos, 0);
                 _blockCooldown = 5;
             }
@@ -94,7 +115,7 @@ public abstract class PlayerEntity : WalkingEntity
     }
 
     [ExclusiveTo(Side.Client)]
-    public Vector3D<double> GetSmoothPos()
+    public override Vector3D<double> GetSmoothPos()
     {
         return MotionController.GetSmoothPos(BlockFactoryClient.LogicProcessor!.GetPartialTicks());
     }
@@ -147,7 +168,8 @@ public abstract class PlayerEntity : WalkingEntity
             if ((MotionController.ClientState.ControlState & PlayerControlState.MovingUp) != 0)
             {
                 targetVerticalVelocity += 0.2d;
-            } else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
+            }
+            else if ((MotionController.ClientState.ControlState & PlayerControlState.MovingDown) != 0)
             {
                 targetVerticalVelocity -= 0.2d;
             }
@@ -165,6 +187,7 @@ public abstract class PlayerEntity : WalkingEntity
         {
             Velocity += Vector3D<double>.UnitY * 0.3d;
         }
+
         base.UpdateMotion();
         MotionController.ClientState.ControlState = state;
     }
@@ -184,11 +207,13 @@ public abstract class PlayerEntity : WalkingEntity
                 return;
             }
         }
+
         MotionController.Update();
         base.Update();
-        if (World!.LogicProcessor.LogicalSide != LogicalSide.Client) UpdateMotion();
 
         ProcessInteraction();
+        PickUpItems();
+
         ChunkLoader!.Update();
         ChunkTicker!.Update();
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client && MenuManager.Empty)
@@ -196,7 +221,9 @@ public abstract class PlayerEntity : WalkingEntity
             var s = MenuHand.Extract(0, int.MaxValue, false);
             s = InventoryUtils.Insert(HotBar, s, false);
             InventoryUtils.Insert(Inventory, s, false);
-        } 
+            DropStack(s);
+        }
+
         if (World!.LogicProcessor.LogicalSide != LogicalSide.Client
             && (!StackInHand.Equals(HotBar[HotBarPos]) || !StackInMenuHand.Equals(MenuHand[0])))
         {
@@ -204,6 +231,7 @@ public abstract class PlayerEntity : WalkingEntity
             StackInMenuHand = (ItemStack)MenuHand[0].Clone();
             SendUpdateToClient();
         }
+
         MenuManager.UpdateLogic();
     }
 
@@ -249,22 +277,23 @@ public abstract class PlayerEntity : WalkingEntity
         }
     }
 
-    protected override void OnRemovedFromWorld()
+    protected override void OnRemovedFromWorld(bool serialization)
     {
         while (!MenuManager.Empty)
         {
             MenuManager.Pop();
         }
+
         ChunkTicker!.Dispose();
         ChunkTicker = null;
         ChunkLoader!.Dispose();
         ChunkLoader = null;
-        base.OnRemovedFromWorld();
+        base.OnRemovedFromWorld(serialization);
     }
 
-    protected override void OnAddedToWorld()
+    protected override void OnAddedToWorld(bool serialization)
     {
-        base.OnAddedToWorld();
+        base.OnAddedToWorld(serialization);
         ChunkLoader = new PlayerChunkLoader(this);
         ChunkTicker = new PlayerChunkTicker(this);
     }
@@ -295,6 +324,7 @@ public abstract class PlayerEntity : WalkingEntity
             res.Set("stack_in_hand", StackInHand.SerializeToTag(reason));
             res.Set("stack_in_menu_hand", StackInMenuHand.SerializeToTag(reason));
         }
+
         return res;
     }
 
@@ -324,7 +354,8 @@ public abstract class PlayerEntity : WalkingEntity
             World!.LogicProcessor.NetworkHandler.SendPacket(this, new OpenMenuRequestPacket(requestType));
             return;
         }
-        if(!MenuManager.Empty) return;
+
+        if (!MenuManager.Empty) return;
         switch (requestType)
         {
             case OpenMenuRequestType.Message:
@@ -339,6 +370,44 @@ public abstract class PlayerEntity : WalkingEntity
                 break;
         }
     }
-    
-    
+
+    public static PlayerEntity Create()
+    {
+        if (GameInfo.PhysicalSide == Side.Client)
+        {
+            return new ClientPlayerEntity();
+        }
+        else
+        {
+            return new ServerPlayerEntity();
+        }
+    }
+
+    private void PickUpItems()
+    {
+        if (World!.LogicProcessor.LogicalSide == LogicalSide.Client) return;
+        var b = BoundingBox;
+        b.Min -= new Vector3D<double>(0.5f, 0.0f, 0.5f);
+        b.Max += new Vector3D<double>(0.5f, 0.0f, 0.5f);
+        foreach (var entity in World.GetEntities(b.GetTranslated(Pos)))
+        {
+            if (entity is not ItemEntity { PickUpDelay: 0 } e) continue;
+            e.Stack = InventoryUtils.Insert(HotBar, e.Stack, false);
+            e.Stack = InventoryUtils.Insert(Inventory, e.Stack, false);
+        }
+    }
+
+    public void DropStack(ItemStack stack)
+    {
+        if (stack.Count == 0) return;
+        var rotation = Random.Shared.NextSingle() * 2 * MathF.PI;
+        var entity = new ItemEntity(stack)
+        {
+            Pos = Pos,
+            Velocity = GetViewForward().As<double>() * 0.2f,
+            HeadRotation = new Vector2D<float>(rotation, 0),
+            PickUpDelay = 20
+        };
+        World!.AddEntity(entity);
+    }
 }

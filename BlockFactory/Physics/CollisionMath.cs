@@ -92,4 +92,19 @@ public class CollisionMath
         if (maxEntryTime > 1.0f + Eps) return (false, 0.0f, 0);
         return (true, Math.Max(maxEntryTime - Eps, -Eps), maxEntryAxis);
     }
+
+    public static bool StrictlyIntersect(Box3D<double> a, Box3D<double> b)
+    {
+        for (var i = 0; i < 3; ++i)
+        {
+            var intMin = Math.Max(a.Min[i], b.Min[i]);
+            var intMax = Math.Min(a.Max[i], b.Max[i]);
+            if (intMin + Eps >= intMax)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

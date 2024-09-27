@@ -2,6 +2,7 @@
 using BlockFactory.Base;
 using BlockFactory.Client;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Network;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Registry_;
@@ -92,15 +93,16 @@ public class LogicProcessor : IDisposable
 
     private void UpdateChunk(Chunk c)
     {
-        if (!c.IsTicking) return;
+        if (!c.ChunkStatusInfo.IsTicking) return;
 
         c.Update(c.GetUpdateClass() == _heavyUpdateClass);
     }
 
-    public PlayerEntity GetOrCreatePlayer(string name)
+    public PlayerEntity GetOrCreatePlayer(string name, out bool found)
     {
         if (PlayerData.Players.TryGetValue(name, out var p))
         {
+            found = true;
             return p;
         }
 
@@ -108,14 +110,15 @@ public class LogicProcessor : IDisposable
         player.HeadRotation = new Vector2D<float>((float)Random.Shared.NextDouble() * 2 * MathF.PI,
             (float)Random.Shared.NextDouble() * MathF.PI - MathF.PI / 2);
         PlayerData.Players.Add(name, player);
+        found = false;
         return player;
     }
 
     private void PreUpdateChunk(Chunk c)
     {
-        if (!c.ShouldTick())
+        if (!c.ChunkStatusInfo.ShouldTick())
         {
-            c.IsTicking = false;
+            c.ChunkStatusInfo.IsTicking = false;
             return;
         }
 
@@ -140,7 +143,7 @@ public class LogicProcessor : IDisposable
         for (var i = 0; i < 27; ++i)
         {
             Parallel.ForEach(_chunkUpdateClasses[i], UpdateChunk);
-            _chunkUpdateClasses[i].RemoveAll(c => !c.IsTicking);
+            _chunkUpdateClasses[i].RemoveAll(c => !c.ChunkStatusInfo.IsTicking);
         }
 
         ++_heavyUpdateClass;

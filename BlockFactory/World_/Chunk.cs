@@ -11,33 +11,19 @@ using Silk.NET.Maths;
 
 namespace BlockFactory.World_;
 
-public class Chunk : IBlockWorld
+public class Chunk : IBlockWorld, IEntityStorage
 {
-    public delegate void BlockEventHandler(Vector3D<int> pos);
-
-    private readonly List<Vector3D<int>> _blockUpdateBuffer = new();
-
-    private readonly BitArray _bufferedUpdateScheduled =
-        new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
-
-    private readonly List<Vector3D<int>> _scheduledBlockUpdates = new();
-
     public readonly ChunkNeighbourhood Neighbourhood;
+    
     public readonly Vector3D<int> Position;
     public readonly ChunkRegion? Region;
-    public readonly List<Vector3D<int>> ScheduledLightUpdates = new();
-    public readonly HashSet<PlayerEntity> WatchingPlayers = new();
-
     public readonly World World;
-    private bool _loadingCompleted;
     public ChunkData? Data;
-    public bool IsTicking = false;
-    public bool IsValid = false;
-    public Task? LoadTask;
-    public bool ReadyForTick = false;
-    public bool ReadyForUse = false;
-    public int ReadyForUseNeighbours = 0;
-    public int TickingDependencies;
+    [ThreadStatic] private static List<Entity>? _entitiesToMove;
+    
+    public readonly ChunkStatusInfo ChunkStatusInfo;
+    public readonly ChunkUpdateInfo ChunkUpdateInfo;
+
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
     {
@@ -45,19 +31,19 @@ public class Chunk : IBlockWorld
         Region = region;
         World = world;
         Neighbourhood = new ChunkNeighbourhood(this);
+        ChunkStatusInfo = new ChunkStatusInfo(this);
+        ChunkUpdateInfo = new ChunkUpdateInfo(this);
     }
-
-    public bool IsLoaded => (Data != null && LoadTask == null) || LoadTask!.IsCompleted || _loadingCompleted;
 
     public short GetBlock(Vector3D<int> pos)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         return Data!.GetBlock(pos);
     }
 
     public byte GetBiome(Vector3D<int> pos)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         return Data!.GetBiome(pos);
     }
 
@@ -73,12 +59,12 @@ public class Chunk : IBlockWorld
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
-        _bufferedUpdateScheduled[GetArrIndex(pos)] = false;
+        ChunkUpdateInfo.OnBlockChanged(pos);
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
-            foreach (var player in WatchingPlayers)
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
             {
                 if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new BlockChangePacket(pos, block));
@@ -100,7 +86,7 @@ public class Chunk : IBlockWorld
 
     public void SetBiome(Vector3D<int> pos, byte biome)
     {
-        LoadTask?.Wait();
+        ChunkStatusInfo.LoadTask?.Wait();
         Data!.SetBiome(pos, biome);
     }
 
@@ -109,7 +95,7 @@ public class Chunk : IBlockWorld
         if (Data!.GetLight(pos, channel) == light) return;
         Data!.SetLight(pos, channel, light);
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
-            foreach (var player in WatchingPlayers)
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
             {
                 if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
                 World.LogicProcessor.NetworkHandler.SendPacket(player, new LightChangePacket(pos, channel, light));
@@ -120,76 +106,54 @@ public class Chunk : IBlockWorld
 
     public void UpdateBlock(Vector3D<int> pos)
     {
-        if (World.LogicProcessor.LogicalSide != LogicalSide.Client)
-        {
-            LoadTask?.Wait();
-            if (!Data!.IsBlockUpdateScheduled(pos))
-            {
-                Data!.SetBlockUpdateScheduled(pos, true);
-                _scheduledBlockUpdates.Add(pos);
-            }
-        }
-
-        BlockUpdate(pos);
+        ChunkUpdateInfo.UpdateBlock(pos);
     }
 
     public void ScheduleLightUpdate(Vector3D<int> pos)
     {
-        if (!Data!.IsLightUpdateScheduled(pos))
-        {
-            Data!.SetLightUpdateScheduled(pos, true);
-            ScheduledLightUpdates.Add(pos);
-        }
+        ChunkUpdateInfo.ScheduleLightUpdate(pos);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetArrIndex(Vector3D<int> pos)
+    public static int GetArrIndex(Vector3D<int> pos)
     {
         return (pos.X & Constants.ChunkMask) | (((pos.Y & Constants.ChunkMask) | ((pos.Z & Constants.ChunkMask)
             << Constants.ChunkSizeLog2)) << Constants.ChunkSizeLog2);
     }
 
-    private void MoveBlockUpdatesToBuffer()
+    public void MoveEntityToChunk(Entity entity, Chunk c)
     {
-        _blockUpdateBuffer.AddRange(_scheduledBlockUpdates);
-        foreach (var pos in _scheduledBlockUpdates)
+        RemoveEntityInternal(entity, false, false);
+        Data!.RemoveEntity(entity);
+        c.Data!.AddEntity(entity);
+        c.AddEntityInternal(entity, false, false);
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
         {
-            _bufferedUpdateScheduled[GetArrIndex(pos)] = true;
-            Data!.SetBlockUpdateScheduled(pos, false);
+            EntityChangeChunkPacket? movePacket = null;
+            AddEntityPacket? addPacket = null;
+            RemoveEntityPacket? removePacket = null;
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                if (player.ChunkLoader!.IsChunkVisible(c))
+                {
+                    movePacket ??= new EntityChangeChunkPacket(entity.Guid, Position, c.Position);
+                    World.LogicProcessor.NetworkHandler.SendPacket(player, movePacket);
+                }
+                else
+                {
+                    removePacket ??= new RemoveEntityPacket(Position, entity.Guid);
+                    World.LogicProcessor.NetworkHandler.SendPacket(player, removePacket);
+                }
+            }
+
+            foreach (var player in c.ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(c) || player.ChunkLoader.IsChunkVisible(this)) continue;
+                addPacket ??= new AddEntityPacket(c.Position, entity);
+                World.LogicProcessor.NetworkHandler.SendPacket(player, addPacket);
+            }
         }
-
-        _scheduledBlockUpdates.Clear();
-    }
-
-    private void UpdateBlocksInBuffer()
-    {
-        foreach (var pos in _blockUpdateBuffer)
-        {
-            if (!_bufferedUpdateScheduled[GetArrIndex(pos)]) continue;
-            this.GetBlockObj(pos).UpdateBlock(new BlockPointer(Neighbourhood, pos));
-            _bufferedUpdateScheduled[GetArrIndex(pos)] = false;
-        }
-
-        _blockUpdateBuffer.Clear();
-    }
-
-    public void UpdateLight(Vector3D<int> pos)
-    {
-        LightUpdate(pos);
-    }
-
-    public event BlockEventHandler BlockUpdate = p => { };
-    public event BlockEventHandler LightUpdate = p => { };
-
-    public void AddWatchingPlayer(PlayerEntity player)
-    {
-        WatchingPlayers.Add(player);
-    }
-
-    public void RemoveWatchingPlayer(PlayerEntity player)
-    {
-        WatchingPlayers.Remove(player);
-        World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 
     private void FullyDecoratedUpdate()
@@ -199,12 +163,68 @@ public class Chunk : IBlockWorld
         var z = World.Random.Next(Constants.ChunkSize);
         var absPos = new Vector3D<int>(x, y, z) + Position.ShiftLeft(Constants.ChunkSizeLog2);
         this.GetBlockObj(absPos).RandomUpdateBlock(new BlockPointer(Neighbourhood, absPos));
-        UpdateBlocksInBuffer();
+        ChunkUpdateInfo.UpdateBlocksInBuffer();
+        _entitiesToMove ??= new List<Entity>();
+        foreach (var (_, entity) in Data!.Entities)
+        {
+            if (entity.GetChunkPos() != Position)
+            {
+                _entitiesToMove.Add(entity);
+            }
+        }
+
+        foreach (var entity in _entitiesToMove)
+        {
+            var pos = entity.GetChunkPos();
+            var c = Neighbourhood.GetChunk(pos, false);
+            if (c != null)
+            {
+                MoveEntityToChunk(entity, c);
+            }
+            else
+            {
+                RemoveEntityInternal(entity, false);
+                Data!.RemoveEntity(entity);
+                World.PendingEntityManager.AddEntity(entity);
+            }
+        }
+        _entitiesToMove.Clear();
     }
 
     public void PreUpdate()
     {
-        if (Data!.FullyDecorated) MoveBlockUpdatesToBuffer();
+        if (!Data!.FullyDecorated) return;
+        ChunkUpdateInfo.MoveBlockUpdatesToBuffer();
+        
+        _entitiesToMove ??= new List<Entity>();
+        
+        foreach (var (_, entity) in Data!.Entities)
+        {
+            entity.Update();
+            if (World.LogicProcessor.LogicalSide == LogicalSide.Server &&
+                (entity.Pos - entity.LastSentPos).LengthSquared > 1e-5)
+            {
+                _entitiesToMove.Add(entity);
+            }
+        }
+
+        if (World.LogicProcessor.LogicalSide == LogicalSide.Server && _entitiesToMove.Count > 0)
+        {
+            var list = new List<(Guid, Vector3D<double>)>();
+            foreach (var entity in _entitiesToMove)
+            {
+                entity.LastSentPos = entity.Pos;
+                list.Add((entity.Guid, entity.Pos));
+            }
+
+            var packet = new EntityPosUpdatePacket(Position, list);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+            _entitiesToMove.Clear();
+        }
     }
 
     public void Update(bool heavy)
@@ -233,21 +253,7 @@ public class Chunk : IBlockWorld
             ++Neighbourhood.GetChunk(Position + new Vector3D<int>(i, j, k))!.Data!.DecoratedNeighbours;
     }
 
-    private void CopyUpdatesFromData()
-    {
-        ScheduledLightUpdates.Clear();
-        for (var i = 0; i < Constants.ChunkSize; ++i)
-        for (var j = 0; j < Constants.ChunkSize; ++j)
-        for (var k = 0; k < Constants.ChunkSize; ++k)
-        {
-            var absPos = new Vector3D<int>(i, j, k) + Position.ShiftLeft(Constants.ChunkSizeLog2);
-            if (Data!.IsLightUpdateScheduled(absPos)) ScheduledLightUpdates.Add(absPos);
-
-            if (Data!.IsBlockUpdateScheduled(absPos)) _scheduledBlockUpdates.Add(absPos);
-        }
-    }
-
-    private void GenerateOrLoad()
+    public void GenerateOrLoad()
     {
         var data = Region!.GetChunk(Position);
         if (data == null)
@@ -260,30 +266,30 @@ public class Chunk : IBlockWorld
             Data = data;
         }
 
-        CopyUpdatesFromData();
+        OnLoaded(data != null);
 
-        _loadingCompleted = true;
+        ChunkStatusInfo.SetLoadingCompleted();
 
         World.ChunkStatusManager.ScheduleStatusUpdate(this);
     }
 
-    public void StartLoadTask()
+    public void OnLoaded(bool serialization)
     {
-        if (Region!.LoadTask == null)
-            LoadTask = Task.Run(GenerateOrLoad);
-        else
-            LoadTask = Task.Factory.ContinueWhenAll(new[] { Region.LoadTask }, _ => GenerateOrLoad());
+        ChunkUpdateInfo.CopyUpdatesFromData();
+        foreach (var entity in Data!.Entities.Values)
+        {
+            World.AddEntityInternal(entity, serialization);
+            AddEntityInternal(entity, serialization);
+        }
     }
 
-    public void AddTickingDependency()
+    public void OnUnloaded()
     {
-        ++TickingDependencies;
-        World.ChunkStatusManager.ScheduleTickingUpdate(this);
-    }
-
-    public void RemoveTickingDependency()
-    {
-        --TickingDependencies;
+        foreach (var entity in Data!.Entities.Values)
+        {
+            RemoveEntityInternal(entity, true);
+            World.RemoveEntityInternal(entity, true);
+        }
     }
 
     public int GetUpdateClass()
@@ -297,9 +303,66 @@ public class Chunk : IBlockWorld
         return x + y * 3 + z * 9;
     }
 
-    public bool ShouldTick()
+    public Entity? GetEntity(Guid guid)
     {
-        if (!IsValid || !ReadyForTick) return false;
-        return !Data!.Decorated || !Data!.HasSkyLight || TickingDependencies > 0;
+        ChunkStatusInfo.LoadTask?.Wait();
+        return Data!.GetEntity(guid);
+    }
+
+    public IEnumerable<Entity> GetEntities(Box3D<double> box)
+    {
+        ChunkStatusInfo.LoadTask?.Wait();
+        return Data!.GetEntities(box);
+    }
+
+    public void RemoveEntityInternal(Entity entity, bool serialization, bool sendPacket = true)
+    {
+        if (entity.Chunk != this)
+        {
+            throw new ArgumentException("Entity is not added to this chunk", nameof(entity));
+        }
+        if (sendPacket && World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            var packet = new RemoveEntityPacket(Position, entity.Guid);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+        }
+        entity.SetChunk(null, serialization);
+    }
+
+    public void AddEntityInternal(Entity entity, bool serialization, bool sendPacket = true)
+    {
+        if (entity.Chunk != null)
+        {
+            throw new ArgumentException("Entity is already added to a chunk", nameof(entity));
+        }
+        entity.SetChunk(this, serialization);
+        if (sendPacket && World.LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            var packet = new AddEntityPacket(Position, entity);
+            foreach (var player in ChunkStatusInfo.WatchingPlayers)
+            {
+                if (!player.ChunkLoader!.IsChunkVisible(this)) continue;
+                World.LogicProcessor.NetworkHandler.SendPacket(player, packet);
+            }
+        }
+    }
+
+    public void AddEntity(Entity entity)
+    {
+        ChunkStatusInfo.LoadTask?.Wait();
+        World.AddEntityInternal(entity, false);
+        Data!.AddEntity(entity);
+        AddEntityInternal(entity, false);
+    }
+
+    public void RemoveEntity(Entity entity)
+    {
+        RemoveEntityInternal(entity, false);
+        Data!.RemoveEntity(entity);
+        World.RemoveEntityInternal(entity, false);
     }
 }

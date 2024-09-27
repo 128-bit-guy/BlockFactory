@@ -1,4 +1,4 @@
-﻿namespace BlockFactory.Content.Entity_;
+﻿namespace BlockFactory.Content.Entity_.Player;
 
 public enum PlayerAction
 {
