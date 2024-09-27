@@ -59,16 +59,16 @@ public static class ItemRenderer
         builder.Matrices.Translate(-0.5f, -0.5f, -0.5f);
         if (block is FenceBlock f)
         {
-            BlockMeshes.RenderFence(f, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), _blockMeshBuilder);
+            BlockMeshes.RenderFence(f, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), mesh.BlockMeshBuilder);
         } else if (block is TorchBlock t)
         {
-            BlockMeshes.RenderTorch(t, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), _blockMeshBuilder);
+            BlockMeshes.RenderTorch(t, new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero), mesh.BlockMeshBuilder);
         } else if (block is TallGrassBlock g)
         {
             BlockMeshes.RenderTallGrass(
                 g,
                 new BlockPointer(EmptyWorld.Instance, Vector3D<int>.Zero),
-                _blockMeshBuilder
+                mesh.BlockMeshBuilder
                 );
         }
         else
