@@ -181,6 +181,12 @@ public class WorldRenderer : IDisposable
         BfRendering.Matrices.Push();
         _dynamicMesh.Render();
         BfRendering.Matrices.Pop();
+        
+        Textures.Blocks.Bind();
+        Shaders.Block.Use();
+        Shaders.Block.SetSkyColor(BfRendering.SkyColor);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Blocks.SpriteBoxesBuffer.Bind(2);
 
         foreach (var renderer in _fadingOutRenderers)
         {
