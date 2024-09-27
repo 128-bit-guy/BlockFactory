@@ -78,8 +78,9 @@ public static class BlockFactoryClient
         BfRendering.UseWorldMatrices();
         BfRendering.SetVpMatrices(Shaders.Block);
         Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
-        
-        // WorldRenderer!.UpdateAndRender(deltaTime);
+        SkyRenderer!.UpdateAndRender();
+        BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        WorldRenderer!.UpdateAndRender(deltaTime);
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
