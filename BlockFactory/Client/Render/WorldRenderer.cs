@@ -106,9 +106,10 @@ public class WorldRenderer : IDisposable
         _playerSmoothPos = BlockFactoryClient.Player!.GetSmoothPos();
         var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
-        Shaders.Block.Use();
-        Shaders.Block.SetSkyColor(BfRendering.SkyColor);
-        Shaders.Block.SetSpriteBoxesBinding(2);
+        Shaders.Terrain.Use();
+        Shaders.Terrain.SetSkyColor(BfRendering.SkyColor);
+        Shaders.Terrain.SetSpriteBoxesBinding(2);
+        BfRendering.SetVpMatrices(Shaders.Terrain);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         var transparentRenderers = _transparentRenderers;
         var maxRebuilds = _blockMeshBuilders.Count;
@@ -183,9 +184,10 @@ public class WorldRenderer : IDisposable
         BfRendering.Matrices.Pop();
         
         Textures.Blocks.Bind();
-        Shaders.Block.Use();
-        Shaders.Block.SetSkyColor(BfRendering.SkyColor);
-        Shaders.Block.SetSpriteBoxesBinding(2);
+        Shaders.Terrain.Use();
+        Shaders.Terrain.SetSkyColor(BfRendering.SkyColor);
+        Shaders.Terrain.SetSpriteBoxesBinding(2);
+        Shaders.Terrain.SetSkyTex(1);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
 
         foreach (var renderer in _fadingOutRenderers)
@@ -230,8 +232,8 @@ public class WorldRenderer : IDisposable
         if (begin == end) return;
         BfRendering.Matrices.Push();
         BfRendering.Matrices.Translate(GetChunkTranslation(renderer));
-        Shaders.Block.SetModel(BfRendering.Matrices);
-        Shaders.Block.SetLoadProgress(renderer.LoadProgress);
+        Shaders.Terrain.SetModel(BfRendering.Matrices);
+        Shaders.Terrain.SetLoadProgress(renderer.LoadProgress);
         renderer.Mesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, end - begin,
             DrawElementsType.UnsignedInt, (void*)(begin * sizeof(uint)));

@@ -9,6 +9,7 @@ public static class Shaders
     public static ShaderProgram Text = null!;
     public static ShaderProgram Gui = null!;
     public static ShaderProgram Sky = null!;
+    public static TerrainShaderProgram Terrain = null!;
 
     public static void Init()
     {
@@ -36,6 +37,12 @@ public static class Shaders
                 BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Sky.Fragment.glsl")!;
             Sky = new ShaderProgram(vertText, fragText);
         }
+        {
+            var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Terrain.Vertex.glsl")!;
+            var fragText =
+                BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Terrain.Fragment.glsl")!;
+            Terrain = new TerrainShaderProgram(vertText, fragText);
+        }
     }
 
     public static void Destroy()
@@ -44,5 +51,6 @@ public static class Shaders
         Text.Dispose();
         Gui.Dispose();
         Sky.Dispose();
+        Terrain.Dispose();
     }
 }
