@@ -106,6 +106,14 @@ public class SkyRenderer : IDisposable
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
+    public unsafe void OnFramebufferResize(Vector2D<int> newSize)
+    {
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, Texture);
+        BfRendering.Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, (uint)newSize.X,
+            (uint)newSize.Y, 0, PixelFormat.Rgb, PixelType.Byte, null);
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
     public void Dispose()
     {
         _skyboxCube.Dispose();

@@ -44,6 +44,7 @@ public static class BfRendering
     public static void OnFramebufferResize(Vector2D<int> newSize)
     {
         Gl.Viewport(newSize);
+        BlockFactoryClient.SkyRenderer?.OnFramebufferResize(newSize);
     }
 
     public static void UseWorldMatrices()
