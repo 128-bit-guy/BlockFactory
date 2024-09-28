@@ -106,6 +106,9 @@ public class WorldRenderer : IDisposable
         _playerSmoothPos = BlockFactoryClient.Player!.GetSmoothPos();
         var intersectionHelper = BfRendering.CreateIntersectionHelper();
         Textures.Blocks.Bind();
+        BfRendering.Gl.ActiveTexture(TextureUnit.Texture1);
+        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, BlockFactoryClient.SkyRenderer!.Texture);
+        BfRendering.Gl.ActiveTexture(TextureUnit.Texture0);
         Shaders.Terrain.Use();
         Shaders.Terrain.SetSkyColor(BfRendering.SkyColor);
         Shaders.Terrain.SetSpriteBoxesBinding(2);

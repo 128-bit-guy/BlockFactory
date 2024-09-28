@@ -93,9 +93,6 @@ public class SkyRenderer : IDisposable
         BfRendering.Matrices.Pop();
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, Texture);
-        BfRendering.Gl.ActiveTexture(TextureUnit.Texture1);
-        BfRendering.Gl.BindTexture(TextureTarget.Texture2D, BlockFactoryClient.SkyRenderer!.Texture);
-        BfRendering.Gl.ActiveTexture(TextureUnit.Texture0);
         Shaders.Gui.Use();
         Shaders.Gui.SetModel(Matrix4X4<float>.Identity);
         Shaders.Gui.SetView(Matrix4X4<float>.Identity);
