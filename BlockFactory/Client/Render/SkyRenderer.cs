@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
+using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -9,9 +10,11 @@ namespace BlockFactory.Client.Render;
 [ExclusiveTo(Side.Client)]
 public class SkyRenderer : IDisposable
 {
-    private static readonly uint[] QuadIndices = { 0, 2, 1, 0, 3, 2 };
-    private RenderMesh _skyboxCube;
-    private RenderMesh _skyBackground;
+    private static readonly uint[] InvertedQuadIndices = { 0, 2, 1, 0, 3, 2 };
+    private readonly RenderMesh _skyboxCube;
+    private readonly RenderMesh _skyBackground;
+    private readonly RenderMesh _celestialMesh;
+    private TexturedMeshBuilder _celestialBuilder;
     private readonly uint _fbo;
     public readonly uint Texture;
 
@@ -31,7 +34,7 @@ public class SkyRenderer : IDisposable
 
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
-                builder.NewPolygon().Indices(QuadIndices)
+                builder.NewPolygon().Indices(InvertedQuadIndices)
                     .Vertex(new PosVertex(0, 0, 1))
                     .Vertex(new PosVertex(1, 0, 1))
                     .Vertex(new PosVertex(1, 1, 1))
@@ -49,7 +52,7 @@ public class SkyRenderer : IDisposable
             _skyBackground = new RenderMesh();
             var builder = new MeshBuilder<GuiVertex>();
             builder.Matrices.Push();
-            builder.NewPolygon().Indices(QuadIndices)
+            builder.NewPolygon().Indices(InvertedQuadIndices)
                 .Vertex(new GuiVertex(-1, 1, 0, 1, 1, 1, 1, 0, 1))
                 .Vertex(new GuiVertex(1, 1, 0, 1, 1, 1, 1, 1, 1))
                 .Vertex(new GuiVertex(1, -1, 0, 1, 1, 1, 1, 1, 0))
@@ -57,6 +60,9 @@ public class SkyRenderer : IDisposable
             builder.Matrices.Pop();
             builder.Upload(_skyBackground);
         }
+
+        _celestialMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
+        _celestialBuilder = new TexturedMeshBuilder(null, Textures.Sky);
 
         _fbo = BfRendering.Gl.CreateFramebuffer();
         Texture = BfRendering.Gl.GenTexture();
@@ -79,10 +85,26 @@ public class SkyRenderer : IDisposable
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);   
     }
 
-    public unsafe void UpdateAndRender()
+    protected void RenderCelestials()
     {
-        BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, _fbo);
-        BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit);
+        var builder = _celestialBuilder.MeshBuilder;
+        _celestialBuilder.UvTransformer.Sprite = 0;
+        builder.Matrices.Push();
+        builder.Matrices.RotateX((float)(BlockFactoryClient.Window.Time % (2 * Math.PI)));
+        builder.Matrices.Push();
+        builder.Matrices.Scale(0.2f, 0.2f, 1.0f);
+        builder.NewPolygon().Indices(InvertedQuadIndices)
+            .Vertex(new BlockVertex(-1, -1, 1, 1, 1, 1, 1, 0, 0))
+            .Vertex(new BlockVertex(1, -1, 1, 1, 1, 1, 1, 1, 0))
+            .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 1))
+            .Vertex(new BlockVertex(-1, 1, 1, 1, 1, 1, 1, 0, 1));
+        builder.Matrices.Pop();
+        builder.Matrices.Pop();
+    }
+
+    protected unsafe void RenderSky()
+    {
+        // BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit);
         Shaders.Sky.Use();
         BfRendering.SetVpMatrices(Shaders.Sky);
         BfRendering.Matrices.Push();
@@ -90,7 +112,39 @@ public class SkyRenderer : IDisposable
         _skyboxCube.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _skyboxCube.IndexCount,
             DrawElementsType.UnsignedInt, null);
+        RenderCelestials();
+        RenderCelestialMesh();
         BfRendering.Matrices.Pop();
+    }
+
+    private unsafe void RenderCelestialMesh()
+    {
+        _celestialBuilder.MeshBuilder.Upload(_celestialMesh);
+
+        _celestialBuilder.MeshBuilder.Reset();
+
+        if (_celestialMesh.IndexCount == 0) return;
+
+        BfRendering.Gl.Enable(EnableCap.Blend);
+        BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        Shaders.Block.Use();
+        Textures.Sky.Bind();
+        BfRendering.SetVpMatrices(Shaders.Block);
+        Shaders.Block.SetModel(BfRendering.Matrices);
+        Shaders.Block.SetLoadProgress(1);
+        Shaders.Block.SetSpriteBoxesBinding(2);
+        Textures.Sky.SpriteBoxesBuffer.Bind(2);
+        _celestialMesh.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _celestialMesh.IndexCount,
+            DrawElementsType.UnsignedInt, null);
+        BfRendering.Gl.Disable(EnableCap.Blend);
+    }
+
+    public unsafe void UpdateAndRender()
+    {
+        BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, _fbo);
+        RenderSky();
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, Texture);
         Shaders.Gui.Use();
@@ -114,6 +168,8 @@ public class SkyRenderer : IDisposable
     public void Dispose()
     {
         _skyboxCube.Dispose();
+        _celestialMesh.Dispose();
+        _skyBackground.Dispose();
         BfRendering.Gl.DeleteFramebuffer(_fbo);
         BfRendering.Gl.DeleteTexture(Texture);
     }

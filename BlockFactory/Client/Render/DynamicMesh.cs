@@ -13,7 +13,7 @@ namespace BlockFactory.Client.Render;
 public class DynamicMesh : IDisposable
 {
     public readonly BlockMeshBuilder BlockMeshBuilder;
-    public readonly ItemMeshBuilder ItemMeshBuilder;
+    public readonly TexturedMeshBuilder ItemMeshBuilder;
     public readonly RenderMesh BlockMesh;
     public readonly RenderMesh ItemMesh;
     public readonly MatrixStack Matrices;
@@ -22,7 +22,7 @@ public class DynamicMesh : IDisposable
     {
         Matrices = matrices ?? new MatrixStack();
         BlockMeshBuilder = new BlockMeshBuilder(Matrices);
-        ItemMeshBuilder = new ItemMeshBuilder(Matrices);
+        ItemMeshBuilder = new TexturedMeshBuilder(Matrices);
         BlockMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
         ItemMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
     }
