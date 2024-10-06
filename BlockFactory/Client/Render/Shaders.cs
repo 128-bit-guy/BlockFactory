@@ -8,7 +8,7 @@ public static class Shaders
     public static BlockShaderProgram Block = null!;
     public static ShaderProgram Text = null!;
     public static ShaderProgram Gui = null!;
-    public static ShaderProgram Sky = null!;
+    public static SkyShaderProgram Sky = null!;
     public static TerrainShaderProgram Terrain = null!;
 
     public static void Init()
@@ -35,7 +35,7 @@ public static class Shaders
             var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Sky.Vertex.glsl")!;
             var fragText =
                 BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Sky.Fragment.glsl")!;
-            Sky = new ShaderProgram(vertText, fragText);
+            Sky = new SkyShaderProgram(vertText, fragText);
         }
         {
             var vertText = BlockFactoryClient.ResourceLoader.GetResourceText("BlockFactory.Assets.Shaders.Terrain.Vertex.glsl")!;
