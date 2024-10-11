@@ -21,6 +21,7 @@ public class World : IChunkWorld, IDisposable
     public readonly Random Random = new();
     public readonly WorldSaveManager? SaveManager;
     public readonly PendingEntityManager PendingEntityManager;
+    public readonly WorldTimeManager WorldTimeManager;
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
@@ -38,6 +39,7 @@ public class World : IChunkWorld, IDisposable
 
         ChunkStatusManager = new ChunkStatusManager(this);
         PendingEntityManager = new PendingEntityManager(this);
+        WorldTimeManager = new WorldTimeManager(this);
     }
 
     public void UpdateBlock(Vector3D<int> pos)
@@ -70,6 +72,11 @@ public class World : IChunkWorld, IDisposable
         var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);
         var c = GetChunk(chunkPos, false);
         return c is { ChunkStatusInfo.ReadyForUse: true };
+    }
+
+    public float GetDayCoefficient()
+    {
+        return WorldTimeManager.GetDayCoefficient();
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
@@ -147,6 +154,7 @@ public class World : IChunkWorld, IDisposable
             SaveManager!.Update();
         }
         PendingEntityManager.Update();
+        WorldTimeManager.Update();
     }
 
     public void RemoveEntityInternal(Entity entity, bool serialization)

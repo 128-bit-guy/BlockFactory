@@ -138,6 +138,11 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
         return true;
     }
 
+    public float GetDayCoefficient()
+    {
+        return 1;
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = false)
     {
         _blocks[GetArrIndex(pos)] = block;

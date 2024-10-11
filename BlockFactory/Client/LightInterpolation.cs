@@ -13,6 +13,7 @@ public static class LightInterpolation
     {
         var minBlockPos = (pos - new Vector3D<double>(0.5)).Floor();
         var relPos = pos - (minBlockPos.As<double>() + new Vector3D<double>(0.5));
+        var dayCoef = world.GetDayCoefficient();
         double sum = 0;
         for (var i = 0; i < 2; ++i)
         {
@@ -28,9 +29,9 @@ public static class LightInterpolation
                         return 1.0;
                     }
                     var coefC =  coefB * (k == 0 ? 1 - relPos.Z : relPos.Z);
-                    var light = Math.Max(world.GetLight(curPos, LightChannel.Sky),
+                    var light = Math.Max((double)world.GetLight(curPos, LightChannel.Sky) * dayCoef,
                         world.GetLight(curPos, LightChannel.Block));
-                    sum += coefC * ((double)light / 15);
+                    sum += coefC * (light / 15);
                 }
             }
         }

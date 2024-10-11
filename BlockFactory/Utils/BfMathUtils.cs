@@ -77,4 +77,9 @@ public static class BfMathUtils
 
         return res;
     }
+
+    public static float SoftSign(float x)
+    {
+        return MathF.Atan(x) / (MathF.PI / 2);
+    }
 }

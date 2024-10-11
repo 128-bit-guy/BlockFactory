@@ -51,6 +51,11 @@ public class ChunkNeighbourhood : IChunkWorld
         return c is { ChunkStatusInfo.ReadyForUse: true };
     }
 
+    public float GetDayCoefficient()
+    {
+        return Center.GetDayCoefficient();
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.SetBlock(pos, block, update);

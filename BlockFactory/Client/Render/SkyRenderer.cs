@@ -85,23 +85,12 @@ public class SkyRenderer : IDisposable
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);   
     }
 
-    public float GetSunAngle()
-    {
-        return (float)((BlockFactoryClient.Window.Time / 5) % (2 * Math.PI));
-    }
-
-    public Vector3D<float> GetSunDirection()
-    {
-        var mat = Matrix4X4.CreateRotationX(GetSunAngle());
-        return Vector3D.Transform(new Vector3D<float>(0, 0, 1), mat);
-    }
-
     protected void RenderCelestials()
     {
         var builder = _celestialBuilder.MeshBuilder;
         _celestialBuilder.UvTransformer.Sprite = 0;
         builder.Matrices.Push();
-        builder.Matrices.RotateX(GetSunAngle());
+        builder.Matrices.RotateX(BlockFactoryClient.Player!.World!.WorldTimeManager.GetSunAngle());
         builder.Matrices.Push();
         builder.Matrices.Scale(0.2f, 0.2f, 1.0f);
         builder.NewPolygon().Indices(InvertedQuadIndices)
@@ -120,7 +109,8 @@ public class SkyRenderer : IDisposable
         BfRendering.SetVpMatrices(Shaders.Sky);
         BfRendering.Matrices.Push();
         Shaders.Sky.SetModel(BfRendering.Matrices);
-        Shaders.Sky.SetSunDirection(GetSunDirection());
+        Shaders.Sky.SetSunDirection(BlockFactoryClient.Player!.World!.WorldTimeManager.GetSunDirection());
+        Shaders.Sky.SetDayCoef(BlockFactoryClient.Player!.World!.WorldTimeManager.GetDayCoefficient());
         _skyboxCube.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _skyboxCube.IndexCount,
             DrawElementsType.UnsignedInt, null);

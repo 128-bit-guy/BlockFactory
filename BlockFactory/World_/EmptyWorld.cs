@@ -27,6 +27,11 @@ public class EmptyWorld : IBlockWorld
         return true;
     }
 
+    public float GetDayCoefficient()
+    {
+        return 1;
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
     }

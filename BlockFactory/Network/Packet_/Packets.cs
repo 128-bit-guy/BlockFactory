@@ -28,6 +28,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<RemoveEntityPacket>("");
         NetworkRegistry.RegisterPacket<EntityPosUpdatePacket>("");
         NetworkRegistry.RegisterPacket<EntityChangeChunkPacket>("");
+        NetworkRegistry.RegisterPacket<WorldTimeUpdatePacket>("");
     }
 
     public static void Lock()

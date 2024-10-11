@@ -57,6 +57,11 @@ public class Chunk : IBlockWorld, IEntityStorage
         return pos.ShiftRight(Constants.ChunkSizeLog2) == Position;
     }
 
+    public float GetDayCoefficient()
+    {
+        return World.GetDayCoefficient();
+    }
+
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
     {
         ChunkStatusInfo.LoadTask?.Wait();
