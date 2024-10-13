@@ -11,6 +11,7 @@ public class BlockShaderProgram : ShaderProgram
     private readonly int _playerPos;
     private readonly int _skyColor;
     private readonly uint _spriteBoxesIndex;
+    private readonly int _dayCoef;
 
     public BlockShaderProgram(string vertText, string fragText) : base(vertText, fragText)
     {
@@ -18,6 +19,7 @@ public class BlockShaderProgram : ShaderProgram
         _loadProgress = GetUniformLocation("loadProgress");
         _skyColor = GetUniformLocation("skyColor");
         _spriteBoxesIndex = 0;
+        _dayCoef = GetUniformLocation("dayCoef");
     }
 
     public void SetPlayerPos(Vector3D<float> pos)
@@ -38,5 +40,10 @@ public class BlockShaderProgram : ShaderProgram
     public void SetSpriteBoxesBinding(uint binding)
     {
         ShaderStorageBlockBinding(_spriteBoxesIndex, binding);
+    }
+    
+    public void SetDayCoef(float coef)
+    {
+        SetFloat(_dayCoef, coef);
     }
 }

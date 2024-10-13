@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
 using BlockFactory.Client.Render.Block_;
+using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.Content.Block_;
 using BlockFactory.Content.Entity_;
@@ -33,7 +34,7 @@ public class WorldRenderer : IDisposable
         Player = player;
         player.ChunkBecameVisible += OnChunkReadyForTick;
         player.ChunkBecameInvisible += OnChunkNotReadyForTick;
-        for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder());
+        for (var i = 0; i < 4; ++i) _blockMeshBuilders.Push(new BlockMeshBuilder(new MatrixStack(), new BlockLightTransformer()));
         _dynamicMesh = new DynamicMesh();
     }
 
@@ -112,6 +113,7 @@ public class WorldRenderer : IDisposable
         Shaders.Terrain.Use();
         Shaders.Terrain.SetSkyColor(BfRendering.SkyColor);
         Shaders.Terrain.SetSpriteBoxesBinding(2);
+        Shaders.Terrain.SetDayCoef(Player.World!.GetDayCoefficient());
         BfRendering.SetVpMatrices(Shaders.Terrain);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         var transparentRenderers = _transparentRenderers;
@@ -161,9 +163,9 @@ public class WorldRenderer : IDisposable
                 var entitySmoothPos = entity.GetSmoothPos();
                 _dynamicMesh.Matrices.Translate((entitySmoothPos - _playerSmoothPos).As<float>());
                 _dynamicMesh.Matrices.Scale(0.3f);
-                var brightness =
-                    (float)LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entitySmoothPos);
-                var color = new Vector4D<float>(brightness, brightness, brightness, 1);
+                _dynamicMesh.LightTransformer.World = renderer.Chunk.Neighbourhood;
+                _dynamicMesh.LightTransformer.Pos = entitySmoothPos;
+                var color = new Vector4D<float>(1, 1, 1, 1);
                 _dynamicMesh.SetColor(color);
                 if (item.Stack.ItemInstance.Item is BlockItem)
                 {
@@ -173,6 +175,9 @@ public class WorldRenderer : IDisposable
                 {
                     _dynamicMesh.Matrices.RotateY(Player.HeadRotation.X + MathF.PI);
                     _dynamicMesh.Matrices.RotateX(Player.HeadRotation.Y);
+                    var brightness =
+                        LightInterpolation.GetInterpolatedBrightness(renderer.Chunk.Neighbourhood, entitySmoothPos);
+                    _dynamicMesh.SetColor(new Vector4D<float>(brightness, brightness, brightness, 1));
                 }
 
                 ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
@@ -183,13 +188,14 @@ public class WorldRenderer : IDisposable
         }
         
         BfRendering.Matrices.Push();
-        _dynamicMesh.Render();
+        _dynamicMesh.Render(Player.World!.GetDayCoefficient());
         BfRendering.Matrices.Pop();
         
         Textures.Blocks.Bind();
         Shaders.Terrain.Use();
         Shaders.Terrain.SetSkyColor(BfRendering.SkyColor);
         Shaders.Terrain.SetSpriteBoxesBinding(2);
+        Shaders.Terrain.SetDayCoef(Player.World!.GetDayCoefficient());
         Shaders.Terrain.SetSkyTex(1);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
 

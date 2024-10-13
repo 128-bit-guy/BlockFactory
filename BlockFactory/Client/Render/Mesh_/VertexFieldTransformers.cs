@@ -35,4 +35,9 @@ public static class VertexFieldTransformers<T> where T : unmanaged
             return 0;
         }
     }
+
+    public static Vector2D<float> TransformLight(Vector2D<float> light, MeshBuilder<T> builder)
+    {
+        return builder.LightTransformer.TransformLight(light);
+    }
 }

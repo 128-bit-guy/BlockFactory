@@ -52,6 +52,7 @@ public class WorldTimeManager
 
     public virtual float GetDayCoefficient()
     {
-        return (BfMathUtils.SoftSign((GetSunDirection().Y + 0.2f) * 5) + 1) / 2;
+        var coefRaw = (BfMathUtils.SoftSign((GetSunDirection().Y + 0.2f) * 5) + 0.9f) / 1.8f;
+        return MathF.Min(MathF.Max(coefRaw, 0), 1);
     }
 }

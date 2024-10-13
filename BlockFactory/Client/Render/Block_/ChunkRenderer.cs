@@ -16,7 +16,8 @@ public class ChunkRenderer : IDisposable
     private static readonly uint[] QuadIndices = { 0, 1, 2, 0, 2, 3 };
     private static readonly uint[] QuadIndices2 = { 0, 1, 3, 1, 2, 3 };
     private static readonly bool[] DifferentTriangles = new bool[1 << 16];
-    private readonly float[] _vertexLight = new float[4];
+    private readonly float[] _vertexLightSky = new float[4];
+    private readonly float[] _vertexLightBlock = new float[4];
     public readonly Chunk Chunk;
     public readonly RenderMesh Mesh;
     public bool Initialized = false;
@@ -73,7 +74,11 @@ public class ChunkRenderer : IDisposable
         var builder = bmb.MeshBuilder;
         var transformer = bmb.UvTransformer;
         var neighbourhood = Chunk.Neighbourhood;
+        var lightTransformer = (BlockLightTransformer)bmb.MeshBuilder.LightTransformer;
+        lightTransformer.EnableAutoLighting = true;
         Span<byte> lightVal = stackalloc byte[4];
+        Span<byte> skyLightVal = stackalloc byte[4];
+        Span<byte> blockLightVal = stackalloc byte[4];
         for (var i = 0; i < Constants.ChunkSize; ++i)
         for (var j = 0; j < Constants.ChunkSize; ++j)
         for (var k = 0; k < Constants.ChunkSize; ++k)
@@ -81,6 +86,7 @@ public class ChunkRenderer : IDisposable
             if (!Valid) return;
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
+            lightTransformer.BlockPointer = new BlockPointer(neighbourhood, absPos);
             var block = neighbourhood.GetBlockObj(absPos);
             if (block == Blocks.Air) continue;
             if (block == Blocks.Water) continue;
@@ -98,6 +104,7 @@ public class ChunkRenderer : IDisposable
             }
             else
             {
+                lightTransformer.EnableAutoLighting = false;
                 foreach (var face in CubeFaceUtils.Values())
                 {
                     transformer.Sprite = block.GetTexture(face);
@@ -110,38 +117,47 @@ public class ChunkRenderer : IDisposable
                     for (var u = 0; u < 2; ++u)
                     for (var v = 0; v < 2; ++v)
                     {
-                        byte cLight = 0;
+                        byte cLightSky = 0;
+                        byte cLightBlock = 0;
                         var ao = false;
                         for (var dx = -1; dx < 1; ++dx)
                         for (var dy = -1; dy < 1; ++dy)
                         {
                             var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
                             var oPos2Abs = absPos + oPos2Rel * s;
-                            cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
-                            cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
+                            cLightBlock = Math.Max(cLightBlock, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
+                            cLightSky = Math.Max(cLightSky, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
                             if (neighbourhood.GetBlockObj(oPos2Abs).HasAo()) ao = true;
                         }
 
-                        if (ao) cLight -= Math.Min(cLight, (byte)3);
-                        lightVal[u | (v << 1)] = cLight;
+                        if (ao)
+                        {
+                            cLightSky -= Math.Min(cLightSky, (byte)3);
+                            cLightBlock -= Math.Min(cLightBlock, (byte)3);
+                        }
+                        lightVal[u | (v << 1)] = Math.Max(cLightSky, cLightBlock);
+                        skyLightVal[u | (v << 1)] = cLightSky;
+                        blockLightVal[u | (v << 1)] = cLightBlock;
                     }
 
                     var dtMask = 0;
                     for (var l = 0; l < 4; ++l)
                     {
-                        _vertexLight[l] = (float)lightVal[l] / 15;
+                        _vertexLightSky[l] = (float)skyLightVal[l] / 15;
+                        _vertexLightBlock[l] = (float)blockLightVal[l] / 15;
                         dtMask |= lightVal[l] << (l << 2);
                     }
 
                     builder.Matrices.Push();
                     builder.Matrices.Multiply(s.AroundCenterMatrix4);
                     builder.NewPolygon().Indices(DifferentTriangles[dtMask] ? QuadIndices2 : QuadIndices)
-                        .Vertex(new BlockVertex(0, 0, 1, _vertexLight[0], _vertexLight[0], _vertexLight[0], 1, 0, 0))
-                        .Vertex(new BlockVertex(1, 0, 1, _vertexLight[1], _vertexLight[1], _vertexLight[1], 1, 1, 0))
-                        .Vertex(new BlockVertex(1, 1, 1, _vertexLight[3], _vertexLight[3], _vertexLight[3], 1, 1, 1))
-                        .Vertex(new BlockVertex(0, 1, 1, _vertexLight[2], _vertexLight[2], _vertexLight[2], 1, 0, 1));
+                        .Vertex(new BlockVertex(0, 0, 1, 1, 1, 1, 1, 0, 0, _vertexLightSky[0], _vertexLightBlock[0]))
+                        .Vertex(new BlockVertex(1, 0, 1, 1, 1, 1, 1, 1, 0, _vertexLightSky[1], _vertexLightBlock[1]))
+                        .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 1, _vertexLightSky[3], _vertexLightBlock[3]))
+                        .Vertex(new BlockVertex(0, 1, 1, 1, 1, 1, 1, 0, 1, _vertexLightSky[2], _vertexLightBlock[2]));
                     builder.Matrices.Pop();
                 }
+                lightTransformer.EnableAutoLighting = true;
             }
             
 
@@ -156,10 +172,12 @@ public class ChunkRenderer : IDisposable
             if (!Valid) return;
             var absPos = Chunk.Position.ShiftLeft(Constants.ChunkSizeLog2)
                          + new Vector3D<int>(i, j, k);
+            lightTransformer.BlockPointer = new BlockPointer(neighbourhood, absPos);
             var block = neighbourhood.GetBlockObj(absPos);
             if (block != Blocks.Water) continue;
             builder.Matrices.Push();
             builder.Matrices.Translate(i, j, k);
+            lightTransformer.EnableAutoLighting = false;
             foreach (var face in CubeFaceUtils.Values())
             {
                 transformer.Sprite = block.GetTexture(face);
@@ -174,39 +192,48 @@ public class ChunkRenderer : IDisposable
                 for (var u = 0; u < 2; ++u)
                 for (var v = 0; v < 2; ++v)
                 {
-                    byte cLight = 0;
+                    byte cLightSky = 0;
+                    byte cLightBlock = 0;
                     var ao = false;
                     for (var dx = -1; dx < 1; ++dx)
                     for (var dy = -1; dy < 1; ++dy)
                     {
                         var oPos2Rel = new Vector3D<int>(u + dx, v + dy, 1);
                         var oPos2Abs = absPos + oPos2Rel * s;
-                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
-                        cLight = Math.Max(cLight, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
+                        cLightBlock = Math.Max(cLightBlock, neighbourhood.GetLight(oPos2Abs, LightChannel.Block));
+                        cLightSky = Math.Max(cLightSky, neighbourhood.GetLight(oPos2Abs, LightChannel.Sky));
                         if (neighbourhood.GetBlockObj(oPos2Abs).HasAo()) ao = true;
                     }
 
-                    if (ao) cLight -= Math.Min(cLight, (byte)3);
-                    lightVal[u | (v << 1)] = cLight;
+                    if (ao)
+                    {
+                        cLightSky -= Math.Min(cLightSky, (byte)3);
+                        cLightBlock -= Math.Min(cLightBlock, (byte)3);
+                    }
+                    lightVal[u | (v << 1)] = Math.Max(cLightSky, cLightBlock);
+                    skyLightVal[u | (v << 1)] = cLightSky;
+                    blockLightVal[u | (v << 1)] = cLightBlock;
                 }
 
                 var dtMask = 0;
                 for (var l = 0; l < 4; ++l)
                 {
-                    _vertexLight[l] = (float)lightVal[l] / 15;
+                    _vertexLightSky[l] = (float)skyLightVal[l] / 15;
+                    _vertexLightBlock[l] = (float)blockLightVal[l] / 15;
                     dtMask |= lightVal[l] << (l << 2);
                 }
 
                 builder.Matrices.Push();
                 builder.Matrices.Multiply(s.AroundCenterMatrix4);
                 builder.NewPolygon().Indices(DifferentTriangles[dtMask] ? QuadIndices2 : QuadIndices)
-                    .Vertex(new BlockVertex(0, 0, 1, _vertexLight[0], _vertexLight[0], _vertexLight[0], 1, 0, 0))
-                    .Vertex(new BlockVertex(1, 0, 1, _vertexLight[1], _vertexLight[1], _vertexLight[1], 1, 1, 0))
-                    .Vertex(new BlockVertex(1, 1, 1, _vertexLight[3], _vertexLight[3], _vertexLight[3], 1, 1, 1))
-                    .Vertex(new BlockVertex(0, 1, 1, _vertexLight[2], _vertexLight[2], _vertexLight[2], 1, 0, 1));
+                    .Vertex(new BlockVertex(0, 0, 1, 1, 1, 1, 1, 0, 0, _vertexLightSky[0], _vertexLightBlock[0]))
+                    .Vertex(new BlockVertex(1, 0, 1, 1, 1, 1, 1, 1, 0, _vertexLightSky[1], _vertexLightBlock[1]))
+                    .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 1, _vertexLightSky[3], _vertexLightBlock[3]))
+                    .Vertex(new BlockVertex(0, 1, 1, 1, 1, 1, 1, 0, 1, _vertexLightSky[2], _vertexLightBlock[2]));
                 builder.Matrices.Pop();
             }
 
+            lightTransformer.EnableAutoLighting = true;
             builder.Matrices.Pop();
         }
     }

@@ -19,11 +19,13 @@ in vec4 vertexColor; // the input variable from the vertex shader (same name and
 in vec2 vertexUv;
 in vec4 vertexPosition;
 flat in int vertexSprite;
+in float brightness;
 
 void main()
 {
     vec2 uv = min(max(vertexUv, boxes[vertexSprite].min), boxes[vertexSprite].max);
     vec4 meshColor = vertexColor * texture(tex, uv);
+    meshColor = vec4(meshColor.rgb * brightness, meshColor.a);
     vec2 skyCoords = ((vertexPosition.xy / vertexPosition.w) + vec2(1)) / 2;
     vec3 skyColor = texture(skyTex, skyCoords).rgb;
     FragColor = vec4(mix(skyColor.rgb, meshColor.rgb, loadProgress), meshColor.a);

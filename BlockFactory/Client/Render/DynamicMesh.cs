@@ -17,11 +17,14 @@ public class DynamicMesh : IDisposable
     public readonly RenderMesh BlockMesh;
     public readonly RenderMesh ItemMesh;
     public readonly MatrixStack Matrices;
+    public readonly InterpolatedLightTransformer LightTransformer;
 
     public DynamicMesh(MatrixStack? matrices = null)
     {
         Matrices = matrices ?? new MatrixStack();
-        BlockMeshBuilder = new BlockMeshBuilder(Matrices);
+        LightTransformer = new InterpolatedLightTransformer();
+        LightTransformer.EnableAutoLighting = true;
+        BlockMeshBuilder = new BlockMeshBuilder(Matrices, LightTransformer);
         ItemMeshBuilder = new TexturedMeshBuilder(Matrices);
         BlockMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
         ItemMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
@@ -33,12 +36,12 @@ public class DynamicMesh : IDisposable
         ItemMesh.Dispose();
     }
 
-    public void Render()
+    public void Render(float dayCoef)
     {
         BfRendering.Gl.Enable(EnableCap.Blend);
         BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         
-        RenderBlock();
+        RenderBlock(dayCoef);
         RenderItem();
 
         BfRendering.Gl.BindVertexArray(0);
@@ -48,7 +51,7 @@ public class DynamicMesh : IDisposable
         BfRendering.Gl.Disable(EnableCap.Blend);
     }
 
-    private unsafe void RenderBlock()
+    private unsafe void RenderBlock(float dayCoef)
     {
         BlockMeshBuilder.MeshBuilder.Upload(BlockMesh);
 
@@ -62,6 +65,7 @@ public class DynamicMesh : IDisposable
         Shaders.Block.SetModel(BfRendering.Matrices);
         Shaders.Block.SetLoadProgress(1);
         Shaders.Block.SetSpriteBoxesBinding(2);
+        Shaders.Block.SetDayCoef(dayCoef);
         Textures.Blocks.SpriteBoxesBuffer.Bind(2);
         BlockMesh.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, BlockMesh.IndexCount,

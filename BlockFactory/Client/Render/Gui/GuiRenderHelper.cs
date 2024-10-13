@@ -21,7 +21,7 @@ public static class GuiRenderHelper
     public static void Init()
     {
         Transformer = new TextureAtlasUvTransformer(Textures.Gui);
-        TexturedGuiBuilder = new MeshBuilder<GuiVertex>(Transformer);
+        TexturedGuiBuilder = new MeshBuilder<GuiVertex>(Transformer, FullBrightLightTransformer.Instance);
     }
 
     public static unsafe void RenderText(TextRenderer renderer, ReadOnlySpan<char> s, int align, Color color)

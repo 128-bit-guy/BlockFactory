@@ -15,20 +15,23 @@ public class MeshBuilder<T> where T : unmanaged
     private int _vertCnt;
     private T[] _vertices;
     public Vector4D<float> Color = Vector4D<float>.One;
+    public readonly ILightTransformer LightTransformer;
 
-    public MeshBuilder(MatrixStack matrices, IUvTransformer transformer)
+    public MeshBuilder(MatrixStack matrices, IUvTransformer transformer, ILightTransformer lightTransformer)
     {
         _vertices = new T[1];
         _indices = new uint[1];
         Matrices = matrices;
         UvTransformer = transformer;
+        LightTransformer = lightTransformer;
     }
 
-    public MeshBuilder(IUvTransformer transformer) : this(new MatrixStack(), transformer)
+    public MeshBuilder(IUvTransformer transformer, ILightTransformer lightTransformer) : this(new MatrixStack(),
+        transformer, lightTransformer)
     {
     }
 
-    public MeshBuilder() : this(IdentityUvTransformer.Instance)
+    public MeshBuilder() : this(IdentityUvTransformer.Instance, FullBrightLightTransformer.Instance)
     {
     }
 

@@ -8,5 +8,6 @@ public enum TransformType
     Position,
     Uv,
     Color,
-    SpriteIndex
+    SpriteIndex,
+    Light
 }

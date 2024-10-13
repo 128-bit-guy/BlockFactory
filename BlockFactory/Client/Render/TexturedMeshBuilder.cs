@@ -14,7 +14,7 @@ public class TexturedMeshBuilder
     public TexturedMeshBuilder(MatrixStack? matrices = null, TextureAtlas? atlas = null)
     {
         UvTransformer = new TextureAtlasUvTransformer(atlas ?? Textures.Items);
-        MeshBuilder = new MeshBuilder<BlockVertex>(matrices ?? new MatrixStack(), UvTransformer);
+        MeshBuilder = new MeshBuilder<BlockVertex>(matrices ?? new MatrixStack(), UvTransformer, FullBrightLightTransformer.Instance);
     }
 
     public void Reset()

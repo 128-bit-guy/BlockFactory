@@ -9,11 +9,10 @@ namespace BlockFactory.Client;
 [ExclusiveTo(Side.Client)]
 public static class LightInterpolation
 {
-    public static double GetInterpolatedBrightness(IBlockAccess world, Vector3D<double> pos)
+    public static float GetInterpolatedBrightness(IBlockAccess world, Vector3D<double> pos, LightChannel channel)
     {
         var minBlockPos = (pos - new Vector3D<double>(0.5)).Floor();
         var relPos = pos - (minBlockPos.As<double>() + new Vector3D<double>(0.5));
-        var dayCoef = world.GetDayCoefficient();
         double sum = 0;
         for (var i = 0; i < 2; ++i)
         {
@@ -26,16 +25,22 @@ public static class LightInterpolation
                     var curPos = minBlockPos + new Vector3D<int>(i, j, k);
                     if (!world.IsBlockLoaded(curPos))
                     {
-                        return 1.0;
+                        return 1.0f;
                     }
                     var coefC =  coefB * (k == 0 ? 1 - relPos.Z : relPos.Z);
-                    var light = Math.Max((double)world.GetLight(curPos, LightChannel.Sky) * dayCoef,
-                        world.GetLight(curPos, LightChannel.Block));
-                    sum += coefC * (light / 15);
+                    var light = world.GetLight(curPos, channel);
+                    sum += coefC * (light / 15.0d);
                 }
             }
         }
 
-        return sum;
+        return (float)sum;
+    }
+
+    public static float GetInterpolatedBrightness(IBlockAccess world, Vector3D<double> pos)
+    {
+        var sky = GetInterpolatedBrightness(world, pos, LightChannel.Sky);
+        var block = GetInterpolatedBrightness(world, pos, LightChannel.Block);
+        return MathF.Max(sky * world.GetDayCoefficient(), block);
     }
 }

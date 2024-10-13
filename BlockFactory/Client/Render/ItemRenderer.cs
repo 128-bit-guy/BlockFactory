@@ -24,6 +24,7 @@ public static class ItemRenderer
     public static void Init()
     {
         DynamicMesh = new DynamicMesh();
+        DynamicMesh.LightTransformer.World = EmptyWorld.Instance;
     }
 
     public static void Destroy()
@@ -34,7 +35,7 @@ public static class ItemRenderer
     public static void RenderItemStack(ItemStack stack)
     {
         RenderItemStack(stack, DynamicMesh);
-        DynamicMesh.Render();
+        DynamicMesh.Render(1);
     }
 
     public static void RenderItemStack(ItemStack stack, DynamicMesh mesh)

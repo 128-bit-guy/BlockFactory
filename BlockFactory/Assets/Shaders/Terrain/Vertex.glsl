@@ -3,16 +3,19 @@ layout (location = 0) in vec3 aPos; // the position variable has attribute posit
 layout (location = 1) in vec4 color;
 layout (location = 2) in vec2 uv;
 layout (location = 3) in int sprite;
+layout (location = 4) in vec2 light;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 playerPos;
+uniform float dayCoef;
 
 out vec4 vertexColor; // specify a color output to the fragment shader
 out vec2 vertexUv;
 out vec4 vertexPosition;
 flat out int vertexSprite;
+out float brightness;
 
 vec3 spherify(vec3 mp) {
     return mp;
@@ -26,4 +29,5 @@ void main()
     vertexColor = color;
     vertexUv = uv;
     vertexSprite = sprite;
+    brightness = max(light.x * dayCoef, light.y);
 }
