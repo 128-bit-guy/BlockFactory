@@ -11,7 +11,7 @@ public class WorldTimeManager
     public readonly World World;
     public long WorldTime;
     private long _lastSentTime;
-    public virtual long TicksPerDay => Constants.TicksPerSecond * 60;
+    public virtual long TicksPerDay => Constants.TicksPerSecond * 60 * 20;
 
     public WorldTimeManager(World world)
     {
@@ -52,7 +52,7 @@ public class WorldTimeManager
 
     public virtual float GetDayCoefficient()
     {
-        var coefRaw = (BfMathUtils.SoftSign((GetSunDirection().Y + 0.2f) * 5) + 0.9f) / 1.8f;
+        var coefRaw = (BfMathUtils.SoftSign((GetSunDirection().Y + 0.02f) * 10) + 0.9f) / 1.8f;
         return MathF.Min(MathF.Max(coefRaw, 0), 1);
     }
 }
