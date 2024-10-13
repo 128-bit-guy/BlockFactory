@@ -94,10 +94,20 @@ public class SkyRenderer : IDisposable
         builder.Matrices.Push();
         builder.Matrices.Scale(0.2f, 0.2f, 1.0f);
         builder.NewPolygon().Indices(InvertedQuadIndices)
-            .Vertex(new BlockVertex(-1, -1, 1, 1, 1, 1, 1, 0, 0))
-            .Vertex(new BlockVertex(1, -1, 1, 1, 1, 1, 1, 1, 0))
-            .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 1))
-            .Vertex(new BlockVertex(-1, 1, 1, 1, 1, 1, 1, 0, 1));
+            .Vertex(new BlockVertex(-1, -1, 1, 1, 1, 1, 1, 0, 1))
+            .Vertex(new BlockVertex(1, -1, 1, 1, 1, 1, 1, 1, 1))
+            .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 0))
+            .Vertex(new BlockVertex(-1, 1, 1, 1, 1, 1, 1, 0, 0));
+        builder.Matrices.Pop();
+        _celestialBuilder.UvTransformer.Sprite = 1;
+        builder.Matrices.Push();
+        builder.Matrices.Scale(0.15f, 0.15f, 1.0f);
+        builder.Matrices.RotateX(MathF.PI);
+        builder.NewPolygon().Indices(InvertedQuadIndices)
+            .Vertex(new BlockVertex(-1, -1, 1, 1, 1, 1, 1, 0, 1))
+            .Vertex(new BlockVertex(1, -1, 1, 1, 1, 1, 1, 1, 1))
+            .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 0))
+            .Vertex(new BlockVertex(-1, 1, 1, 1, 1, 1, 1, 0, 0));
         builder.Matrices.Pop();
         builder.Matrices.Pop();
     }
