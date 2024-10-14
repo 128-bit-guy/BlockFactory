@@ -42,6 +42,11 @@ public class MatrixStack
     {
         Multiply(Matrix4X4.CreateRotationX(angle));
     }
+
+    public void Rotate(Quaternion<float> quaternion)
+    {
+        Multiply(Matrix4X4.CreateFromQuaternion(quaternion));
+    }
     
     public void RotateY(float angle)
     {

@@ -82,4 +82,11 @@ public static class BfMathUtils
     {
         return MathF.Atan(x) / (MathF.PI / 2);
     }
+
+    public static Quaternion<float> GetFromToQuaternion(Vector3D<float> a, Vector3D<float> b)
+    {
+        var kCosTheta = Vector3D.Dot(a, b);
+        var k = MathF.Sqrt(a.LengthSquared * b.LengthSquared);
+        return Quaternion<float>.Normalize(new Quaternion<float>(Vector3D.Cross(a, b), kCosTheta + k));
+    }
 }

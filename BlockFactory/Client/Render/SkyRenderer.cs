@@ -1,7 +1,10 @@
-﻿using BlockFactory.Base;
+﻿using System.Numerics;
+using BlockFactory.Base;
 using BlockFactory.Client.Render.Mesh_;
 using BlockFactory.Client.Render.Texture_;
 using BlockFactory.CubeMath;
+using BlockFactory.Utils;
+using BlockFactory.Utils.Random_;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -17,6 +20,7 @@ public class SkyRenderer : IDisposable
     private TexturedMeshBuilder _celestialBuilder;
     private readonly uint _fbo;
     public readonly uint Texture;
+    private readonly LinearCongruentialRandom _rng = new();
 
     public unsafe SkyRenderer()
     {
@@ -88,9 +92,31 @@ public class SkyRenderer : IDisposable
     protected void RenderCelestials()
     {
         var builder = _celestialBuilder.MeshBuilder;
-        _celestialBuilder.UvTransformer.Sprite = 0;
         builder.Matrices.Push();
         builder.Matrices.RotateX(BlockFactoryClient.Player!.World!.WorldTimeManager.GetSunAngle());
+        _rng.SetSeed(0);
+        _celestialBuilder.UvTransformer.Sprite = 2;
+        var visibility = 1 - BlockFactoryClient.Player!.World!.GetDayCoefficient();
+        builder.Color = new Vector4D<float>(1, 1, 1, visibility);
+        for (var i = 0; i < 500; ++i)
+        {
+            var dir = RandomUtils.PointOnSphere(_rng);
+            var size = (float)_rng.NextDouble() / 500 + 1.0f / 500;
+            var angle = (float)_rng.NextDouble() * 2 * MathF.PI;
+            var quat = BfMathUtils.GetFromToQuaternion(new Vector3D<float>(0, 0, 1), dir);
+            builder.Matrices.Push();
+            builder.Matrices.Rotate(quat);
+            builder.Matrices.RotateZ(angle);
+            builder.Matrices.Scale(size, size, 1);
+            builder.NewPolygon().Indices(InvertedQuadIndices)
+                .Vertex(new BlockVertex(-1, -1, 1, 1, 1, 1, 1, 0, 1))
+                .Vertex(new BlockVertex(1, -1, 1, 1, 1, 1, 1, 1, 1))
+                .Vertex(new BlockVertex(1, 1, 1, 1, 1, 1, 1, 1, 0))
+                .Vertex(new BlockVertex(-1, 1, 1, 1, 1, 1, 1, 0, 0));
+            builder.Matrices.Pop();
+        }
+        builder.Color = new Vector4D<float>(1, 1, 1, 1);
+        _celestialBuilder.UvTransformer.Sprite = 0;
         builder.Matrices.Push();
         builder.Matrices.Scale(0.2f, 0.2f, 1.0f);
         builder.NewPolygon().Indices(InvertedQuadIndices)
