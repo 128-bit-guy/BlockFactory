@@ -41,7 +41,7 @@ public class WorldTimeManager
 
     public float GetSunAngle()
     {
-        return (float)GetDayTime() / TicksPerDay * 2 * MathF.PI;
+        return -(float)GetDayTime() / TicksPerDay * 2 * MathF.PI;
     }
     
     public Vector3D<float> GetSunDirection()
