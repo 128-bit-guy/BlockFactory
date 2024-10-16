@@ -116,6 +116,30 @@ public static class BlockFactoryServer
             {
                 //Ignore incorrect command
             }
+        } else if (s[0] == "/set_time")
+        {
+            try
+            {
+                var timeManager = sender!.World!.WorldTimeManager;
+                if (s[1] == "day")
+                {
+                    var targetTime = timeManager.TicksPerDay / 4;
+                    timeManager.WorldTime += targetTime - timeManager.GetDayTime();
+                } else if (s[1] == "night")
+                {
+                    var targetTime = (3 * timeManager.TicksPerDay) / 4;
+                    timeManager.WorldTime += targetTime - timeManager.GetDayTime();
+                }
+                else
+                {
+                    var targetTime = long.Parse(s[1]);
+                    timeManager.WorldTime = targetTime;
+                }
+            }
+            catch (Exception)
+            {
+                //Ignore incorrect command
+            }
         }
         else if(sender == null)
             Console.WriteLine($"Unknown command: {command}");

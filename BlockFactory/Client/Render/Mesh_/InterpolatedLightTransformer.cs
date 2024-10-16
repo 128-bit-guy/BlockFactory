@@ -1,9 +1,11 @@
-﻿using BlockFactory.World_.Interfaces;
+﻿using BlockFactory.Base;
+using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
+[ExclusiveTo(Side.Client)]
 public class InterpolatedLightTransformer : ILightTransformer
 {
     public IBlockAccess World;

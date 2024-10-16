@@ -1,9 +1,11 @@
-﻿using BlockFactory.World_;
+﻿using BlockFactory.Base;
+using BlockFactory.World_;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
 namespace BlockFactory.Client.Render.Mesh_;
 
+[ExclusiveTo(Side.Client)]
 public class BlockLightTransformer : ILightTransformer
 {
     public BlockPointer BlockPointer;
