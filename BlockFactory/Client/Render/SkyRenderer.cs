@@ -210,6 +210,10 @@ public class SkyRenderer : IDisposable
 
     protected unsafe void RenderSky(double deltaTime)
     {
+        if (BlockFactoryClient.RenderWireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
+        }
         Shaders.Sky.Use();
         BfRendering.SetVpMatrices(Shaders.Sky);
         BfRendering.Matrices.Push();
@@ -219,6 +223,10 @@ public class SkyRenderer : IDisposable
         _skyboxCube.Bind();
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _skyboxCube.IndexCount,
             DrawElementsType.UnsignedInt, null);
+        if (BlockFactoryClient.RenderWireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+        }
         RenderSkyObjects(deltaTime);
         RenderSkyObjectMesh();
         BfRendering.Matrices.Pop();
@@ -252,6 +260,10 @@ public class SkyRenderer : IDisposable
     {
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, _fbo);
         RenderSky(deltaTime);
+        if (BlockFactoryClient.RenderWireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
+        }
         BfRendering.Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, Texture);
         Shaders.Gui.Use();
@@ -262,6 +274,10 @@ public class SkyRenderer : IDisposable
         BfRendering.Gl.DrawElements(PrimitiveType.Triangles, _skyBackground.IndexCount,
             DrawElementsType.UnsignedInt, null);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
+        if (BlockFactoryClient.RenderWireframe)
+        {
+            BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+        }
     }
 
     public unsafe void OnFramebufferResize(Vector2D<int> newSize)

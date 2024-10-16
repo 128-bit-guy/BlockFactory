@@ -36,6 +36,7 @@ public static class BlockFactoryClient
     public static MenuManager MenuManager = null!;
     public static string WorldsDirectory = null!;
     public static Settings Settings = new();
+    public static bool RenderWireframe;
 
     private static void InitWindow()
     {
@@ -124,8 +125,8 @@ public static class BlockFactoryClient
         if (Player == null) LogicProcessor?.Update();
         if (LogicProcessor?.ShouldStop() ?? false) ExitWorld();
 
-        var wireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
-        if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+        RenderWireframe = InputContext.Keyboards[0].IsKeyPressed(Key.ControlRight);
+        if (RenderWireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
         MouseInputManager.Update();
         BfRendering.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -163,7 +164,7 @@ public static class BlockFactoryClient
         else
             MenuManager.UpdateAndRender(deltaTime);
 
-        if (wireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
+        if (RenderWireframe) BfRendering.Gl.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
         BfDebug.UpdateAndRender(deltaTime);
     }
 
