@@ -213,9 +213,7 @@ public abstract class PlayerEntity : WalkingEntity
 
         ProcessInteraction();
         PickUpItems();
-
-        ChunkLoader!.Update();
-        ChunkTicker!.Update();
+        
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client && MenuManager.Empty)
         {
             var s = MenuHand.Extract(0, int.MaxValue, false);
@@ -233,6 +231,12 @@ public abstract class PlayerEntity : WalkingEntity
         }
 
         MenuManager.UpdateLogic();
+    }
+
+    public void UpdateChunkLoading()
+    {
+        ChunkLoader!.Update();
+        ChunkTicker!.Update();
     }
 
     public void SendUpdateToClient()

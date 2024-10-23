@@ -20,6 +20,7 @@ public class Chunk : IBlockWorld, IEntityStorage
     public readonly World World;
     public ChunkData? Data;
     [ThreadStatic] private static List<Entity>? _entitiesToMove;
+    [ThreadStatic] private static List<Entity>? _entitiesToUpdate;
     
     public readonly ChunkStatusInfo ChunkStatusInfo;
     public readonly ChunkUpdateInfo ChunkUpdateInfo;
@@ -202,8 +203,10 @@ public class Chunk : IBlockWorld, IEntityStorage
         ChunkUpdateInfo.MoveBlockUpdatesToBuffer();
         
         _entitiesToMove ??= new List<Entity>();
+        _entitiesToUpdate ??= new List<Entity>();
+        _entitiesToUpdate.AddRange(Data!.Entities.Values);
         
-        foreach (var (_, entity) in Data!.Entities)
+        foreach (var entity in _entitiesToUpdate)
         {
             entity.Update();
             if (World.LogicProcessor.LogicalSide == LogicalSide.Server &&
@@ -212,6 +215,8 @@ public class Chunk : IBlockWorld, IEntityStorage
                 _entitiesToMove.Add(entity);
             }
         }
+        
+        _entitiesToUpdate.Clear();
 
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server && _entitiesToMove.Count > 0)
         {

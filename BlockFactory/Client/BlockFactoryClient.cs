@@ -215,7 +215,8 @@ public static class BlockFactoryClient
         WorldRenderer = new WorldRenderer(Player);
         SkyRenderer = new SkyRenderer();
         LogicProcessor!.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld(), serialization);
+        LogicProcessor.GetWorld().AddEntity(Player);
+        // Player.SetWorld(LogicProcessor.GetWorld(), serialization);
     }
 
     private static void OnWindowLoad()
@@ -253,7 +254,12 @@ public static class BlockFactoryClient
     {
         if (LogicProcessor != null)
         {
-            if (Player != null) RemovePlayer();
+            if (Player != null) 
+            {
+                LogicProcessor.GetWorld().RemoveEntity(Player);
+                RemovePlayer();
+            }
+            
             if (LogicProcessor.LogicalSide != LogicalSide.Client) LogicProcessor.SaveMapping();
 
             LogicProcessor.Dispose();

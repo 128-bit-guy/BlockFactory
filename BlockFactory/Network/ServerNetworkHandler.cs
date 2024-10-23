@@ -36,7 +36,8 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
 
         player.Peer = peer;
         BlockFactoryServer.LogicProcessor.AddPlayer(player);
-        player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
+        BlockFactoryServer.LogicProcessor.GetWorld().AddEntity(player);
+        // player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
         SendPacket(player, new PlayerDataPacket(player));
         return player;
     }
@@ -47,7 +48,8 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         _players.Remove(peer, out var peerState);
         if (peerState!.Player != null)
         {
-            peerState.Player!.SetWorld(null, true);
+            BlockFactoryServer.LogicProcessor.GetWorld().RemoveEntity(peerState.Player!);
+            // peerState.Player!.SetWorld(null, true);
             BlockFactoryServer.LogicProcessor.RemovePlayer(peerState.Player);
             peerState.Player!.Peer = default;
         }
