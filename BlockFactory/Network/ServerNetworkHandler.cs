@@ -16,7 +16,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
     private readonly Dictionary<ENetPeer, ServerPeerState> _players;
 
     public ServerNetworkHandler(int port) : base(LogicalSide.Server,
-        new ENetHost(new IPEndPoint(IPAddress.Loopback, port), 16, 1))
+        new ENetHost(new IPEndPoint(IPAddress.Any, port), 16, 1))
     {
         _players = new Dictionary<ENetPeer, ServerPeerState>();
     }
