@@ -87,4 +87,9 @@ public class FlatWorldGenerator : IWorldGenerator
     {
         _mineshaftGenerator.Generate(c, new LinearCongruentialRandom(0));
     }
+
+    public string GetName()
+    {
+        return "Flat";
+    }
 }

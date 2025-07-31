@@ -58,4 +58,9 @@ public class WorldGenerator : IWorldGenerator
     {
         _decorator.DecorateChunk(c);
     }
+
+    public string GetName()
+    {
+        return "Terrain";
+    }
 }

@@ -3,6 +3,7 @@ using BlockFactory.Content.Block_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Content.Gui.Control;
 using BlockFactory.Content.Item_;
+using BlockFactory.Content.WorldGenType_;
 using BlockFactory.Network.Packet_;
 
 namespace BlockFactory.Content;
@@ -18,10 +19,12 @@ public static class BfContent
         Biomes.Init();
         SynchronizedControls.Init();
         Entities.Init();
+        WorldGeneratorTypes.Init();
         Blocks.Lock();
         Items.Lock();
         Biomes.Lock();
         SynchronizedControls.Lock();
         Entities.Lock();
+        WorldGeneratorTypes.Lock();
     }
 }

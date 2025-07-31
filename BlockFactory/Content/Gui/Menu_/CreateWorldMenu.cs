@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Client;
 using BlockFactory.Content.Gui.Control;
+using BlockFactory.Content.WorldGenType_;
 using BlockFactory.World_;
 using Silk.NET.Maths;
 
@@ -14,6 +15,7 @@ public class CreateWorldMenu : Menu
     private readonly WorldSettings _settings;
     private readonly TextInputControl _textInput;
     private readonly ButtonControl _typeButton;
+    private readonly List<WorldGeneratorType> _worldGeneratorTypes;
 
     public CreateWorldMenu()
     {
@@ -30,20 +32,28 @@ public class CreateWorldMenu : Menu
         _textInput.EnterPressed += OnEnterPressed;
         _textInput.TextChanged += OnTextChanged;
         _typeButton.Pressed += OnTypePressed;
-        _settings = new WorldSettings(DateTime.UtcNow.Ticks, false);
+        _worldGeneratorTypes = new List<WorldGeneratorType>();
+        _worldGeneratorTypes.AddRange(WorldGeneratorTypes.Registry);
+        _settings = new WorldSettings(DateTime.UtcNow.Ticks, _worldGeneratorTypes[0]);
         UpdateTypeButtonText();
         UpdateRenameEnabled();
     }
 
     private void OnTypePressed()
     {
-        _settings.Flat = !_settings.Flat;
+        int id = _worldGeneratorTypes.IndexOf(_settings.GeneratorType);
+        ++id;
+        if (id == _worldGeneratorTypes.Count)
+        {
+            id = 0;
+        }
+        _settings.GeneratorType = _worldGeneratorTypes[id];
         UpdateTypeButtonText();
     }
 
     private void UpdateTypeButtonText()
     {
-        var type = _settings.Flat ? "Flat" : "Terrain";
+        var type = _settings.GeneratorType.Name;
         _typeButton.Text = $"World type: {type}";
     }
 

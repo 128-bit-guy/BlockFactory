@@ -25,10 +25,12 @@ public class World : IChunkWorld, IDisposable
 
     public World(LogicProcessor logicProcessor, string saveLocation)
     {
-        if (logicProcessor.WorldData.WorldSettings.Flat)
-            Generator = new FlatWorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
-        else
-            Generator = new WorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
+        Generator = logicProcessor.WorldData.WorldSettings.GeneratorType.WorldGeneratorCreator(logicProcessor.WorldData
+            .WorldSettings.Seed);
+        // if (logicProcessor.WorldData.WorldSettings.Flat)
+        //     Generator = new FlatWorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
+        // else
+        //     Generator = new WorldGenerator(logicProcessor.WorldData.WorldSettings.Seed);
 
         LogicProcessor = logicProcessor;
         if (logicProcessor.LogicalSide != LogicalSide.Client)
