@@ -15,7 +15,7 @@ public class WorldGenElement
         _uniqueNumber = uniqueNumber;
     }
 
-    public long GetChunkSeed(Vector3D<int> pos)
+    public long GetPosSeed(Vector3D<int> pos)
     {
         var resPart1 =
             (((((pos.X + pos.Y * 1000000007) & HalfMask) +
@@ -28,13 +28,13 @@ public class WorldGenElement
 
     public long GetChunkSeed(Chunk c)
     {
-        return GetChunkSeed(c.Position);
+        return GetPosSeed(c.Position);
     }
 
-    public LinearCongruentialRandom GetChunkRandom(Vector3D<int> c)
+    public LinearCongruentialRandom GetPosRandom(Vector3D<int> c)
     {
         var rng = LinearCongruentialRandom.ThreadLocalInstance;
-        rng.SetSeed(GetChunkSeed(c));
+        rng.SetSeed(GetPosSeed(c));
         return rng;
     }
 

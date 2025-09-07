@@ -40,7 +40,7 @@ public class CaveGenerator : WorldGenElement
 
     private void GenerateCaveForOrigPos(Chunk c, Vector3D<int> origChunkPos)
     {
-        var random = GetChunkRandom(origChunkPos);
+        var random = GetPosRandom(origChunkPos);
         Vector3D<int> rel;
         if (random.Next(120) != 0) return;
         var chunkOriginPos = origChunkPos.ShiftLeft(Constants.ChunkSizeLog2);

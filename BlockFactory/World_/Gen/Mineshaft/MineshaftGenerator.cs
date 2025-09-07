@@ -15,7 +15,7 @@ public class MineshaftGenerator : WorldGenElement
     private void AddPiecesForOrigPos(Chunk c, Vector3D<int> origPos, List<IMineshaftElement> elements)
     {
         if(origPos.Y > -3) return;
-        var rng = GetChunkRandom(origPos);
+        var rng = GetPosRandom(origPos);
         if(rng.Next(1000) != 0) return;
         var q = new Queue<IMineshaftElement>();
         var beginPos = origPos.ShiftLeft(Constants.ChunkSizeLog2);
