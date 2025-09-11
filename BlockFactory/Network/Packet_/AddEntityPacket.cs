@@ -3,6 +3,7 @@ using BlockFactory.Content.Entity_;
 using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Serialization;
 using BlockFactory.Utils.Serialization;
+using BlockFactory.World_;
 using ENet.Managed;
 using Silk.NET.Maths;
 
@@ -57,8 +58,17 @@ public class AddEntityPacket : IInGamePacket
 
     public void Handle(PlayerEntity? sender)
     {
-        var entity = Entities.Registry[_type]!.Creator();
-        entity.DeserializeFromTag(_tag!, SerializationReason.NetworkInit);
-        BlockFactoryClient.Player!.World!.GetChunk(_chunkPos)!.AddEntity(entity);
+        if (_guid == BlockFactoryClient.Player!.Guid)
+        {
+            var c = BlockFactoryClient.Player.World!.GetChunk(_chunkPos)!;
+            c.Data!.AddEntity(BlockFactoryClient.Player);
+            c.AddEntityInternal(BlockFactoryClient.Player, false);
+        }
+        else
+        {
+            var entity = Entities.Registry[_type]!.Creator();
+            entity.DeserializeFromTag(_tag!, SerializationReason.NetworkInit);
+            BlockFactoryClient.Player!.World!.GetChunk(_chunkPos)!.AddEntity(entity);
+        }
     }
 }

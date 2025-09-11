@@ -35,10 +35,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         var player = (ServerPlayerEntity)BlockFactoryServer.LogicProcessor.GetOrCreatePlayer(name, out var found);
 
         player.Peer = peer;
-        BlockFactoryServer.LogicProcessor.AddPlayer(player);
-        BlockFactoryServer.LogicProcessor.GetWorld().AddEntity(player);
         // player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
-        SendPacket(player, new PlayerDataPacket(player));
         return player;
     }
 
@@ -100,7 +97,9 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         EnqueueSendPacketInternal(new RegistryMappingPacket(BlockFactoryServer.Mapping), peer);
         var player = LoadOrCreatePlayer(p.Credentials.Name, peer);
         peerState.Player = player;
+        BlockFactoryServer.LogicProcessor.AddPlayer(player);
         SendPacket(player, new PlayerDataPacket(player));
+        BlockFactoryServer.LogicProcessor.GetWorld().AddEntity(player);
     }
 
     public override bool ShouldStop()

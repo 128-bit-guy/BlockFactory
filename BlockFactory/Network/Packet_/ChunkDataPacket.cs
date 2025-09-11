@@ -18,14 +18,14 @@ public class ChunkDataPacket : IInGamePacket
     private Vector3D<int> _pos;
     private DictionaryTag _tagData;
 
-    public ChunkDataPacket(Vector3D<int> pos, ChunkData data)
+    public ChunkDataPacket(Vector3D<int> pos, ChunkData data, Guid excludedEntity)
     {
         _data = data;
         _pos = pos;
-        _tagData = data.WriteTagData(SerializationReason.NetworkInit);
+        _tagData = data.WriteTagData(SerializationReason.NetworkInit, excludedEntity);
     }
 
-    public ChunkDataPacket() : this(Vector3D<int>.Zero, new ChunkData())
+    public ChunkDataPacket() : this(Vector3D<int>.Zero, new ChunkData(), Guid.Empty)
     {
     }
 

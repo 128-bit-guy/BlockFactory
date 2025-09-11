@@ -155,7 +155,14 @@ public class LogicProcessor : IDisposable
             WorldData.SpawnPoint = _spawnPointSearcher.FoundPos;
         }
 
-        foreach (var player in _players) player.UpdateChunkLoading();
+        foreach (var player in _players)
+        {
+            player.UpdateChunkLoading();
+            if (LogicalSide == LogicalSide.Client && player.Chunk != null)
+            {
+                player.Update();
+            }
+        }
     }
 
     [ExclusiveTo(Side.Client)]

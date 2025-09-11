@@ -235,8 +235,11 @@ public abstract class PlayerEntity : WalkingEntity
 
     public void UpdateChunkLoading()
     {
-        ChunkLoader!.Update();
-        ChunkTicker!.Update();
+        if (World != null && World.LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            ChunkLoader!.Update();
+            ChunkTicker!.Update();
+        }
     }
 
     public void SendUpdateToClient()
