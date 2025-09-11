@@ -192,7 +192,7 @@ public abstract class PlayerEntity : WalkingEntity
         MotionController.ClientState.ControlState = state;
     }
 
-    public override void Update()
+    public void UpdateSpawned()
     {
         if (!Spawned)
         {
@@ -202,10 +202,15 @@ public abstract class PlayerEntity : WalkingEntity
                 Spawned = true;
                 Pos = posOptional.Value.As<double>() + new Vector3D<double>(0.5);
             }
-            else
-            {
-                return;
-            }
+        }
+    }
+
+    public override void Update()
+    {
+        UpdateSpawned();
+        if (!Spawned)
+        {
+            return;
         }
 
         MotionController.Update();
@@ -235,7 +240,7 @@ public abstract class PlayerEntity : WalkingEntity
 
     public void UpdateChunkLoading()
     {
-        if (World != null && World.LogicProcessor.LogicalSide != LogicalSide.Client)
+        if (Spawned && World != null && World.LogicProcessor.LogicalSide != LogicalSide.Client)
         {
             ChunkLoader!.Update();
             ChunkTicker!.Update();
@@ -356,6 +361,7 @@ public abstract class PlayerEntity : WalkingEntity
 
     public void HandleOpenMenuRequest(OpenMenuRequestType requestType)
     {
+        if(World == null) return;
         if (World!.LogicProcessor.LogicalSide == LogicalSide.Client)
         {
             World!.LogicProcessor.NetworkHandler.SendPacket(this, new OpenMenuRequestPacket(requestType));

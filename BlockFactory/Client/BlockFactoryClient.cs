@@ -76,7 +76,7 @@ public static class BlockFactoryClient
         Player.MotionController.ClientState.ControlState = PlayerControlManager.ControlState;
 
         LogicProcessor!.Update();
-        if (Player.World != null)
+        if (Player is { World: not null })
         {
             BfRendering.UseWorldMatrices();
             BfRendering.SetVpMatrices(Shaders.Block);
@@ -93,7 +93,7 @@ public static class BlockFactoryClient
 
     private static void UpdateAndRender3DHud()
     {
-        if(Player!.World == null) return;
+        if(Player?.World == null) return;
         BfRendering.Matrices.Push();
         var time = Window.Time;
         var sin = (float)Math.Sin(time);
