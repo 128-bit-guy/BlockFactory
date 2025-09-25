@@ -76,12 +76,16 @@ public static class BlockFactoryClient
         Player.MotionController.ClientState.ControlState = PlayerControlManager.ControlState;
 
         LogicProcessor!.Update();
-        BfRendering.UseWorldMatrices();
-        BfRendering.SetVpMatrices(Shaders.Block);
-        Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
-        SkyRenderer!.UpdateAndRender(deltaTime);
-        BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-        WorldRenderer!.UpdateAndRender(deltaTime);
+        if (Player is { World: not null })
+        {
+            BfRendering.UseWorldMatrices();
+            BfRendering.SetVpMatrices(Shaders.Block);
+            Shaders.Block.SetPlayerPos(Vector3D<float>.Zero);
+            SkyRenderer!.UpdateAndRender(deltaTime);
+            BfRendering.Gl.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+            WorldRenderer!.UpdateAndRender(deltaTime);
+        }
+
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
         BfRendering.Gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -89,6 +93,7 @@ public static class BlockFactoryClient
 
     private static void UpdateAndRender3DHud()
     {
+        if(Player?.World == null) return;
         BfRendering.Matrices.Push();
         var time = Window.Time;
         var sin = (float)Math.Sin(time);
@@ -198,6 +203,7 @@ public static class BlockFactoryClient
         LogicProcessor.Start();
         var player = LogicProcessor.GetOrCreatePlayer(Settings.Credentials.Name, out var found);
         SetPlayer(player, found);
+        LogicProcessor.GetWorld().AddEntity(player);
     }
 
     public static void StartMultiplayer(string serverAddressAndPort)
@@ -215,7 +221,7 @@ public static class BlockFactoryClient
         WorldRenderer = new WorldRenderer(Player);
         SkyRenderer = new SkyRenderer();
         LogicProcessor!.AddPlayer(Player);
-        Player.SetWorld(LogicProcessor.GetWorld(), serialization);
+        // Player.SetWorld(LogicProcessor.GetWorld(), serialization);
     }
 
     private static void OnWindowLoad()
@@ -253,7 +259,16 @@ public static class BlockFactoryClient
     {
         if (LogicProcessor != null)
         {
-            if (Player != null) RemovePlayer();
+            if (Player != null) 
+            {
+                if (LogicProcessor.LogicalSide != LogicalSide.Client)
+                {
+                    LogicProcessor.GetWorld().RemoveEntity(Player);
+                }
+
+                RemovePlayer();
+            }
+            
             if (LogicProcessor.LogicalSide != LogicalSide.Client) LogicProcessor.SaveMapping();
 
             LogicProcessor.Dispose();

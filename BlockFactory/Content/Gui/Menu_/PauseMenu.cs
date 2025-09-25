@@ -25,7 +25,7 @@ public class PauseMenu : Menu
     private void SaveAndQuitPressed()
     {
         BlockFactoryClient.ExitWorld();
-        BlockFactoryClient.MenuManager.Pop();
+        // BlockFactoryClient.MenuManager.Pop();
     }
 
     private void BackToGamePressed()

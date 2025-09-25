@@ -65,7 +65,7 @@ public static class BfDebug
             ImGui.End();
         }
 
-        if (BlockFactoryClient.Player != null)
+        if (BlockFactoryClient.Player != null && BlockFactoryClient.Player.World != null)
         {
             if (ImGui.Begin("Chunk loading"))
             {

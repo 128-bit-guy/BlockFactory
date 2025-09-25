@@ -35,9 +35,7 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         var player = (ServerPlayerEntity)BlockFactoryServer.LogicProcessor.GetOrCreatePlayer(name, out var found);
 
         player.Peer = peer;
-        BlockFactoryServer.LogicProcessor.AddPlayer(player);
-        player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
-        SendPacket(player, new PlayerDataPacket(player));
+        // player.SetWorld(BlockFactoryServer.LogicProcessor.GetWorld(), found);
         return player;
     }
 
@@ -47,7 +45,8 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         _players.Remove(peer, out var peerState);
         if (peerState!.Player != null)
         {
-            peerState.Player!.SetWorld(null, true);
+            BlockFactoryServer.LogicProcessor.GetWorld().RemoveEntity(peerState.Player!);
+            // peerState.Player!.SetWorld(null, true);
             BlockFactoryServer.LogicProcessor.RemovePlayer(peerState.Player);
             peerState.Player!.Peer = default;
         }
@@ -98,7 +97,9 @@ public class ServerNetworkHandler : MultiPlayerNetworkHandler
         EnqueueSendPacketInternal(new RegistryMappingPacket(BlockFactoryServer.Mapping), peer);
         var player = LoadOrCreatePlayer(p.Credentials.Name, peer);
         peerState.Player = player;
+        BlockFactoryServer.LogicProcessor.AddPlayer(player);
         SendPacket(player, new PlayerDataPacket(player));
+        BlockFactoryServer.LogicProcessor.GetWorld().AddEntity(player);
     }
 
     public override bool ShouldStop()

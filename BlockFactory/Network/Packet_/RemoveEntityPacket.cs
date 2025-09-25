@@ -52,6 +52,14 @@ public class RemoveEntityPacket : IInGamePacket
     {
         var c = BlockFactoryClient.Player!.World!.GetChunk(_chunkPos)!;
         var entity = c.GetEntity(_guid)!;
-        c.RemoveEntity(entity);
+        if (_guid == BlockFactoryClient.Player.Guid)
+        {
+            c.RemoveEntityInternal(entity, false);
+            c.Data!.RemoveEntity(entity);
+        }
+        else
+        {
+            c.RemoveEntity(entity);
+        }
     }
 }

@@ -7,6 +7,7 @@ using BlockFactory.Serialization;
 using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
+using ImGuiNET;
 using Silk.NET.Maths;
 
 namespace BlockFactory.World_.Serialization;
@@ -91,18 +92,24 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
         ReadTagData(TagIO.Read<DictionaryTag>(reader), reason);
     }
 
-    public DictionaryTag WriteTagData(SerializationReason reason)
+    public DictionaryTag WriteTagData(SerializationReason reason, Guid excludedEntity)
     {
         var res = new DictionaryTag();
         var entityList = new ListTag(0, TagType.Dictionary);
         foreach (var (_, entity) in Entities)
         {
+            if(entity.Guid == excludedEntity) continue;
             var tag = entity.SerializeToTag(reason);
             tag.SetValue("type", entity.Type.Id);
             entityList.Add(tag);
         }
         res.Set("entities", entityList);
         return res;
+    }
+
+    public DictionaryTag WriteTagData(SerializationReason reason)
+    {
+        return WriteTagData(reason, Guid.Empty);
     }
 
     public void ReadTagData(DictionaryTag tag, SerializationReason reason)
@@ -187,7 +194,7 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
 
     public Entity? GetEntity(Guid guid)
     {
-        return Entities[guid];
+        return Entities.GetValueOrDefault(guid);
     }
 
     public IEnumerable<Entity> GetEntities(Box3D<double> box)

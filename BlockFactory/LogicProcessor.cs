@@ -61,6 +61,15 @@ public class LogicProcessor : IDisposable
 
     public void Dispose()
     {
+        if (LogicalSide == LogicalSide.Server)
+        {
+            foreach (var player in _players)
+            {
+                NetworkHandler.SendPacket(player, new KickPacket("Server stopped"));
+                _world.RemoveEntity(player);
+            }
+        }
+
         _world.Dispose();
         NetworkHandler.Dispose();
         if (LogicalSide != LogicalSide.Client)
@@ -155,7 +164,15 @@ public class LogicProcessor : IDisposable
             WorldData.SpawnPoint = _spawnPointSearcher.FoundPos;
         }
 
-        foreach (var player in _players) player.Update();
+        foreach (var player in _players)
+        {
+            player.UpdateChunkLoading();
+            player.UpdateSpawned();
+            if (LogicalSide == LogicalSide.Client && player.Chunk != null)
+            {
+                player.Update();
+            }
+        }
     }
 
     [ExclusiveTo(Side.Client)]

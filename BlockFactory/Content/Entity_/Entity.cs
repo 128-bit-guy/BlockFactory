@@ -166,4 +166,9 @@ public abstract class Entity : ITagSerializable
     {
         return new Vector3D<float>(-MathF.Cos(HeadRotation.X), 0, MathF.Sin(HeadRotation.X));
     }
+
+    public virtual bool IsTargetPosValid()
+    {
+        return true;
+    }
 }

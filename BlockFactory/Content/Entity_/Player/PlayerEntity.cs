@@ -192,7 +192,7 @@ public abstract class PlayerEntity : WalkingEntity
         MotionController.ClientState.ControlState = state;
     }
 
-    public override void Update()
+    public void UpdateSpawned()
     {
         if (!Spawned)
         {
@@ -202,10 +202,15 @@ public abstract class PlayerEntity : WalkingEntity
                 Spawned = true;
                 Pos = posOptional.Value.As<double>() + new Vector3D<double>(0.5);
             }
-            else
-            {
-                return;
-            }
+        }
+    }
+
+    public override void Update()
+    {
+        UpdateSpawned();
+        if (!Spawned)
+        {
+            return;
         }
 
         MotionController.Update();
@@ -213,9 +218,7 @@ public abstract class PlayerEntity : WalkingEntity
 
         ProcessInteraction();
         PickUpItems();
-
-        ChunkLoader!.Update();
-        ChunkTicker!.Update();
+        
         if (World.LogicProcessor.LogicalSide != LogicalSide.Client && MenuManager.Empty)
         {
             var s = MenuHand.Extract(0, int.MaxValue, false);
@@ -233,6 +236,15 @@ public abstract class PlayerEntity : WalkingEntity
         }
 
         MenuManager.UpdateLogic();
+    }
+
+    public void UpdateChunkLoading()
+    {
+        if (Spawned && World != null && World.LogicProcessor.LogicalSide != LogicalSide.Client)
+        {
+            ChunkLoader!.Update();
+            ChunkTicker!.Update();
+        }
     }
 
     public void SendUpdateToClient()
@@ -349,6 +361,7 @@ public abstract class PlayerEntity : WalkingEntity
 
     public void HandleOpenMenuRequest(OpenMenuRequestType requestType)
     {
+        if(World == null) return;
         if (World!.LogicProcessor.LogicalSide == LogicalSide.Client)
         {
             World!.LogicProcessor.NetworkHandler.SendPacket(this, new OpenMenuRequestPacket(requestType));
@@ -409,5 +422,10 @@ public abstract class PlayerEntity : WalkingEntity
             PickUpDelay = 20
         };
         World!.AddEntity(entity);
+    }
+
+    public override bool IsTargetPosValid()
+    {
+        return Spawned;
     }
 }

@@ -29,6 +29,7 @@ public static class Packets
         NetworkRegistry.RegisterPacket<EntityPosUpdatePacket>("");
         NetworkRegistry.RegisterPacket<EntityChangeChunkPacket>("");
         NetworkRegistry.RegisterPacket<WorldTimeUpdatePacket>("");
+        NetworkRegistry.RegisterPacket<PlayerWorldControlPacket>("");
     }
 
     public static void Lock()

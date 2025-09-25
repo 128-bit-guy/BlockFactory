@@ -20,7 +20,7 @@ public class PendingEntityManager
     {
         foreach (var (_, entity) in _entities)
         {
-            if (World.IsBlockLoaded(entity.GetBlockPos()))
+            if (entity.IsTargetPosValid() && World.IsBlockLoaded(entity.GetBlockPos()))
             {
                 _toPlaceInChunk.Add(entity);
             }

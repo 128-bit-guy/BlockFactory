@@ -1,6 +1,8 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Content.Entity_;
+using BlockFactory.Content.Entity_.Player;
 using BlockFactory.CubeMath;
+using BlockFactory.Network.Packet_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Gen;
 using BlockFactory.World_.Interfaces;
@@ -164,6 +166,10 @@ public class World : IChunkWorld, IDisposable
             throw new ArgumentException("Entity is not added to this world", nameof(entity));
         }
         entity.SetWorld(null, serialization);
+        if (entity is PlayerEntity player && LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            LogicProcessor.NetworkHandler.SendPacket(player, new PlayerWorldControlPacket(-1));
+        }
     }
 
     public void AddEntityInternal(Entity entity, bool serialization)
@@ -173,6 +179,10 @@ public class World : IChunkWorld, IDisposable
             throw new ArgumentException("Entity is already added to a world", nameof(entity));
         }
         entity.SetWorld(this, serialization);
+        if (entity is PlayerEntity player && LogicProcessor.LogicalSide == LogicalSide.Server)
+        {
+            LogicProcessor.NetworkHandler.SendPacket(player, new PlayerWorldControlPacket(0));
+        }
     }
 
     public Entity? GetEntity(Guid guid)
