@@ -423,4 +423,9 @@ public abstract class PlayerEntity : WalkingEntity
         };
         World!.AddEntity(entity);
     }
+
+    public override bool IsTargetPosValid()
+    {
+        return Spawned;
+    }
 }
