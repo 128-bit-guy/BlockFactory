@@ -55,4 +55,9 @@ public class WaterBlock : Block
     {
         return true;
     }
+
+    public override BlockLightType GetLightType()
+    {
+        return BlockLightType.BlockingSky;
+    }
 }

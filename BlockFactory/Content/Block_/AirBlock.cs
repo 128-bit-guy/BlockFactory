@@ -37,4 +37,9 @@ public class AirBlock : Block
     {
         return true;
     }
+
+    public override BlockLightType GetLightType()
+    {
+        return BlockLightType.Transparent;
+    }
 }

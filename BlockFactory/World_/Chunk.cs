@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.Block_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Network.Packet_;
+using BlockFactory.Registry_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
@@ -24,6 +26,7 @@ public class Chunk : IBlockWorld, IEntityStorage
     
     public readonly ChunkStatusInfo ChunkStatusInfo;
     public readonly ChunkUpdateInfo ChunkUpdateInfo;
+    private readonly BlockLightType[] _lightTypes;
 
 
     public Chunk(World world, Vector3D<int> position, ChunkRegion? region)
@@ -34,6 +37,7 @@ public class Chunk : IBlockWorld, IEntityStorage
         Neighbourhood = new ChunkNeighbourhood(this);
         ChunkStatusInfo = new ChunkStatusInfo(this);
         ChunkUpdateInfo = new ChunkUpdateInfo(this);
+        _lightTypes = new BlockLightType[Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize];
     }
 
     public short GetBlock(Vector3D<int> pos)
@@ -68,6 +72,7 @@ public class Chunk : IBlockWorld, IEntityStorage
         ChunkStatusInfo.LoadTask?.Wait();
         if (Data!.GetBlock(pos) == block) return;
         Data!.SetBlock(pos, block, update);
+        _lightTypes[GetArrIndex(pos)] = Blocks.Registry[block]!.GetLightType();
         ChunkUpdateInfo.OnBlockChanged(pos);
         if (World.LogicProcessor.LogicalSide == LogicalSide.Server)
             foreach (var player in ChunkStatusInfo.WatchingPlayers)
@@ -286,11 +291,27 @@ public class Chunk : IBlockWorld, IEntityStorage
     public void OnLoaded(bool serialization)
     {
         ChunkUpdateInfo.CopyUpdatesFromData();
+        for (var i = 0; i < Constants.ChunkSize; ++i)
+        {
+            for (var j = 0; j < Constants.ChunkSize; ++j)
+            {
+                for (var k = 0; k < Constants.ChunkSize; ++k)
+                {
+                    var absPos = new Vector3D<int>(i, j, k) + Position.ShiftLeft(Constants.ChunkSizeLog2);
+                    _lightTypes[GetArrIndex(absPos)] = Data!.GetBlockObj(absPos).GetLightType();
+                }
+            }
+        }
         foreach (var entity in Data!.Entities.Values)
         {
             World.AddEntityInternal(entity, serialization);
             AddEntityInternal(entity, serialization);
         }
+    }
+
+    public BlockLightType GetLightType(Vector3D<int> pos)
+    {
+        return _lightTypes[GetArrIndex(pos)];
     }
 
     public void OnUnloaded()

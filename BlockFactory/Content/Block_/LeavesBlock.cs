@@ -33,4 +33,9 @@ public class LeavesBlock : Block
     {
         return false;
     }
+
+    public override BlockLightType GetLightType()
+    {
+        return BlockLightType.BlockingSky;
+    }
 }

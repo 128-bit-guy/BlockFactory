@@ -44,6 +44,11 @@ public class ChunkNeighbourhood : IChunkWorld
         return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLight(pos, channel);
     }
 
+    public BlockLightType GetLightType(Vector3D<int> pos)
+    {
+        return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetLightType(pos);
+    }
+
     public bool IsBlockLoaded(Vector3D<int> pos)
     {
         var chunkPos = pos.ShiftRight(Constants.ChunkSizeLog2);

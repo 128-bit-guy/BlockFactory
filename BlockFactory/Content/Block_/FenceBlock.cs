@@ -49,4 +49,9 @@ public class FenceBlock : Block
 
         return oPointer.GetBlockObj().Id == Id;
     }
+
+    public override BlockLightType GetLightType()
+    {
+        return BlockLightType.Transparent;
+    }
 }

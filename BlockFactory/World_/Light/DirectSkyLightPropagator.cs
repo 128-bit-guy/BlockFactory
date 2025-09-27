@@ -21,8 +21,8 @@ public static class DirectSkyLightPropagator
     private static int GetSupposedLight(ChunkNeighbourhood n, Vector3D<int> pos)
     {
         var oPos = pos + Vector3D<int>.UnitY;
-        if (!n.GetBlockObj(pos).CanLightEnter(CubeFace.Top, LightChannel.DirectSky) ||
-            !n.GetBlockObj(oPos).CanLightLeave(CubeFace.Bottom, LightChannel.DirectSky)) return 0;
+        if (!LightPropagator.CanLightEnter(n, pos, CubeFace.Top, LightChannel.DirectSky) ||
+            !LightPropagator.CanLightEnter(n, oPos, CubeFace.Bottom, LightChannel.DirectSky)) return 0;
         if (n.GetChunk(oPos.ShiftRight(Constants.ChunkSizeLog2))!.Data!.HasSkyLight)
             return n.GetLight(oPos, LightChannel.DirectSky);
 

@@ -82,4 +82,9 @@ public class Block : IRegistryEntry, IItemProvider
     {
         return false;
     }
+
+    public virtual BlockLightType GetLightType()
+    {
+        return BlockLightType.Blocking;
+    }
 }

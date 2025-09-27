@@ -33,7 +33,7 @@ public static class DistanceLightPropagator
         return n.GetLight(pos, LightChannel.DirectSky);
     }
 
-    private static int GetSupposedLight(IBlockAccess n, Vector3D<int> pos, LightChannel channel)
+    private static int GetSupposedLight(ChunkNeighbourhood n, Vector3D<int> pos, LightChannel channel)
     {
         var cLight = GetEmittedLight(n, pos, channel);
         foreach (var face in CubeFaceUtils.Values())
@@ -41,8 +41,8 @@ public static class DistanceLightPropagator
             var oPos = pos + face.GetDelta();
             var lightFromNeighbor = n.GetLight(oPos, channel) - 1;
             if (lightFromNeighbor <= cLight) continue;
-            var lightCanPass = n.GetBlockObj(pos).CanLightEnter(face, channel) &&
-                               n.GetBlockObj(oPos).CanLightLeave(face.GetOpposite(), channel);
+            var lightCanPass = LightPropagator.CanLightEnter(n, pos, face, channel) &&
+                               LightPropagator.CanLightLeave(n, oPos, face.GetOpposite(), channel);
             if (!lightCanPass) continue;
             cLight = lightFromNeighbor;
         }
@@ -98,8 +98,8 @@ public static class DistanceLightPropagator
                 foreach (var face in CubeFaceUtils.Values())
                 {
                     var oPos = pos + face.GetDelta();
-                    var lightCanPass = (changed || n.GetBlockObj(pos).CanLightLeave(face, channel)) &&
-                                       n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
+                    var lightCanPass = (changed || LightPropagator.CanLightLeave(n, pos, face, channel)) &&
+                                       LightPropagator.CanLightEnter(n, oPos, face.GetOpposite(), channel);
                     if (lightCanPass && n.GetLight(oPos, channel) < light) _removeLightQueue.Enqueue((oPos, false));
                 }
             }
@@ -129,8 +129,8 @@ public static class DistanceLightPropagator
                     {
                         var oPos = pos + face.GetDelta();
                         if (n.GetLight(oPos, channel) >= cLight - 1) continue;
-                        var canLightPass = n.GetBlockObj(pos).CanLightLeave(face, channel) &&
-                                           n.GetBlockObj(oPos).CanLightEnter(face.GetOpposite(), channel);
+                        var canLightPass = LightPropagator.CanLightLeave(n, pos, face, channel) &&
+                                           LightPropagator.CanLightEnter(n, oPos, face.GetOpposite(), channel);
                         if (canLightPass) _addLightQueue[cLight - 1].Add(oPos);
                     }
                 }

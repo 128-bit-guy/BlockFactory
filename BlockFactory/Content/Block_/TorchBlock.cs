@@ -47,4 +47,9 @@ public class TorchBlock : Block
     {
         return false;
     }
+
+    public override BlockLightType GetLightType()
+    {
+        return BlockLightType.Transparent;
+    }
 }
