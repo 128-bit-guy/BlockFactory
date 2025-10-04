@@ -1,5 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
+using BlockFactory.Physics;
+using BlockFactory.World_;
 using BlockFactory.World_.Light;
 
 namespace BlockFactory.Content.Block_;
@@ -43,8 +45,9 @@ public class TorchBlock : Block
         return false;
     }
 
-    public override bool HasCollision()
+    public override void AddBlockBoxes(ConstBlockPointer pointer, BoxConsumer.BoxConsumerFunc consumer, BlockBoxType type)
     {
-        return false;
+        if(type == BlockBoxType.Collision) return;
+        base.AddBlockBoxes(pointer, consumer, type);
     }
 }

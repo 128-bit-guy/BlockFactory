@@ -1,6 +1,7 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.Content.Item_;
 using BlockFactory.CubeMath;
+using BlockFactory.Physics;
 using BlockFactory.Registry_;
 using BlockFactory.World_;
 using BlockFactory.World_.Light;
@@ -73,9 +74,10 @@ public class Block : IRegistryEntry, IItemProvider
         return new List<ItemStack>{new ItemStack(this, 1)};
     }
 
-    public virtual bool HasCollision()
+    public virtual void AddBlockBoxes(ConstBlockPointer pointer, BoxConsumer.BoxConsumerFunc consumer,
+        BlockBoxType type)
     {
-        return true;
+        consumer(new Box3D<double>(0, 0, 0, 1, 1, 1));
     }
 
     public virtual bool IsReplaceable()

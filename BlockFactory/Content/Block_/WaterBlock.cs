@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
+using BlockFactory.Physics;
 using BlockFactory.World_;
 using BlockFactory.World_.Light;
 
@@ -46,13 +47,12 @@ public class WaterBlock : Block
         }
     }
 
-    public override bool HasCollision()
-    {
-        return false;
-    }
-
     public override bool IsReplaceable()
     {
         return true;
+    }
+
+    public override void AddBlockBoxes(ConstBlockPointer pointer, BoxConsumer.BoxConsumerFunc consumer, BlockBoxType type)
+    {
     }
 }

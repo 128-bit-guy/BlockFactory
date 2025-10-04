@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Base;
 using BlockFactory.CubeMath;
+using BlockFactory.Physics;
 using BlockFactory.World_;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;
@@ -41,11 +42,6 @@ public class TallGrassBlock : Block
         return false;
     }
 
-    public override bool HasCollision()
-    {
-        return false;
-    }
-
     public override void UpdateBlock(BlockPointer pointer)
     {
         var down = pointer - Vector3D<int>.UnitY;
@@ -58,5 +54,11 @@ public class TallGrassBlock : Block
     public override bool IsReplaceable()
     {
         return true;
+    }
+
+    public override void AddBlockBoxes(ConstBlockPointer pointer, BoxConsumer.BoxConsumerFunc consumer, BlockBoxType type)
+    {
+        if(type == BlockBoxType.Collision) return;
+        base.AddBlockBoxes(pointer, consumer, type);
     }
 }

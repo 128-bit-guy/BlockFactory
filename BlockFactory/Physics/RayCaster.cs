@@ -1,5 +1,7 @@
 ﻿using BlockFactory.Content.Block_;
 using BlockFactory.CubeMath;
+using BlockFactory.Utils;
+using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -45,37 +47,34 @@ public static class RayCaster
         double minTime = 1e9f;
         Vector3D<int> minPos = default;
         CubeFace minFace = default;
+        Vector3D<int> pos = new Vector3D<int>();
+        BoxConsumer.BoxConsumerFunc boxConsumer = box =>
+        {
+            var absBox = box.Add(pos.As<double>());
+            var intersection = GetIntersectionTime(rayOrigin, ray, absBox);
+            if (!intersection.HasValue) return;
+            var (time, face) = intersection.Value;
+            if (time >= minTime) return;
+            minTime = time;
+            minPos = pos;
+            minFace = face;
+            found = true;
+        };
         for (var i = 0; i <= length; ++i)
         {
             var curRayPos = rayOrigin + ray * i / length;
             var curBlockPos = curRayPos.Floor();
             foreach (var neighborFace in CubeFaceUtils.Values())
             {
-                var pos = curBlockPos + neighborFace.GetDelta();
-                if (world.GetBlock(pos) == 0 || world.GetBlock(pos) == Blocks.Water.Id) continue;
-                var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
-                var intersection = GetIntersectionTime(rayOrigin, ray, box);
-                if (!intersection.HasValue) continue;
-                var (time, face) = intersection.Value;
-                if (time >= minTime) continue;
-                minTime = time;
-                minPos = pos;
-                minFace = face;
-                found = true;
+                pos = curBlockPos + neighborFace.GetDelta();
+                world.GetBlockObj(pos)
+                    .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
             }
 
             {
-                var pos = curBlockPos;
-                if (world.GetBlock(pos) == 0 || world.GetBlock(pos) == Blocks.Water.Id) continue;
-                var box = new Box3D<double>(pos.As<double>(), (pos + Vector3D<int>.One).As<double>());
-                var intersection = GetIntersectionTime(rayOrigin, ray, box);
-                if (!intersection.HasValue) continue;
-                var (time, face) = intersection.Value;
-                if (time >= minTime) continue;
-                minTime = time;
-                minPos = pos;
-                minFace = face;
-                found = true;
+                pos = curBlockPos;
+                world.GetBlockObj(pos)
+                    .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
             }
         }
 

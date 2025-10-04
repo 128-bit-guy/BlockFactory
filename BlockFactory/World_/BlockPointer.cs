@@ -76,4 +76,9 @@ public struct BlockPointer
     {
         World.SetLight(Pos, channel, light);
     }
+
+    public static implicit operator ConstBlockPointer(BlockPointer pointer)
+    {
+        return new ConstBlockPointer(pointer.World, pointer.Pos);
+    }
 }

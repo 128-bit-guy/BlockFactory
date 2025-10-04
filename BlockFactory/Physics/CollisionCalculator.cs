@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Content.Block_;
+using BlockFactory.World_;
 using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 
@@ -7,9 +8,9 @@ namespace BlockFactory.Physics;
 public static class CollisionCalculator
 {
     [ThreadStatic]
-    private static List<Box3D<double>>? _boxes;
+    private static BoxConsumer? _boxes;
     
-    private static List<Box3D<double>> Boxes => _boxes ??= new List<Box3D<double>>();
+    private static BoxConsumer Boxes => _boxes ??= new BoxConsumer();
     
     public static (Vector3D<double>, int)? AdjustMovementForCollision(Vector3D<double> movement, Box3D<double> movingBox,
         IBlockAccess access)
@@ -30,11 +31,11 @@ public static class CollisionCalculator
             }
 
             var block = access.GetBlockObj(pos);
-            if(!block.HasCollision()) continue;
-            Boxes.Add(new Box3D<double>(x, y, z, x + 1, y + 1, z + 1));
+            Boxes.Offset = new Vector3D<double>(x, y, z);
+            block.AddBlockBoxes(new ConstBlockPointer(access, pos), Boxes.Func, BlockBoxType.Collision);
         }
 
-        var res = CollisionMath.AdjustMovementForCollision(movement, movingBox, Boxes);
+        var res = CollisionMath.AdjustMovementForCollision(movement, movingBox, Boxes.Boxes);
         Boxes.Clear();
         return res;
     }
