@@ -16,6 +16,7 @@ out vec2 vertexUv;
 out vec4 vertexPosition;
 flat out int vertexSprite;
 out float brightness;
+out vec3 vertexRelPos;
 
 vec3 spherify(vec3 mp) {
     return mp;
@@ -23,11 +24,13 @@ vec3 spherify(vec3 mp) {
 
 void main()
 {
-    vec4 pos = projection * view * model * vec4(aPos, 1.0);
+    vec4 relPos = view * model * vec4(aPos, 1.0);
+    vec4 pos = projection * relPos;
     vertexPosition = pos; // see how we directly give a vec3 to vec4's constructor
     gl_Position = pos;
     vertexColor = color;
     vertexUv = uv;
     vertexSprite = sprite;
     brightness = max(light.x * dayCoef, light.y);
+    vertexRelPos = relPos.xyz;
 }

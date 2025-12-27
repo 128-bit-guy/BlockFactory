@@ -20,6 +20,7 @@ in vec2 vertexUv;
 in vec4 vertexPosition;
 flat in int vertexSprite;
 in float brightness;
+in vec3 vertexRelPos;
 
 void main()
 {
@@ -28,6 +29,8 @@ void main()
     meshColor = vec4(meshColor.rgb * brightness, meshColor.a);
     vec2 skyCoords = ((vertexPosition.xy / vertexPosition.w) + vec2(1)) / 2;
     vec3 skyColor = texture(skyTex, skyCoords).rgb;
-    FragColor = vec4(mix(skyColor.rgb, meshColor.rgb, loadProgress), meshColor.a);
+    float dist = length(vertexRelPos);
+    float fogProgress = min(exp(-dist * 0.02f + 0.2f), 1.0f);
+    FragColor = vec4(mix(skyColor.rgb, meshColor.rgb, loadProgress * ), meshColor.a);
     if(FragColor.a < 0.1f) discard;
 } 
