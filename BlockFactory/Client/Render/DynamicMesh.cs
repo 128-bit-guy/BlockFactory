@@ -14,8 +14,10 @@ public class DynamicMesh : IDisposable
 {
     public readonly BlockMeshBuilder BlockMeshBuilder;
     public readonly TexturedMeshBuilder ItemMeshBuilder;
+    public readonly MeshBuilder<GizmoVertex> GizmoMeshBuilder;
     public readonly RenderMesh BlockMesh;
     public readonly RenderMesh ItemMesh;
+    public readonly RenderMesh GizmoMesh;
     public readonly MatrixStack Matrices;
     public readonly InterpolatedLightTransformer LightTransformer;
 
@@ -26,14 +28,17 @@ public class DynamicMesh : IDisposable
         LightTransformer.EnableAutoLighting = true;
         BlockMeshBuilder = new BlockMeshBuilder(Matrices, LightTransformer);
         ItemMeshBuilder = new TexturedMeshBuilder(Matrices);
+        GizmoMeshBuilder = new MeshBuilder<GizmoVertex>(Matrices, null!, null!);
         BlockMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
         ItemMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
+        GizmoMesh = new RenderMesh(VertexBufferObjectUsage.StreamDraw);
     }
 
     public void Dispose()
     {
         BlockMesh.Dispose();
         ItemMesh.Dispose();
+        GizmoMesh.Dispose();
     }
 
     public void Render(float dayCoef)
@@ -43,6 +48,7 @@ public class DynamicMesh : IDisposable
         
         RenderBlock(dayCoef);
         RenderItem();
+        RenderGizmo();
 
         BfRendering.Gl.BindVertexArray(0);
         BfRendering.Gl.UseProgram(0);
@@ -95,9 +101,22 @@ public class DynamicMesh : IDisposable
             DrawElementsType.UnsignedInt, null);
     }
 
+    private unsafe void RenderGizmo()
+    {
+        GizmoMeshBuilder.Upload(GizmoMesh);
+        GizmoMeshBuilder.Reset();
+        if (GizmoMesh.IndexCount == 0) return;
+        Shaders.Gizmo.Use();
+        BfRendering.SetVpMatrices(Shaders.Gizmo);
+        Shaders.Gizmo.SetModel(BfRendering.Matrices);
+        GizmoMesh.Bind();
+        BfRendering.Gl.DrawElements(PrimitiveType.Triangles, GizmoMesh.IndexCount,
+            DrawElementsType.UnsignedInt, null);
+    }
+
     public void SetColor(Vector4D<float> color)
     {
-        BlockMeshBuilder.MeshBuilder.Color = ItemMeshBuilder.MeshBuilder.Color = color;
+        BlockMeshBuilder.MeshBuilder.Color = ItemMeshBuilder.MeshBuilder.Color = GizmoMeshBuilder.Color = color;
     }
 
     public void SetColor(Color color)

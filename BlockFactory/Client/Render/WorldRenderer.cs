@@ -182,6 +182,12 @@ public class WorldRenderer : IDisposable
 
                 ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
                 _dynamicMesh.SetColor(Vector4D<float>.One);
+                _dynamicMesh.GizmoMeshBuilder.NewPolygon();
+                _dynamicMesh.GizmoMeshBuilder.Indices(0, 1, 2, 0, 2, 3);
+                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
                 _dynamicMesh.Matrices.Pop();
             }
             if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);
