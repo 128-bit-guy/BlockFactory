@@ -106,6 +106,10 @@ public class DynamicMesh : IDisposable
         GizmoMeshBuilder.Upload(GizmoMesh);
         GizmoMeshBuilder.Reset();
         if (GizmoMesh.IndexCount == 0) return;
+
+        BfRendering.Gl.Enable(EnableCap.Blend);
+        BfRendering.Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        
         Shaders.Gizmo.Use();
         BfRendering.SetVpMatrices(Shaders.Gizmo);
         Shaders.Gizmo.SetModel(BfRendering.Matrices);

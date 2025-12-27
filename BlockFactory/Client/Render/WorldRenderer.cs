@@ -7,9 +7,12 @@ using BlockFactory.Content.Block_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Content.Entity_.Player;
 using BlockFactory.Content.Item_;
+using BlockFactory.CubeMath;
+using BlockFactory.Physics;
 using BlockFactory.Utils;
 using BlockFactory.World_;
 using BlockFactory.World_.ChunkLoading;
+using BlockFactory.World_.Interfaces;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -182,15 +185,46 @@ public class WorldRenderer : IDisposable
 
                 ItemRenderer.RenderItemStack(item.Stack, _dynamicMesh);
                 _dynamicMesh.SetColor(Vector4D<float>.One);
-                _dynamicMesh.GizmoMeshBuilder.NewPolygon();
-                _dynamicMesh.GizmoMeshBuilder.Indices(0, 1, 2, 0, 2, 3);
-                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
-                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
-                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
-                _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                // _dynamicMesh.GizmoMeshBuilder.NewPolygon();
+                // _dynamicMesh.GizmoMeshBuilder.Indices(0, 1, 2, 0, 2, 3);
+                // _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                // _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(-1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                // _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
+                // _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f));
                 _dynamicMesh.Matrices.Pop();
             }
             if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);
+        }
+        
+        var hitOptional = Player.RayCast();
+        if (hitOptional.HasValue)
+        {
+            var (pos, face) = hitOptional.Value;
+            var boxTranslation = (pos.As<double>() - _playerSmoothPos);
+            BoxConsumer.BoxConsumerFunc boxConsumer = box =>
+            {
+                _dynamicMesh.Matrices.Push();
+                var translatedBox = box.Add(boxTranslation).As<float>();
+                // translatedBox.Min -= Vector3D<float>.One * 0.05f;
+                // translatedBox.Max += Vector3D<float>.One * 0.05f;
+                _dynamicMesh.Matrices.Translate(translatedBox.Min);
+                _dynamicMesh.Matrices.Scale(translatedBox.Size);
+                foreach (var cubeFace in CubeFaceUtils.Values())
+                {
+                    _dynamicMesh.Matrices.Push();
+                    var symmetry = CubeSymmetry.GetFromTo(CubeFace.Bottom, cubeFace, true)[0];
+                    _dynamicMesh.Matrices.Multiply(symmetry.AroundCenterMatrix4);
+                    _dynamicMesh.GizmoMeshBuilder.NewPolygon();
+                    _dynamicMesh.GizmoMeshBuilder.Indices(0, 1, 2, 0, 2, 3);
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.4f));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.4f));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.4f));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.4f));
+                    _dynamicMesh.Matrices.Pop();
+                }
+                _dynamicMesh.Matrices.Pop();
+            };
+            Player.World!.GetBlockObj(pos).AddBlockBoxes(new ConstBlockPointer(Player.World!, pos), boxConsumer, BlockBoxType.RayCasting);
         }
         
         BfRendering.Matrices.Push();

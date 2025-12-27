@@ -67,14 +67,20 @@ public static class RayCaster
             foreach (var neighborFace in CubeFaceUtils.Values())
             {
                 pos = curBlockPos + neighborFace.GetDelta();
-                world.GetBlockObj(pos)
-                    .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
+                if (world.IsBlockLoaded(pos))
+                {
+                    world.GetBlockObj(pos)
+                        .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
+                }
             }
 
             {
                 pos = curBlockPos;
-                world.GetBlockObj(pos)
-                    .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
+                if (world.IsBlockLoaded(pos))
+                {
+                    world.GetBlockObj(pos)
+                        .AddBlockBoxes(new ConstBlockPointer(world, pos), boxConsumer, BlockBoxType.RayCasting);
+                }
             }
         }
 

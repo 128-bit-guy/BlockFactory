@@ -56,6 +56,15 @@ public abstract class PlayerEntity : WalkingEntity
     public event Action<Chunk> ChunkBecameVisible = _ => { };
     public event Action<Chunk> ChunkBecameInvisible = _ => { };
 
+    public (Vector3D<int>, CubeFace)? RayCast()
+    {
+        if (World == null)
+        {
+            return null;
+        }
+        return RayCaster.RayCastBlocks(World!, Pos, GetViewForward().As<double>() * 10);
+    }
+
     private void ProcessInteraction()
     {
         if (_blockCooldown > 0)
@@ -80,9 +89,8 @@ public abstract class PlayerEntity : WalkingEntity
                 DropStack(s);
                 _blockCooldown = 5;
             }
-            
-            var hitOptional = RayCaster.RayCastBlocks(World!, Pos, GetViewForward()
-                .As<double>() * 10);
+
+            var hitOptional = RayCast();
             if (!hitOptional.HasValue) return;
             var (pos, face) = hitOptional.Value;
             if ((MotionController.ClientState.ControlState & PlayerControlState.Attacking) != 0)
