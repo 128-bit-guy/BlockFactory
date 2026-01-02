@@ -89,4 +89,45 @@ public static class BfMathUtils
         var k = MathF.Sqrt(a.LengthSquared * b.LengthSquared);
         return Quaternion<float>.Normalize(new Quaternion<float>(Vector3D.Cross(a, b), kCosTheta + k));
     }
+
+    public static IEnumerable<(Vector3D<int>, Vector3D<int>)> EnumerateEdges()
+    {
+        for (var axis = 0; axis < 3; ++axis)
+        {
+            var axis2 = axis + 1;
+            if (axis2 == 3)
+            {
+                axis2 = 0;
+            }
+
+            var axis3 = axis2 + 1;
+            if (axis3 == 3)
+            {
+                axis3 = 0;
+            }
+
+            for (var i = 0; i < 2; ++i)
+            {
+                for (var j = 0; j < 2; ++j)
+                {
+                    var a = new Vector3D<int>();
+                    a.SetValue(axis2, i);
+                    a.SetValue(axis3, j);
+                    var b = a;
+                    b.SetValue(axis, 1);
+                    yield return (a, b);
+                }
+            }
+        }
+    }
+
+    public static IEnumerable<(Vector3D<T>, Vector3D<T>)> EnumerateEdges<T>(Box3D<T> box) where T : unmanaged, IFormattable, IEquatable<T>, IComparable<T>
+    {
+        foreach (var (unitA, unitB) in EnumerateEdges())
+        {
+            var a = BoxLerp(box, unitA.As<T>());
+            var b = BoxLerp(box, unitB.As<T>());
+            yield return (a, b);
+        }
+    }
 }

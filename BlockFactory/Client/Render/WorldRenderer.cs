@@ -195,6 +195,8 @@ public class WorldRenderer : IDisposable
             }
             if (renderer.TransparentStart != renderer.Mesh.IndexCount) transparentRenderers.Add(renderer);
         }
+
+        var lineForwardDir = -Player.GetViewForward();
         
         var hitOptional = Player.RayCast();
         if (hitOptional.HasValue)
@@ -205,22 +207,18 @@ public class WorldRenderer : IDisposable
             {
                 _dynamicMesh.Matrices.Push();
                 var translatedBox = box.Add(boxTranslation).As<float>();
-                // translatedBox.Min -= Vector3D<float>.One * 0.05f;
-                // translatedBox.Max += Vector3D<float>.One * 0.05f;
-                _dynamicMesh.Matrices.Translate(translatedBox.Min);
-                _dynamicMesh.Matrices.Scale(translatedBox.Size);
-                foreach (var cubeFace in CubeFaceUtils.Values())
+                foreach (var (a, b) in BfMathUtils.EnumerateEdges(translatedBox))
                 {
-                    _dynamicMesh.Matrices.Push();
-                    var symmetry = CubeSymmetry.GetFromTo(CubeFace.Bottom, cubeFace, true)[0];
-                    _dynamicMesh.Matrices.Multiply(symmetry.AroundCenterMatrix4);
+                    var up = Vector3D.Normalize(b - a);
+                    var right = Vector3D.Normalize(Vector3D.Cross(up, lineForwardDir));
                     _dynamicMesh.GizmoMeshBuilder.NewPolygon();
                     _dynamicMesh.GizmoMeshBuilder.Indices(0, 1, 2, 0, 2, 3);
-                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.4f));
-                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.4f));
-                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.4f));
-                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.4f));
-                    _dynamicMesh.Matrices.Pop();
+                    var lineColor = new Vector4D<float>(0f, 0f, 0f, 1f);
+                    var lineThickness = 0.01f;
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(a + (-up - right) * lineThickness, lineColor));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(a + (-up + right) * lineThickness, lineColor));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(b + (up + right) * lineThickness, lineColor));
+                    _dynamicMesh.GizmoMeshBuilder.Vertex(new GizmoVertex(b + (up - right) * lineThickness, lineColor));
                 }
                 _dynamicMesh.Matrices.Pop();
             };
