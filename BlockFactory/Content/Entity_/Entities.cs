@@ -17,7 +17,7 @@ public static class Entities
     {
         Registry = SynchronizedRegistries.NewSynchronizedRegistry<EntityType>("EntityType");
         Player = Registry.RegisterForced("Player", 0, new EntityType(PlayerEntity.Create));
-        Item = Registry.Register("Item", new EntityType(() => new ItemEntity()));
+        Item = Registry.Register("Item", EntityType.Create<ItemEntity>());
     }
 
     public static void Lock()
