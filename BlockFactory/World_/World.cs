@@ -1,4 +1,5 @@
 ﻿using BlockFactory.Base;
+using BlockFactory.Content.BlockInstance_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Content.Entity_.Player;
 using BlockFactory.CubeMath;
@@ -79,6 +80,11 @@ public class World : IChunkWorld, IDisposable
     public float GetDayCoefficient()
     {
         return WorldTimeManager.GetDayCoefficient();
+    }
+
+    public BlockInstance? GetBlockInstance(Vector3D<int> pos)
+    {
+        throw new NotImplementedException();
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)

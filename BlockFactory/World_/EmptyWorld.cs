@@ -1,4 +1,5 @@
-﻿using BlockFactory.World_.Interfaces;
+﻿using BlockFactory.Content.BlockInstance_;
+using BlockFactory.World_.Interfaces;
 using BlockFactory.World_.Light;
 using Silk.NET.Maths;
 
@@ -30,6 +31,11 @@ public class EmptyWorld : IBlockWorld
     public float GetDayCoefficient()
     {
         return 1;
+    }
+
+    public BlockInstance? GetBlockInstance(Vector3D<int> pos)
+    {
+        return null;
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)

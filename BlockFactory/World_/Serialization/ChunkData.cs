@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.BlockInstance_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Physics;
 using BlockFactory.Serialization;
@@ -25,6 +26,7 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
 
     private BitArray _lightUpdateScheduled = new(Constants.ChunkSize * Constants.ChunkSize * Constants.ChunkSize);
     public readonly Dictionary<Guid, Entity> Entities = new();
+    public readonly Dictionary<Vector3D<int>, BlockInstance> BlockInstances = new();
     
     public bool Decorated;
     public int DecoratedNeighbours;
@@ -103,6 +105,12 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
             tag.SetValue("type", entity.Type.Id);
             entityList.Add(tag);
         }
+        foreach (var (_, blockInstance) in BlockInstances)
+        {
+            var tag = blockInstance.SerializeToTag(reason);
+            tag.SetValue("type", blockInstance.Type.Id);
+            entityList.Add(tag);
+        }
         res.Set("entities", entityList);
         return res;
     }
@@ -122,6 +130,15 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
             var entity = type!.Creator();
             entity.DeserializeFromTag(entityTag, reason);
             Entities.Add(entity.Guid, entity);
+        }
+        BlockInstances.Clear();
+        var blockInstanceList = tag.Get<ListTag>("block_instances");
+        foreach (var blockInstanceTag in blockInstanceList.GetEnumerable<DictionaryTag>())
+        {
+            var type = Content.BlockInstance_.BlockInstances.Registry[blockInstanceTag.GetValue<int>("type")];
+            var blockInstance = type!.Creator();
+            blockInstance.DeserializeFromTag(blockInstanceTag, reason);
+            BlockInstances.Add(blockInstance.Pos, blockInstance);
         }
     }
 
@@ -148,6 +165,11 @@ public class ChunkData : IBlockStorage, IEntityStorage, IBinarySerializable
     public float GetDayCoefficient()
     {
         return 1;
+    }
+
+    public BlockInstance? GetBlockInstance(Vector3D<int> pos)
+    {
+        return BlockInstances.GetValueOrDefault(pos);
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = false)

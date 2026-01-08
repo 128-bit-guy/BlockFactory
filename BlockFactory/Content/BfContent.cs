@@ -1,5 +1,6 @@
 ﻿using BlockFactory.Content.Biome_;
 using BlockFactory.Content.Block_;
+using BlockFactory.Content.BlockInstance_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Content.Gui.Control;
 using BlockFactory.Content.Item_;
@@ -14,11 +15,13 @@ public static class BfContent
         Packets.Init();
         Packets.Lock();
         Blocks.Init();
+        BlockInstances.Init();
         Items.Init();
         Biomes.Init();
         SynchronizedControls.Init();
         Entities.Init();
         Blocks.Lock();
+        BlockInstances.Lock();
         Items.Lock();
         Biomes.Lock();
         SynchronizedControls.Lock();

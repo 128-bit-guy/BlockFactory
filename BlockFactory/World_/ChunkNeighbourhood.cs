@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.BlockInstance_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Utils;
 using BlockFactory.World_.Interfaces;
@@ -54,6 +55,11 @@ public class ChunkNeighbourhood : IChunkWorld
     public float GetDayCoefficient()
     {
         return Center.GetDayCoefficient();
+    }
+
+    public BlockInstance? GetBlockInstance(Vector3D<int> pos)
+    {
+        return GetChunk(pos.ShiftRight(Constants.ChunkSizeLog2))!.GetBlockInstance(pos);
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)

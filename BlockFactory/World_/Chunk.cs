@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using BlockFactory.Base;
+using BlockFactory.Content.BlockInstance_;
 using BlockFactory.Content.Entity_;
 using BlockFactory.Network.Packet_;
 using BlockFactory.Utils;
@@ -61,6 +62,11 @@ public class Chunk : IBlockWorld, IEntityStorage
     public float GetDayCoefficient()
     {
         return World.GetDayCoefficient();
+    }
+
+    public BlockInstance? GetBlockInstance(Vector3D<int> pos)
+    {
+        return Data!.GetBlockInstance(pos);
     }
 
     public void SetBlock(Vector3D<int> pos, short block, bool update = true)
